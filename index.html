@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>kinmio</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+--bg:#0A0A0F;
+--bg2:#16151C;
+--bg3:#1E1D26;
+--orange:#FF6B35;
+--teal:#00D4AA;
+--white:#F5F4F0;
+--gray:#7C7B8A;
+--gray2:#A8A7B8;
+--border:#2A2935;
+--red:#FF4D6D;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Inter',system-ui,sans-serif;}
+#app{width:100%;height:100%;background:var(--bg);position:relative;overflow:hidden;}
+@media(min-width:430px){
+  #app{width:390px;height:844px;margin:auto;border-radius:44px;box-shadow:0 40px 80px rgba(0,0,0,0.9);top:50%;transform:translateY(-50%);position:relative;}
+  body{display:flex;align-items:center;justify-content:center;height:100vh;background:#111;}
+}
+
+/* NAV */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.screen.active{transform:translateX(0);}
+.screen.out{transform:translateX(-25%);}
+
+/* SCROLLABLE CONTENT */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* TOP NAV */
+.topnav{display:flex;align-items:center;padding:20px 20px 12px;gap:12px;flex-shrink:0;}
+.btn-back{width:38px;height:38px;border-radius:12px;background:var(--bg2);border:none;color:var(--white);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.topnav-title{flex:1;font-size:16px;font-weight:600;color:var(--white);text-align:center;}
+.topnav-r{width:38px;}
+
+/* PROGRESS BAR */
+.pbar{height:2px;background:var(--border);margin:0 20px 4px;border-radius:2px;overflow:hidden;flex-shrink:0;}
+.pbar-fill{height:100%;background:var(--orange);border-radius:2px;transition:width .3s ease;}
+
+/* BUTTONS */
+.btn{width:100%;padding:17px;border:none;border-radius:18px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.2px;transition:opacity .12s;}
+.btn:active{opacity:.82;}
+.btn-orange{background:var(--orange);color:#fff;}
+.btn-teal{background:var(--teal);color:#0A0A0F;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--white);}
+.btn-ghost{background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;}
+
+/* CARDS */
+.card{background:var(--bg2);border-radius:20px;padding:18px;border:1px solid var(--border);}
+.card-sm{background:var(--bg2);border-radius:16px;padding:14px;border:1px solid var(--border);}
+
+/* ONBOARDING OPTION */
+.ob-opt{background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .15s,background .15s;}
+.ob-opt.sel{border-color:var(--orange);background:rgba(255,107,53,.07);}
+.ob-icon{width:44px;height:44px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.ob-opt.sel .ob-icon{background:rgba(255,107,53,.12);}
+.ob-label{font-size:15px;font-weight:600;color:var(--white);}
+.ob-desc{font-size:12px;color:var(--gray);margin-top:2px;line-height:1.4;}
+.ob-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#0A0A0F;font-weight:700;}
+.ob-opt.sel .ob-check{background:var(--orange);border-color:var(--orange);}
+
+/* TAGS */
+.tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;}
+.tag-o{background:rgba(255,107,53,.12);color:var(--orange);}
+.tag-t{background:rgba(0,212,170,.12);color:var(--teal);}
+.tag-g{background:var(--bg3);color:var(--gray2);}
+
+/* BOTTOM NAV */
+.bnav{height:76px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:10px;}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:none;background:transparent;padding:8px 14px;}
+.bnav-icon{font-size:22px;line-height:1;}
+.bnav-label{font-size:10px;font-weight:600;color:var(--gray);}
+.bnav-item.active .bnav-label{color:var(--orange);}
+
+/* UTILITY */
+.px{padding-left:20px;padding-right:20px;}
+.pt{padding-top:16px;}
+.pb{padding-bottom:24px;}
+.gap4{margin-bottom:4px;}
+.gap8{margin-bottom:8px;}
+.gap12{margin-bottom:12px;}
+.gap16{margin-bottom:16px;}
+.gap20{margin-bottom:20px;}
+.gap24{margin-bottom:24px;}
+.gap32{margin-bottom:32px;}
+.row{display:flex;gap:10px;}
+.row>*{flex:1;}
+.spacer{flex:1;}
+h1{font-size:30px;font-weight:800;color:var(--white);line-height:1.1;letter-spacing:-.8px;}
+h2{font-size:22px;font-weight:800;color:var(--white);line-height:1.2;letter-spacing:-.4px;}
+h3{font-size:17px;font-weight:700;color:var(--white);}
+.sub{font-size:15px;color:var(--gray);line-height:1.5;}
+.label{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.8px;text-transform:uppercase;}
+
+/* ===== SPLASH ===== */
+#splash{justify-content:space-between;}
+.splash-bg{position:absolute;inset:0;overflow:hidden;}
+.splash-orb1{position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,53,.18) 0%,transparent 70%);top:-80px;right:-60px;}
+.splash-orb2{position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,170,.12) 0%,transparent 70%);bottom:120px;left:-40px;}
+.splash-top{position:relative;padding:52px 28px 0;display:flex;flex-direction:column;align-items:center;z-index:2;}
+.logo-wrap{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.logo-icon{width:60px;height:60px;background:var(--orange);border-radius:20px;display:flex;align-items:center;justify-content:center;}
+.logo-icon svg{width:34px;height:34px;}
+.logo-name{font-size:44px;font-weight:800;color:var(--white);letter-spacing:-2px;}
+.logo-name span{color:var(--orange);}
+.splash-tag{font-size:15px;color:var(--gray2);text-align:center;max-width:280px;line-height:1.5;}
+.splash-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+.splash-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,.55) 0%,rgba(10,10,15,.3) 40%,rgba(10,10,15,.75) 100%);z-index:1;}
+.splash-cta{position:relative;padding:0 28px 44px;z-index:2;}
+.social-row{display:flex;gap:10px;margin-top:12px;}
+.social-btn{flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+@keyframes pulse-bar{0%,100%{opacity:.9}50%{opacity:.6}}
+
+/* ===== FORK ===== */
+.fork-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .15s;}
+.fork-card:active{border-color:var(--orange);}
+.fork-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.fork-title{font-size:16px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.fork-desc{font-size:12px;color:var(--gray);line-height:1.4;}
+.fork-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;margin-left:6px;}
+.badge-f{background:rgba(0,212,170,.15);color:var(--teal);}
+.badge-p{background:rgba(255,107,53,.15);color:var(--orange);}
+
+/* ===== FORMULE ===== */
+.f-tabs{display:flex;gap:6px;margin-bottom:20px;}
+.f-tab{flex:1;padding:9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.f-tab.active{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.07);}
+.f-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:20px;margin-bottom:14px;position:relative;}
+.f-card.rec{border-color:var(--orange);}
+.f-rec{position:absolute;top:14px;right:14px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:7px;}
+.f-name{font-size:20px;font-weight:800;color:var(--white);margin-bottom:4px;}
+.f-desc{font-size:13px;color:var(--gray);margin-bottom:16px;}
+.f-price{font-size:32px;font-weight:800;color:var(--orange);}
+.f-price span{font-size:14px;color:var(--gray);font-weight:500;}
+.f-features{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
+.f-feat{font-size:13px;color:var(--gray2);display:flex;align-items:center;gap:8px;}
+.f-feat::before{content:"✓";color:var(--teal);font-weight:700;flex-shrink:0;}
+
+/* ===== HOME ===== */
+.home-top{padding:20px 20px 0;display:flex;justify-content:space-between;align-items:center;}
+.hw{font-size:13px;color:var(--gray);}
+.hname{font-size:24px;font-weight:800;color:var(--white);letter-spacing:-.4px;}
+.hav{width:44px;height:44px;border-radius:15px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;}
+.streak{margin:16px 20px;background:var(--bg2);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);}
+.sdots{display:flex;gap:5px;margin-top:5px;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--border);}
+.sdot.on{background:var(--orange);}
+.today{margin:0 20px;background:var(--bg2);border-radius:22px;overflow:hidden;border:1px solid var(--border);cursor:pointer;}
+.today-thumb{height:150px;background:linear-gradient(135deg,#1a0e0a,#2d1409);display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;}
+.today-bdg{position:absolute;top:14px;left:14px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;padding:4px 12px;border-radius:9px;}
+.today-dur{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.55);color:var(--white);font-size:11px;font-weight:600;padding:4px 10px;border-radius:9px;}
+.today-body{padding:16px;}
+.today-title{font-size:19px;font-weight:800;color:var(--white);margin-bottom:4px;}
+.today-sub{font-size:12px;color:var(--gray);margin-bottom:12px;}
+.today-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.stats3{display:flex;gap:10px;margin:16px 20px;}
+.scard{flex:1;background:var(--bg2);border-radius:16px;padding:14px;border:1px solid var(--border);}
+.sval{font-size:22px;font-weight:800;color:var(--white);}
+.slbl{font-size:11px;color:var(--gray);margin-top:2px;}
+.exo-row{display:flex;gap:12px;padding:0 20px;overflow-x:auto;margin-bottom:20px;}
+.exo-row::-webkit-scrollbar{display:none;}
+.emini{width:148px;flex-shrink:0;background:var(--bg2);border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid var(--border);}
+.emini-img{height:84px;display:flex;align-items:center;justify-content:center;font-size:34px;}
+.emini-body{padding:10px;}
+.emini-name{font-size:13px;font-weight:700;color:var(--white);}
+.emini-meta{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* ===== PROGRAMME ===== */
+.prog-hero{padding:24px 20px 20px;flex-shrink:0;}
+.prog-thumb{height:160px;background:linear-gradient(160deg,#1a0e0a,#2d1409);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:72px;margin-bottom:16px;position:relative;}
+.prog-info{display:flex;justify-content:space-around;padding:16px 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-shrink:0;}
+.piv{font-size:18px;font-weight:800;color:var(--white);text-align:center;}
+.pil{font-size:11px;color:var(--gray);margin-top:2px;text-align:center;}
+.exo-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;}
+.exo-num{width:34px;height:34px;border-radius:11px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--orange);flex-shrink:0;}
+.exo-num.done{background:var(--teal);color:#0A0A0F;}
+.exo-name{font-size:15px;font-weight:600;color:var(--white);}
+.exo-meta{font-size:12px;color:var(--gray);margin-top:2px;}
+
+/* ===== PRE-SESSION ===== */
+.ps-lbl{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;}
+.ps-section{margin-bottom:22px;}
+.ps-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.ps-opts{display:flex;gap:8px;flex-wrap:wrap;}
+.ps-opt{padding:10px 14px;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;color:var(--gray2);cursor:pointer;transition:all .15s;}
+.ps-opt.on{border-color:var(--teal);color:var(--teal);background:rgba(0,212,170,.07);}
+.pain-wrap{background:var(--bg2);border-radius:16px;padding:16px;border:1px solid var(--border);}
+.pain-val{font-size:26px;font-weight:800;color:var(--white);text-align:center;margin-bottom:10px;}
+.pain-track{height:8px;background:var(--bg3);border-radius:4px;position:relative;margin-bottom:12px;}
+.pain-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--teal),#FFD700,var(--red));width:20%;}
+.pain-thumb{position:absolute;top:50%;left:20%;transform:translate(-50%,-50%);width:26px;height:26px;background:var(--white);border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.5);}
+.pain-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--gray);}
+
+/* ===== SESSION ===== */
+.sess-top{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.sess-prog{font-size:13px;color:var(--gray);font-weight:600;}
+.sess-stop{background:var(--bg2);border:none;border-radius:10px;padding:8px 14px;color:var(--gray);font-size:13px;font-weight:600;cursor:pointer;}
+.sess-pbar{height:3px;background:var(--bg3);margin:0 20px 0;flex-shrink:0;border-radius:2px;overflow:hidden;}
+.sess-pfill{height:100%;width:25%;background:var(--orange);border-radius:2px;}
+.sess-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.timer-wrap{position:relative;width:210px;height:210px;margin-bottom:28px;}
+.timer-svg{width:210px;height:210px;transform:rotate(-90deg);}
+.timer-track{fill:none;stroke:var(--bg3);stroke-width:8;}
+.timer-fill{fill:none;stroke:var(--orange);stroke-width:8;stroke-linecap:round;stroke-dasharray:597;stroke-dashoffset:150;transition:stroke-dashoffset 1s linear;}
+.timer-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.timer-num{font-size:56px;font-weight:800;color:var(--white);letter-spacing:-2px;line-height:1;}
+.timer-lbl{font-size:12px;color:var(--gray);font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+.sess-name{font-size:26px;font-weight:800;color:var(--white);text-align:center;letter-spacing:-.4px;margin-bottom:8px;}
+.sess-rep{font-size:16px;color:var(--orange);font-weight:700;text-align:center;margin-bottom:22px;}
+.sess-tip{background:var(--bg2);border-radius:14px;padding:14px 16px;margin-bottom:22px;width:100%;border:1px solid var(--border);}
+.sess-tip-txt{font-size:13px;color:var(--gray2);line-height:1.5;}
+.sess-ctrls{display:flex;gap:12px;width:100%;}
+.sess-prev{flex:1;padding:16px;background:var(--bg2);border:none;border-radius:14px;color:var(--gray);font-size:15px;font-weight:600;cursor:pointer;}
+.sess-next{flex:2;padding:16px;background:var(--orange);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+.rep-counter{background:var(--bg2);border-radius:18px;padding:14px 18px;margin:0 20px 24px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);}
+.rep-n{font-size:34px;font-weight:800;color:var(--white);}
+.rep-l{font-size:12px;color:var(--gray);}
+.rep-btns{display:flex;gap:8px;}
+.rep-btn{width:46px;height:46px;border-radius:13px;border:none;font-size:22px;font-weight:700;cursor:pointer;}
+.rep-m{background:var(--bg3);color:var(--white);}
+.rep-p{background:var(--orange);color:#fff;}
+
+/* ===== FEEDBACK ===== */
+.fb-section{margin-bottom:24px;}
+.fb-title{font-size:15px;font-weight:700;color:var(--white);margin-bottom:12px;}
+.effort-row{display:flex;gap:8px;}
+.eff-opt{flex:1;padding:12px 8px;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all .15s;}
+.eff-opt.on{border-color:var(--orange);background:rgba(255,107,53,.07);}
+.eff-e{font-size:26px;display:block;margin-bottom:5px;}
+.eff-l{font-size:11px;color:var(--gray);font-weight:600;}
+.eff-opt.on .eff-l{color:var(--orange);}
+.note-input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:14px;font-size:14px;color:var(--white);font-family:inherit;resize:none;height:84px;outline:none;}
+.note-input:focus{border-color:var(--orange);}
+.note-input::placeholder{color:var(--gray);}
+
+/* ===== RÉSUMÉ ===== */
+.resume-hero{padding:32px 20px 24px;text-align:center;}
+.resume-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 16px;}
+.rstat{background:var(--bg2);border-radius:16px;padding:18px;text-align:center;border:1px solid var(--border);}
+.rstat-v{font-size:30px;font-weight:800;color:var(--orange);}
+.rstat-l{font-size:12px;color:var(--gray);margin-top:4px;}
+.resume-badge{margin:0 20px 14px;background:var(--bg2);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;border:1px solid var(--border);}
+.resume-kine{margin:0 20px 20px;background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:16px;padding:14px 16px;}
+
+/* ===== PROGRESSION ===== */
+.p-tabs{display:flex;gap:6px;margin:0 20px 16px;}
+.p-tab{flex:1;padding:9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.p-tab.active{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.07);}
+.chart-box{margin:0 20px 16px;background:var(--bg2);border-radius:18px;padding:18px;border:1px solid var(--border);}
+.chart-t{font-size:14px;font-weight:700;color:var(--white);margin-bottom:16px;}
+.bars{display:flex;align-items:flex-end;gap:8px;height:100px;}
+.bar-w{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.bar{width:100%;border-radius:6px 6px 0 0;}
+.bar-l{font-size:10px;color:var(--gray);}
+.muscle-box{margin:0 20px 16px;background:var(--bg2);border-radius:18px;padding:18px;border:1px solid var(--border);}
+.muscle-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.muscle-row:last-child{border-bottom:none;}
+.muscle-n{font-size:14px;color:var(--white);font-weight:500;width:72px;}
+.muscle-b{flex:1;height:6px;background:var(--bg3);border-radius:3px;margin:0 12px;overflow:hidden;}
+.muscle-f{height:100%;border-radius:3px;}
+.muscle-p{font-size:12px;color:var(--gray);font-weight:600;width:34px;text-align:right;}
+.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 32px;}
+.badge-card{background:var(--bg2);border-radius:16px;padding:16px;text-align:center;border:1px solid var(--border);}
+.badge-card.lock{opacity:.35;}
+.badge-e{font-size:34px;margin-bottom:6px;}
+.badge-t{font-size:13px;font-weight:700;color:var(--white);}
+.badge-d{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* ===== KINE DASHBOARD ===== */
+.kine-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 20px 14px;}
+.kstat{background:var(--bg2);border-radius:16px;padding:16px;border:1px solid var(--border);}
+.kstat-v{font-size:26px;font-weight:800;color:var(--white);}
+.kstat-l{font-size:11px;color:var(--gray);margin-top:2px;}
+.kstat-t{font-size:11px;color:var(--teal);margin-top:4px;font-weight:600;}
+.alert-box{margin:0 20px 12px;background:rgba(255,77,109,.07);border:1px solid rgba(255,77,109,.25);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.k-tabs{display:flex;gap:6px;margin:12px 20px 16px;}
+.k-tab{flex:1;padding:9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.k-tab.active{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.07);}
+.pat-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;}
+.pat-av{width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
+.pat-n{font-size:15px;font-weight:600;color:var(--white);}
+.pat-m{font-size:12px;color:var(--gray);margin-top:2px;}
+.pbdg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:7px;}
+.bdg-a{background:rgba(0,212,170,.12);color:var(--teal);}
+.bdg-w{background:rgba(255,77,109,.12);color:var(--red);}
+.bdg-o{background:rgba(255,107,53,.12);color:var(--orange);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SPLASH : Logo animé -->
+<div class="screen active" id="splash">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);">
+    <div id="splashLogo" style="opacity:0;transform:scale(.8);transition:all .6s cubic-bezier(.34,1.56,.64,1);">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:64px;height:64px;background:var(--orange);border-radius:22px;display:flex;align-items:center;justify-content:center;">
+          <svg width="36" height="36" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="11" r="6" fill="white"/><path d="M7 30c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+        </div>
+        <div style="font-size:48px;font-weight:800;color:var(--white);letter-spacing:-2px;">kin<span style="color:var(--orange);">mio</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ÉCRAN 2 : Vidéo + choix barre -->
+<div class="screen" id="screen2">
+  <video class="splash-video" autoplay muted loop playsinline><source src="onboarding.mp4" type="video/mp4"></video>
+  <div class="splash-overlay"></div>
+  <!-- Langue en haut à droite -->
+  <div style="position:relative;z-index:3;padding:52px 20px 0;display:flex;justify-content:flex-end;">
+    <button onclick="showLang()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:6px 14px;color:var(--white);font-size:13px;font-weight:600;cursor:pointer;">🇫🇷 FR</button>
+  </div>
+  <!-- Logo + slogan -->
+  <div style="position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="width:52px;height:52px;background:var(--orange);border-radius:18px;display:flex;align-items:center;justify-content:center;">
+        <svg width="30" height="30" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="11" r="6" fill="white"/><path d="M7 30c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+      </div>
+      <div style="font-size:40px;font-weight:800;color:var(--white);letter-spacing:-1.5px;">kin<span style="color:var(--orange);">mio</span></div>
+    </div>
+    <p style="font-size:16px;color:rgba(255,255,255,.85);text-align:center;line-height:1.5;max-width:280px;">La première barre d'entraînement connectée et adaptative.</p>
+  </div>
+  <!-- Boutons bas -->
+  <div style="position:relative;z-index:3;padding:0 24px 48px;">
+    <button class="btn" style="background:var(--white);color:var(--bg);margin-bottom:12px;font-size:15px;" onclick="go('paywall')">J'ai une barre kinmio</button>
+    <button class="btn btn-outline" style="margin-bottom:12px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);" onclick="noBarre()">Je n'ai pas de barre kinmio</button>
+    <p style="text-align:center;font-size:12px;color:rgba(255,255,255,.45);margin-top:4px;">Une barre kinmio est requise pour utiliser l'app</p>
+    <div style="margin-top:16px;text-align:center;"><button class="btn-ghost" style="color:rgba(255,255,255,.5);font-size:13px;" onclick="go('login')">J'ai déjà un compte →</button></div>
+  </div>
+  <!-- Popup langue -->
+  <div id="langPopup" style="display:none;position:absolute;inset:0;z-index:10;background:rgba(0,0,0,.7);display:none;align-items:flex-end;justify-content:center;">
+    <div style="background:var(--bg2);border-radius:24px 24px 0 0;padding:24px;width:100%;border-top:1px solid var(--border);">
+      <div style="font-size:17px;font-weight:700;color:var(--white);margin-bottom:16px;text-align:center;">Langue</div>
+      <div onclick="setLang('fr');hideLang()" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border);">
+        <span style="font-size:24px;">🇫🇷</span><span style="font-size:15px;font-weight:600;color:var(--white);">Français</span>
+        <span style="margin-left:auto;color:var(--orange);">✓</span>
+      </div>
+      <div onclick="setLang('en');hideLang()" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border);">
+        <span style="font-size:24px;">🇬🇧</span><span style="font-size:15px;font-weight:600;color:var(--white);">English</span>
+      </div>
+      <div onclick="setLang('de');hideLang()" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+        <span style="font-size:24px;">🇩🇪</span><span style="font-size:15px;font-weight:600;color:var(--white);">Deutsch</span>
+      </div>
+      <button class="btn btn-outline" style="margin-top:16px;" onclick="hideLang()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÉCRAN QR SCAN -->
+<div class="screen" id="qr_scan">
+    <div style="padding:52px 20px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+    <button class="btn-back" onclick="back()">←</button>
+    <div style="font-size:16px;font-weight:700;color:var(--white);">Activer ma barre</div>
+    <div style="width:38px;"></div>
+  </div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;align-items:center;">
+    <h2 style="text-align:center;margin-bottom:8px;">Scanner le QR code</h2>
+    <p class="sub" style="text-align:center;margin-bottom:32px;">Il se trouve sur l'étiquette sous ta barre kinmio ou dans le livret de bienvenue.</p>
+
+    <!-- QR Frame animé -->
+    <div class="qr-frame">
+      <div class="qr-frame-b" style="position:absolute;inset:0;">
+        <div class="qr-inner" style="margin:20px auto 0;">
+          <!-- QR code simulé -->
+          <svg width="140" height="140" viewBox="0 0 140 140" fill="none">
+            <!-- Grille QR stylisée -->
+            <rect x="10" y="10" width="40" height="40" rx="4" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+            <rect x="15" y="15" width="30" height="30" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <rect x="90" y="10" width="40" height="40" rx="4" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+            <rect x="95" y="15" width="30" height="30" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <rect x="10" y="90" width="40" height="40" rx="4" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+            <rect x="15" y="95" width="30" height="30" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <!-- Points centraux -->
+            <rect x="20" y="20" width="20" height="20" rx="2" fill="rgba(255,107,53,0.3)"/>
+            <rect x="100" y="20" width="20" height="20" rx="2" fill="rgba(255,107,53,0.3)"/>
+            <rect x="20" y="100" width="20" height="20" rx="2" fill="rgba(255,107,53,0.3)"/>
+            <!-- Données centrales -->
+            <rect x="55" y="10" width="8" height="8" rx="1" fill="rgba(255,255,255,0.2)"/>
+            <rect x="67" y="10" width="8" height="8" rx="1" fill="rgba(255,255,255,0.1)"/>
+            <rect x="55" y="22" width="8" height="8" rx="1" fill="rgba(255,255,255,0.15)"/>
+            <rect x="67" y="22" width="8" height="8" rx="1" fill="rgba(255,255,255,0.2)"/>
+            <rect x="55" y="34" width="8" height="8" rx="1" fill="rgba(255,255,255,0.1)"/>
+            <rect x="10" y="55" width="8" height="8" rx="1" fill="rgba(255,255,255,0.15)"/>
+            <rect x="22" y="55" width="8" height="8" rx="1" fill="rgba(255,255,255,0.2)"/>
+            <rect x="34" y="55" width="8" height="8" rx="1" fill="rgba(255,255,255,0.1)"/>
+            <rect x="10" y="67" width="8" height="8" rx="1" fill="rgba(255,255,255,0.2)"/>
+            <rect x="55" y="55" width="30" height="30" rx="4" fill="rgba(255,107,53,0.15)" stroke="rgba(255,107,53,0.4)" stroke-width="1.5"/>
+            <rect x="62" y="62" width="16" height="16" rx="2" fill="rgba(255,107,53,0.4)"/>
+          </svg>
+          <div class="qr-scan-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:13px;color:var(--gray);text-align:center;margin-top:24px;margin-bottom:8px;">⚡ Place le QR code dans le cadre</p>
+    <p style="font-size:11px;color:rgba(255,107,53,0.7);text-align:center;margin-bottom:32px;">Détection automatique</p>
+
+    <!-- Bouton de simulation scan -->
+    <button class="btn btn-orange" style="margin-bottom:16px;" onclick="simulateScan()">Simuler un scan ✓</button>
+
+    <!-- Séparateur -->
+    <div style="display:flex;align-items:center;gap:12px;width:100%;margin-bottom:16px;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span style="font-size:12px;color:var(--gray);">ou</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+
+    <!-- Saisie manuelle -->
+    <div style="width:100%;margin-bottom:8px;">
+      <p style="font-size:13px;color:var(--gray);margin-bottom:10px;">Saisir le code manuellement</p>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="barreCode" placeholder="KIN-XXXXXXXX" maxlength="12"
+          style="flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:14px;font-size:15px;color:var(--white);font-family:inherit;outline:none;letter-spacing:1px;text-transform:uppercase;"
+          oninput="this.value=this.value.toUpperCase();checkCode(this.value)" onkeypress="if(event.key==='Enter')validateCode()">
+        <button id="codeBtn" onclick="validateCode()" style="padding:14px 18px;background:var(--bg3);border:none;border-radius:14px;color:var(--gray);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;">OK</button>
+      </div>
+      <p style="font-size:11px;color:var(--gray);margin-top:8px;">Code imprimé sous la barre et dans le livret</p>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ÉCRAN CONFIRMATION ACTIVATION -->
+<div class="screen" id="qr_confirm">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;">
+    <div class="confirm-icon">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <path d="M8 20L16 28L32 12" stroke="#00D4AA" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px;">BARRE ACTIVÉE</div>
+    <h2 style="text-align:center;margin-bottom:8px;letter-spacing:-.4px;">KIN-48291 ✓</h2>
+    <p style="font-size:15px;color:var(--gray);text-align:center;line-height:1.5;margin-bottom:32px;">Ta barre kinmio est reconnue.<br>Ton essai de 30 jours commence maintenant.</p>
+
+    <!-- Essai info -->
+    <div style="background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:18px;padding:20px;width:100%;margin-bottom:32px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:14px;font-weight:700;color:var(--white);">Essai gratuit</div>
+        <div style="font-size:14px;font-weight:700;color:var(--teal);">30 jours</div>
+      </div>
+      <div style="height:6px;background:var(--bg3);border-radius:3px;margin-bottom:8px;overflow:hidden;">
+        <div style="height:100%;width:3%;background:var(--teal);border-radius:3px;"></div>
+      </div>
+      <div style="font-size:12px;color:var(--gray);">Expire le <span style="color:var(--white);font-weight:600;" id="expiryDate"></span></div>
+    </div>
+
+    <button class="btn btn-orange" style="width:100%;margin-bottom:12px;" onclick="go('ob_intro')">Créer mon programme →</button>
+    <p style="font-size:11px;color:var(--gray);text-align:center;line-height:1.5;">Aucun paiement requis pendant l'essai.<br>Tu choisiras une formule à la fin des 30 jours.</p>
+  </div>
+</div>
+
+<!-- ÉCRAN 3 : Intro onboarding -->
+<div class="screen" id="ob_intro">
+  <video class="splash-video" autoplay muted loop playsinline><source src="onboarding2.mp4" type="video/mp4"></video>
+  <div class="splash-overlay" style="background:linear-gradient(180deg,rgba(10,10,15,.4) 0%,rgba(10,10,15,.85) 100%);"></div>
+  <div style="position:relative;z-index:2;flex:1;"></div>
+  <div style="position:relative;z-index:2;padding:0 28px 48px;">
+    <h1 style="font-size:32px;font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-.8px;margin-bottom:12px;">Créons ton programme ensemble</h1>
+    <p style="font-size:15px;color:rgba(255,255,255,.7);line-height:1.5;margin-bottom:28px;">Quelques questions pour que chaque séance soit pensée pour toi.</p>
+    <button class="btn" style="background:var(--orange);color:white;font-size:16px;" onclick="go('ob1')">C'EST PARTI ! →</button>
+    <div style="text-align:center;margin-top:12px;"><button class="btn-ghost" style="color:rgba(255,255,255,.4);font-size:13px;" onclick="go('ob1')">Passer ›</button></div>
+  </div>
+</div>
+
+<!-- OB1 : Profil -->
+<div class="screen" id="ob1">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div style="padding:0 20px 8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+    </div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 sur 5</div>
+  </div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Ton profil ?</h2>
+    <p class="sub gap24">Pour que chaque séance soit pensée pour toi.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ob-opt" onclick="selOb(this,'ob2')"><div class="ob-icon">🏃</div><div style="flex:1"><div class="ob-label">Je suis valide</div><div class="ob-desc">Sport santé, remise en forme, entretien physique</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob2')"><div class="ob-icon">🦽</div><div style="flex:1"><div class="ob-label">Je suis en fauteuil roulant</div><div class="ob-desc">Fauteuil manuel ou électrique</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob2')"><div class="ob-icon">🔄</div><div style="flex:1"><div class="ob-label">Je suis en rééducation</div><div class="ob-desc">Suite chirurgie, fracture, pathologie</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob2')"><div class="ob-icon">👴</div><div style="flex:1"><div class="ob-label">Je suis senior</div><div class="ob-desc">Maintien de forme, prévention, équilibre</div></div><div class="ob-check"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OB2 : Objectif -->
+<div class="screen" id="ob2">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div style="padding:0 20px 8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+    </div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 sur 5</div>
+  </div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Ton objectif principal ?</h2>
+    <p class="sub gap24">Tu pourras en ajouter d'autres une fois lancé.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ob-opt" onclick="selOb(this,'ob3')"><div class="ob-icon">💪</div><div style="flex:1"><div class="ob-label">Renforcement musculaire</div><div class="ob-desc">Développer la force et la tonicité</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob3')"><div class="ob-icon">❤️</div><div style="flex:1"><div class="ob-label">Cardio · Souffle</div><div class="ob-desc">Endurance, shadow boxing, kayak simulé</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob3')"><div class="ob-icon">🔀</div><div style="flex:1"><div class="ob-label">Mobilité · Souplesse</div><div class="ob-desc">Amplitude, flexibilité, autonomie</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob3')"><div class="ob-icon">⚡</div><div style="flex:1"><div class="ob-label">Forme générale</div><div class="ob-desc">Maintien, dynamisme, bien-être</div></div><div class="ob-check"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OB3 : Position -->
+<div class="screen" id="ob3">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div style="padding:0 20px 8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+    </div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 sur 5</div>
+  </div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Ta position habituelle ?</h2>
+    <p class="sub gap24">Chaque exercice existe dans ta position. Modifiable avant chaque séance.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ob-opt" onclick="selOb(this,'ob4')"><div class="ob-icon">🧍</div><div style="flex:1"><div class="ob-label">Debout</div><div class="ob-desc">Station verticale</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob4')"><div class="ob-icon">🪑</div><div style="flex:1"><div class="ob-label">Assis — chaise</div><div class="ob-desc">Position assise standard</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob4')"><div class="ob-icon">♿</div><div style="flex:1"><div class="ob-label">Fauteuil roulant</div><div class="ob-desc">Manuel ou électrique</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob4')"><div class="ob-icon">🛏️</div><div style="flex:1"><div class="ob-label">Allongé</div><div class="ob-desc">Position couchée</div></div><div class="ob-check"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OB4 : Fréquence -->
+<div class="screen" id="ob4">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div style="padding:0 20px 8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div>
+    </div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 sur 5</div>
+  </div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Combien de séances par semaine ?</h2>
+    <p class="sub gap32">On planifie ton programme en conséquence.</p>
+    <div style="text-align:center;margin:24px 0;">
+      <div style="font-size:80px;font-weight:800;color:var(--orange);line-height:1;" id="freqNum">3</div>
+      <div style="font-size:18px;color:var(--white);font-weight:600;margin-top:4px;" id="freqLabel">3 fois / semaine</div>
+      <div style="font-size:13px;color:var(--gray);margin-top:6px;" id="freqDesc">Un bon rythme pour progresser régulièrement</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+      <span style="font-size:12px;color:var(--gray);">Moins</span>
+      <span style="font-size:12px;color:var(--gray);">Plus</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:32px;">
+      <div class="freq-dot active" onclick="setFreq(1,this)">1</div>
+      <div class="freq-dot" onclick="setFreq(2,this)">2</div>
+      <div class="freq-dot active2" onclick="setFreq(3,this)">3</div>
+      <div class="freq-dot" onclick="setFreq(4,this)">4</div>
+      <div class="freq-dot" onclick="setFreq(5,this)">5</div>
+    </div>
+    <div style="font-size:12px;color:var(--gray);text-align:center;margin-bottom:16px;">Tu pourras changer cela dans les paramètres</div>
+    <div class="spacer"></div>
+    <button class="btn btn-orange" onclick="go('ob5')">Suivant</button>
+  </div>
+</div>
+
+<!-- OB5 : Code prescripteur -->
+<div class="screen" id="ob5">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div style="padding:0 20px 8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+      <div style="flex:1;height:3px;background:var(--orange);border-radius:2px;"></div>
+    </div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 sur 5</div>
+  </div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Un code prescripteur ?</h2>
+    <p class="sub gap24">Si ton kiné ou ton centre t'a donné un code. Sinon, passe directement.</p>
+    <input type="text" placeholder="Ex : SMR-KERPAPE-2025" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;letter-spacing:1px;margin-bottom:10px;" oninput="this.value=this.value.toUpperCase()">
+    <p style="font-size:12px;color:var(--gray);line-height:1.5;margin-bottom:32px;">Cela permet à ton praticien de suivre ta progression et d'adapter ton programme.</p>
+    <div class="spacer"></div>
+    <button class="btn btn-orange gap12" onclick="go('ob_summary')">Continuer</button>
+    <button class="btn-ghost" style="width:100%;margin-top:8px;" onclick="go('ob_summary')">Je n'ai pas de code</button>
+  </div>
+</div>
+
+<!-- RÉSUMÉ PROFIL -->
+<div class="screen" id="ob_summary">
+  <div style="flex:1;display:flex;flex-direction:column;overflow-y:auto;">
+    <div style="padding:52px 20px 24px;background:linear-gradient(180deg,rgba(255,107,53,.15) 0%,var(--bg) 100%);">
+      <div style="font-size:12px;font-weight:700;color:var(--orange);letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px;">✦ Ton programme kinmio</div>
+      <h2 style="font-size:26px;font-weight:800;color:var(--white);letter-spacing:-.4px;margin-bottom:6px;">C'est prêt !</h2>
+      <p style="font-size:15px;color:var(--gray);line-height:1.5;">Voici ce qu'on a compris de toi.</p>
+    </div>
+    <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:10px;">
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);">
+        <span style="font-size:28px;">🎯</span>
+        <div><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Profil</div><div style="font-size:15px;font-weight:700;color:var(--white);">Valide · Sport santé</div></div>
+      </div>
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);">
+        <span style="font-size:28px;">💪</span>
+        <div><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Objectif</div><div style="font-size:15px;font-weight:700;color:var(--white);">Renforcement musculaire</div></div>
+      </div>
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);">
+        <span style="font-size:28px;">🧍</span>
+        <div><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Position</div><div style="font-size:15px;font-weight:700;color:var(--white);">Debout</div></div>
+      </div>
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);">
+        <span style="font-size:28px;">📅</span>
+        <div><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Fréquence</div><div style="font-size:15px;font-weight:700;color:var(--white);">3 séances / semaine</div></div>
+      </div>
+      <div style="background:rgba(0,212,170,.07);border-radius:16px;padding:16px;border:1px solid rgba(0,212,170,.2);">
+        <div style="font-size:13px;color:var(--teal);line-height:1.5;">✓ Ton programme est prêt. Chaque séance sera pensée pour toi — exercices, durée et intensité.</div>
+      </div>
+    </div>
+    <div style="padding:0 20px 40px;">
+      <button class="btn btn-orange gap12" onclick="goAfterSummary()">Commencer →</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- PAIEMENT
+
+<!-- PAIEMENT MENSUEL -->
+<div class="screen" id="pay_mensuel">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Abonnement mensuel</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:18px;margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:16px;font-weight:700;color:var(--white);">Abonnement mensuel</div>
+        <div style="font-size:20px;font-weight:800;color:var(--white);">13,99€</div>
+      </div>
+      <div style="font-size:13px;color:var(--teal);">✓ 30 jours gratuits inclus</div>
+      <div style="font-size:12px;color:var(--gray);margin-top:4px;">Puis 13,99€/mois · Sans engagement</div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">Moyen de paiement</div>
+    <button onclick="go('qr_scan')" style="width:100%;padding:16px;background:white;border:none;border-radius:16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="black"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <span style="font-size:16px;font-weight:700;color:black;">Pay</span>
+    </button>
+    <button onclick="go('qr_scan')" style="width:100%;padding:16px;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      <span style="font-size:16px;font-weight:700;color:var(--white);">Google Pay</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:12px;margin:8px 0 16px;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span style="font-size:12px;color:var(--gray);">ou carte bancaire</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+    <input type="text" placeholder="Numéro de carte" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:16px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:10px;">
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <input type="text" placeholder="MM/AA" style="flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:16px;font-size:15px;color:var(--white);font-family:inherit;outline:none;">
+      <input type="text" placeholder="CVV" style="flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:16px;font-size:15px;color:var(--white);font-family:inherit;outline:none;">
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-orange" onclick="go('qr_scan')">Confirmer · 13,99€/mois</button>
+    <p style="font-size:11px;color:var(--gray);text-align:center;margin-top:12px;line-height:1.5;">30 jours gratuits. Aucun prélèvement avant le <span style="color:var(--white);" id="payDate2"></span></p>
+    <div style="height:32px;"></div>
+  </div>
+</div>
+
+
+<!-- FORMULES PREVIEW (informatif - après résumé) -->
+<div class="screen" id="formules_preview">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+
+    <div style="margin-bottom:24px;">
+      <div style="font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">🎉 1 MOIS OFFERT</div>
+      <h2 style="font-size:26px;font-weight:800;color:var(--white);letter-spacing:-.4px;margin-bottom:8px;">Ton premier mois est offert avec ta barre</h2>
+      <p style="font-size:14px;color:var(--gray);line-height:1.5;">Voici ce qui t'attend ensuite. Tu peux changer de formule à tout moment.</p>
+    </div>
+
+    <!-- Formules sélectionnables -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+
+      <!-- Mensuel -->
+      <div class="prev-plan" id="pp_mensuel" onclick="selectPlan('mensuel')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;transition:all .15s;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--white);">Mensuel</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:2px;">Sans engagement</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:800;color:var(--white);">9,99€<span style="font-size:12px;font-weight:500;color:var(--gray);">/mois</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trimestriel - pré-sélectionné -->
+      <div class="prev-plan selected-plan" id="pp_trim" onclick="selectPlan('trim')" style="background:rgba(255,107,53,.08);border:1.5px solid var(--orange);border-radius:18px;padding:18px;cursor:pointer;transition:all .15s;position:relative;">
+        <div style="position:absolute;top:-10px;right:14px;background:var(--orange);color:white;font-size:10px;font-weight:800;padding:3px 12px;border-radius:8px;">POPULAIRE</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--white);">Trimestriel</div>
+            <div style="font-size:12px;color:var(--teal);margin-top:2px;">8,33€/mois · économise 20%</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:800;color:var(--orange);">24,99€<span style="font-size:12px;font-weight:500;color:var(--gray);">/3 mois</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Annuel -->
+      <div class="prev-plan" id="pp_annuel" onclick="selectPlan('annuel')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;transition:all .15s;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--white);">Annuel</div>
+            <div style="font-size:12px;color:var(--teal);margin-top:2px;">6,67€/mois · économise 33%</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:var(--gray);text-decoration:line-through;">119,88€</div>
+            <div style="font-size:20px;font-weight:800;color:var(--white);">79,99€<span style="font-size:12px;font-weight:500;color:var(--gray);">/an</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Info box -->
+    <div style="background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.15);border-radius:16px;padding:16px;margin-bottom:28px;">
+      <div style="font-size:13px;color:var(--gray2);line-height:1.6;">
+        ✓ Accès illimité à tous les programmes<br>
+        ✓ Suivi de progression et badges<br>
+        ✓ Lien prescripteur si besoin<br>
+        ✓ Annulable à tout moment
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <button class="btn btn-orange" style="font-size:16px;" id="planCta" onclick="go('pay_cb')">Démarrer mon mois offert · 24,99€/3 mois ensuite</button>
+    <p style="font-size:12px;color:var(--gray);text-align:center;margin-top:10px;">Aucun prélèvement aujourd'hui.<br>Ta formule démarre dans 30 jours.</p>
+    <div style="height:32px;"></div>
+
+  </div>
+</div>
+
+<!-- HARD PAYWALL J+30 -->
+<div class="screen" id="paywall_j30">
+  <div style="flex:1;display:flex;flex-direction:column;">
+    <!-- Header bloquant - pas de retour -->
+    <div style="padding:52px 20px 20px;background:linear-gradient(180deg,rgba(255,107,53,.12) 0%,var(--bg) 100%);flex-shrink:0;">
+      <div style="font-size:12px;font-weight:700;color:var(--red);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">⏰ ESSAI TERMINÉ</div>
+      <h2 style="font-size:26px;font-weight:800;color:var(--white);letter-spacing:-.4px;margin-bottom:8px;">Ton mois offert est terminé</h2>
+      <p style="font-size:14px;color:var(--gray);line-height:1.5;">Choisis ta formule pour continuer à t'entraîner avec kinmio.</p>
+    </div>
+
+    <div class="scroll px pb">
+      <!-- Formules J+30 - cette fois obligatoires -->
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+
+        <div class="j30-plan" id="j30_mensuel" onclick="selectJ30('mensuel')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;transition:all .15s;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--white);">Mensuel</div>
+              <div style="font-size:12px;color:var(--gray);margin-top:2px;">Sans engagement</div>
+            </div>
+            <div style="font-size:20px;font-weight:800;color:var(--white);">9,99€<span style="font-size:12px;color:var(--gray);">/mois</span></div>
+          </div>
+        </div>
+
+        <div class="j30-plan selected-j30" id="j30_trim" onclick="selectJ30('trim')" style="background:rgba(255,107,53,.08);border:1.5px solid var(--orange);border-radius:18px;padding:18px;cursor:pointer;transition:all .15s;position:relative;">
+          <div style="position:absolute;top:-10px;right:14px;background:var(--orange);color:white;font-size:10px;font-weight:800;padding:3px 12px;border-radius:8px;">POPULAIRE</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--white);">Trimestriel</div>
+              <div style="font-size:12px;color:var(--teal);margin-top:2px;">8,33€/mois</div>
+            </div>
+            <div style="font-size:20px;font-weight:800;color:var(--orange);">24,99€<span style="font-size:12px;color:var(--gray);">/3 mois</span></div>
+          </div>
+        </div>
+
+        <div class="j30-plan" id="j30_annuel" onclick="selectJ30('annuel')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;transition:all .15s;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--white);">Annuel</div>
+              <div style="font-size:12px;color:var(--teal);margin-top:2px;">6,67€/mois · meilleur prix</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;color:var(--gray);text-decoration:line-through;">119,88€</div>
+              <div style="font-size:20px;font-weight:800;color:var(--white);">79,99€<span style="font-size:12px;color:var(--gray);">/an</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CB déjà enregistrée -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:14px;">
+        <div style="width:44px;height:30px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💳</div>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--white);">Visa •••• 4242</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:2px;">Carte enregistrée lors de l'activation</div>
+        </div>
+        <span style="color:var(--teal);font-size:18px;margin-left:auto;">✓</span>
+      </div>
+      <button class="btn btn-orange" onclick="go('home')" id="j30Btn">Confirmer · Trimestriel · 24,99€</button>
+      <p style="font-size:11px;color:var(--gray);text-align:center;margin-top:10px;line-height:1.5;">Prélèvement immédiat sur ta carte enregistrée · Annulable à tout moment</p>
+      <div style="height:40px;"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PROFIL -->
+<div class="screen" id="profil">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Mon profil</div><div class="topnav-r"></div></div>
+  <div class="scroll">
+    <!-- Avatar + nom -->
+    <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
+      <div style="width:64px;height:64px;border-radius:20px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:white;">S</div>
+      <div>
+        <div style="font-size:19px;font-weight:800;color:var(--white);">Sophie M.</div>
+        <div style="font-size:13px;color:var(--gray);margin-top:2px;">sophie@email.com</div>
+      </div>
+    </div>
+
+    <!-- Abonnement actuel -->
+    <div style="margin:16px 20px;background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:16px;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:14px;font-weight:700;color:var(--white);">Mois offert en cours</div>
+        <div style="font-size:12px;font-weight:700;color:var(--teal);">ACTIF</div>
+      </div>
+      <div style="height:6px;background:var(--bg3);border-radius:3px;margin-bottom:8px;overflow:hidden;">
+        <div style="height:100%;width:20%;background:var(--teal);border-radius:3px;transition:width .4s;"></div>
+      </div>
+      <div style="font-size:12px;color:var(--gray);">Expire dans <span style="color:var(--white);font-weight:600;">24 jours</span></div>
+    </div>
+
+    <!-- Sections -->
+    <div style="padding:0 20px;">
+
+      <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Mon compte</div>
+      <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
+        <div onclick="" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;">
+          <span style="font-size:15px;color:var(--white);">Informations personnelles</span>
+          <span style="color:var(--gray);">›</span>
+        </div>
+        <div onclick="" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;">
+          <span style="font-size:15px;color:var(--white);">Mon équipement</span>
+          <span style="color:var(--gray);">›</span>
+        </div>
+        <div onclick="" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;">
+          <span style="font-size:15px;color:var(--white);">Ma position par défaut</span>
+          <span style="color:var(--gray);">›</span>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Notifications</div>
+      <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);">
+          <span style="font-size:15px;color:var(--white);">Rappels de séance</span>
+          <div style="width:44px;height:26px;background:var(--orange);border-radius:13px;position:relative;cursor:pointer;">
+            <div style="position:absolute;right:3px;top:3px;width:20px;height:20px;background:white;border-radius:50%;"></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
+          <span style="font-size:15px;color:var(--white);">Conseils du coach</span>
+          <div style="width:44px;height:26px;background:var(--bg3);border-radius:13px;position:relative;cursor:pointer;">
+            <div style="position:absolute;left:3px;top:3px;width:20px;height:20px;background:var(--gray);border-radius:50%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Langue</div>
+      <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
+        <div onclick="showLang()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;">
+          <span style="font-size:15px;color:var(--white);">🇫🇷 Français</span>
+          <span style="color:var(--gray);">›</span>
+        </div>
+      </div>
+
+      <!-- DEMO SECTION -->
+      <div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">🔧 Démo prototype</div>
+      <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid rgba(255,107,53,.3);margin-bottom:16px;">
+        <div onclick="go('paywall_j30')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;">
+          <div>
+            <div style="font-size:15px;color:var(--white);">Simuler J+30</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:2px;">Voir le paywall de fin d'essai</div>
+          </div>
+          <span style="color:var(--orange);">›</span>
+        </div>
+        <div onclick="go('formules_preview')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;">
+          <div>
+            <div style="font-size:15px;color:var(--white);">Revoir les formules</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:2px;">Écran de présentation des offres</div>
+          </div>
+          <span style="color:var(--orange);">›</span>
+        </div>
+        <div onclick="go('splash')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;">
+          <div>
+            <div style="font-size:15px;color:var(--white);">Rejouer depuis le début</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:2px;">Revenir au splash screen</div>
+          </div>
+          <span style="color:var(--orange);">›</span>
+        </div>
+      </div>
+
+      <!-- Déconnexion -->
+      <button onclick="go('splash')" style="width:100%;padding:16px;background:transparent;border:1.5px solid var(--border);border-radius:16px;font-size:15px;font-weight:600;color:var(--red);cursor:pointer;margin-bottom:40px;">Se déconnecter</button>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- PAIEMENT CB -->
+<div class="screen" id="pay_cb">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Moyen de paiement</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+
+    <!-- Récap -->
+    <div style="background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:16px;padding:16px;margin-bottom:24px;">
+      <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:6px;">✓ Formule sélectionnée</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:15px;font-weight:700;color:var(--white);" id="recapPlan">Trimestriel · 24,99€/3 mois</div>
+      </div>
+      <div style="font-size:12px;color:var(--gray);margin-top:6px;" id="recapDate">Aucun prélèvement avant le —</div>
+    </div>
+
+    <h3 style="font-size:17px;font-weight:700;color:var(--white);margin-bottom:6px;">Enregistre ton moyen de paiement</h3>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:20px;line-height:1.5;">Aucun prélèvement aujourd'hui. Ta formule démarre dans 30 jours.</p>
+
+    <!-- Apple Pay -->
+    <button onclick="go('signup')" style="width:100%;padding:17px;background:white;border:none;border-radius:16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="black"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <span style="font-size:17px;font-weight:700;color:black;">Apple Pay</span>
+    </button>
+
+    <!-- Google Pay -->
+    <button onclick="go('signup')" style="width:100%;padding:17px;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;margin-bottom:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      <span style="font-size:17px;font-weight:700;color:var(--white);">Google Pay</span>
+    </button>
+
+    <!-- Séparateur -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span style="font-size:12px;color:var(--gray);">ou carte bancaire</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+
+    <!-- CB Fields -->
+    <div style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--gray);margin-bottom:6px;font-weight:600;">Numéro de carte</div>
+      <input type="text" placeholder="1234 5678 9012 3456" maxlength="19"
+        style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:16px;font-size:15px;color:var(--white);font-family:inherit;outline:none;"
+        oninput="formatCard(this)">
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:24px;">
+      <div style="flex:1;">
+        <div style="font-size:12px;color:var(--gray);margin-bottom:6px;font-weight:600;">Date d'expiration</div>
+        <input type="text" placeholder="MM/AA" maxlength="5"
+          style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:16px;font-size:15px;color:var(--white);font-family:inherit;outline:none;"
+          oninput="formatExpiry(this)">
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:12px;color:var(--gray);margin-bottom:6px;font-weight:600;">CVV</div>
+        <input type="text" placeholder="123" maxlength="3"
+          style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:16px;font-size:15px;color:var(--white);font-family:inherit;outline:none;">
+      </div>
+    </div>
+
+    <div class="spacer" style="min-height:16px;"></div>
+    <button class="btn btn-orange" onclick="go('signup')">Enregistrer · Aucun prélèvement aujourd'hui</button>
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;">
+      <span style="font-size:18px;">🔒</span>
+      <span style="font-size:11px;color:var(--gray);">Paiement sécurisé · Chiffrement SSL</span>
+    </div>
+    <div style="height:32px;"></div>
+
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="screen" id="login">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Connexion</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Bon retour 👋</h2>
+    <p class="sub gap32">Connecte-toi pour retrouver ton programme.</p>
+    <input type="email" placeholder="Email" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
+    <input type="password" placeholder="Mot de passe" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:8px;">
+    <div style="text-align:right;margin-bottom:28px;"><button class="btn-ghost" style="font-size:13px;color:var(--orange);padding:4px 0;">Mot de passe oublié ?</button></div>
+    <button class="btn btn-orange gap12" onclick="go('home')">Se connecter</button>
+    <div style="margin:20px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">ou</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
+    <div class="social-row">
+      <button class="social-btn" onclick="go('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Apple
+      </button>
+      <button class="social-btn" onclick="go('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:6px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </button>
+    </div>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+
+
+<!-- CRÉATION COMPTE -->
+<div class="screen" id="signup">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Créer mon compte</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Dernière étape 🎉</h2>
+    <p class="sub gap28">Crée ton compte pour sauvegarder ton programme.</p>
+    <input type="email" placeholder="Email" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
+    <input type="password" placeholder="Mot de passe" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:20px;">
+    <button class="btn btn-orange gap16" onclick="go('home')">Créer mon compte</button>
+    <div style="margin:16px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">ou</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
+    <div style="display:flex;gap:10px;margin-bottom:16px;">
+      <button onclick="go('home')" style="flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Apple
+      </button>
+      <button onclick="go('home')" style="flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </button>
+    </div>
+    <div style="font-size:11px;color:var(--gray);text-align:center;line-height:1.5;">En créant un compte tu acceptes nos <span style="color:var(--orange);">CGU</span> et notre <span style="color:var(--orange);">politique de confidentialité</span>.</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="home">
+  <div class="scroll">
+    <div class="home-top gap4"><div><div class="hw">Bonjour 👋</div><div class="hname">Sophie</div></div><div class="hav">S</div></div>
+    <div class="streak">
+      <span style="font-size:26px;">🔥</span>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--gray);">Série en cours</span><span style="font-size:22px;font-weight:800;color:var(--orange);">7 jours</span></div>
+        <div class="sdots"><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;margin-bottom:12px;"><h3>Session du jour</h3><span style="font-size:13px;color:var(--orange);cursor:pointer;" onclick="go('programme')">Voir tout</span></div>
+    <div class="today" onclick="go('programme')">
+      <div class="today-thumb">💪<div class="today-bdg">AUJOURD'HUI</div><div class="today-dur">28 min</div></div>
+      <div class="today-body">
+        <div class="today-title">Renforcement haut du corps</div>
+        <div class="today-sub">8 exercices · Barre + élastiques · Debout / Fauteuil</div>
+        <div class="today-tags"><span class="tag tag-o">HIIT</span><span class="tag tag-t">Épaules</span><span class="tag tag-g">Biceps</span><span class="tag tag-g">Dos</span></div>
+        <button class="btn btn-orange" style="padding:15px;font-size:15px;" onclick="event.stopPropagation();go('presession')">Démarrer →</button>
+      </div>
+    </div>
+    <div class="stats3">
+      <div class="scard"><div class="sval" style="color:var(--orange);">4</div><div class="slbl">Séances</div></div>
+      <div class="scard"><div class="sval" style="color:var(--teal);">87'</div><div class="slbl">Actif</div></div>
+      <div class="scard"><div class="sval">342</div><div class="slbl">Reps</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;margin-bottom:12px;"><h3>Explorer</h3><span style="font-size:13px;color:var(--orange);cursor:pointer;">Voir tout</span></div>
+    <div class="exo-row">
+      <div class="emini" onclick="go('presession')"><div class="emini-img" style="background:linear-gradient(135deg,#1a0008,#2d0012);">🥊</div><div class="emini-body"><div class="emini-name">Shadow Boxing</div><div class="emini-meta">15 min · Cardio</div></div></div>
+      <div class="emini" onclick="go('presession')"><div class="emini-img" style="background:linear-gradient(135deg,#001a12,#002d20);">🚣</div><div class="emini-body"><div class="emini-name">Kayak Cardio</div><div class="emini-meta">12 min · Épaules</div></div></div>
+      <div class="emini" onclick="go('presession')"><div class="emini-img" style="background:linear-gradient(135deg,#1a0e00,#2d1800);">🔥</div><div class="emini-body"><div class="emini-name">HIIT Express</div><div class="emini-meta">7 min · Corps entier</div></div></div>
+      <div class="emini" onclick="go('presession')"><div class="emini-img" style="background:linear-gradient(135deg,#001018,#001a28);">💆</div><div class="emini-body"><div class="emini-name">Récupération</div><div class="emini-meta">10 min · Mobilité</div></div></div>
+    </div>
+    <div style="height:84px;"></div>
+  </div>
+  <div class="bnav">
+    <button class="bnav-item active"><span class="bnav-icon">🏠</span><span class="bnav-label">Accueil</span></button>
+    <button class="bnav-item" onclick="go('programme')"><span class="bnav-icon">📋</span><span class="bnav-label">Programme</span></button>
+    <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon">📈</span><span class="bnav-label">Progrès</span></button>
+    <button class="bnav-item" onclick="go('kine')"><span class="bnav-icon">👨‍⚕️</span><span class="bnav-label">Kiné</span></button>
+    <button class="bnav-item" onclick="go('profil')"><span class="bnav-icon">👤</span><span class="bnav-label">Profil</span></button>
+  </div>
+</div>
+
+<!-- PROGRAMME -->
+<div class="screen" id="programme">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Programme du jour</div><div class="topnav-r"></div></div>
+  <div class="prog-hero"><span style="font-size:56px;">💪</span><h2 class="gap4">Renforcement haut du corps</h2><p style="font-size:13px;color:var(--gray);">Dr. Martin · SMR Kerpape</p></div>
+  <div class="prog-info">
+    <div><div class="piv" style="color:var(--orange);">28'</div><div class="pil">Durée</div></div>
+    <div><div class="piv">8</div><div class="pil">Exercices</div></div>
+    <div><div class="piv" style="color:var(--teal);">Moyen</div><div class="pil">Intensité</div></div>
+    <div><div class="piv">⚡</div><div class="pil">Barre+élas.</div></div>
+  </div>
+  <div class="scroll">
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num done">✓</div><div style="flex:1"><div class="exo-name">Échauffement épaules</div><div class="exo-meta">3 × 10 reps · Élastique vert</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num" style="border:1.5px solid var(--orange);color:var(--orange);">2</div><div style="flex:1"><div class="exo-name">Tirage horizontal</div><div class="exo-meta">4 × 12 reps · Élastique rouge · Dos</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">3</div><div style="flex:1"><div class="exo-name">Curl biceps barre</div><div class="exo-meta">3 × 15 reps · Barre seule</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">4</div><div style="flex:1"><div class="exo-name">Shadow boxing — Jabs</div><div class="exo-meta">3 rounds × 45 sec · Cardio</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">5</div><div style="flex:1"><div class="exo-name">Développé épaules</div><div class="exo-meta">3 × 10 reps · Élastique rouge</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">6</div><div style="flex:1"><div class="exo-name">Kayak simulé</div><div class="exo-meta">2 rounds × 60 sec · Épaules · Cardio</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">7</div><div style="flex:1"><div class="exo-name">Extension triceps</div><div class="exo-meta">3 × 12 reps · Élastique vert</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">8</div><div style="flex:1"><div class="exo-name">Récupération guidée</div><div class="exo-meta">5 min · Étirements</div></div><span style="color:var(--gray);">›</span></div>
+    <div style="height:20px;"></div>
+  </div>
+  <div style="padding:16px 20px 32px;flex-shrink:0;"><button class="btn btn-orange" onclick="go('presession')">Commencer →</button></div>
+</div>
+
+<!-- PRE-SESSION -->
+<div class="screen" id="presession">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Avant de démarrer</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt" style="padding-bottom:20px;">
+    <div class="ps-lbl">✦ Configuration du jour</div>
+    <div class="ps-section">
+      <div class="ps-title">Mon équipement</div>
+      <div class="ps-opts">
+        <div class="ps-opt" onclick="toggleG(this)">📱 App seule</div>
+        <div class="ps-opt" onclick="toggleG(this)">🔧 Barre</div>
+        <div class="ps-opt on" onclick="toggleG(this)">⚡ Barre + élastiques</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Ma position</div>
+      <div class="ps-opts">
+        <div class="ps-opt on" onclick="toggleG(this)">🧍 Debout</div>
+        <div class="ps-opt" onclick="toggleG(this)">🪑 Assis</div>
+        <div class="ps-opt" onclick="toggleG(this)">♿ Fauteuil</div>
+        <div class="ps-opt" onclick="toggleG(this)">🛏️ Allongé</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Comment tu te sens ?</div>
+      <div class="ps-opts">
+        <div class="ps-opt" onclick="toggleG(this)">😴 Fatigué</div>
+        <div class="ps-opt on" onclick="toggleG(this)">😊 Normal</div>
+        <div class="ps-opt" onclick="toggleG(this)">⚡ En forme</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Douleur actuelle (0-10)</div>
+      <div class="pain-wrap">
+        <div class="pain-val">2 <span style="font-size:14px;color:var(--teal);font-weight:600;">Légère</span></div>
+        <div class="pain-track"><div class="pain-fill"></div><div class="pain-thumb"></div></div>
+        <div class="pain-labels"><span>0 — Aucune</span><span>10 — Intense</span></div>
+      </div>
+    </div>
+    <div style="height:16px;"></div>
+    <button class="btn btn-teal" onclick="go('session')">C'est parti ! →</button>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- SESSION -->
+<div class="screen" id="session">
+  <div class="sess-top"><div class="sess-prog">2 / 8 exercices</div><button class="sess-stop" onclick="go('feedback')">Terminer</button></div>
+  <div class="sess-pbar"><div class="sess-pfill"></div></div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+    <div class="timer-wrap">
+      <svg class="timer-svg" viewBox="0 0 210 210">
+        <circle class="timer-track" cx="105" cy="105" r="95"/>
+        <circle class="timer-fill" cx="105" cy="105" r="95" id="timerCircle"/>
+      </svg>
+      <div class="timer-center"><div class="timer-num" id="timerNum">0:32</div><div class="timer-lbl">Travail</div></div>
+    </div>
+    <div class="sess-name">Tirage horizontal</div>
+    <div class="sess-rep">Série 2 / 4 · 12 reps · Élastique rouge</div>
+    <div class="sess-tip"><div class="sess-tip-txt">💡 Coude au corps, tire vers le nombril. Expire à l'effort.</div></div>
+    <div class="sess-ctrls">
+      <button class="sess-prev">← Préc.</button>
+      <button class="sess-next">Série suivante →</button>
+    </div>
+  </div>
+  <div class="rep-counter">
+    <div><div class="rep-n" id="repCount">8</div><div class="rep-l">reps détectées</div></div>
+    <div class="rep-btns">
+      <button class="rep-btn rep-m" onclick="chRep(-1)">−</button>
+      <button class="rep-btn rep-p" onclick="chRep(1)">+</button>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="screen" id="feedback">
+  <div class="topnav"><div class="topnav-r"></div><div class="topnav-title">Bilan de séance</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb">
+    <div class="fb-section">
+      <div class="fb-title">Douleur post-séance</div>
+      <div class="pain-wrap">
+        <div class="pain-val">1 <span style="font-size:14px;color:var(--teal);font-weight:600;">Quasi-nulle ✓</span></div>
+        <div class="pain-track"><div class="pain-fill" style="width:10%;"></div><div class="pain-thumb" style="left:10%;"></div></div>
+        <div class="pain-labels"><span>0 — Aucune</span><span>10 — Intense</span></div>
+      </div>
+    </div>
+    <div class="fb-section">
+      <div class="fb-title">Niveau d'effort ressenti</div>
+      <div class="effort-row">
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">😴</span><span class="eff-l">Trop facile</span></div>
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">😊</span><span class="eff-l">Bien</span></div>
+        <div class="eff-opt on" onclick="selEff(this)"><span class="eff-e">💪</span><span class="eff-l">Challengeant</span></div>
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">🔥</span><span class="eff-l">Épuisant</span></div>
+      </div>
+    </div>
+    <div class="fb-section">
+      <div class="fb-title">Note pour ton kiné</div>
+      <textarea class="note-input" placeholder="Ex : légère tension à l'épaule gauche..."></textarea>
+      <div style="font-size:11px;color:var(--gray);margin-top:6px;">👁️ Visible uniquement par Dr. Martin</div>
+    </div>
+  </div>
+  <div style="padding:16px 20px 32px;flex-shrink:0;"><button class="btn btn-orange" onclick="go('resume')">Valider et voir le résumé</button></div>
+</div>
+
+<!-- RESUME -->
+<div class="screen" id="resume">
+  <div class="scroll">
+    <div style="background:linear-gradient(135deg,rgba(255,107,53,.15) 0%,var(--bg) 100%);padding:32px 20px 24px;text-align:center;">
+      <div style="font-size:60px;margin-bottom:14px;">🏆</div>
+      <h2 class="gap8">Séance terminée !</h2>
+      <p class="sub">Tu as fait quelque chose de bien aujourd'hui.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px;">
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;text-align:center;border:1px solid var(--border);"><div style="font-size:30px;font-weight:800;color:var(--orange);">26'</div><div style="font-size:12px;color:var(--gray);margin-top:4px;">Durée</div></div>
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;text-align:center;border:1px solid var(--border);"><div style="font-size:30px;font-weight:800;color:var(--orange);">94</div><div style="font-size:12px;color:var(--gray);margin-top:4px;">Répétitions</div></div>
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;text-align:center;border:1px solid var(--border);"><div style="font-size:30px;font-weight:800;color:var(--teal);">7/8</div><div style="font-size:12px;color:var(--gray);margin-top:4px;">Exercices</div></div>
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;text-align:center;border:1px solid var(--border);"><div style="font-size:22px;font-weight:800;color:var(--white);">↑8%</div><div style="font-size:12px;color:var(--gray);margin-top:4px;">vs semaine passée</div></div>
+    </div>
+    <div style="margin:0 20px 12px;background:var(--bg2);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;border:1px solid var(--border);">
+      <span style="font-size:38px;">🔥</span>
+      <div><div style="font-size:14px;font-weight:700;color:var(--orange);">Badge — 7 jours de suite</div><div style="font-size:12px;color:var(--gray);margin-top:3px;">7 séances consécutives. Continue !</div></div>
+    </div>
+    <div style="margin:0 20px 12px;background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:16px;padding:14px 16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:6px;">📊 Transmis à ton kiné</div>
+      <div style="font-size:13px;color:var(--gray2);line-height:1.4;">Dr. Martin a reçu tes données. Il adaptera ton prochain programme.</div>
+    </div>
+    <div style="padding:0 20px;display:flex;flex-direction:column;gap:10px;padding-bottom:40px;">
+      <button class="btn btn-orange" onclick="go('home')">Retour à l'accueil</button>
+      <button class="btn btn-outline" onclick="go('progression')">Voir ma progression</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESSION -->
+<div class="screen" id="progression">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Ma progression</div><div class="topnav-r"></div></div>
+  <div class="p-tabs px"><div class="p-tab active" onclick="setPTab(this)">Semaine</div><div class="p-tab" onclick="setPTab(this)">Mois</div><div class="p-tab" onclick="setPTab(this)">Total</div></div>
+  <div class="scroll">
+    <div class="chart-box">
+      <div class="chart-t">Répétitions par jour</div>
+      <div class="bars">
+        <div class="bar-w"><div class="bar" style="height:40%;background:var(--bg3);"></div><div class="bar-l">L</div></div>
+        <div class="bar-w"><div class="bar" style="height:70%;background:var(--orange);"></div><div class="bar-l">M</div></div>
+        <div class="bar-w"><div class="bar" style="height:55%;background:var(--orange);"></div><div class="bar-l">M</div></div>
+        <div class="bar-w"><div class="bar" style="height:80%;background:var(--orange);"></div><div class="bar-l">J</div></div>
+        <div class="bar-w"><div class="bar" style="height:10%;background:var(--bg3);"></div><div class="bar-l">V</div></div>
+        <div class="bar-w"><div class="bar" style="height:90%;background:var(--teal);"></div><div class="bar-l">S</div></div>
+        <div class="bar-w"><div class="bar" style="height:100%;background:var(--teal);"></div><div class="bar-l">D</div></div>
+      </div>
+    </div>
+    <div class="muscle-box">
+      <div class="chart-t" style="margin-bottom:8px;">Groupes musculaires</div>
+      <div class="muscle-row"><div class="muscle-n">Dos</div><div class="muscle-b"><div class="muscle-f" style="width:80%;background:var(--orange);"></div></div><div class="muscle-p">80%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Épaules</div><div class="muscle-b"><div class="muscle-f" style="width:65%;background:var(--orange);"></div></div><div class="muscle-p">65%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Biceps</div><div class="muscle-b"><div class="muscle-f" style="width:50%;background:var(--teal);"></div></div><div class="muscle-p">50%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Triceps</div><div class="muscle-b"><div class="muscle-f" style="width:30%;background:var(--bg3);"></div></div><div class="muscle-p">30%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Cardio</div><div class="muscle-b"><div class="muscle-f" style="width:45%;background:var(--teal);"></div></div><div class="muscle-p">45%</div></div>
+    </div>
+    <div style="padding:0 20px;margin-bottom:12px;"><h3>Badges</h3></div>
+    <div class="badges-grid">
+      <div class="badge-card"><div class="badge-e">🔥</div><div class="badge-t">7 jours de suite</div><div class="badge-d">Série de 7 séances</div></div>
+      <div class="badge-card"><div class="badge-e">💪</div><div class="badge-t">100 reps</div><div class="badge-d">En une séance</div></div>
+      <div class="badge-card lock"><div class="badge-e">🏅</div><div class="badge-t">30 jours</div><div class="badge-d">Série d'un mois</div></div>
+      <div class="badge-card lock"><div class="badge-e">⚡</div><div class="badge-t">Shadow boxer</div><div class="badge-d">10 sessions boxe</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- KINÉ DASHBOARD -->
+<div class="screen" id="kine">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Dashboard Kiné</div><div class="topnav-r"></div></div>
+  <div style="padding:0 20px 4px;flex-shrink:0;"><p style="font-size:13px;color:var(--gray);">Dr. Martin · SMR Kerpape</p></div>
+  <div class="k-tabs px"><div class="k-tab active" onclick="setKTab(this)">Patients</div><div class="k-tab" onclick="setKTab(this)">Stats</div><div class="k-tab" onclick="setKTab(this)">Alertes</div></div>
+  <div class="scroll">
+    <div class="kine-stats">
+      <div class="kstat"><div class="kstat-v">23</div><div class="kstat-l">Patients actifs</div><div class="kstat-t">↑ 3 cette semaine</div></div>
+      <div class="kstat"><div class="kstat-v" style="color:var(--teal);">78%</div><div class="kstat-l">Observance moy.</div><div class="kstat-t">↑ +5% vs mois passé</div></div>
+      <div class="kstat"><div class="kstat-v">2.1</div><div class="kstat-l">Douleur moy./10</div><div class="kstat-t">↓ En amélioration</div></div>
+      <div class="kstat"><div class="kstat-v" style="color:var(--red);">3</div><div class="kstat-l">Alertes</div><div class="kstat-t" style="color:var(--red);">⚠ À traiter</div></div>
+    </div>
+    <div class="alert-box">
+      <span style="font-size:20px;">⚠️</span>
+      <div style="flex:1;font-size:13px;color:var(--white);line-height:1.4;"><span style="color:var(--red);font-weight:700;">Marc D.</span> — Inactif depuis 5 jours. Douleur 7/10 lors de la dernière séance.</div>
+      <span style="font-size:12px;color:var(--orange);font-weight:600;white-space:nowrap;">Contacter →</span>
+    </div>
+    <div style="padding:0 20px;margin-bottom:12px;"><h3>Mes patients</h3></div>
+    <div class="pat-item"><div class="pat-av" style="background:var(--orange);">S</div><div style="flex:1;"><div class="pat-n">Sophie M.</div><div class="pat-m">Ménisque · 7j · Debout · Barre+élastique</div></div><div style="text-align:right;"><span class="pbdg bdg-a">ACTIF</span><div style="font-size:11px;color:var(--gray);margin-top:4px;">🔥 7j</div></div></div>
+    <div class="pat-item"><div class="pat-av" style="background:var(--teal);">J</div><div style="flex:1;"><div class="pat-n">Jean-Pierre L.</div><div class="pat-m">Fauteuil · AVC · Séance hier</div></div><div style="text-align:right;"><span class="pbdg bdg-o">OK</span><div style="font-size:11px;color:var(--gray);margin-top:4px;">🔥 3j</div></div></div>
+    <div class="pat-item"><div class="pat-av" style="background:var(--red);">M</div><div style="flex:1;"><div class="pat-n">Marc D.</div><div class="pat-m">Ligament · Douleur 7/10 · Inactif 5j</div></div><div style="text-align:right;"><span class="pbdg bdg-w">ALERTE</span><div style="font-size:11px;color:var(--red);margin-top:4px;">⚠ 5j</div></div></div>
+    <div class="pat-item"><div class="pat-av" style="background:#8B5CF6;">A</div><div style="flex:1;"><div class="pat-n">Amina K.</div><div class="pat-m">Post-op épaule · Séance ce matin</div></div><div style="text-align:right;"><span class="pbdg bdg-a">ACTIF</span><div style="font-size:11px;color:var(--gray);margin-top:4px;">🔥 12j</div></div></div>
+    <div style="padding:16px 20px 40px;"><button class="btn btn-orange">+ Ajouter un patient</button></div>
+  </div>
+</div>
+</div>
+<script>
+let hist=['splash'];
+function go(id){
+  const c=hist[hist.length-1];
+  const ce=document.getElementById(c);
+  const ne=document.getElementById(id);
+  if(!ce||!ne)return;
+  ce.classList.add('out');
+  ce.classList.remove('active');
+  ne.style.transform='translateX(100%)';
+  ne.classList.add('active');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ne.style.transform='';ne.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';}));
+  hist.push(id);
+  // Screen-specific callbacks
+  if(id==='pay_cb') setTimeout(updatePayCbRecap, 50);
+}
+function back(){
+  if(hist.length<2)return;
+  const c=hist.pop();
+  const p=hist[hist.length-1];
+  const ce=document.getElementById(c);
+  const pe=document.getElementById(p);
+  if(!ce||!pe)return;
+  ce.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
+  ce.style.transform='translateX(100%)';
+  ce.classList.remove('active');
+  setTimeout(()=>{ce.classList.remove('out');ce.style.transform='';ce.style.transition='';},360);
+  pe.classList.remove('out');
+  pe.classList.add('active');
+}
+function selOb(el,next){
+  el.closest('div').querySelectorAll('.ob-opt').forEach(o=>{o.classList.remove('sel');o.querySelector('.ob-check').textContent='';});
+  el.classList.add('sel');el.querySelector('.ob-check').textContent='✓';
+  setTimeout(()=>go(next),260);
+}
+function setFTab(el){el.closest('.f-tabs').querySelectorAll('.f-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function setPTab(el){el.closest('.p-tabs').querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function setKTab(el){el.closest('.k-tabs').querySelectorAll('.k-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function toggleG(el){el.closest('.ps-opts').querySelectorAll('.ps-opt').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
+function selEff(el){el.closest('.effort-row').querySelectorAll('.eff-opt').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
+let rc=8;
+function chRep(d){rc=Math.max(0,rc+d);document.getElementById('repCount').textContent=rc;}
+let tsVal=32,tiVal=null;
+function startTimer(){
+  if(tiVal)clearInterval(tiVal);
+  ti=setInterval(()=>{
+    if(tsVal>0)tsVal--;
+    const el=document.getElementById('timerNum');
+    const c=document.getElementById('timerCircle');
+    if(el)el.textContent='0:'+String(tsVal).padStart(2,'0');
+    if(c){const p=tsVal/45;c.style.strokeDashoffset=597-(597*(1-p));}
+    if(tsVal===0)tsVal=45;
+  },1000);
+}
+new MutationObserver(()=>{
+  const s=document.getElementById('session');
+  if(s&&s.classList.contains('active')){tsVal=32;startTimer();}
+  else if(tiVal){clearInterval(tiVal);tiVal=null;}
+}).observe(document.getElementById('session'),{attributes:true,attributeFilter:['class']});
+
+
+// Splash animation
+setTimeout(()=>{
+  const l=document.getElementById('splashLogo');
+  if(l){l.style.opacity='1';l.style.transform='scale(1)';}
+  setTimeout(()=>go('screen2'),1600);
+},300);
+
+// No barre redirect
+function noBarre(){
+  if(confirm('Tu seras redirigé vers kinmio.com pour commander ta barre. Continuer ?')){
+    window.open('https://kinmio.com','_blank');
+  }
+}
+
+// Langue
+function showLang(){document.getElementById('langPopup').style.display='flex';}
+function hideLang(){document.getElementById('langPopup').style.display='none';}
+function setLang(l){console.log('lang:',l);}
+
+// Fréquence
+const freqData={
+  1:{label:"1 fois / semaine",desc:"Idéal pour commencer doucement"},
+  2:{label:"2 fois / semaine",desc:"Un bon départ pour créer l'habitude"},
+  3:{label:"3 fois / semaine",desc:"Un bon rythme pour progresser régulièrement"},
+  4:{label:"4 fois / semaine",desc:"Pour ceux qui veulent accélérer les résultats"},
+  5:{label:"5 fois / semaine",desc:"Niveau intensif — assure-toi de récupérer"}
+};
+function setFreq(n,el){
+  document.querySelectorAll('.freq-dot').forEach(d=>d.classList.remove('active2'));
+  el.classList.add('active2');
+  document.getElementById('freqNum').textContent=n;
+  document.getElementById('freqLabel').textContent=freqData[n].label;
+  document.getElementById('freqDesc').textContent=freqData[n].desc;
+}
+
+
+// QR Scan simulation
+function simulateScan(){
+  setExpiryDate();
+  window._barreActivated = true;
+  go('qr_confirm');
+}
+
+function checkCode(val){
+  const btn = document.getElementById('codeBtn');
+  const clean = val.replace(/-/g,'');
+  if(clean.length >= 3){
+    btn.style.background = 'var(--orange)';
+    btn.style.color = 'white';
+  } else {
+    btn.style.background = 'var(--bg3)';
+    btn.style.color = 'var(--gray)';
+  }
+}
+
+function validateCode(){
+  const val = document.getElementById('barreCode').value;
+  if(val.length >= 3){
+    setExpiryDate();
+    window._barreActivated = true;
+    go('qr_confirm');
+  }
+}
+
+
+// Update pay_cb recap when screen becomes active
+function updatePayCbRecap(){
+  const planLabels = {
+    mensuel: "Mensuel · 9,99€/mois",
+    trim: "Trimestriel · 24,99€/3 mois",
+    annuel: "Annuel · 79,99€/an"
+  };
+  const recap = document.getElementById("recapPlan");
+  if(recap) recap.textContent = planLabels[selectedPlan] || planLabels.trim;
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  const str = d.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+  const recapDate = document.getElementById("recapDate");
+  if(recapDate) recapDate.textContent = "Aucun prélèvement avant le " + str;
+}
+
+// Card formatting
+function formatCard(el){
+  let v = el.value.replace(/\D/g,"").substring(0,16);
+  el.value = v.replace(/(\d{4})/g,"$1 ").trim();
+}
+function formatExpiry(el){
+  let v = el.value.replace(/\D/g,"").substring(0,4);
+  if(v.length >= 2) v = v.substring(0,2) + "/" + v.substring(2);
+  el.value = v;
+}
+
+// Update J+30 button
+const j30Labels2 = {mensuel:"Mensuel · 9,99€", trim:"Trimestriel · 24,99€", annuel:"Annuel · 79,99€/an"};
+function selectJ30(plan){
+  ["mensuel","trim","annuel"].forEach(p => {
+    const el = document.getElementById("j30_" + p);
+    if(!el) return;
+    el.style.background = p === plan ? "rgba(255,107,53,.08)" : "var(--bg2)";
+    el.style.borderColor = p === plan ? "var(--orange)" : "var(--border)";
+  });
+  const btn = document.getElementById("j30Btn");
+  if(btn) btn.textContent = "Confirmer · " + j30Labels2[plan];
+}
+
+function setPayDates(){
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  const str = d.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+  const el1 = document.getElementById("payDate1");
+  const el2 = document.getElementById("payDate2");
+  if(el1) el1.textContent = str;
+  if(el2) el2.textContent = str;
+}
+setPayDates();
+
+function setExpiryDate(){
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  const el = document.getElementById('expiryDate');
+  if(el) el.textContent = d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+}
+
+// After summary - skip paywall if barre was activated
+
+// Preview plan selection
+let selectedPlan = 'trim';
+function selectPlan(plan){
+  selectedPlan = plan;
+  ['mensuel','trim','annuel'].forEach(p => {
+    const el = document.getElementById('pp_' + p);
+    if(!el) return;
+    if(p === plan){
+      el.style.background = 'rgba(255,107,53,.08)';
+      el.style.borderColor = 'var(--orange)';
+    } else {
+      el.style.background = 'var(--bg2)';
+      el.style.borderColor = 'var(--border)';
+    }
+  });
+  // Update CTA button label
+  const labels = {mensuel:'9,99€/mois', trim:'24,99€/3 mois', annuel:'79,99€/an'};
+  const btn = document.getElementById('planCta');
+  if(btn) btn.textContent = 'Démarrer mon mois offert · ' + labels[plan] + ' ensuite';
+}
+
+// J+30 plan selection
+const j30Labels = {mensuel:'Mensuel · 9,99€', trim:'Trimestriel · 24,99€', annuel:'Annuel · 79,99€'};
+function selectJ30(plan){
+  ['mensuel','trim','annuel'].forEach(p => {
+    const el = document.getElementById('j30_' + p);
+    if(el){
+      el.style.background = p === plan ? 'rgba(255,107,53,.08)' : 'var(--bg2)';
+      el.style.borderColor = p === plan ? 'var(--orange)' : 'var(--border)';
+    }
+  });
+  const btn = document.getElementById('j30Btn');
+  if(btn) btn.textContent = 'Continuer avec ' + j30Labels[plan];
+}
+
+// Access J+30 from home (for demo)
+function showJ30(){ go('paywall_j30'); }
+
+function goAfterSummary(){ go('formules_preview'); }
+
+// Paywall formule
+function selFormule(type){
+  const a=document.getElementById('fw_annuel');
+  const m=document.getElementById('fw_mensuel');
+  if(type==='annuel'){a.style.borderColor='var(--orange)';m.style.borderColor='var(--border)';}
+  else{m.style.borderColor='var(--orange)';a.style.borderColor='var(--border)';}
+}
+</script>
+</body>
+</html>
