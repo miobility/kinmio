@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>kinmio</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+--bg:#0A0A0F;
+--bg2:#16151C;
+--bg3:#1E1D26;
+--orange:#FF6B35;
+--teal:#00D4AA;
+--white:#F5F4F0;
+--gray:#7C7B8A;
+--gray2:#A8A7B8;
+--border:#2A2935;
+--red:#FF4D6D;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Inter',system-ui,sans-serif;}
+#app{width:100%;height:100%;background:var(--bg);position:relative;overflow:hidden;}
+@media(min-width:430px){
+  #app{width:390px;height:844px;margin:auto;border-radius:44px;box-shadow:0 40px 80px rgba(0,0,0,0.9);top:50%;transform:translateY(-50%);position:relative;}
+  body{display:flex;align-items:center;justify-content:center;height:100vh;background:#111;}
+}
+
+/* NAV */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.screen.active{transform:translateX(0);}
+.screen.out{transform:translateX(-25%);}
+
+/* SCROLLABLE CONTENT */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* TOP NAV */
+.topnav{display:flex;align-items:center;padding:20px 20px 12px;gap:12px;flex-shrink:0;}
+.btn-back{width:38px;height:38px;border-radius:12px;background:var(--bg2);border:none;color:var(--white);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.topnav-title{flex:1;font-size:16px;font-weight:600;color:var(--white);text-align:center;}
+.topnav-r{width:38px;}
+
+/* PROGRESS BAR */
+.pbar{height:2px;background:var(--border);margin:0 20px 4px;border-radius:2px;overflow:hidden;flex-shrink:0;}
+.pbar-fill{height:100%;background:var(--orange);border-radius:2px;transition:width .3s ease;}
+
+/* BUTTONS */
+.btn{width:100%;padding:17px;border:none;border-radius:18px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.2px;transition:opacity .12s;}
+.btn:active{opacity:.82;}
+.btn-orange{background:var(--orange);color:#fff;}
+.btn-teal{background:var(--teal);color:#0A0A0F;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--white);}
+.btn-ghost{background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;}
+
+/* CARDS */
+.card{background:var(--bg2);border-radius:20px;padding:18px;border:1px solid var(--border);}
+.card-sm{background:var(--bg2);border-radius:16px;padding:14px;border:1px solid var(--border);}
+
+/* ONBOARDING OPTION */
+.ob-opt{background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .15s,background .15s;}
+.ob-opt.sel{border-color:var(--orange);background:rgba(255,107,53,.07);}
+.ob-icon{width:44px;height:44px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.ob-opt.sel .ob-icon{background:rgba(255,107,53,.12);}
+.ob-label{font-size:15px;font-weight:600;color:var(--white);}
+.ob-desc{font-size:12px;color:var(--gray);margin-top:2px;line-height:1.4;}
+.ob-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#0A0A0F;font-weight:700;}
+.ob-opt.sel .ob-check{background:var(--orange);border-color:var(--orange);}
+
+/* TAGS */
+.tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;}
+.tag-o{background:rgba(255,107,53,.12);color:var(--orange);}
+.tag-t{background:rgba(0,212,170,.12);color:var(--teal);}
+.tag-g{background:var(--bg3);color:var(--gray2);}
+
+/* BOTTOM NAV */
+.bnav{height:76px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:10px;}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:none;background:transparent;padding:8px 14px;}
+.bnav-icon{font-size:22px;line-height:1;}
+.bnav-label{font-size:10px;font-weight:600;color:var(--gray);}
+.bnav-item.active .bnav-label{color:var(--orange);}
+
+/* UTILITY */
+.px{padding-left:20px;padding-right:20px;}
+.pt{padding-top:16px;}
+.pb{padding-bottom:24px;}
+.gap4{margin-bottom:4px;}
+.gap8{margin-bottom:8px;}
+.gap12{margin-bottom:12px;}
+.gap16{margin-bottom:16px;}
+.gap20{margin-bottom:20px;}
+.gap24{margin-bottom:24px;}
+.gap32{margin-bottom:32px;}
+.row{display:flex;gap:10px;}
+.row>*{flex:1;}
+.spacer{flex:1;}
+h1{font-size:30px;font-weight:800;color:var(--white);line-height:1.1;letter-spacing:-.8px;}
+h2{font-size:22px;font-weight:800;color:var(--white);line-height:1.2;letter-spacing:-.4px;}
+h3{font-size:17px;font-weight:700;color:var(--white);}
+.sub{font-size:15px;color:var(--gray);line-height:1.5;}
+.label{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.8px;text-transform:uppercase;}
+
+/* ===== SPLASH ===== */
+#splash{justify-content:space-between;}
+.splash-bg{position:absolute;inset:0;overflow:hidden;}
+.splash-orb1{position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,53,.18) 0%,transparent 70%);top:-80px;right:-60px;}
+.splash-orb2{position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,170,.12) 0%,transparent 70%);bottom:120px;left:-40px;}
+.splash-top{position:relative;padding:52px 28px 0;display:flex;flex-direction:column;align-items:center;z-index:2;}
+.logo-wrap{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.logo-icon{width:60px;height:60px;background:var(--orange);border-radius:20px;display:flex;align-items:center;justify-content:center;}
+.logo-icon svg{width:34px;height:34px;}
+.logo-name{font-size:44px;font-weight:800;color:var(--white);letter-spacing:-2px;}
+.logo-name span{color:var(--orange);}
+.splash-tag{font-size:15px;color:var(--gray2);text-align:center;max-width:280px;line-height:1.5;}
+.splash-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+.splash-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,.55) 0%,rgba(10,10,15,.3) 40%,rgba(10,10,15,.75) 100%);z-index:1;}
+.splash-cta{position:relative;padding:0 28px 44px;z-index:2;}
+.social-row{display:flex;gap:10px;margin-top:12px;}
+.social-btn{flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+@keyframes pulse-bar{0%,100%{opacity:.9}50%{opacity:.6}}
+
+/* ===== FORK ===== */
+.fork-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .15s;}
+.fork-card:active{border-color:var(--orange);}
+.fork-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.fork-title{font-size:16px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.fork-desc{font-size:12px;color:var(--gray);line-height:1.4;}
+.fork-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;margin-left:6px;}
+.badge-f{background:rgba(0,212,170,.15);color:var(--teal);}
+.badge-p{background:rgba(255,107,53,.15);color:var(--orange);}
+
+/* ===== FORMULE ===== */
+.f-tabs{display:flex;gap:6px;margin-bottom:20px;}
+.f-tab{flex:1;padding:9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.f-tab.active{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.07);}
+.f-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:20px;margin-bottom:14px;position:relative;}
+.f-card.rec{border-color:var(--orange);}
+.f-rec{position:absolute;top:14px;right:14px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:7px;}
+.f-name{font-size:20px;font-weight:800;color:var(--white);margin-bottom:4px;}
+.f-desc{font-size:13px;color:var(--gray);margin-bottom:16px;}
+.f-price{font-size:32px;font-weight:800;color:var(--orange);}
+.f-price span{font-size:14px;color:var(--gray);font-weight:500;}
+.f-features{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
+.f-feat{font-size:13px;color:var(--gray2);display:flex;align-items:center;gap:8px;}
+.f-feat::before{content:"✓";color:var(--teal);font-weight:700;flex-shrink:0;}
+
+/* ===== HOME ===== */
+.home-top{padding:20px 20px 0;display:flex;justify-content:space-between;align-items:center;}
+.hw{font-size:13px;color:var(--gray);}
+.hname{font-size:24px;font-weight:800;color:var(--white);letter-spacing:-.4px;}
+.hav{width:44px;height:44px;border-radius:15px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;}
+.streak{margin:16px 20px;background:var(--bg2);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);}
+.sdots{display:flex;gap:5px;margin-top:5px;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--border);}
+.sdot.on{background:var(--orange);}
+.today{margin:0 20px;background:var(--bg2);border-radius:22px;overflow:hidden;border:1px solid var(--border);cursor:pointer;}
+.today-thumb{height:150px;background:linear-gradient(135deg,#1a0e0a,#2d1409);display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;}
+.today-bdg{position:absolute;top:14px;left:14px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;padding:4px 12px;border-radius:9px;}
+.today-dur{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.55);color:var(--white);font-size:11px;font-weight:600;padding:4px 10px;border-radius:9px;}
+.today-body{padding:16px;}
+.today-title{font-size:19px;font-weight:800;color:var(--white);margin-bottom:4px;}
+.today-sub{font-size:12px;color:var(--gray);margin-bottom:12px;}
+.today-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.stats3{display:flex;gap:10px;margin:16px 20px;}
+.scard{flex:1;background:var(--bg2);border-radius:16px;padding:14px;border:1px solid var(--border);}
+.sval{font-size:22px;font-weight:800;color:var(--white);}
+.slbl{font-size:11px;color:var(--gray);margin-top:2px;}
+.exo-row{display:flex;gap:12px;padding:0 20px;overflow-x:auto;margin-bottom:20px;}
+.exo-row::-webkit-scrollbar{display:none;}
+.emini{width:148px;flex-shrink:0;background:var(--bg2);border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid var(--border);}
+.emini-img{height:84px;display:flex;align-items:center;justify-content:center;font-size:34px;}
+.emini-body{padding:10px;}
+.emini-name{font-size:13px;font-weight:700;color:var(--white);}
+.emini-meta{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* ===== PROGRAMME ===== */
+.prog-hero{padding:24px 20px 20px;flex-shrink:0;}
+.prog-thumb{height:160px;background:linear-gradient(160deg,#1a0e0a,#2d1409);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:72px;margin-bottom:16px;position:relative;}
+.prog-info{display:flex;justify-content:space-around;padding:16px 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-shrink:0;}
+.piv{font-size:18px;font-weight:800;color:var(--white);text-align:center;}
+.pil{font-size:11px;color:var(--gray);margin-top:2px;text-align:center;}
+.exo-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;}
+.exo-num{width:34px;height:34px;border-radius:11px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--orange);flex-shrink:0;}
+.exo-num.done{background:var(--teal);color:#0A0A0F;}
+.exo-name{font-size:15px;font-weight:600;color:var(--white);}
+.exo-meta{font-size:12px;color:var(--gray);margin-top:2px;}
+
+/* ===== PRE-SESSION ===== */
+.ps-lbl{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;}
+.ps-section{margin-bottom:22px;}
+.ps-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.ps-opts{display:flex;gap:8px;flex-wrap:wrap;}
+.ps-opt{padding:10px 14px;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;color:var(--gray2);cursor:pointer;transition:all .15s;}
+.ps-opt.on{border-color:var(--teal);color:var(--teal);background:rgba(0,212,170,.07);}
+.pain-wrap{background:var(--bg2);border-radius:16px;padding:16px;border:1px solid var(--border);}
+.pain-val{font-size:26px;font-weight:800;color:var(--white);text-align:center;margin-bottom:10px;}
+.pain-track{height:8px;background:var(--bg3);border-radius:4px;position:relative;margin-bottom:12px;}
+.pain-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--teal),#FFD700,var(--red));width:20%;}
+.pain-thumb{position:absolute;top:50%;left:20%;transform:translate(-50%,-50%);width:26px;height:26px;background:var(--white);border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.5);}
+.pain-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--gray);}
+
+/* ===== SESSION ===== */
+.sess-top{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.sess-prog{font-size:13px;color:var(--gray);font-weight:600;}
+.sess-stop{background:var(--bg2);border:none;border-radius:10px;padding:8px 14px;color:var(--gray);font-size:13px;font-weight:600;cursor:pointer;}
+.sess-pbar{height:3px;background:var(--bg3);margin:0 20px 0;flex-shrink:0;border-radius:2px;overflow:hidden;}
+.sess-pfill{height:100%;width:25%;background:var(--orange);border-radius:2px;}
+.sess-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.timer-wrap{position:relative;width:210px;height:210px;margin-bottom:28px;}
+.timer-svg{width:210px;height:210px;transform:rotate(-90deg);}
+.timer-track{fill:none;stroke:var(--bg3);stroke-width:8;}
+.timer-fill{fill:none;stroke:var(--orange);stroke-width:8;stroke-linecap:round;stroke-dasharray:597;stroke-dashoffset:150;transition:stroke-dashoffset 1s linear;}
+.timer-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.timer-num{font-size:56px;font-weight:800;color:var(--white);letter-spacing:-2px;line-height:1;}
+.timer-lbl{font-size:12px;color:var(--gray);font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+.sess-name{font-size:26px;font-weight:800;color:var(--white);text-align:center;letter-spacing:-.4px;margin-bottom:8px;}
+.sess-rep{font-size:16px;color:var(--orange);font-weight:700;text-align:center;margin-bottom:22px;}
+.sess-tip{background:var(--bg2);border-radius:14px;padding:14px 16px;margin-bottom:22px;width:100%;border:1px solid var(--border);}
+.sess-tip-txt{font-size:13px;color:var(--gray2);line-height:1.5;}
+.sess-ctrls{display:flex;gap:12px;width:100%;}
+.sess-prev{flex:1;padding:16px;background:var(--bg2);border:none;border-radius:14px;color:var(--gray);font-size:15px;font-weight:600;cursor:pointer;}
+.sess-next{flex:2;padding:16px;background:var(--orange);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+.rep-counter{background:var(--bg2);border-radius:18px;padding:14px 18px;margin:0 20px 24px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);}
+.rep-n{font-size:34px;font-weight:800;color:var(--white);}
+.rep-l{font-size:12px;color:var(--gray);}
+.rep-btns{display:flex;gap:8px;}
+.rep-btn{width:46px;height:46px;border-radius:13px;border:none;font-size:22px;font-weight:700;cursor:pointer;}
+.rep-m{background:var(--bg3);color:var(--white);}
+.rep-p{background:var(--orange);color:#fff;}
+
+/* ===== FEEDBACK ===== */
+.fb-section{margin-bottom:24px;}
+.fb-title{font-size:15px;font-weight:700;color:var(--white);margin-bottom:12px;}
+.effort-row{display:flex;gap:8px;}
+.eff-opt{flex:1;padding:12px 8px;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all .15s;}
+.eff-opt.on{border-color:var(--orange);background:rgba(255,107,53,.07);}
+.eff-e{font-size:26px;display:block;margin-bottom:5px;}
+.eff-l{font-size:11px;color:var(--gray);font-weight:600;}
+.eff-opt.on .eff-l{color:var(--orange);}
+.note-input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:14px;font-size:14px;color:var(--white);font-family:inherit;resize:none;height:84px;outline:none;}
+.note-input:focus{border-color:var(--orange);}
+.note-input::placeholder{color:var(--gray);}
+
+/* ===== RÉSUMÉ ===== */
+.resume-hero{padding:32px 20px 24px;text-align:center;}
+.resume-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 16px;}
+.rstat{background:var(--bg2);border-radius:16px;padding:18px;text-align:center;border:1px solid var(--border);}
+.rstat-v{font-size:30px;font-weight:800;color:var(--orange);}
+.rstat-l{font-size:12px;color:var(--gray);margin-top:4px;}
+.resume-badge{margin:0 20px 14px;background:var(--bg2);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;border:1px solid var(--border);}
+.resume-kine{margin:0 20px 20px;background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:16px;padding:14px 16px;}
+
+/* ===== PROGRESSION ===== */
+.p-tabs{display:flex;gap:6px;margin:0 20px 16px;}
+.p-tab{flex:1;padding:9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.p-tab.active{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.07);}
+.chart-box{margin:0 20px 16px;background:var(--bg2);border-radius:18px;padding:18px;border:1px solid var(--border);}
+.chart-t{font-size:14px;font-weight:700;color:var(--white);margin-bottom:16px;}
+.bars{display:flex;align-items:flex-end;gap:8px;height:100px;}
+.bar-w{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.bar{width:100%;border-radius:6px 6px 0 0;}
+.bar-l{font-size:10px;color:var(--gray);}
+.muscle-box{margin:0 20px 16px;background:var(--bg2);border-radius:18px;padding:18px;border:1px solid var(--border);}
+.muscle-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.muscle-row:last-child{border-bottom:none;}
+.muscle-n{font-size:14px;color:var(--white);font-weight:500;width:72px;}
+.muscle-b{flex:1;height:6px;background:var(--bg3);border-radius:3px;margin:0 12px;overflow:hidden;}
+.muscle-f{height:100%;border-radius:3px;}
+.muscle-p{font-size:12px;color:var(--gray);font-weight:600;width:34px;text-align:right;}
+.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 32px;}
+.badge-card{background:var(--bg2);border-radius:16px;padding:16px;text-align:center;border:1px solid var(--border);}
+.badge-card.lock{opacity:.35;}
+.badge-e{font-size:34px;margin-bottom:6px;}
+.badge-t{font-size:13px;font-weight:700;color:var(--white);}
+.badge-d{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* ===== KINE DASHBOARD ===== */
+.kine-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 20px 14px;}
+.kstat{background:var(--bg2);border-radius:16px;padding:16px;border:1px solid var(--border);}
+.kstat-v{font-size:26px;font-weight:800;color:var(--white);}
+.kstat-l{font-size:11px;color:var(--gray);margin-top:2px;}
+.kstat-t{font-size:11px;color:var(--teal);margin-top:4px;font-weight:600;}
+.alert-box{margin:0 20px 12px;background:rgba(255,77,109,.07);border:1px solid rgba(255,77,109,.25);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.k-tabs{display:flex;gap:6px;margin:12px 20px 16px;}
+.k-tab{flex:1;padding:9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.k-tab.active{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.07);}
+.pat-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;}
+.pat-av{width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
+.pat-n{font-size:15px;font-weight:600;color:var(--white);}
+.pat-m{font-size:12px;color:var(--gray);margin-top:2px;}
+.pbdg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:7px;}
+.bdg-a{background:rgba(0,212,170,.12);color:var(--teal);}
+.bdg-w{background:rgba(255,77,109,.12);color:var(--red);}
+.bdg-o{background:rgba(255,107,53,.12);color:var(--orange);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SPLASH -->
+<div class="screen active" id="splash">
+  <div class="splash-bg"><div class="splash-orb1"></div><div class="splash-orb2"></div></div>
+
+  <!-- VIDEO BACKGROUND -->
+  <video class="splash-video" autoplay muted loop playsinline>
+    <source src="onboarding.mp4" type="video/mp4">
+  </video>
+  <!-- Overlay sombre pour lisibilité -->
+  <div class="splash-overlay"></div>
+
+  <!-- TOP : LOGO + TAGLINE -->
+  <div class="splash-top">
+    <div class="logo-wrap">
+      <div class="logo-icon"><svg viewBox="0 0 34 34" fill="none"><circle cx="17" cy="11" r="6" fill="white"/><path d="M7 30c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/></svg></div>
+      <div class="logo-name">kin<span>mio</span></div>
+    </div>
+    <p class="splash-tag">La première barre d'entraînement connectée et adaptative.</p>
+  </div>
+
+  <!-- SPACER -->
+  <div class="spacer"></div>
+
+  <!-- BOTTOM : CTA -->
+  <div class="splash-cta">
+    <button class="btn btn-orange gap12" onclick="go('ob1')">Commencer</button>
+    <div class="social-row">
+      <button class="social-btn" onclick="go('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Apple
+      </button>
+      <button class="social-btn" onclick="go('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:6px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:10px;"><button class="btn-ghost" onclick="go('login')">J'ai déjà un compte →</button></div>
+  </div>
+</div>
+
+<!-- OB1 -->
+<div class="screen" id="ob1">
+  <div class="topnav"><div class="topnav-r"></div><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div class="pbar px"><div class="pbar-fill" style="width:16%"></div></div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Quelle est ta situation ?</h2>
+    <p class="sub gap24">On adapte chaque séance à ton profil — pas à un modèle générique.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ob-opt" onclick="selOb(this,'ob2')"><div class="ob-icon">🏃</div><div style="flex:1"><div class="ob-label">Valide · Sport santé</div><div class="ob-desc">Remise en forme, entretien physique</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob2')"><div class="ob-icon">🦽</div><div style="flex:1"><div class="ob-label">Mobilité réduite · PMR</div><div class="ob-desc">Fauteuil, prothèse, pathologie motrice</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob2')"><div class="ob-icon">🔄</div><div style="flex:1"><div class="ob-label">Post-opératoire · Rééducation</div><div class="ob-desc">Suite chirurgie, fracture, entorse</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob2')"><div class="ob-icon">👴</div><div style="flex:1"><div class="ob-label">Senior · Maintien de forme</div><div class="ob-desc">Prévention chutes, équilibre, souplesse</div></div><div class="ob-check"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OB2 -->
+<div class="screen" id="ob2">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div class="pbar px"><div class="pbar-fill" style="width:32%"></div></div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Ton objectif principal ?</h2>
+    <p class="sub gap24">Tu pourras en ajouter d'autres plus tard.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ob-opt" onclick="selOb(this,'ob3')"><div class="ob-icon">💪</div><div style="flex:1"><div class="ob-label">Renforcement musculaire</div><div class="ob-desc">Développer la force et la tonicité</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob3')"><div class="ob-icon">❤️</div><div style="flex:1"><div class="ob-label">Cardio · Souffle</div><div class="ob-desc">Endurance, shadow boxing, kayak</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob3')"><div class="ob-icon">🔀</div><div style="flex:1"><div class="ob-label">Mobilité · Souplesse</div><div class="ob-desc">Amplitude, flexibilité, autonomie</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob3')"><div class="ob-icon">⚡</div><div style="flex:1"><div class="ob-label">Forme générale · Dynamisme</div><div class="ob-desc">Tonifier, maintenir, dépenser</div></div><div class="ob-check"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OB3 -->
+<div class="screen" id="ob3">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div class="pbar px"><div class="pbar-fill" style="width:48%"></div></div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Ton niveau d'autonomie ?</h2>
+    <p class="sub gap24">Pour calibrer l'intensité et la progressivité.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ob-opt" onclick="selOb(this,'ob4')"><div class="ob-icon">🟢</div><div style="flex:1"><div class="ob-label">Autonome</div><div class="ob-desc">Je m'entraîne seul(e) sans aide</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob4')"><div class="ob-icon">🟡</div><div style="flex:1"><div class="ob-label">Partiellement autonome</div><div class="ob-desc">Aide ponctuelle pour certains mouvements</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob4')"><div class="ob-icon">🔴</div><div style="flex:1"><div class="ob-label">Accompagnement nécessaire</div><div class="ob-desc">Un aidant ou professionnel est présent</div></div><div class="ob-check"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OB4 -->
+<div class="screen" id="ob4">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div class="pbar px"><div class="pbar-fill" style="width:64%"></div></div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Ton équipement disponible ?</h2>
+    <p class="sub gap24">Modifiable avant chaque séance.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ob-opt" onclick="selOb(this,'ob5')"><div class="ob-icon">📱</div><div style="flex:1"><div class="ob-label">App seule</div><div class="ob-desc">Exercices guidés sans matériel kinmio</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob5')"><div class="ob-icon">🔧</div><div style="flex:1"><div class="ob-label">Barre kinmio</div><div class="ob-desc">Barre avec réceptacle téléphone intégré</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt sel" onclick="selOb(this,'ob5')"><div class="ob-icon">⚡</div><div style="flex:1"><div class="ob-label">Barre + élastiques</div><div class="ob-desc">Système complet — expérience maximale</div></div><div class="ob-check">✓</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OB5 -->
+<div class="screen" id="ob5">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div class="pbar px"><div class="pbar-fill" style="width:80%"></div></div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Ta position habituelle ?</h2>
+    <p class="sub gap24">Chaque exercice existe dans ta position. Modifiable avant chaque séance.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ob-opt" onclick="selOb(this,'ob6')"><div class="ob-icon">🧍</div><div style="flex:1"><div class="ob-label">Debout</div><div class="ob-desc">Station verticale</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob6')"><div class="ob-icon">🪑</div><div style="flex:1"><div class="ob-label">Assis — chaise</div><div class="ob-desc">Position assise standard</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob6')"><div class="ob-icon">♿</div><div style="flex:1"><div class="ob-label">Fauteuil roulant</div><div class="ob-desc">Adapté fauteuil manuel ou électrique</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="selOb(this,'ob6')"><div class="ob-icon">🛏️</div><div style="flex:1"><div class="ob-label">Allongé</div><div class="ob-desc">Position couchée</div></div><div class="ob-check"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OB6 -->
+<div class="screen" id="ob6">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title"></div><div class="topnav-r"></div></div>
+  <div class="pbar px"><div class="pbar-fill" style="width:92%"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Un code prescripteur ?</h2>
+    <p class="sub gap24">Si ton kiné ou ton centre t'a donné un code. Sinon, passe directement.</p>
+    <input type="text" placeholder="Ex : SMR-KERPAPE-2025" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;letter-spacing:1px;margin-bottom:10px;" oninput="this.value=this.value.toUpperCase()">
+    <p style="font-size:12px;color:var(--gray);line-height:1.5;margin-bottom:32px;">Le code permet à ton praticien de suivre ta progression et d'adapter ton programme.</p>
+    <div class="spacer"></div>
+    <button class="btn btn-orange gap12" onclick="go('fork')">Continuer</button>
+    <button class="btn-ghost" style="width:100%;margin-top:6px;" onclick="go('fork')">Je n'ai pas de code</button>
+  </div>
+</div>
+
+<!-- FORK -->
+<div class="screen" id="fork">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Ton accès</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Bienvenue 👋</h2>
+    <p class="sub gap28">Comment tu rejoins kinmio ?</p>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+      <div class="fork-card" onclick="go('home')">
+        <div class="fork-icon" style="background:rgba(0,212,170,.12);">🧪</div>
+        <div style="flex:1"><div class="fork-title">Bêta testeur <span class="fork-badge badge-f">GRATUIT</span></div><div class="fork-desc">Tu as un code bêta. Accès complet gratuit. Tu aides à améliorer kinmio.</div></div>
+        <span style="color:var(--gray);font-size:20px;">›</span>
+      </div>
+      <div class="fork-card" onclick="go('formule')">
+        <div class="fork-icon" style="background:rgba(255,107,53,.12);">🏥</div>
+        <div style="flex:1"><div class="fork-title">Centre partenaire <span class="fork-badge badge-p">-20%</span></div><div class="fork-desc">Ton SMR ou ta clinique utilise kinmio. Tarif préférentiel automatique.</div></div>
+        <span style="color:var(--gray);font-size:20px;">›</span>
+      </div>
+      <div class="fork-card" onclick="go('formule')">
+        <div class="fork-icon" style="background:rgba(168,167,184,.1);">🚀</div>
+        <div style="flex:1"><div class="fork-title">Accès direct</div><div class="fork-desc">Tu t'abonnes directement. Accès immédiat à toute la bibliothèque.</div></div>
+        <span style="color:var(--gray);font-size:20px;">›</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORMULE -->
+<div class="screen" id="formule">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Choix de formule</div><div class="topnav-r"></div></div>
+  <div class="px pt" style="flex-shrink:0;">
+    <div class="f-tabs">
+      <div class="f-tab active" onclick="setFTab(this)">Mensuel</div>
+      <div class="f-tab" onclick="setFTab(this)">Trimestriel</div>
+      <div class="f-tab" onclick="setFTab(this)">Annuel</div>
+    </div>
+  </div>
+  <div class="scroll px pb">
+    <div class="f-card gap12">
+      <div class="f-name">Essentiel</div>
+      <div class="f-desc">Pour démarrer et créer l'habitude</div>
+      <div class="f-price">7,99€ <span>/ mois</span></div>
+      <div class="f-features">
+        <div class="f-feat">Bibliothèque exercices complète</div>
+        <div class="f-feat">Timer HIIT + coach vocal</div>
+        <div class="f-feat">Streak + rappels push</div>
+        <div class="f-feat">4 positions · tous équipements</div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:16px;" onclick="go('home')">Choisir Essentiel</button>
+    </div>
+    <div class="f-card rec gap12">
+      <div class="f-rec">RECOMMANDÉ</div>
+      <div class="f-name">Active</div>
+      <div class="f-desc">Pour progresser et être suivi</div>
+      <div class="f-price">13,99€ <span>/ mois</span></div>
+      <div class="f-features">
+        <div class="f-feat">Tout Essentiel inclus</div>
+        <div class="f-feat">Lien prescripteur · suivi médical</div>
+        <div class="f-feat">Progression avancée + courbes</div>
+        <div class="f-feat">Messagerie kiné in-app</div>
+        <div class="f-feat">Capteur accéléromètre actif</div>
+      </div>
+      <button class="btn btn-orange" style="margin-top:16px;" onclick="go('home')">Choisir Active</button>
+    </div>
+    <div class="f-card">
+      <div class="f-name">Premium</div>
+      <div class="f-desc">L'expérience kinmio complète</div>
+      <div class="f-price">21,99€ <span>/ mois</span></div>
+      <div class="f-features">
+        <div class="f-feat">Tout Active inclus</div>
+        <div class="f-feat">Programme adaptatif IA</div>
+        <div class="f-feat">Sessions live avec APA</div>
+        <div class="f-feat">Analyse asymétrie gauche/droite</div>
+        <div class="f-feat">Badges · XP · Défis communauté</div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:16px;" onclick="go('home')">Choisir Premium</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="home">
+  <div class="scroll">
+    <div class="home-top gap4"><div><div class="hw">Bonjour 👋</div><div class="hname">Sophie</div></div><div class="hav">S</div></div>
+    <div class="streak">
+      <span style="font-size:26px;">🔥</span>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--gray);">Série en cours</span><span style="font-size:22px;font-weight:800;color:var(--orange);">7 jours</span></div>
+        <div class="sdots"><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;margin-bottom:12px;"><h3>Session du jour</h3><span style="font-size:13px;color:var(--orange);cursor:pointer;" onclick="go('programme')">Voir tout</span></div>
+    <div class="today" onclick="go('programme')">
+      <div class="today-thumb">💪<div class="today-bdg">AUJOURD'HUI</div><div class="today-dur">28 min</div></div>
+      <div class="today-body">
+        <div class="today-title">Renforcement haut du corps</div>
+        <div class="today-sub">8 exercices · Barre + élastiques · Debout / Fauteuil</div>
+        <div class="today-tags"><span class="tag tag-o">HIIT</span><span class="tag tag-t">Épaules</span><span class="tag tag-g">Biceps</span><span class="tag tag-g">Dos</span></div>
+        <button class="btn btn-orange" style="padding:15px;font-size:15px;" onclick="event.stopPropagation();go('presession')">Démarrer →</button>
+      </div>
+    </div>
+    <div class="stats3">
+      <div class="scard"><div class="sval" style="color:var(--orange);">4</div><div class="slbl">Séances</div></div>
+      <div class="scard"><div class="sval" style="color:var(--teal);">87'</div><div class="slbl">Actif</div></div>
+      <div class="scard"><div class="sval">342</div><div class="slbl">Reps</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;margin-bottom:12px;"><h3>Explorer</h3><span style="font-size:13px;color:var(--orange);cursor:pointer;">Voir tout</span></div>
+    <div class="exo-row">
+      <div class="emini" onclick="go('presession')"><div class="emini-img" style="background:linear-gradient(135deg,#1a0008,#2d0012);">🥊</div><div class="emini-body"><div class="emini-name">Shadow Boxing</div><div class="emini-meta">15 min · Cardio</div></div></div>
+      <div class="emini" onclick="go('presession')"><div class="emini-img" style="background:linear-gradient(135deg,#001a12,#002d20);">🚣</div><div class="emini-body"><div class="emini-name">Kayak Cardio</div><div class="emini-meta">12 min · Épaules</div></div></div>
+      <div class="emini" onclick="go('presession')"><div class="emini-img" style="background:linear-gradient(135deg,#1a0e00,#2d1800);">🔥</div><div class="emini-body"><div class="emini-name">HIIT Express</div><div class="emini-meta">7 min · Corps entier</div></div></div>
+      <div class="emini" onclick="go('presession')"><div class="emini-img" style="background:linear-gradient(135deg,#001018,#001a28);">💆</div><div class="emini-body"><div class="emini-name">Récupération</div><div class="emini-meta">10 min · Mobilité</div></div></div>
+    </div>
+    <div style="height:84px;"></div>
+  </div>
+  <div class="bnav">
+    <button class="bnav-item active"><span class="bnav-icon">🏠</span><span class="bnav-label">Accueil</span></button>
+    <button class="bnav-item" onclick="go('programme')"><span class="bnav-icon">📋</span><span class="bnav-label">Programme</span></button>
+    <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon">📈</span><span class="bnav-label">Progrès</span></button>
+    <button class="bnav-item" onclick="go('kine')"><span class="bnav-icon">👨‍⚕️</span><span class="bnav-label">Kiné</span></button>
+  </div>
+</div>
+
+<!-- PROGRAMME -->
+<div class="screen" id="programme">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Programme du jour</div><div class="topnav-r"></div></div>
+  <div class="prog-hero">
+    <div class="prog-thumb">💪<div class="today-bdg" style="top:14px;left:14px;">PRESCRIT</div></div>
+    <h2 class="gap4">Renforcement haut du corps</h2>
+    <p style="font-size:13px;color:var(--gray);">Dr. Martin · SMR Kerpape</p>
+  </div>
+  <div class="prog-info">
+    <div><div class="piv" style="color:var(--orange);">28'</div><div class="pil">Durée</div></div>
+    <div><div class="piv">8</div><div class="pil">Exercices</div></div>
+    <div><div class="piv" style="color:var(--teal);">Moyen</div><div class="pil">Intensité</div></div>
+    <div><div class="piv">⚡</div><div class="pil">Barre+élas.</div></div>
+  </div>
+  <div class="scroll">
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num done">✓</div><div style="flex:1"><div class="exo-name">Échauffement épaules</div><div class="exo-meta">3 × 10 reps · Élastique vert</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num" style="border:1.5px solid var(--orange);color:var(--orange);">2</div><div style="flex:1"><div class="exo-name">Tirage horizontal</div><div class="exo-meta">4 × 12 reps · Élastique rouge · Dos</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">3</div><div style="flex:1"><div class="exo-name">Curl biceps barre</div><div class="exo-meta">3 × 15 reps · Barre seule</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">4</div><div style="flex:1"><div class="exo-name">Shadow boxing — Jabs</div><div class="exo-meta">3 rounds × 45 sec · Cardio</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">5</div><div style="flex:1"><div class="exo-name">Développé épaules</div><div class="exo-meta">3 × 10 reps · Élastique rouge</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">6</div><div style="flex:1"><div class="exo-name">Kayak simulé</div><div class="exo-meta">2 rounds × 60 sec · Épaules · Cardio</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">7</div><div style="flex:1"><div class="exo-name">Extension triceps</div><div class="exo-meta">3 × 12 reps · Élastique vert</div></div><span style="color:var(--gray);">›</span></div>
+    <div class="exo-item" onclick="go('presession')"><div class="exo-num">8</div><div style="flex:1"><div class="exo-name">Récupération guidée</div><div class="exo-meta">5 min · Étirements</div></div><span style="color:var(--gray);">›</span></div>
+    <div style="height:20px;"></div>
+  </div>
+  <div style="padding:16px 20px 32px;flex-shrink:0;">
+    <button class="btn btn-orange" onclick="go('presession')">Commencer la séance →</button>
+  </div>
+</div>
+
+<!-- PRE-SESSION -->
+<div class="screen" id="presession">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Avant de démarrer</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt" style="padding-bottom:20px;">
+    <div class="ps-lbl">✦ Configuration du jour</div>
+    <div class="ps-section">
+      <div class="ps-title">Mon équipement</div>
+      <div class="ps-opts">
+        <div class="ps-opt" onclick="toggleG(this)">📱 App seule</div>
+        <div class="ps-opt" onclick="toggleG(this)">🔧 Barre</div>
+        <div class="ps-opt on" onclick="toggleG(this)">⚡ Barre + élastiques</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Ma position</div>
+      <div class="ps-opts">
+        <div class="ps-opt on" onclick="toggleG(this)">🧍 Debout</div>
+        <div class="ps-opt" onclick="toggleG(this)">🪑 Assis</div>
+        <div class="ps-opt" onclick="toggleG(this)">♿ Fauteuil</div>
+        <div class="ps-opt" onclick="toggleG(this)">🛏️ Allongé</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Comment tu te sens ?</div>
+      <div class="ps-opts">
+        <div class="ps-opt" onclick="toggleG(this)">😴 Fatigué</div>
+        <div class="ps-opt on" onclick="toggleG(this)">😊 Normal</div>
+        <div class="ps-opt" onclick="toggleG(this)">⚡ En forme</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Douleur actuelle (0-10)</div>
+      <div class="pain-wrap">
+        <div class="pain-val">2 <span style="font-size:14px;color:var(--teal);font-weight:600;">Légère</span></div>
+        <div class="pain-track"><div class="pain-fill"></div><div class="pain-thumb"></div></div>
+        <div class="pain-labels"><span>0 — Aucune</span><span>10 — Intense</span></div>
+      </div>
+    </div>
+    <div style="height:16px;"></div>
+    <button class="btn btn-teal" onclick="go('session')">C'est parti ! →</button>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- SESSION -->
+<div class="screen" id="session">
+  <div class="sess-top">
+    <div class="sess-prog">2 / 8 exercices</div>
+    <button class="sess-stop" onclick="go('feedback')">Terminer</button>
+  </div>
+  <div class="sess-pbar"><div class="sess-pfill"></div></div>
+  <div class="sess-main">
+    <div class="timer-wrap">
+      <svg class="timer-svg" viewBox="0 0 210 210">
+        <circle class="timer-track" cx="105" cy="105" r="95"/>
+        <circle class="timer-fill" cx="105" cy="105" r="95" id="timerCircle"/>
+      </svg>
+      <div class="timer-center"><div class="timer-num" id="timerNum">0:32</div><div class="timer-lbl">Travail</div></div>
+    </div>
+    <div class="sess-name">Tirage horizontal</div>
+    <div class="sess-rep">Série 2 / 4 · 12 reps · Élastique rouge</div>
+    <div class="sess-tip"><div class="sess-tip-txt">💡 Coude au corps, tire vers le nombril. Expire à l'effort. Sens la contraction dans le dos.</div></div>
+    <div class="sess-ctrls">
+      <button class="sess-prev">← Préc.</button>
+      <button class="sess-next">Série suivante →</button>
+    </div>
+  </div>
+  <div class="rep-counter">
+    <div><div class="rep-n" id="repCount">8</div><div class="rep-l">reps détectées</div></div>
+    <div class="rep-btns">
+      <button class="rep-btn rep-m" onclick="chRep(-1)">−</button>
+      <button class="rep-btn rep-p" onclick="chRep(1)">+</button>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="screen" id="feedback">
+  <div class="topnav"><div class="topnav-r"></div><div class="topnav-title">Bilan de séance</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb">
+    <div class="fb-section">
+      <div class="fb-title">Douleur post-séance</div>
+      <div class="pain-wrap">
+        <div class="pain-val">1 <span style="font-size:14px;color:var(--teal);font-weight:600;">Quasi-nulle ✓</span></div>
+        <div class="pain-track"><div class="pain-fill" style="width:10%;"></div><div class="pain-thumb" style="left:10%;"></div></div>
+        <div class="pain-labels"><span>0 — Aucune</span><span>10 — Intense</span></div>
+      </div>
+    </div>
+    <div class="fb-section">
+      <div class="fb-title">Niveau d'effort ressenti</div>
+      <div class="effort-row">
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">😴</span><span class="eff-l">Trop facile</span></div>
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">😊</span><span class="eff-l">Bien</span></div>
+        <div class="eff-opt on" onclick="selEff(this)"><span class="eff-e">💪</span><span class="eff-l">Challengeant</span></div>
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">🔥</span><span class="eff-l">Épuisant</span></div>
+      </div>
+    </div>
+    <div class="fb-section">
+      <div class="fb-title">Note pour ton kiné</div>
+      <textarea class="note-input" placeholder="Ex : légère tension à l'épaule gauche..."></textarea>
+      <div style="font-size:11px;color:var(--gray);margin-top:6px;">👁️ Visible uniquement par Dr. Martin</div>
+    </div>
+  </div>
+  <div style="padding:16px 20px 32px;flex-shrink:0;">
+    <button class="btn btn-orange" onclick="go('resume')">Valider et voir le résumé</button>
+  </div>
+</div>
+
+<!-- RESUME -->
+<div class="screen" id="resume">
+  <div class="scroll">
+    <div class="resume-hero">
+      <div style="font-size:60px;margin-bottom:14px;">🏆</div>
+      <h2 class="gap8">Séance terminée !</h2>
+      <p class="sub">Tu as fait quelque chose de bien aujourd'hui.</p>
+    </div>
+    <div class="resume-stats">
+      <div class="rstat"><div class="rstat-v">26'</div><div class="rstat-l">Durée</div></div>
+      <div class="rstat"><div class="rstat-v">94</div><div class="rstat-l">Répétitions</div></div>
+      <div class="rstat"><div class="rstat-v" style="color:var(--teal);">7/8</div><div class="rstat-l">Exercices</div></div>
+      <div class="rstat"><div class="rstat-v" style="color:var(--white);font-size:22px;">↑8%</div><div class="rstat-l">vs semaine passée</div></div>
+    </div>
+    <div class="resume-badge">
+      <span style="font-size:38px;">🔥</span>
+      <div><div style="font-size:14px;font-weight:700;color:var(--orange);">Badge — 7 jours de suite</div><div style="font-size:12px;color:var(--gray);margin-top:3px;">7 séances consécutives. Continue !</div></div>
+    </div>
+    <div class="resume-kine">
+      <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:6px;">📊 Transmis à ton kiné</div>
+      <div style="font-size:13px;color:var(--gray2);line-height:1.4;">Dr. Martin a reçu tes données. Il adaptera ton prochain programme.</div>
+    </div>
+    <div class="px" style="display:flex;flex-direction:column;gap:10px;padding-bottom:40px;">
+      <button class="btn btn-orange" onclick="go('home')">Retour à l'accueil</button>
+      <button class="btn btn-outline" onclick="go('progression')">Voir ma progression</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESSION -->
+<div class="screen" id="progression">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Ma progression</div><div class="topnav-r"></div></div>
+  <div class="p-tabs px"><div class="p-tab active" onclick="setPTab(this)">Semaine</div><div class="p-tab" onclick="setPTab(this)">Mois</div><div class="p-tab" onclick="setPTab(this)">Total</div></div>
+  <div class="scroll">
+    <div class="chart-box">
+      <div class="chart-t">Répétitions par jour</div>
+      <div class="bars">
+        <div class="bar-w"><div class="bar" style="height:40%;background:var(--bg3);"></div><div class="bar-l">L</div></div>
+        <div class="bar-w"><div class="bar" style="height:70%;background:var(--orange);"></div><div class="bar-l">M</div></div>
+        <div class="bar-w"><div class="bar" style="height:55%;background:var(--orange);"></div><div class="bar-l">M</div></div>
+        <div class="bar-w"><div class="bar" style="height:80%;background:var(--orange);"></div><div class="bar-l">J</div></div>
+        <div class="bar-w"><div class="bar" style="height:10%;background:var(--bg3);"></div><div class="bar-l">V</div></div>
+        <div class="bar-w"><div class="bar" style="height:90%;background:var(--teal);"></div><div class="bar-l">S</div></div>
+        <div class="bar-w"><div class="bar" style="height:100%;background:var(--teal);"></div><div class="bar-l">D</div></div>
+      </div>
+    </div>
+    <div class="muscle-box">
+      <div class="chart-t" style="margin-bottom:8px;">Groupes musculaires</div>
+      <div class="muscle-row"><div class="muscle-n">Dos</div><div class="muscle-b"><div class="muscle-f" style="width:80%;background:var(--orange);"></div></div><div class="muscle-p">80%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Épaules</div><div class="muscle-b"><div class="muscle-f" style="width:65%;background:var(--orange);"></div></div><div class="muscle-p">65%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Biceps</div><div class="muscle-b"><div class="muscle-f" style="width:50%;background:var(--teal);"></div></div><div class="muscle-p">50%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Triceps</div><div class="muscle-b"><div class="muscle-f" style="width:30%;background:var(--bg3);"></div></div><div class="muscle-p">30%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Cardio</div><div class="muscle-b"><div class="muscle-f" style="width:45%;background:var(--teal);"></div></div><div class="muscle-p">45%</div></div>
+    </div>
+    <div style="padding:0 20px;margin-bottom:12px;"><h3>Badges</h3></div>
+    <div class="badges-grid">
+      <div class="badge-card"><div class="badge-e">🔥</div><div class="badge-t">7 jours de suite</div><div class="badge-d">Série de 7 séances</div></div>
+      <div class="badge-card"><div class="badge-e">💪</div><div class="badge-t">100 reps</div><div class="badge-d">En une séance</div></div>
+      <div class="badge-card lock"><div class="badge-e">🏅</div><div class="badge-t">30 jours</div><div class="badge-d">Série d'un mois</div></div>
+      <div class="badge-card lock"><div class="badge-e">⚡</div><div class="badge-t">Shadow boxer</div><div class="badge-d">10 sessions boxe</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- KINÉ DASHBOARD -->
+<div class="screen" id="kine">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Dashboard Kiné</div><div class="topnav-r"></div></div>
+  <div style="padding:0 20px 4px;flex-shrink:0;"><p style="font-size:13px;color:var(--gray);">Dr. Martin · SMR Kerpape</p></div>
+  <div class="k-tabs px"><div class="k-tab active" onclick="setKTab(this)">Patients</div><div class="k-tab" onclick="setKTab(this)">Stats</div><div class="k-tab" onclick="setKTab(this)">Alertes</div></div>
+  <div class="scroll">
+    <div class="kine-stats">
+      <div class="kstat"><div class="kstat-v">23</div><div class="kstat-l">Patients actifs</div><div class="kstat-t">↑ 3 cette semaine</div></div>
+      <div class="kstat"><div class="kstat-v" style="color:var(--teal);">78%</div><div class="kstat-l">Observance moy.</div><div class="kstat-t">↑ +5% vs mois passé</div></div>
+      <div class="kstat"><div class="kstat-v">2.1</div><div class="kstat-l">Douleur moy./10</div><div class="kstat-t">↓ En amélioration</div></div>
+      <div class="kstat"><div class="kstat-v" style="color:var(--red);">3</div><div class="kstat-l">Alertes</div><div class="kstat-t" style="color:var(--red);">⚠ À traiter</div></div>
+    </div>
+    <div class="alert-box">
+      <span style="font-size:20px;">⚠️</span>
+      <div style="flex:1;font-size:13px;color:var(--white);line-height:1.4;"><span style="color:var(--red);font-weight:700;">Marc D.</span> — Inactif depuis 5 jours. Douleur 7/10 lors de la dernière séance.</div>
+      <span style="font-size:12px;color:var(--orange);font-weight:600;white-space:nowrap;">Contacter →</span>
+    </div>
+    <div style="padding:0 20px;margin-bottom:12px;"><h3>Mes patients</h3></div>
+    <div class="pat-item"><div class="pat-av" style="background:var(--orange);">S</div><div style="flex:1;"><div class="pat-n">Sophie M.</div><div class="pat-m">Ménisque · 7j · Debout · Barre+élastique</div></div><div style="text-align:right;"><span class="pbdg bdg-a">ACTIF</span><div style="font-size:11px;color:var(--gray);margin-top:4px;">🔥 7j</div></div></div>
+    <div class="pat-item"><div class="pat-av" style="background:var(--teal);">J</div><div style="flex:1;"><div class="pat-n">Jean-Pierre L.</div><div class="pat-m">Fauteuil · AVC · Séance hier</div></div><div style="text-align:right;"><span class="pbdg bdg-o">OK</span><div style="font-size:11px;color:var(--gray);margin-top:4px;">🔥 3j</div></div></div>
+    <div class="pat-item"><div class="pat-av" style="background:var(--red);">M</div><div style="flex:1;"><div class="pat-n">Marc D.</div><div class="pat-m">Ligament · Douleur 7/10 · Inactif 5j</div></div><div style="text-align:right;"><span class="pbdg bdg-w">ALERTE</span><div style="font-size:11px;color:var(--red);margin-top:4px;">⚠ 5j</div></div></div>
+    <div class="pat-item"><div class="pat-av" style="background:#8B5CF6;">A</div><div style="flex:1;"><div class="pat-n">Amina K.</div><div class="pat-m">Post-op épaule · Séance ce matin</div></div><div style="text-align:right;"><span class="pbdg bdg-a">ACTIF</span><div style="font-size:11px;color:var(--gray);margin-top:4px;">🔥 12j</div></div></div>
+    <div style="padding:16px 20px 40px;"><button class="btn btn-orange">+ Ajouter un patient</button></div>
+  </div>
+</div>
+
+
+<!-- LOGIN -->
+<div class="screen" id="login">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Connexion</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Bon retour 👋</h2>
+    <p class="sub gap32">Connecte-toi pour retrouver ton programme.</p>
+    <input type="email" placeholder="Email" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
+    <input type="password" placeholder="Mot de passe" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:8px;">
+    <div style="text-align:right;margin-bottom:28px;"><button class="btn-ghost" style="font-size:13px;color:var(--orange);padding:4px 0;">Mot de passe oublié ?</button></div>
+    <button class="btn btn-orange gap12" onclick="go('home')">Se connecter</button>
+    <div style="margin:20px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">ou</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
+    <div class="social-row">
+      <button class="social-btn" onclick="go('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Apple
+      </button>
+      <button class="social-btn" onclick="go('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:6px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </button>
+    </div>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+</div>
+<script>
+let hist=['splash'];
+function go(id){
+  const c=hist[hist.length-1];
+  const ce=document.getElementById(c);
+  const ne=document.getElementById(id);
+  if(!ce||!ne)return;
+  ce.classList.add('out');
+  ce.classList.remove('active');
+  ne.style.transform='translateX(100%)';
+  ne.classList.add('active');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ne.style.transform='';ne.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';}));
+  hist.push(id);
+}
+function back(){
+  if(hist.length<2)return;
+  const c=hist.pop();
+  const p=hist[hist.length-1];
+  const ce=document.getElementById(c);
+  const pe=document.getElementById(p);
+  if(!ce||!pe)return;
+  ce.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
+  ce.style.transform='translateX(100%)';
+  ce.classList.remove('active');
+  setTimeout(()=>{ce.classList.remove('out');ce.style.transform='';ce.style.transition='';},360);
+  pe.classList.remove('out');
+  pe.classList.add('active');
+}
+function selOb(el,next){
+  el.closest('div').querySelectorAll('.ob-opt').forEach(o=>{o.classList.remove('sel');o.querySelector('.ob-check').textContent='';});
+  el.classList.add('sel');el.querySelector('.ob-check').textContent='✓';
+  setTimeout(()=>go(next),260);
+}
+function setFTab(el){el.closest('.f-tabs').querySelectorAll('.f-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function setPTab(el){el.closest('.p-tabs').querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function setKTab(el){el.closest('.k-tabs').querySelectorAll('.k-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function toggleG(el){el.closest('.ps-opts').querySelectorAll('.ps-opt').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
+function selEff(el){el.closest('.effort-row').querySelectorAll('.eff-opt').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
+let rc=8;
+function chRep(d){rc=Math.max(0,rc+d);document.getElementById('repCount').textContent=rc;}
+let ts=32,ti=null;
+function startTimer(){
+  if(ti)clearInterval(ti);
+  ti=setInterval(()=>{
+    if(ts>0)ts--;
+    const el=document.getElementById('timerNum');
+    const c=document.getElementById('timerCircle');
+    if(el)el.textContent='0:'+String(ts).padStart(2,'0');
+    if(c){const p=ts/45;c.style.strokeDashoffset=597-(597*(1-p));}
+    if(ts===0)ts=45;
+  },1000);
+}
+new MutationObserver(()=>{
+  const s=document.getElementById('session');
+  if(s&&s.classList.contains('active')){ts=32;startTimer();}
+  else if(ti){clearInterval(ti);ti=null;}
+}).observe(document.getElementById('session'),{attributes:true,attributeFilter:['class']});
+
+</script>
+</body>
+</html>
