@@ -294,6 +294,9 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .bdg-a{background:rgba(0,212,170,.12);color:var(--teal);}
 .bdg-w{background:rgba(255,77,109,.12);color:var(--red);}
 .bdg-o{background:rgba(255,107,53,.12);color:var(--orange);}
+
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--orange);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.4);}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--orange);cursor:pointer;border:none;}
 </style>
 </head>
 <body>
@@ -360,15 +363,15 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 <!-- ÉCRAN 3 : Intro onboarding -->
 <div class="screen" id="ob_intro">
   <div class="splash-video-fallback"></div>
-  <div class="splash-video-fallback"></div>
   <video class="splash-video" autoplay muted loop playsinline><source src="onboarding2.mp4" type="video/mp4"></video>
   <div class="splash-overlay" style="background:linear-gradient(180deg,rgba(10,10,15,.4) 0%,rgba(10,10,15,.85) 100%);"></div>
+  <div style="position:relative;z-index:3;padding:52px 20px 0;flex-shrink:0;"><button onclick="back()" style="background:rgba(255,255,255,.15);border:none;border-radius:12px;width:38px;height:38px;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">←</button></div>
   <div style="position:relative;z-index:2;flex:1;"></div>
   <div style="position:relative;z-index:2;padding:0 28px 48px;">
     <h1 style="font-size:32px;font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-.8px;margin-bottom:12px;" id="t_ob_intro_title">Créons ton programme ensemble</h1>
     <p style="font-size:15px;color:rgba(255,255,255,.7);line-height:1.5;margin-bottom:28px;" id="t_ob_intro_sub">Quelques questions pour que chaque séance soit pensée pour toi.</p>
     <button class="btn" style="background:var(--orange);color:white;font-size:16px;" onclick="go('ob1')" id="t_ob_intro_cta">C'EST PARTI ! →</button>
-    <div style="text-align:center;margin-top:12px;"><button class="btn-ghost" style="color:rgba(255,255,255,.4);font-size:13px;" onclick="go('ob1')" id="t_ob_intro_skip">Passer ›</button></div>
+    <div style="text-align:center;margin-top:12px;"><button class="btn-ghost" style="color:rgba(255,255,255,.4);font-size:13px;" onclick="go('ob_summary')" id="t_ob_intro_skip">Passer ›</button></div>
   </div>
 </div>
 
@@ -499,13 +502,14 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
       <div style="font-size:18px;color:var(--white);font-weight:600;margin-top:6px;" id="freqLabel">3 fois / semaine</div>
       <div style="font-size:13px;color:var(--gray);margin-top:4px;" id="freqDesc">Un bon rythme pour progresser</div>
     </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:10px;"><span style="font-size:12px;color:var(--gray);">Moins</span><span style="font-size:12px;color:var(--gray);">Plus</span></div>
-    <div style="display:flex;gap:8px;margin-bottom:28px;">
-      <div class="freq-dot" id="fd1" onclick="setFreq(1,this)">1</div>
-      <div class="freq-dot" id="fd2" onclick="setFreq(2,this)">2</div>
-      <div class="freq-dot" id="fd3" style="background:var(--orange);border-color:var(--orange);color:white;" onclick="setFreq(3,this)">3</div>
-      <div class="freq-dot" id="fd4" onclick="setFreq(4,this)">4</div>
-      <div class="freq-dot" id="fd5" onclick="setFreq(5,this)">5</div>
+    <div style="margin:0 0 28px;">
+      <input type="range" id="freqSlider" min="1" max="5" value="3"
+        style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--orange) 50%,var(--border) 50%);outline:none;cursor:pointer;"
+        oninput="setFreqSlider(this.value)">
+      <div style="display:flex;justify-content:space-between;margin-top:8px;">
+        <span style="font-size:12px;color:var(--gray);">1×/semaine</span>
+        <span style="font-size:12px;color:var(--gray);">5×/semaine</span>
+      </div>
     </div>
     <p style="font-size:12px;color:var(--gray);text-align:center;margin-bottom:16px;">Modifiable dans les paramètres</p>
     <div class="spacer"></div>
@@ -928,36 +932,443 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
   </div>
 </div>
 
+<!-- ================= HOME B2C ================= -->
+<div class="screen" id="home">
+  <div class="scroll">
+    <div class="home-top gap4">
+      <div><div class="hw">Bonjour 👋</div><div class="hname">Sophie</div></div>
+      <div class="hav" onclick="go('profil')" style="cursor:pointer;">S</div>
+    </div>
+    <div class="streak">
+      <div style="font-size:30px;">🔥</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:700;color:var(--white);">5 jours d'affilée</div>
+        <div class="sdots">
+          <div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div>
+          <div class="sdot on"></div><div class="sdot on"></div><div class="sdot"></div><div class="sdot"></div>
+        </div>
+      </div>
+      <div style="text-align:right;"><div style="font-size:22px;font-weight:800;color:var(--orange);">5</div><div style="font-size:11px;color:var(--gray);">semaines</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;margin-bottom:12px;"><h3>Séance du jour</h3><span style="font-size:13px;color:var(--orange);cursor:pointer;" onclick="go('programme')">Voir tout</span></div>
+    <div class="today" onclick="go('presession')">
+      <div class="today-thumb">💪<div class="today-bdg">DU JOUR</div><div class="today-dur">28 min</div></div>
+      <div class="today-body">
+        <div class="today-title">Renforcement haut du corps</div>
+        <div class="today-sub">7 exercices · Debout · Intensité moyenne</div>
+        <div class="today-tags"><span class="tag tag-o">Force</span><span class="tag tag-g">Épaules</span><span class="tag tag-g">Bras</span></div>
+        <button class="btn btn-orange" style="padding:15px;font-size:15px;" onclick="event.stopPropagation();go('presession')">Démarrer →</button>
+      </div>
+    </div>
+    <div class="stats3">
+      <div class="scard"><div class="sval" style="color:var(--orange);">18</div><div class="slbl">Séances</div></div>
+      <div class="scard"><div class="sval">6</div><div class="slbl">Semaines</div></div>
+      <div class="scard"><div class="sval" style="color:var(--teal);">92%</div><div class="slbl">Assiduité</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;margin-bottom:12px;"><h3>À explorer</h3></div>
+    <div class="exo-row">
+      <div class="emini" onclick="go('presession')">
+        <div class="emini-img" style="background:linear-gradient(135deg,#1a0e0a,#2d1409);">🥊</div>
+        <div class="emini-body"><div class="emini-name">Shadow boxing</div><div class="emini-meta">12 min · Cardio</div></div>
+      </div>
+      <div class="emini" onclick="go('presession')">
+        <div class="emini-img" style="background:linear-gradient(135deg,#001a12,#002d20);">🔀</div>
+        <div class="emini-body"><div class="emini-name">Mobilité douce</div><div class="emini-meta">15 min · Souplesse</div></div>
+      </div>
+      <div class="emini" onclick="go('presession')">
+        <div class="emini-img" style="background:linear-gradient(135deg,#12091a,#20092d);">🧘</div>
+        <div class="emini-body"><div class="emini-name">Récupération</div><div class="emini-meta">10 min · Détente</div></div>
+      </div>
+    </div>
+    <div style="height:84px;"></div>
+  </div>
+  <div class="bnav">
+    <button class="bnav-item active"><span class="bnav-icon">🏠</span><span class="bnav-label">Accueil</span></button>
+    <button class="bnav-item" onclick="go('programme')"><span class="bnav-icon">📋</span><span class="bnav-label">Programme</span></button>
+    <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon">📈</span><span class="bnav-label">Progrès</span></button>
+    <button class="bnav-item" onclick="go('profil')"><span class="bnav-icon">👤</span><span class="bnav-label">Profil</span></button>
+  </div>
+</div>
+
+<!-- ================= LOGIN ================= -->
+<div class="screen" id="login">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Connexion</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Content de te revoir 👋</h2>
+    <p class="sub gap24">Connecte-toi pour retrouver ton programme.</p>
+    <input type="email" placeholder="Email" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
+    <input type="password" placeholder="Mot de passe" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:10px;">
+    <div style="text-align:right;margin-bottom:20px;"><span style="font-size:13px;color:var(--orange);cursor:pointer;">Mot de passe oublié ?</span></div>
+    <button class="btn btn-orange" onclick="go('home')">Se connecter</button>
+    <div style="margin:16px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">ou</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="go('home')" style="flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple</button>
+      <button onclick="go('home')" style="flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
+    </div>
+    <div class="spacer"></div>
+    <div style="text-align:center;margin-top:24px;"><span style="font-size:14px;color:var(--gray);">Pas encore de compte ? </span><span style="font-size:14px;font-weight:700;color:var(--orange);cursor:pointer;" onclick="go('signup')">Créer un compte</span></div>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- ================= SIGNUP B2C ================= -->
+<div class="screen" id="signup">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Créer mon compte</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Dernière étape 🎉</h2>
+    <p class="sub gap24">Crée ton compte pour sauvegarder ton programme.</p>
+    <input type="email" placeholder="Email" oninput="checkSignupEmail(this.value)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
+    <input type="password" placeholder="Mot de passe" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:20px;">
+    <button class="btn btn-orange" id="signupCta" style="opacity:.5;" onclick="go('home')">Créer mon compte</button>
+    <div style="margin:16px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">ou</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="go('home')" style="flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple</button>
+      <button onclick="go('home')" style="flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
+    </div>
+    <div class="spacer"></div>
+    <div style="text-align:center;margin-top:24px;"><span style="font-size:14px;color:var(--gray);">Déjà un compte ? </span><span style="font-size:14px;font-weight:700;color:var(--orange);cursor:pointer;" onclick="go('login')">Se connecter</span></div>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- ================= PRE-SESSION ================= -->
+<div class="screen" id="presession">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Avant de commencer</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <div class="ps-lbl">Séance du jour</div>
+    <h2 class="gap8">Renforcement haut du corps</h2>
+    <p class="sub gap24">7 exercices · ~28 min. Ajuste la séance à ta forme du jour.</p>
+    <div class="ps-section">
+      <div class="ps-title">Ta position aujourd'hui</div>
+      <div class="ps-opts">
+        <div class="ps-opt on" onclick="toggleG(this)">🧍 Debout</div>
+        <div class="ps-opt" onclick="toggleG(this)">🪑 Assis</div>
+        <div class="ps-opt" onclick="toggleG(this)">♿ Fauteuil</div>
+        <div class="ps-opt" onclick="toggleG(this)">🛋️ Allongé</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Intensité</div>
+      <div class="ps-opts">
+        <div class="ps-opt" onclick="toggleG(this)">Douce</div>
+        <div class="ps-opt on" onclick="toggleG(this)">Modérée</div>
+        <div class="ps-opt" onclick="toggleG(this)">Intense</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Comment tu te sens ?</div>
+      <div class="ps-opts">
+        <div class="ps-opt on" onclick="toggleG(this)">😀 En forme</div>
+        <div class="ps-opt" onclick="toggleG(this)">😐 Moyen</div>
+        <div class="ps-opt" onclick="toggleG(this)">😣 Fatigué</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Au programme</div>
+      <div class="card-sm" style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:24px;">📋</span>
+        <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--white);">7 exercices · 3 séries</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">Épaules, bras, gainage · matériel : barre kinmio</div></div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-orange" onclick="go('session')">Commencer la séance →</button>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- ================= SESSION (entraînement) ================= -->
+<div class="screen" id="session">
+  <div class="sess-top">
+    <div class="sess-prog">Exercice 2 / 7</div>
+    <button class="sess-stop" onclick="go('home')">Arrêter</button>
+  </div>
+  <div class="sess-pbar"><div class="sess-pfill" style="width:28%;"></div></div>
+  <div class="sess-main">
+    <div class="timer-wrap">
+      <svg class="timer-svg" viewBox="0 0 210 210">
+        <circle class="timer-track" cx="105" cy="105" r="95"></circle>
+        <circle class="timer-fill" id="timerCircle" cx="105" cy="105" r="95"></circle>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-num" id="timerNum">0:32</div>
+        <div class="timer-lbl">Temps restant</div>
+      </div>
+    </div>
+    <div class="sess-name">Élévations latérales</div>
+    <div class="sess-rep">Série 2 · objectif 12 répétitions</div>
+    <div class="rep-counter" style="width:100%;margin:0 0 22px;">
+      <div><div class="rep-n" id="repCount">8</div><div class="rep-l">répétitions faites</div></div>
+      <div class="rep-btns">
+        <button class="rep-btn rep-m" onclick="chRep(-1)">−</button>
+        <button class="rep-btn rep-p" onclick="chRep(1)">+</button>
+      </div>
+    </div>
+    <div class="sess-tip"><div class="sess-tip-txt">💡 Garde les épaules basses et le dos droit. Souffle à chaque montée, contrôle la descente.</div></div>
+    <div class="sess-ctrls">
+      <button class="sess-prev" onclick="back()">Précédent</button>
+      <button class="sess-next" onclick="go('feedback')">Terminer →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= FEEDBACK post-séance ================= -->
+<div class="screen" id="feedback">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Bilan de séance</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <h2 class="gap8">Comment c'était ?</h2>
+    <p class="sub gap24">Ton ressenti ajuste tes prochaines séances.</p>
+    <div class="fb-section">
+      <div class="fb-title">Niveau de douleur pendant la séance</div>
+      <div class="pain-wrap">
+        <div class="pain-val" id="fbPainVal">0<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span></div>
+        <input type="range" min="0" max="10" value="0" oninput="document.getElementById('fbPainVal').innerHTML=this.value+'<span style=&quot;font-size:14px;color:var(--gray);font-weight:600;&quot;> / 10</span>'" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:var(--bg3);outline:none;cursor:pointer;margin-bottom:10px;">
+        <div class="pain-labels"><span>Aucune</span><span>Intense</span></div>
+      </div>
+    </div>
+    <div class="fb-section">
+      <div class="fb-title">Effort ressenti</div>
+      <div class="effort-row">
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">😌</span><span class="eff-l">Facile</span></div>
+        <div class="eff-opt on" onclick="selEff(this)"><span class="eff-e">🙂</span><span class="eff-l">Bien</span></div>
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">😅</span><span class="eff-l">Dur</span></div>
+        <div class="eff-opt" onclick="selEff(this)"><span class="eff-e">🥵</span><span class="eff-l">Max</span></div>
+      </div>
+    </div>
+    <div class="fb-section">
+      <div class="fb-title">Un mot pour ton référent <span style="color:var(--gray);font-weight:400;">(optionnel)</span></div>
+      <textarea class="note-input" placeholder="Comment s'est passée ta séance ? Une gêne, une réussite…"></textarea>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-orange" onclick="go('resume')">Valider ma séance</button>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- ================= RÉSUMÉ de séance ================= -->
+<div class="screen" id="resume">
+  <div class="scroll">
+    <div class="resume-hero">
+      <div style="font-size:60px;margin-bottom:8px;">🎉</div>
+      <h2 class="gap8">Séance terminée !</h2>
+      <p class="sub">Bravo Sophie, tu as tout donné aujourd'hui.</p>
+    </div>
+    <div class="resume-stats">
+      <div class="rstat"><div class="rstat-v">28:14</div><div class="rstat-l">Durée</div></div>
+      <div class="rstat"><div class="rstat-v">7/7</div><div class="rstat-l">Exercices</div></div>
+      <div class="rstat"><div class="rstat-v">84</div><div class="rstat-l">Répétitions</div></div>
+      <div class="rstat"><div class="rstat-v">142</div><div class="rstat-l">kcal est.</div></div>
+    </div>
+    <div class="resume-badge">
+      <span style="font-size:34px;">🏅</span>
+      <div><div style="font-size:15px;font-weight:700;color:var(--white);">Nouveau badge · Régularité</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">5 séances complétées cette semaine</div></div>
+    </div>
+    <div class="resume-kine">
+      <div style="font-size:13px;color:var(--teal);line-height:1.5;">💬 Ton ressenti et ta note ont bien été enregistrés. Ta prochaine séance s'adaptera en conséquence.</div>
+    </div>
+    <div style="padding:0 20px 32px;"><button class="btn btn-orange" onclick="go('home')">Retour à l'accueil</button></div>
+  </div>
+</div>
+
+<!-- ================= PROGRAMME ================= -->
+<div class="screen" id="programme">
+  <div class="scroll">
+    <div class="prog-hero">
+      <div class="prog-thumb">💪</div>
+      <h2 class="gap4">Renforcement haut du corps</h2>
+      <p class="sub">Semaine 3 · Programme adaptatif</p>
+    </div>
+    <div class="prog-info">
+      <div><div class="piv">7</div><div class="pil">Exercices</div></div>
+      <div><div class="piv">28 min</div><div class="pil">Durée</div></div>
+      <div><div class="piv">3</div><div class="pil">Séries</div></div>
+    </div>
+    <div class="px pt pb">
+      <button class="btn btn-orange" onclick="go('presession')">Reprendre la séance →</button>
+    </div>
+    <div class="exo-item" onclick="go('presession')">
+      <div class="exo-num done">✓</div>
+      <div style="flex:1;"><div class="exo-name">Échauffement épaules</div><div class="exo-meta">Terminé · 3 min</div></div>
+    </div>
+    <div class="exo-item" onclick="go('presession')">
+      <div class="exo-num done">✓</div>
+      <div style="flex:1;"><div class="exo-name">Rotations bras</div><div class="exo-meta">Terminé · 12 reps</div></div>
+    </div>
+    <div class="exo-item" onclick="go('session')">
+      <div class="exo-num">3</div>
+      <div style="flex:1;"><div class="exo-name">Élévations latérales</div><div class="exo-meta" style="color:var(--orange);font-weight:600;">En cours · série 2/3</div></div>
+      <span style="color:var(--orange);font-size:18px;">▶</span>
+    </div>
+    <div class="exo-item" onclick="go('presession')">
+      <div class="exo-num" style="background:var(--bg3);color:var(--gray);">4</div>
+      <div style="flex:1;"><div class="exo-name">Tirage poitrine</div><div class="exo-meta">À venir · 12 reps</div></div>
+    </div>
+    <div class="exo-item" onclick="go('presession')">
+      <div class="exo-num" style="background:var(--bg3);color:var(--gray);">5</div>
+      <div style="flex:1;"><div class="exo-name">Développé debout</div><div class="exo-meta">À venir · 10 reps</div></div>
+    </div>
+    <div class="exo-item" onclick="go('presession')">
+      <div class="exo-num" style="background:var(--bg3);color:var(--gray);">6</div>
+      <div style="flex:1;"><div class="exo-name">Gainage assisté</div><div class="exo-meta">À venir · 30 s</div></div>
+    </div>
+    <div class="exo-item" onclick="go('presession')">
+      <div class="exo-num" style="background:var(--bg3);color:var(--gray);">7</div>
+      <div style="flex:1;"><div class="exo-name">Étirements finaux</div><div class="exo-meta">À venir · 4 min</div></div>
+    </div>
+    <div style="height:84px;"></div>
+  </div>
+  <div class="bnav">
+    <button class="bnav-item" onclick="go('home')"><span class="bnav-icon">🏠</span><span class="bnav-label">Accueil</span></button>
+    <button class="bnav-item active"><span class="bnav-icon">📋</span><span class="bnav-label">Programme</span></button>
+    <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon">📈</span><span class="bnav-label">Progrès</span></button>
+    <button class="bnav-item" onclick="go('profil')"><span class="bnav-icon">👤</span><span class="bnav-label">Profil</span></button>
+  </div>
+</div>
+
+<!-- ================= PROGRESSION ================= -->
+<div class="screen" id="progression">
+  <div class="scroll">
+    <div class="px pt pb"><h2>Ta progression</h2></div>
+    <div class="p-tabs">
+      <div class="p-tab active" onclick="setPTab(this)">Semaine</div>
+      <div class="p-tab" onclick="setPTab(this)">Mois</div>
+      <div class="p-tab" onclick="setPTab(this)">Année</div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-t">Séances par jour</div>
+      <div class="bars">
+        <div class="bar-w"><div class="bar" style="height:32px;background:var(--orange);"></div><div class="bar-l">L</div></div>
+        <div class="bar-w"><div class="bar" style="height:56px;background:var(--orange);"></div><div class="bar-l">M</div></div>
+        <div class="bar-w"><div class="bar" style="height:18px;background:var(--bg3);"></div><div class="bar-l">M</div></div>
+        <div class="bar-w"><div class="bar" style="height:68px;background:var(--orange);"></div><div class="bar-l">J</div></div>
+        <div class="bar-w"><div class="bar" style="height:48px;background:var(--orange);"></div><div class="bar-l">V</div></div>
+        <div class="bar-w"><div class="bar" style="height:80px;background:var(--teal);"></div><div class="bar-l">S</div></div>
+        <div class="bar-w"><div class="bar" style="height:12px;background:var(--bg3);"></div><div class="bar-l">D</div></div>
+      </div>
+    </div>
+    <div class="muscle-box">
+      <div class="chart-t">Zones travaillées</div>
+      <div class="muscle-row"><div class="muscle-n">Épaules</div><div class="muscle-b"><div class="muscle-f" style="width:82%;background:var(--orange);"></div></div><div class="muscle-p">82%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Bras</div><div class="muscle-b"><div class="muscle-f" style="width:68%;background:var(--orange);"></div></div><div class="muscle-p">68%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Dos</div><div class="muscle-b"><div class="muscle-f" style="width:54%;background:var(--teal);"></div></div><div class="muscle-p">54%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Gainage</div><div class="muscle-b"><div class="muscle-f" style="width:45%;background:var(--teal);"></div></div><div class="muscle-p">45%</div></div>
+      <div class="muscle-row"><div class="muscle-n">Jambes</div><div class="muscle-b"><div class="muscle-f" style="width:30%;background:var(--gray);"></div></div><div class="muscle-p">30%</div></div>
+    </div>
+    <div class="px"><h3 class="gap12">Badges</h3></div>
+    <div class="badges-grid">
+      <div class="badge-card"><div class="badge-e">🔥</div><div class="badge-t">Série de 5</div><div class="badge-d">5 jours d'affilée</div></div>
+      <div class="badge-card"><div class="badge-e">🏅</div><div class="badge-t">Régularité</div><div class="badge-d">5 séances / semaine</div></div>
+      <div class="badge-card"><div class="badge-e">💪</div><div class="badge-t">Premier mois</div><div class="badge-d">18 séances</div></div>
+      <div class="badge-card lock"><div class="badge-e">🏆</div><div class="badge-t">Marathon</div><div class="badge-d">50 séances</div></div>
+      <div class="badge-card lock"><div class="badge-e">⭐</div><div class="badge-t">Assidu·e</div><div class="badge-d">3 mois d'affilée</div></div>
+      <div class="badge-card lock"><div class="badge-e">🎯</div><div class="badge-t">Sans faute</div><div class="badge-d">Semaine parfaite</div></div>
+    </div>
+    <div style="height:84px;"></div>
+  </div>
+  <div class="bnav">
+    <button class="bnav-item" onclick="go('home')"><span class="bnav-icon">🏠</span><span class="bnav-label">Accueil</span></button>
+    <button class="bnav-item" onclick="go('programme')"><span class="bnav-icon">📋</span><span class="bnav-label">Programme</span></button>
+    <button class="bnav-item active"><span class="bnav-icon">📈</span><span class="bnav-label">Progrès</span></button>
+    <button class="bnav-item" onclick="go('profil')"><span class="bnav-icon">👤</span><span class="bnav-label">Profil</span></button>
+  </div>
+</div>
+
+<!-- ================= ESPACE RÉFÉRENT (kiné) ================= -->
+<div class="screen" id="kine">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Espace référent</div><div class="topnav-r"></div></div>
+  <div class="scroll">
+    <div style="padding:0 20px 8px;display:flex;align-items:center;gap:12px;">
+      <div class="pat-av" style="background:var(--teal);color:#0A0A0F;">M</div>
+      <div><div style="font-size:16px;font-weight:700;color:var(--white);">Dr. Martin</div><div style="font-size:12px;color:var(--gray);">Centre Kerpape · Kinésithérapeute</div></div>
+    </div>
+    <div class="kine-stats">
+      <div class="kstat"><div class="kstat-v">24</div><div class="kstat-l">Patients actifs</div><div class="kstat-t">+3 cette semaine</div></div>
+      <div class="kstat"><div class="kstat-v">156</div><div class="kstat-l">Séances / semaine</div><div class="kstat-t">+12%</div></div>
+      <div class="kstat"><div class="kstat-v">1.8</div><div class="kstat-l">Douleur moyenne</div><div class="kstat-t" style="color:var(--teal);">En baisse</div></div>
+      <div class="kstat"><div class="kstat-v">92%</div><div class="kstat-l">Assiduité</div><div class="kstat-t">Stable</div></div>
+    </div>
+    <div class="alert-box">
+      <span style="font-size:22px;">⚠️</span>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--white);">2 patients à surveiller</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">Douleur en hausse sur les 3 dernières séances</div></div>
+      <span style="color:var(--red);font-size:18px;">›</span>
+    </div>
+    <div class="k-tabs">
+      <div class="k-tab active" onclick="setKTab(this)">Patients</div>
+      <div class="k-tab" onclick="setKTab(this)">Alertes</div>
+      <div class="k-tab" onclick="setKTab(this)">Statistiques</div>
+    </div>
+    <div class="pat-item">
+      <div class="pat-av" style="background:var(--teal);color:#0A0A0F;">M</div>
+      <div style="flex:1;"><div class="pat-n">Marc D.</div><div class="pat-m">Mobilité épaule · Semaine 3 · Séance hier</div></div>
+      <span class="pbdg bdg-a">Assidu</span>
+    </div>
+    <div class="pat-item">
+      <div class="pat-av" style="background:var(--red);">S</div>
+      <div style="flex:1;"><div class="pat-n">Sophie M.</div><div class="pat-m">Renforcement · Douleur en hausse</div></div>
+      <span class="pbdg bdg-w">À suivre</span>
+    </div>
+    <div class="pat-item">
+      <div class="pat-av" style="background:var(--orange);">J</div>
+      <div style="flex:1;"><div class="pat-n">Jean R.</div><div class="pat-m">Rééducation genou · Semaine 6</div></div>
+      <span class="pbdg bdg-a">Assidu</span>
+    </div>
+    <div class="pat-item">
+      <div class="pat-av" style="background:#6C5CE7;">L</div>
+      <div style="flex:1;"><div class="pat-n">Lucie B.</div><div class="pat-m">Nouvelle patiente · Bilan à faire</div></div>
+      <span class="pbdg bdg-o">Nouveau</span>
+    </div>
+    <div style="height:32px;"></div>
+  </div>
+</div>
+
 </div>
 <script>
 let hist=['splash'];
 function go(id){
-  const c=hist[hist.length-1];
-  const ce=document.getElementById(c);
   const ne=document.getElementById(id);
-  if(!ce||!ne)return;
-  ce.classList.remove('active');
-  ce.classList.add('out');
-  ne.classList.add('active');
+  if(!ne) return;                                     // cible inexistante : no-op propre
+  const ce=document.querySelector('.screen.active');  // écran RÉELLEMENT actif (pas hist)
+  if(ce===ne) return;                                 // déjà sur cet écran
+  // Neutraliser tout écran fantôme (ni sortant, ni entrant) sans animation
+  document.querySelectorAll('.screen').forEach(s=>{
+    if(s!==ce && s!==ne){
+      s.classList.remove('active','out');
+      s.style.transition='none';
+      s.style.transform='';
+    }
+  });
+  // Écran entrant : ancré à droite sans animation, puis glisse vers 0
+  ne.classList.remove('out');
   ne.style.transition='none';
   ne.style.transform='translateX(110%)';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    ne.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
-    ne.style.transform='';
-  }));
-  setTimeout(()=>{ ce.classList.remove('out'); ce.style.transform=''; ce.style.transition=''; }, 400);
+  ne.classList.add('active');
+  void ne.offsetWidth;                                // reflow pour ancrer l'état initial
+  ne.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
+  ne.style.transform='translateX(0)';
+  // Écran sortant : léger parallax vers la gauche...
+  if(ce){
+    ce.classList.remove('active');
+    ce.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
+    ce.style.transform='translateX(-30%)';
+    // ...puis masqué SANS animation (évite le balayage fantôme qui traversait l'écran)
+    setTimeout(()=>{
+      ce.style.transition='none';
+      ce.style.transform='';                          // -> translateX(110%) via CSS, instantané
+    }, 320);
+  }
   hist.push(id);
   if(id==='pay_cb') setTimeout(updatePayCbRecap, 50);
 }
 function goHome(){
-  hist = ['home'];
+  // Réinitialise l'état de navigation. NB : l'écran 'home' B2C est absent de ce
+  // prototype ; les appelants enchaînent go('splash'), qui affichera l'écran.
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active','out');
+    s.style.transition = 'none';
     s.style.transform = '';
-    s.style.transition = '';
   });
   const h = document.getElementById('home');
-  if(h){ h.classList.add('active'); h.style.transform=''; }
+  if(h){ h.classList.add('active'); h.style.transform='translateX(0)'; hist = ['home']; }
+  else { hist = []; }   // pas d'écran 'home' : on repart d'une pile vide
 }
 
 // Centre code validation
@@ -997,15 +1408,16 @@ function validateCentreCode(){
       nextBtn.style.cursor = 'pointer';
       nextBtn.className = 'btn btn-teal';
       nextBtn.setAttribute('data-active','true');
+    centreCodeValid = true;
     }
   }
 }
 
+var centreCodeValid = false;
 function goToCentreOnboarding(){
-  const nextBtn = document.getElementById('centreNextBtn');
-  if(nextBtn && nextBtn.getAttribute('data-active') === 'true'){
-    go('ob_intro_centre');
-  }
+  // 'ob_intro_centre' n'existe pas dans ce prototype : on enchaîne sur le
+  // récapitulatif du parcours centre, écran réellement présent.
+  if(centreCodeValid) go('ob_summary_centre');
 }
 
 // Shop redirect
@@ -1066,32 +1478,28 @@ function back(){
   const p=hist[hist.length-1];
   const ce=document.getElementById(c);
   const pe=document.getElementById(p);
-  if(!ce||!pe)return;
-  ce.classList.remove('active');
-  ce.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
-  ce.style.transform='translateX(110%)';
-  setTimeout(()=>{ ce.style.transform=''; ce.style.transition=''; }, 360);
+  if(!pe){ hist.push(c); return; }   // écran précédent absent : on annule le pop
+  // Neutraliser tout écran fantôme
+  document.querySelectorAll('.screen').forEach(s=>{
+    if(s!==ce && s!==pe){ s.classList.remove('active','out'); s.style.transition='none'; s.style.transform=''; }
+  });
+  // Écran précédent : réintroduit par la gauche
   pe.classList.remove('out');
+  pe.style.transition='none';
+  pe.style.transform='translateX(-30%)';
   pe.classList.add('active');
-}
-function selOb(el,next){
-  // Find parent container with multiple ob-opt children
-  let parent = el.parentElement;
-  while(parent && parent.querySelectorAll(':scope > .ob-opt').length === 0){
-    parent = parent.parentElement;
+  void pe.offsetWidth;
+  pe.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
+  pe.style.transform='translateX(0)';
+  // Écran courant : ressort vers la droite, puis masqué sans animation
+  if(ce){
+    ce.classList.remove('active');
+    ce.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
+    ce.style.transform='translateX(110%)';
+    setTimeout(()=>{ ce.style.transition='none'; ce.style.transform=''; }, 320);
   }
-  if(parent){
-    parent.querySelectorAll('.ob-opt').forEach(o=>{
-      o.classList.remove('sel');
-      const chk = o.querySelector('.ob-check');
-      if(chk) chk.textContent='';
-    });
-  }
-  el.classList.add('sel');
-  const check = el.querySelector('.ob-check');
-  if(check) check.textContent='✓';
-  setTimeout(()=>go(next),280);
 }
+// selOb replaced by profile-aware version below
 function setFTab(el){el.closest('.f-tabs').querySelectorAll('.f-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
 function setPTab(el){el.closest('.p-tabs').querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
 function setKTab(el){el.closest('.k-tabs').querySelectorAll('.k-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
@@ -1102,7 +1510,7 @@ function chRep(d){rc=Math.max(0,rc+d);document.getElementById('repCount').textCo
 let tsVal=32,tiVal=null;
 function startTimer(){
   if(tiVal)clearInterval(tiVal);
-  ti=setInterval(()=>{
+  tiVal=setInterval(()=>{
     if(tsVal>0)tsVal--;
     const el=document.getElementById('timerNum');
     const c=document.getElementById('timerCircle');
@@ -1434,7 +1842,7 @@ const j30Labels = {mensuel:'Mensuel · 9,99€', trim:'Trimestriel · 24,99€',
 
 function showJ30(){ go('paywall_j30'); }
 
-function goAfterSummary(){ go('signup'); }
+// goAfterSummary replaced by profile-aware version below
 
 // Paywall formule
 function selFormule(type){
@@ -1498,6 +1906,19 @@ const freqData = {
   4:{label:"4 fois / semaine",desc:"Pour accélérer les résultats"},
   5:{label:"5 fois / semaine",desc:"Niveau intensif — pense à récupérer"}
 };
+function setFreqSlider(val){
+  const n = parseInt(val);
+  const pct = ((n-1)/4)*100;
+  const slider = document.getElementById('freqSlider');
+  if(slider) slider.style.background = `linear-gradient(90deg,var(--orange) ${pct}%,var(--border) ${pct}%)`;
+  const num=document.getElementById('freqNum');
+  const lbl=document.getElementById('freqLabel');
+  const dsc=document.getElementById('freqDesc');
+  if(num) num.textContent=n;
+  if(lbl) lbl.textContent=freqData[n].label;
+  if(dsc) dsc.textContent=freqData[n].desc;
+}
+
 function setFreq(n, el){
   [1,2,3,4,5].forEach(i => {
     const d = document.getElementById('fd'+i);
@@ -1512,6 +1933,55 @@ function setFreq(n, el){
   if(num) num.textContent=n;
   if(lbl) lbl.textContent=freqData[n].label;
   if(dsc) dsc.textContent=freqData[n].desc;
+}
+
+
+// Global profile storage
+var profile = {pos:[], grip:'', grip_ease:'', obj:'', rythme:'', zones:[], duree:''};
+
+// selOb : sélectionne une option d'onboarding, la stocke dans profile, puis navigue
+function selOb(el, next){
+  // Store the selection
+  var screen = el.closest('.screen');
+  if(screen){
+    var sid = screen.id;
+    var label = el.querySelector('.ob-label') ? el.querySelector('.ob-label').textContent : '';
+    if(sid==='ob2') profile.grip = label;
+    if(sid==='ob3') profile.grip_ease = label;
+    if(sid==='ob4') profile.obj = label;
+    if(sid==='ob5') profile.rythme = label;
+    if(sid==='ob8') profile.duree = label;
+  }
+  // Find parent container
+  let parent = el.parentElement;
+  while(parent && parent.querySelectorAll(':scope > .ob-opt').length === 0){ parent = parent.parentElement; }
+  if(parent){ parent.querySelectorAll('.ob-opt').forEach(o=>{ o.classList.remove('sel'); const chk=o.querySelector('.ob-check'); if(chk) chk.textContent=''; }); }
+  el.classList.add('sel');
+  const check = el.querySelector('.ob-check'); if(check) check.textContent='✓';
+  setTimeout(()=>go(next), 280);
+}
+
+function populateSummary(){
+  var posLabels = Array.from(document.querySelectorAll('#ob1 .ob-opt.sel')).map(e=>e.querySelector('.ob-label').textContent);
+  if(posLabels.length) profile.pos = posLabels;
+  var zoneLabels = Array.from(document.querySelectorAll('#zone_opts .ob-opt.sel')).map(e=>e.querySelector('.ob-label').textContent).filter(t=>t!=='Aucune zone particulière');
+  profile.zones = zoneLabels;
+  var freq = document.getElementById('freqNum') ? document.getElementById('freqNum').textContent : '3';
+  
+  var el;
+  el = document.getElementById('sum_pos'); if(el) el.textContent = profile.pos.length ? profile.pos.join(' · ') : '—';
+  el = document.getElementById('sum_grip'); if(el) el.textContent = profile.grip || '—';
+  el = document.getElementById('sum_obj'); if(el) el.textContent = profile.obj || '—';
+  el = document.getElementById('sum_rythme'); if(el) el.textContent = profile.rythme || '—';
+  el = document.getElementById('sum_freq'); if(el) el.textContent = freq + '×/semaine';
+  el = document.getElementById('sum_duree'); if(el) el.textContent = profile.duree || '—';
+  el = document.getElementById('sum_zones'); if(el) el.textContent = profile.zones.length ? '⚠ Zone à ménager : ' + profile.zones.join(', ') : '✓ Aucune zone particulière · Programme prêt';
+}
+
+// goAfterSummary : fin de l'onboarding B2C -> renseigne le profil puis entre dans l'app
+function goAfterSummary(){
+  populateSummary();
+  go('home_centre');
 }
 
 </script>
