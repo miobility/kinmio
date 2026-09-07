@@ -45,6 +45,7 @@
    écrans profil (et ses variantes), home et session, jamais avant. */
 --brand-fixed:#26C57B;
 --brand-fixed-rgb:38,197,123;
+--brand-fixed-btn:#1E9A60;
 /* Recalée : S79→95% (à parité avec critique/positif, tous deux à saturation max — E8833A
    tranchait par le bas) et H25°→35° (gagne de la marge des deux côtés à la fois : 12,8°→22,6°
    avec l'accent corail, 36°→45,8° avec le critique — cf atelier "palette de marque"). */
@@ -106,6 +107,7 @@
 --orange-rgb:23,120,75;
 --brand-fixed:#17784B;
 --brand-fixed-rgb:23,120,75;
+--brand-fixed-btn:#17784B;
 --teal:#17784B;
 --teal-rgb:23,120,75;
 /* Override du token sombre : voir le commentaire complet à sa déclaration dans le :root sombre.
@@ -248,7 +250,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 /* Pour les CTA des écrans avant que l'utilisateur ait sa propre plateforme (splash, entrée,
    onboarding, paywall, login/signup) — cf --brand-fixed dans le :root. .btn-orange suit
    data-accent, ce qui n'a pas de sens tant qu'aucune plateforme n'est encore identifiée. */
-.btn-brand-fixed{background:var(--brand-fixed);color:var(--ink-on-accent);box-shadow:0 8px 16px -8px rgba(var(--brand-fixed-rgb),.28),0 2px 5px rgba(var(--brand-fixed-rgb),.1);}
+.btn-brand-fixed{background:var(--brand-fixed-btn);color:#fff;box-shadow:0 8px 16px -8px rgba(var(--brand-fixed-rgb),.28),0 2px 5px rgba(var(--brand-fixed-rgb),.1);}
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--white);cursor:pointer;}
 .btn-danger{background:transparent;border:1.5px solid var(--border);color:var(--red);}
 .btn-ghost{background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;}
@@ -717,17 +719,16 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <video class="splash-video" autoplay muted loop playsinline><source src="onboarding.mp4" type="video/mp4"></video>
   <div class="splash-overlay"></div>
   <!-- Logo + slogan -->
-  <div style="position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;">
+  <div style="position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10vh 28px 0;">
     <div style="display:inline-flex;flex-direction:column;align-items:center;">
       <div style="margin-bottom:6px;">
-        <img src="kinmio_logo_app.png" alt="kinmio" style="height:32px;width:auto;display:block;">
+        <img src="kinmio_logo_app.png" alt="kinmio" style="height:40px;width:auto;display:block;">
       </div>
       <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-style:italic;font-size:17px;letter-spacing:1.39px;text-transform:uppercase;margin:0;" id="t_tagline" data-notranslate="1"><span style="color:var(--white);">Ready for HIIT</span></p>
     </div>
   </div>
   <!-- Boutons bas -->
   <div style="position:relative;z-index:3;padding:0 24px 48px;">
-    <p style="font-size:14px;font-weight:600;color:rgba(255,255,255,.8);text-align:center;margin:0 0 16px;">The HIIT platform for everyone</p>
     <button class="btn btn-brand-fixed" style="margin-bottom:12px;font-size:15px;" onclick="go('barre_check')">Get started</button>
     <button class="btn btn-outline" style="margin-bottom:6px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);" onclick="go('centre_entry')">I have an invitation code</button>
     <div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:14px;">Reserved for members invited by a partner centre</div>
@@ -8975,7 +8976,6 @@ function hideLang(){document.getElementById('langPopup').style.display='none';}
 let currentLang = 'en';
 const EN_FR = {
   // screen2 (splash)
-  "The HIIT platform for everyone": "La plateforme HIIT accessible à tous",
   "Get started": "Commencer",
   "I have an invitation code": "J'ai un code d'invitation",
   "Reserved for members invited by a partner centre": "Réservé aux membres invités par un centre partenaire",
