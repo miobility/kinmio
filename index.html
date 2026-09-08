@@ -37,6 +37,8 @@
    ci-dessous, comme les autres tokens déjà adaptés par thème. */
 --orange:#26C57B;
 --orange-rgb:38,197,123;
+--orange-btn:#1E9A60;
+--teal-btn:#1E9A60;
 /* Émeraude toujours fixe, jamais affecté par data-accent (contrairement à --orange) — pour les
    écrans avant que l'utilisateur ait sa propre plateforme/couleur : splash, écran d'entrée, tout
    l'onboarding, paywall, login/signup. Un accent mémorisé (localStorage) ne doit jamais y
@@ -105,11 +107,13 @@
    pour le contexte de la bascule orange→vert. */
 --orange:#17784B;
 --orange-rgb:23,120,75;
+--orange-btn:#17784B;
 --brand-fixed:#17784B;
 --brand-fixed-rgb:23,120,75;
 --brand-fixed-btn:#17784B;
 --teal:#17784B;
 --teal-rgb:23,120,75;
+--teal-btn:#17784B;
 /* Override du token sombre : voir le commentaire complet à sa déclaration dans le :root sombre.
    Blanc en mode clair, pas d'encre foncée — les accents de mode clair sont tous assombris pour
    rester lisibles en TEXTE (sur fond clair), ce qui les rend justement trop foncés pour une
@@ -135,28 +139,25 @@
    logo, CTA & personnalisation") via content:url(), pas de JS nécessaire. */
 :root[data-theme="light"] #splashLogoImg{content:url("kinmio_n_light.png");}
 :root[data-theme="light"] #barreCheckLogoImg{content:url("kinmio_logo_app_light.png");}
+:root[data-theme="light"] #entryLogoImg{content:url("kinmio_logo_app_light.png");}
 /* ===== PERSONNALISATION DE L'ACCENT — liste fermée de 5 presets (cf charte "kinmio — charte
    graphique", section Personnalisation) : jamais de sélecteur hex libre, pour garantir que
    chaque option passe déjà les vérifications de contraste et de marge aux états fixes.
    Ne touche QUE --orange/--orange-rgb — --teal (positif), --red (critique) et --vigilance
-   restent fixes quel que soit l'accent choisi, cf getAccent()/setAccent() plus bas. */
-:root[data-accent="bleu"]{--orange:#4B88DC;--orange-rgb:75,136,220;}
-:root[data-theme="light"][data-accent="bleu"]{--orange:#1E519A;--orange-rgb:30,81,154;}
-:root[data-accent="violet"]{--orange:#A554DE;--orange-rgb:165,84,222;}
-:root[data-theme="light"][data-accent="violet"]{--orange:#661E9A;--orange-rgb:102,30,154;}
-:root[data-accent="fuchsia"]{--orange:#C52683;--orange-rgb:197,38,131;}
-:root[data-theme="light"][data-accent="fuchsia"]{--orange:#78174F;--orange-rgb:120,23,79;}
-/* "Or" recalé (#C5C026→#889325) — l'ancienne teinte partageait la recette S68/L46 des autres
-   presets, ce qui donne un jaune lu comme signalisation/danger plutôt que doré, et n'avait que
-   23° de marge avec Vigilance. Nouvelle teinte : H58→66° (marge 31°) + saturation/luminosité
-   baissées (S60/L36) pour un rendu bronze/métallique plutôt que jaune plat — cf "kinmio — or &
-   fuchsia, l'exercice". Fuchsia gardé tel quel : son défaut perçu ("vif/bonbon") est en fait
-   approprié à qui choisit délibérément cette teinte, et il sert de CTA vu en pleine séance —
-   se voir vite prime sur la sophistication. */
-:root[data-accent="or"]{--orange:#889325;--orange-rgb:136,147,37;}
-:root[data-theme="light"][data-accent="or"]{--orange:#535916;--orange-rgb:83,89,22;}
-:root[data-accent="citron"]{--orange:#5BC526;--orange-rgb:91,197,38;}
-:root[data-theme="light"][data-accent="citron"]{--orange:#377817;--orange-rgb:55,120,23;}
+   restent fixes quel que soit l'accent choisi, cf getAccent()/setAccent() plus bas.
+   Palette synchronisée avec la charte (Bleu/Violet/Orchidée/Sauge/Ambre) — remplace l'ancienne
+   liste bleu/violet/fuchsia/or/citron. --orange-btn = teinte "sur bouton" (seuil texte large
+   3:1 avec texte blanc), déjà calculée et tranchée dans la charte, section CTA. */
+:root[data-accent="bleu"]{--orange:#529CFE;--orange-rgb:82,156,254;--orange-btn:#2A85FE;}
+:root[data-theme="light"][data-accent="bleu"]{--orange:#0158CB;--orange-rgb:1,88,203;--orange-btn:#0158CB;}
+:root[data-accent="violet"]{--orange:#A87EFD;--orange-rgb:168,126,253;--orange-btn:#9968FD;}
+:root[data-theme="light"][data-accent="violet"]{--orange:#4D04E3;--orange-rgb:77,4,227;--orange-btn:#4D04E3;}
+:root[data-accent="orchidee"]{--orange:#E85EE8;--orange-rgb:232,94,232;--orange-btn:#E444E4;}
+:root[data-theme="light"][data-accent="orchidee"]{--orange:#AD19AD;--orange-rgb:173,25,173;--orange-btn:#AD19AD;}
+:root[data-accent="sauge"]{--orange:#76B946;--orange-rgb:118,185,70;--orange-btn:#68A33E;}
+:root[data-theme="light"][data-accent="sauge"]{--orange:#48702B;--orange-rgb:72,112,43;--orange-btn:#48702B;}
+:root[data-accent="ambre"]{--orange:#B69F2B;--orange-rgb:182,159,43;--orange-btn:#A59027;}
+:root[data-theme="light"][data-accent="ambre"]{--orange:#6E601A;--orange-rgb:110,96,26;--orange-btn:#6E601A;}
 .accent-row{display:flex;gap:12px;padding:14px 16px;flex-wrap:wrap;}
 .accent-sw{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;box-shadow:0 0 0 1px var(--border);flex-shrink:0;transition:border-color .15s;}
 .accent-sw.on{border-color:var(--white);}
@@ -245,8 +246,8 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 /* BUTTONS */
 .btn{width:100%;padding:17px;border:none;border-radius:13px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.2px;transition:opacity .12s;}
 .btn:active{opacity:.82;}
-.btn-orange{background:var(--orange);color:var(--ink-on-accent);box-shadow:0 8px 16px -8px rgba(var(--orange-rgb),.28),0 2px 5px rgba(var(--orange-rgb),.1);}
-.btn-teal{background:var(--teal);color:var(--ink-on-accent);}
+.btn-orange{background:var(--orange-btn);color:#fff;box-shadow:0 8px 16px -8px rgba(var(--orange-rgb),.28),0 2px 5px rgba(var(--orange-rgb),.1);}
+.btn-teal{background:var(--teal-btn);color:#fff;}
 /* Pour les CTA des écrans avant que l'utilisateur ait sa propre plateforme (splash, entrée,
    onboarding, paywall, login/signup) — cf --brand-fixed dans le :root. .btn-orange suit
    data-accent, ce qui n'a pas de sens tant qu'aucune plateforme n'est encore identifiée. */
@@ -377,7 +378,8 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .today-bdg{position:absolute;top:14px;left:14px;background:var(--orange);color:var(--ink-on-accent);font-size:10px;font-weight:800;padding:4px 12px;border-radius:9px;}
 .today-dur{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.55);color:var(--ink-on-media);font-size:11px;font-weight:600;padding:4px 10px;border-radius:9px;}
 .today-body{padding:16px;}
-.today-title{font-size:19px;font-weight:800;color:var(--white);margin-bottom:4px;}
+.today-title{font-size:19px;font-weight:800;color:var(--white);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#progMon_title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .today-sub{font-size:12px;color:var(--gray);margin-bottom:12px;}
 .today-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .stats3{display:flex;gap:10px;margin:16px 20px;}
@@ -393,7 +395,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .emini{width:148px;flex-shrink:0;background:var(--bg2);border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid var(--border);}
 .emini-img{height:84px;display:flex;align-items:center;justify-content:center;font-size:34px;}
 .emini-body{padding:10px;}
-.emini-name{font-size:13px;font-weight:700;color:var(--white);}
+.emini-name{font-size:13px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .emini-meta{font-size:11px;color:var(--gray);margin-top:2px;}
 
 /* ===== HOME V2 (refonte) ===== */
@@ -540,7 +542,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .pat-tag.checker{border:1px solid rgba(var(--orange-rgb),.5);color:var(--orange);}
 .pat-av{width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
 .pat-av-wrap{position:relative;flex-shrink:0;}
-.pat-n{font-size:15px;font-weight:600;color:var(--white);font-family:var(--font-head);}
+.pat-n{font-size:15px;font-weight:600;color:var(--white);font-family:var(--font-head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
 .pat-m{font-size:12px;color:var(--gray);margin-top:2px;}
 .pbdg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:7px;}
 .bdg-a{background:rgba(var(--teal-rgb),.12);color:var(--teal);}
@@ -559,8 +561,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .lib-chip.on{border-color:var(--orange);color:var(--orange);background:rgba(var(--orange-rgb),.08);}
 .lib-card{display:flex;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;}
 .lib-thumb{width:60px;height:60px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
-.lib-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;}
-.lib-name{font-size:15px;font-weight:700;color:var(--white);}
+.lib-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+.lib-name{font-size:15px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .lib-meta{font-size:12px;color:var(--gray);}
 .lib-tags{display:flex;gap:6px;flex-wrap:wrap;}
 .lib-empty{text-align:center;color:var(--gray);padding:40px 20px;font-size:14px;line-height:1.5;}
@@ -722,7 +724,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div style="position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14vh 28px 0;">
     <div style="display:inline-flex;flex-direction:column;align-items:center;">
       <div style="margin-bottom:6px;">
-        <img src="kinmio_logo_app.png" alt="kinmio" style="height:40px;width:auto;display:block;">
+        <img id="entryLogoImg" src="kinmio_logo_app.png" alt="kinmio" style="height:32px;width:auto;display:block;">
       </div>
       <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-style:italic;font-size:17px;letter-spacing:1.39px;text-transform:uppercase;margin:0;" id="t_tagline" data-notranslate="1"><span style="color:var(--white);">Ready for HIIT</span></p>
     </div>
@@ -730,13 +732,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <!-- Boutons bas -->
   <div style="position:relative;z-index:3;padding:0 24px 48px;">
     <button class="btn btn-brand-fixed" style="margin-bottom:12px;font-size:15px;" onclick="go('barre_check')">Get started</button>
-    <button class="btn btn-outline" style="margin-bottom:6px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);" onclick="go('centre_entry')">I have an invitation code</button>
+    <button class="btn btn-outline" style="margin-bottom:6px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="go('centre_entry')">I have an invitation code</button>
     <div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:14px;">Reserved for members invited by a partner centre</div>
     <div style="text-align:center;">
-      <button class="btn-ghost" style="color:rgba(255,255,255,.55);font-size:13px;text-decoration:underline;" onclick="go('login')" id="t_login">I already have an account</button>
+      <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;" onclick="go('login')" id="t_login">I already have an account</button>
     </div>
     <div style="text-align:center;margin-top:16px;">
-      <button onclick="showLang()" id="langBtn" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:12px;font-weight:600;cursor:pointer;">🇬🇧 EN</button>
+      <button onclick="showLang()" id="langBtn" style="background:none;border:none;color:var(--gray);font-size:12px;font-weight:600;cursor:pointer;">🇬🇧 EN</button>
     </div>
   </div>
 </div>
@@ -746,7 +748,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center;">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:28px;">
-      <img id="barreCheckLogoImg" src="kinmio_logo_app.png" alt="kinmio" style="height:24px;width:auto;display:block;">
+      <img id="barreCheckLogoImg" src="kinmio_logo_app.png" alt="kinmio" style="height:32px;width:auto;display:block;">
     </div>
     <h1 style="font-size:28px;font-weight:900;color:var(--white);margin:0 0 12px;">Do you have your kinmio bar?</h1>
     <p style="font-size:15px;color:var(--gray);margin:0;">You'll need it<br>to measure your effort.</p>
@@ -766,9 +768,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div style="position:relative;z-index:2;flex:1;"></div>
   <div style="position:relative;z-index:2;padding:0 28px 48px;">
     <h1 style="font-size:32px;font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-.8px;margin-bottom:12px;" id="t_ob_intro_title">Let's build your programme together</h1>
-    <p style="font-size:15px;color:rgba(255,255,255,.7);line-height:1.5;margin-bottom:28px;" id="t_ob_intro_sub">A few questions so every session is designed for you.</p>
+    <p style="font-size:15px;color:var(--gray);line-height:1.5;margin-bottom:28px;" id="t_ob_intro_sub">A few questions so every session is designed for you.</p>
     <button class="btn btn-brand-fixed" onclick="go('ob1')" id="t_ob_intro_cta">LET'S GO! →</button>
-    <div style="text-align:center;margin-top:12px;"><button class="btn-ghost" style="color:rgba(255,255,255,.4);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip ›</button></div>
+    <div style="text-align:center;margin-top:12px;"><button class="btn-ghost" style="color:var(--gray);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip ›</button></div>
   </div>
 </div>
 
@@ -918,7 +920,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="eyebrow" style="color:var(--brand-fixed);margin-bottom:12px;">✦ Your kinmio programme</div>
       <h2 id="obSummaryTitle" class="h2-hero" style="margin-bottom:6px;">All set!</h2>
       <p style="font-size:15px;color:var(--gray);line-height:1.5;margin-bottom:10px;">Here's what we understood about you.</p>
-      <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-style:italic;font-size:17px;letter-spacing:.01em;text-transform:uppercase;margin:0;" data-notranslate="1"><span style="color:var(--white);">Ready for HIIT</span></p>
     </div>
     <div id="obSummaryNotifBanner" style="margin:0 20px 16px;background:rgba(var(--teal-rgb),.08);border:1px solid rgba(var(--teal-rgb),.25);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
       <span style="font-size:22px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z /><path d=M9.5,18.5a2.5,2.5,0,0,0,5,0 /></svg></span>
@@ -950,7 +951,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div id="pp_trim" onclick="selectPlan('trim')" style="background:rgba(var(--brand-fixed-rgb),.08);border:1.5px solid var(--brand-fixed);border-radius:18px;padding:24px;cursor:pointer;position:relative;box-shadow:0 4px 20px rgba(var(--brand-fixed-rgb),.25);">
         <div style="position:absolute;top:-10px;right:14px;background:var(--brand-fixed);color:var(--ink-on-accent);font-size:10px;font-weight:800;padding:3px 12px;border-radius:8px;">POPULAR</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">Quarterly</div><div style="font-size:12px;color:var(--teal);margin-top:2px;">€8.33/month · save 20%</div></div><div style="font-size:20px;font-weight:800;color:var(--brand-fixed);">€24.99<span style="font-size:12px;color:var(--gray);">/3 months</span></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">Quarterly</div><div style="font-size:12px;color:var(--brand-fixed);margin-top:2px;">€8.33/month · save 20%</div></div><div style="font-size:20px;font-weight:800;color:var(--brand-fixed);">€24.99<span style="font-size:12px;color:var(--gray);">/3 months</span></div></div>
       </div>
       <div id="pp_annuel" onclick="selectPlan('annuel')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;">
         <div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">Yearly</div><div style="font-size:12px;color:var(--teal);margin-top:2px;">€6.67/month · save 33%</div></div><div style="text-align:right;"><div style="font-size:12px;color:var(--gray);text-decoration:line-through;">€119.88</div><div style="font-size:20px;font-weight:800;color:var(--white);">€79.99<span style="font-size:12px;color:var(--gray);">/year</span></div></div></div>
@@ -1014,7 +1015,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         </div>
         <div id="j30_trim" onclick="selectJ30('trim')" style="background:rgba(var(--brand-fixed-rgb),.08);border:1.5px solid var(--brand-fixed);border-radius:18px;padding:18px;cursor:pointer;position:relative;">
           <div style="position:absolute;top:-10px;right:14px;background:var(--brand-fixed);color:var(--ink-on-accent);font-size:10px;font-weight:800;padding:3px 12px;border-radius:8px;">POPULAR</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">Quarterly</div><div style="font-size:12px;color:var(--teal);margin-top:2px;">€8.33/month</div></div><div style="font-size:20px;font-weight:800;color:var(--brand-fixed);">€24.99<span style="font-size:12px;color:var(--gray);">/3 months</span></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">Quarterly</div><div style="font-size:12px;color:var(--brand-fixed);margin-top:2px;">€8.33/month</div></div><div style="font-size:20px;font-weight:800;color:var(--brand-fixed);">€24.99<span style="font-size:12px;color:var(--gray);">/3 months</span></div></div>
         </div>
         <div id="j30_annuel" onclick="selectJ30('annuel')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;">
           <div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">Yearly</div><div style="font-size:12px;color:var(--teal);margin-top:2px;">€6.67/month · best price</div></div><div style="text-align:right;"><div style="font-size:12px;color:var(--gray);text-decoration:line-through;">€119.88</div><div style="font-size:20px;font-weight:800;color:var(--white);">€79.99<span style="font-size:12px;color:var(--gray);">/year</span></div></div></div>
@@ -1082,11 +1083,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div style="padding:14px 16px 4px;font-size:15px;color:var(--white);">Accent colour</div>
         <div class="accent-row">
           <div class="accent-sw" data-accent="emeraude" style="background:#26C57B;" onclick="setAccent('emeraude')" title="Emerald (default)"></div>
-          <div class="accent-sw" data-accent="bleu" style="background:#4B88DC;" onclick="setAccent('bleu')" title="Blue"></div>
-          <div class="accent-sw" data-accent="violet" style="background:#A554DE;" onclick="setAccent('violet')" title="Violet"></div>
-          <div class="accent-sw" data-accent="fuchsia" style="background:#C52683;" onclick="setAccent('fuchsia')" title="Fuchsia"></div>
-          <div class="accent-sw" data-accent="or" style="background:#889325;" onclick="setAccent('or')" title="Gold"></div>
-          <div class="accent-sw" data-accent="citron" style="background:#5BC526;" onclick="setAccent('citron')" title="Lime"></div>
+          <div class="accent-sw" data-accent="bleu" style="background:#529CFE;" onclick="setAccent('bleu')" title="Blue"></div>
+          <div class="accent-sw" data-accent="violet" style="background:#A87EFD;" onclick="setAccent('violet')" title="Violet"></div>
+          <div class="accent-sw" data-accent="orchidee" style="background:#E85EE8;" onclick="setAccent('orchidee')" title="Orchid"></div>
+          <div class="accent-sw" data-accent="sauge" style="background:#76B946;" onclick="setAccent('sauge')" title="Sage"></div>
+          <div class="accent-sw" data-accent="ambre" style="background:#B69F2B;" onclick="setAccent('ambre')" title="Amber"></div>
         </div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Language</div>
@@ -1157,7 +1158,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);"><span style="font-size:28px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=4.5 y=3.5 width=11 height=17 rx=1.5 /><path d=M9,7h2 /><path d=M9,11h2 /><path d=M9,15h2 /><path d=M15.5,10.5h4v10h-4 /></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Centre</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="centreSummaryName">Centre Kerpape</div></div></div>
       <div style="background:rgba(var(--teal-rgb),.07);border-radius:16px;padding:16px;border:1px solid rgba(var(--teal-rgb),.2);"><div style="display:flex;flex-direction:column;gap:8px;"><div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--teal);flex-shrink:0;font-size:15px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg></span><span style="font-size:13px;color:var(--teal);">Free access managed by your centre</span></div><div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--teal);flex-shrink:0;font-size:15px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg></span><span style="font-size:13px;color:var(--teal);">Your coach tracks your progress</span></div><div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--teal);flex-shrink:0;font-size:15px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg></span><span style="font-size:13px;color:var(--teal);">Programme adapted to your sessions</span></div></div></div>
     </div>
-    <div style="padding:0 20px 40px;"><button class="btn btn-teal" style="color:var(--ink-on-accent);" onclick="go('signup_centre')">Create my account →</button></div>
+    <div style="padding:0 20px 40px;"><button class="btn btn-teal" onclick="go('signup_centre')">Create my account →</button></div>
   </div>
 </div>
 
@@ -1170,7 +1171,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <input type="text" id="scPrenom" placeholder="First name" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
     <input type="email" id="scEmail" placeholder="Email" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
     <input type="password" id="scPassword" placeholder="Password" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:20px;">
-    <button class="btn btn-teal" id="signupCentreCta" style="color:var(--ink-on-accent);opacity:.5;" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)">Create my account</button>
+    <button class="btn btn-teal" id="signupCentreCta" style="opacity:.5;" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)">Create my account</button>
     <div style="margin:16px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">or</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
     <div style="display:flex;gap:10px;">
       <button class="social-btn" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple</button>
@@ -1339,11 +1340,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div style="padding:14px 16px 4px;font-size:15px;color:var(--white);">Accent colour</div>
         <div class="accent-row">
           <div class="accent-sw" data-accent="emeraude" style="background:#26C57B;" onclick="setAccent('emeraude')" title="Emerald (default)"></div>
-          <div class="accent-sw" data-accent="bleu" style="background:#4B88DC;" onclick="setAccent('bleu')" title="Blue"></div>
-          <div class="accent-sw" data-accent="violet" style="background:#A554DE;" onclick="setAccent('violet')" title="Violet"></div>
-          <div class="accent-sw" data-accent="fuchsia" style="background:#C52683;" onclick="setAccent('fuchsia')" title="Fuchsia"></div>
-          <div class="accent-sw" data-accent="or" style="background:#889325;" onclick="setAccent('or')" title="Gold"></div>
-          <div class="accent-sw" data-accent="citron" style="background:#5BC526;" onclick="setAccent('citron')" title="Lime"></div>
+          <div class="accent-sw" data-accent="bleu" style="background:#529CFE;" onclick="setAccent('bleu')" title="Blue"></div>
+          <div class="accent-sw" data-accent="violet" style="background:#A87EFD;" onclick="setAccent('violet')" title="Violet"></div>
+          <div class="accent-sw" data-accent="orchidee" style="background:#E85EE8;" onclick="setAccent('orchidee')" title="Orchid"></div>
+          <div class="accent-sw" data-accent="sauge" style="background:#76B946;" onclick="setAccent('sauge')" title="Sage"></div>
+          <div class="accent-sw" data-accent="ambre" style="background:#B69F2B;" onclick="setAccent('ambre')" title="Amber"></div>
         </div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Language</div>
@@ -1387,11 +1388,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div style="padding:14px 16px 4px;font-size:15px;color:var(--white);">Accent colour</div>
         <div class="accent-row">
           <div class="accent-sw" data-accent="emeraude" style="background:#26C57B;" onclick="setAccent('emeraude')" title="Emerald (default)"></div>
-          <div class="accent-sw" data-accent="bleu" style="background:#4B88DC;" onclick="setAccent('bleu')" title="Blue"></div>
-          <div class="accent-sw" data-accent="violet" style="background:#A554DE;" onclick="setAccent('violet')" title="Violet"></div>
-          <div class="accent-sw" data-accent="fuchsia" style="background:#C52683;" onclick="setAccent('fuchsia')" title="Fuchsia"></div>
-          <div class="accent-sw" data-accent="or" style="background:#889325;" onclick="setAccent('or')" title="Gold"></div>
-          <div class="accent-sw" data-accent="citron" style="background:#5BC526;" onclick="setAccent('citron')" title="Lime"></div>
+          <div class="accent-sw" data-accent="bleu" style="background:#529CFE;" onclick="setAccent('bleu')" title="Blue"></div>
+          <div class="accent-sw" data-accent="violet" style="background:#A87EFD;" onclick="setAccent('violet')" title="Violet"></div>
+          <div class="accent-sw" data-accent="orchidee" style="background:#E85EE8;" onclick="setAccent('orchidee')" title="Orchid"></div>
+          <div class="accent-sw" data-accent="sauge" style="background:#76B946;" onclick="setAccent('sauge')" title="Sage"></div>
+          <div class="accent-sw" data-accent="ambre" style="background:#B69F2B;" onclick="setAccent('ambre')" title="Amber"></div>
         </div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Language</div>
@@ -1431,11 +1432,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div style="padding:14px 16px 4px;font-size:15px;color:var(--white);">Accent colour</div>
         <div class="accent-row">
           <div class="accent-sw" data-accent="emeraude" style="background:#26C57B;" onclick="setAccent('emeraude')" title="Emerald (default)"></div>
-          <div class="accent-sw" data-accent="bleu" style="background:#4B88DC;" onclick="setAccent('bleu')" title="Blue"></div>
-          <div class="accent-sw" data-accent="violet" style="background:#A554DE;" onclick="setAccent('violet')" title="Violet"></div>
-          <div class="accent-sw" data-accent="fuchsia" style="background:#C52683;" onclick="setAccent('fuchsia')" title="Fuchsia"></div>
-          <div class="accent-sw" data-accent="or" style="background:#889325;" onclick="setAccent('or')" title="Gold"></div>
-          <div class="accent-sw" data-accent="citron" style="background:#5BC526;" onclick="setAccent('citron')" title="Lime"></div>
+          <div class="accent-sw" data-accent="bleu" style="background:#529CFE;" onclick="setAccent('bleu')" title="Blue"></div>
+          <div class="accent-sw" data-accent="violet" style="background:#A87EFD;" onclick="setAccent('violet')" title="Violet"></div>
+          <div class="accent-sw" data-accent="orchidee" style="background:#E85EE8;" onclick="setAccent('orchidee')" title="Orchid"></div>
+          <div class="accent-sw" data-accent="sauge" style="background:#76B946;" onclick="setAccent('sauge')" title="Sage"></div>
+          <div class="accent-sw" data-accent="ambre" style="background:#B69F2B;" onclick="setAccent('ambre')" title="Amber"></div>
         </div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Language</div>
@@ -1474,11 +1475,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div style="padding:14px 16px 4px;font-size:15px;color:var(--white);">Accent colour</div>
         <div class="accent-row">
           <div class="accent-sw" data-accent="emeraude" style="background:#26C57B;" onclick="setAccent('emeraude')" title="Emerald (default)"></div>
-          <div class="accent-sw" data-accent="bleu" style="background:#4B88DC;" onclick="setAccent('bleu')" title="Blue"></div>
-          <div class="accent-sw" data-accent="violet" style="background:#A554DE;" onclick="setAccent('violet')" title="Violet"></div>
-          <div class="accent-sw" data-accent="fuchsia" style="background:#C52683;" onclick="setAccent('fuchsia')" title="Fuchsia"></div>
-          <div class="accent-sw" data-accent="or" style="background:#889325;" onclick="setAccent('or')" title="Gold"></div>
-          <div class="accent-sw" data-accent="citron" style="background:#5BC526;" onclick="setAccent('citron')" title="Lime"></div>
+          <div class="accent-sw" data-accent="bleu" style="background:#529CFE;" onclick="setAccent('bleu')" title="Blue"></div>
+          <div class="accent-sw" data-accent="violet" style="background:#A87EFD;" onclick="setAccent('violet')" title="Violet"></div>
+          <div class="accent-sw" data-accent="orchidee" style="background:#E85EE8;" onclick="setAccent('orchidee')" title="Orchid"></div>
+          <div class="accent-sw" data-accent="sauge" style="background:#76B946;" onclick="setAccent('sauge')" title="Sage"></div>
+          <div class="accent-sw" data-accent="ambre" style="background:#B69F2B;" onclick="setAccent('ambre')" title="Amber"></div>
         </div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Language</div>
@@ -1556,7 +1557,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll">
     <!-- ZONE 1 — Header -->
     <div class="home-top gap4">
-      <div><div class="hw">Hello</div><div class="hname" style="display:flex;align-items:center;gap:8px;"><span id="homeUserName">Marc</span><span id="subBadgeHome" style="display:none;font-size:11px;font-weight:700;color:var(--teal);background:rgba(var(--teal-rgb),.12);padding:3px 8px;border-radius:8px;letter-spacing:0;">Subscribed ✓</span></div><div style="font-size:12px;color:var(--gray);margin-top:4px;" id="homeDateLabel"></div></div>
+      <div><div class="hw">Hello</div><div class="hname" style="display:flex;align-items:center;gap:8px;min-width:0;"><span id="homeUserName" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marc</span><span id="subBadgeHome" style="display:none;font-size:11px;font-weight:700;color:var(--teal);background:rgba(var(--teal-rgb),.12);padding:3px 8px;border-radius:8px;letter-spacing:0;flex-shrink:0;">Subscribed ✓</span></div><div style="font-size:12px;color:var(--gray);margin-top:4px;" id="homeDateLabel"></div></div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="bell" onclick="initAssistantIa();go('assistant_ia')" title="Assistant"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg></div>
         <div class="bell" onclick="openNotifs()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z /><path d=M9.5,18.5a2.5,2.5,0,0,0,5,0 /></svg><span class="bell-dot"></span></div>
@@ -1798,7 +1799,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="fb-title">Pain level?</div>
       <div class="pain-wrap">
         <div class="pain-val" id="fbPainVal">0<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span></div>
-        <input type="range" id="fbPainSlider" min="0" max="10" value="0" oninput="onFbPainInput(this)" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,#2ECC71 0%,var(--orange) 50%,var(--red) 100%);outline:none;cursor:pointer;margin-bottom:10px;">
+        <input type="range" id="fbPainSlider" min="0" max="10" value="0" oninput="onFbPainInput(this)" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--teal) 0%,var(--vigilance) 50%,var(--red) 100%);outline:none;cursor:pointer;margin-bottom:10px;">
         <div class="pain-labels"><span>None</span><span>High</span></div>
       </div>
     </div>
@@ -1827,7 +1828,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll">
     <div class="resume-hero">
       <div style="font-size:60px;margin-bottom:8px;">🎉</div>
-      <h2 class="gap8" id="resumeHeroTitle">Session complete!</h2>
+      <h2 class="gap8 h2-hero" id="resumeHeroTitle">Session complete!</h2>
       <p class="sub">Well done!</p>
     </div>
     <div class="resume-stats">
@@ -2108,7 +2109,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div id="nextExoPainRow" style="display:none;margin:0 0 14px;">
         <div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Any specific discomfort?</div>
-        <input type="range" id="nextExoPainSlider" min="0" max="10" value="0" oninput="onNextExoPainInput(this)" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,#2ECC71 0%,var(--orange) 50%,var(--red) 100%);outline:none;cursor:pointer;margin-bottom:4px;">
+        <input type="range" id="nextExoPainSlider" min="0" max="10" value="0" oninput="onNextExoPainInput(this)" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--teal) 0%,var(--vigilance) 50%,var(--red) 100%);outline:none;cursor:pointer;margin-bottom:4px;">
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray);"><span>None</span><span class="pain-val" id="nextExoPainVal">0 / 10</span><span>Intense</span></div>
       </div>
       <div class="sess-ctrls">
@@ -2440,7 +2441,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <button class="btn btn-orange" id="sdStartBtn" onclick="startSessionFromDetail()">Start this session →</button>
     <button class="btn btn-orange" id="sdAssignBtn" style="display:none;" onclick="assignSessionTemplate()">Assign this session →</button>
     <button class="btn btn-orange" id="sdPickBtn" style="display:none;" onclick="confirmSessionPick()">Schedule this session →</button>
-    <button class="btn btn-teal" style="color:var(--ink-on-accent);margin-top:10px;display:none;" id="sdPickNowBtn" onclick="startPickNow()">▶ Start now</button>
+    <button class="btn btn-teal" style="margin-top:10px;display:none;" id="sdPickNowBtn" onclick="startPickNow()">▶ Start now</button>
     <div style="height:24px;"></div>
   </div>
 </div>
@@ -2455,7 +2456,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div id="exIllusNameOverlay" style="display:none;position:absolute;left:0;right:0;bottom:0;padding:20px 10px 10px;background:linear-gradient(to top, rgba(0,0,0,.8), transparent);color:#fff;font-size:14px;font-weight:800;text-align:center;pointer-events:none;"></div>
       </div>
     </div>
-    <h2 class="gap4" style="text-align:center;" id="ex_nom">Exercise</h2>
+    <h2 class="gap4" style="text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="ex_nom">Exercise</h2>
     <div class="sub" style="text-align:center;margin-bottom:8px;" id="ex_muscles">—</div>
     <div style="display:flex;justify-content:center;margin-bottom:10px;" id="exPastille"></div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;" id="ex_badges"></div>
@@ -2603,7 +2604,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="collectif_results" style="display:none;">
       <div class="resume-hero" style="padding-left:0;padding-right:0;">
         <div style="font-size:60px;margin-bottom:8px;">🏆</div>
-        <h2 class="gap8">Session complete!</h2>
+        <h2 class="gap8 h2-hero">Session complete!</h2>
         <p class="sub">Here's how the group did.</p>
       </div>
       <div class="resume-stats" style="padding-left:0;padding-right:0;">
@@ -2636,7 +2637,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <input type="tel" id="iu_tel" placeholder="e.g. 555-123-4567" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:15px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:14px;">
     <div class="ps-title" style="margin-bottom:6px;">Personal message <span style="color:var(--gray);font-weight:400;">(optional)</span></div>
     <textarea id="iu_message" class="note-input" placeholder="e.g. Hi Marc, I'm inviting you to join kinmio to continue your rehab..." style="margin-bottom:20px;"></textarea>
-    <button class="btn btn-teal" style="color:var(--ink-on-accent);" onclick="submitInviteUtilisateur()">Send invitation</button>
+    <button class="btn btn-teal" onclick="submitInviteUtilisateur()">Send invitation</button>
     <div style="height:24px;"></div>
   </div>
 </div>
@@ -2813,7 +2814,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll px pt pb">
     <div class="resume-hero" style="padding-left:0;padding-right:0;">
       <div style="font-size:60px;margin-bottom:8px;" id="defiResultsEmoji">🏆</div>
-      <h2 class="gap8">Duel complete!</h2>
+      <h2 class="gap8 h2-hero">Duel complete!</h2>
       <p class="sub" id="defiResultsSub">Here's how everyone did.</p>
     </div>
     <div id="defiResultsTally" style="display:none;align-items:center;margin-bottom:20px;padding:12px 8px;background:var(--bg2);border-radius:14px;border:1px solid var(--border);"></div>
@@ -2851,7 +2852,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         </div>
         <div style="font-size:12px;font-weight:700;color:var(--teal);flex-shrink:0;" onclick="event.stopPropagation();copyFriendInviteCode();">Copy link</div>
       </div>
-      <button class="btn btn-teal" style="color:var(--ink-on-accent);" onclick="shareFriendInvite()">Share invite ↗</button>
+      <button class="btn btn-teal" onclick="shareFriendInvite()">Share invite ↗</button>
     </div>
 
     <div id="friend_step2" style="display:none;">
@@ -2932,7 +2933,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="ex-sec-t" style="padding:0 0 8px;">Add a friend</div>
     <div style="display:flex;gap:8px;margin-bottom:6px;">
       <input type="text" id="mesAmisCodeInput" placeholder="Enter a friend's code" style="flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:12px 15px;font-size:14px;color:var(--white);font-family:inherit;outline:none;">
-      <button class="btn btn-teal" style="width:auto;padding:12px 18px;color:var(--ink-on-accent);" onclick="addFriendByCode()">Add</button>
+      <button class="btn btn-teal" style="width:auto;padding:12px 18px;" onclick="addFriendByCode()">Add</button>
     </div>
     <div style="font-size:12px;color:var(--gray);margin:0 0 20px;">They'll get a request to accept.</div>
     <div id="mesAmisList"></div>
@@ -3015,7 +3016,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="soloLiveSummarySection" style="display:none;">
       <div class="resume-hero" style="padding-left:0;padding-right:0;">
         <div style="font-size:60px;margin-bottom:8px;">🎉</div>
-        <h2 class="gap8" id="soloLiveSummaryTitle">Session complete!</h2>
+        <h2 class="gap8 h2-hero" id="soloLiveSummaryTitle">Session complete!</h2>
         <p class="sub" id="soloLiveSummarySub">Well done, Marc D.! 🎉</p>
       </div>
       <div class="resume-stats" style="padding-left:0;padding-right:0;">
@@ -3350,7 +3351,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="ps-title" style="margin-bottom:6px;">Email</div>
     <input type="email" id="ipr_email" value="martin.dupont@kerpape.fr" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:15px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:14px;">
     <div class="spacer" style="min-height:16px;"></div>
-    <button class="btn btn-teal" style="color:var(--ink-on-accent);" onclick="submitInfosPersoReferent()">Save</button>
+    <button class="btn btn-teal" onclick="submitInfosPersoReferent()">Save</button>
     <div style="height:24px;"></div>
   </div>
 </div>
@@ -6053,7 +6054,7 @@ function openAssignChoice(patientId){
   const defi = patientId ? "go('defi_config');setTimeout(()=>{ if(!defiSelParticipants['"+patientId+"']) toggleDefiPart('"+patientId+"'); },30);" : "go('defi_config')";
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:14px;">New session</div>'
     +'<button class="btn btn-orange" onclick="closeModal();'+csi+'"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> Individual session</button>'
-    +'<button class="btn btn-teal" style="color:var(--ink-on-accent);margin-top:10px;" onclick="closeModal();'+csc+'"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Group session</button>'
+    +'<button class="btn btn-teal" style="margin-top:10px;" onclick="closeModal();'+csc+'"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Group session</button>'
     +'<button class="btn btn-outline" style="margin-top:10px;color:var(--orange);border-color:var(--orange);" onclick="closeModal();'+defi+'">⚡ Intensity duel</button>'
     +'<button class="btn btn-outline" style="margin-top:10px;" onclick="closeModal();'+cprog+'"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5.5 y=4.5 width=13 height=17 rx=2 /><rect x=9 y=3 width=6 height=3 rx=1 /><path d=M8.5,11h7 /><path d=M8.5,15h7 /></svg> Programme</button>'
     +'<button class="btn-ghost" style="margin-top:8px;width:100%;color:var(--gray2);" onclick="closeModal()">Cancel</button>');
@@ -6062,7 +6063,7 @@ function renderRefPending(){
   syncRefUtilBadge();
   const el=document.getElementById('refPendingUsers'); if(!el) return;
   el.innerHTML = centreAccess==='pending'
-    ? '<div class="pat-item" style="background:rgba(var(--orange-rgb),.06);cursor:default;"><div class="pat-av" style="border:2.5px solid var(--orange);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;"><div class="pat-n">Marc D.</div><div class="pat-m" style="color:var(--orange);">Pending approval · KERPAPE26</div></div></div><div class="row" style="padding:0 20px;margin-bottom:8px;"><button class="btn btn-teal" style="color:var(--ink-on-accent);padding:11px;" onclick="acceptAccess();renderRefPending()">Accept</button><button class="btn btn-outline" style="padding:11px;" onclick="refuseAccess();renderRefPending()">Decline</button></div>'
+    ? '<div class="pat-item" style="background:rgba(var(--orange-rgb),.06);cursor:default;"><div class="pat-av" style="border:2.5px solid var(--orange);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">Marc D.</div><div class="pat-m" style="color:var(--orange);">Pending approval · KERPAPE26</div></div></div><div class="row" style="padding:0 20px;margin-bottom:8px;"><button class="btn btn-teal" style="padding:11px;" onclick="acceptAccess();renderRefPending()">Accept</button><button class="btn btn-outline" style="padding:11px;" onclick="refuseAccess();renderRefPending()">Decline</button></div>'
     : '';
 }
 // ===== DASHBOARD DIRECTEUR — 4 vues (étape 6) =====
@@ -6371,18 +6372,18 @@ function renderDirReferentsList(){
   if(!arr.length){ list.innerHTML='<div class="lib-empty">No coaches in this category.</div>'; return; }
   list.innerHTML=arr.map(r=>{
     if(r.statut==='attente'){
-      return '<div class="pat-item" onclick="toast(\'Invitation still pending\')"><div class="pat-av" style="background:var(--gray2);color:var(--ink-on-accent);">'+r.ini+'</div><div style="flex:1;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.specialite+'</div></div><span class="pbdg bdg-o">Invitation sent</span></div>';
+      return '<div class="pat-item" onclick="toast(\'Invitation still pending\')"><div class="pat-av" style="background:var(--gray2);color:var(--ink-on-accent);">'+r.ini+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.specialite+'</div></div><span class="pbdg bdg-o">Invitation sent</span></div>';
     }
     const ringStyle=';border:2.5px solid '+getReferentTagColor(r)+';';
     if(r.statut==='inactif'){
-      return '<div class="pat-item" style="cursor:default;border-left:3px solid var(--vigilance);padding-left:17px;"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · inactive for '+r.inactifDepuis+'</div><div style="font-size:12px;font-weight:700;color:var(--vigilance);margin-top:2px;display:flex;align-items:center;gap:5px;">'+ICON_ATTN_VIGILANCE+'To check — inactive</div></div><button class="pres-add" onclick="event.stopPropagation();toast(\'Reminder sent to '+r.nom+' ✓\')">Follow up</button></div>';
+      return '<div class="pat-item" style="cursor:default;border-left:3px solid var(--vigilance);padding-left:17px;"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · inactive for '+r.inactifDepuis+'</div><div style="font-size:12px;font-weight:700;color:var(--vigilance);margin-top:2px;display:flex;align-items:center;gap:5px;">'+ICON_ATTN_VIGILANCE+'To check — inactive</div></div><button class="pres-add" onclick="event.stopPropagation();toast(\'Reminder sent to '+r.nom+' ✓\')">Follow up</button></div>';
     }
     const tags=getReferentTags(r);
     const reason = tags.includes('alerte') ? {color:'var(--red)', text:trDyn('Gap detected — profile diverges from centre average')}
       : tags.includes('checker') ? {color:'var(--orange)', text:trDyn('Declining trend')+' — '+trDyn(r.trend)}
       : null;
     const reasonHtml = reason ? '<div style="font-size:12px;color:'+reason.color+';margin-top:2px;">'+reason.text+'</div>' : '';
-    return '<div class="pat-item" onclick="openReferentFiche(\''+r.id+'\')"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · '+r.users+' members · '+r.observance+'%</div>'+reasonHtml+'</div></div>';
+    return '<div class="pat-item" onclick="openReferentFiche(\''+r.id+'\')"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · '+r.users+' members · '+r.observance+'%</div>'+reasonHtml+'</div></div>';
   }).join('');
 }
 const REF_RANK_METRICS=[{key:'activityRate',label:'Activity rate'},{key:'observance',label:'Regularity'},{key:'sessionsPerWeek',label:'Sessions/wk'},{key:'intensity',label:'Intensity'}];
@@ -7897,7 +7898,7 @@ function renderMasterySection(sectionId, periodKey){
   sec.style.display='block';
   listEl.innerHTML=byLevel.map(({jauge,top})=>
     '<div style="font-size:12px;color:var(--gray);margin:10px 0 6px;">Level '+jauge+'</div>'
-    +top.map(({ex,pctAvg,levelDelta})=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="openExerciceNouveau(\''+ex.id+'\')"><span style="font-size:13px;color:var(--white);">'+TYPE_ICON_LIB.Cardio+' '+ex.nom+'</span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">'+(levelDelta ? '<span style="font-size:10px;font-weight:700;color:'+(levelDelta>0?'var(--teal)':'var(--red)')+';" title="Level change this period">'+(levelDelta>0?'↑+':'↓')+levelDelta+'</span>' : '')+'<span style="font-size:12px;font-weight:700;color:var(--teal);">'+pctAvg+'% in zone</span></span></div>').join('')
+    +top.map(({ex,pctAvg,levelDelta})=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="openExerciceNouveau(\''+ex.id+'\')"><span style="font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50vw;display:inline-block;vertical-align:middle;">'+TYPE_ICON_LIB.Cardio+' '+ex.nom+'</span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">'+(levelDelta ? '<span style="font-size:10px;font-weight:700;color:'+(levelDelta>0?'var(--teal)':'var(--red)')+';" title="Level change this period">'+(levelDelta>0?'↑+':'↓')+levelDelta+'</span>' : '')+'<span style="font-size:12px;font-weight:700;color:var(--teal);">'+pctAvg+'% in zone</span></span></div>').join('')
   ).join('');
   sweepTranslate(listEl, currentLang);
 }
@@ -12029,7 +12030,7 @@ function openAddToSessionModal(exId){
   const ex=[...EXERCICES,...userExercices].find(e=>e.id===exId); if(!ex) return;
   window._addToSessionExId = exId;
   let html = '<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;">Add to a session</div>'
-    + '<div style="font-size:13px;color:var(--gray);margin-bottom:14px;">'+ex.nom+'</div>';
+    + '<div style="font-size:13px;color:var(--gray);margin-bottom:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ex.nom+'</div>';
   if(userSessions.length){
     html += userSessions.map(s=>{
       const already = s.exercices.includes(exId);
@@ -12236,7 +12237,7 @@ function renderProgMonView(){
       +'<div style="height:110px;background-image:url(\''+sessionPhotoFor(ses)+'\');background-size:cover;background-position:center;"></div>'
       +'<div style="padding:18px;">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
-      +'<div style="font-size:16px;font-weight:700;color:var(--white);">'+ses.nom_marketing+'</div>'
+      +'<div style="font-size:16px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ses.nom_marketing+'</div>'
       +'<span class="tag tag-o">'+ses.objectif.join(' · ')+'</span>'
       +'</div>'
       +'<div style="font-size:13px;color:var(--gray);margin-bottom:14px;">'+ses.exercices.length+' exercises · '+ses.duree+' min · '+ses.intensite+'</div>'
@@ -12289,7 +12290,7 @@ function renderProgMonView(){
         // pas de carte complète puisque ces séances ne sont pas démarrables avant leur tour.
         const rows=fw.ids.map(id=>{
           const s=toutes2.find(x=>x.id===id); if(!s) return '<div style="font-size:13px;color:var(--gray2);">'+id+'</div>';
-          return '<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray2);margin-bottom:2px;"><span>'+s.nom_marketing+'</span><span class="tag tag-g" style="font-size:10px;padding:2px 6px;">'+s.duree+' min · '+s.objectif.join(' · ')+'</span></div>';
+          return '<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray2);margin-bottom:2px;"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw;display:inline-block;vertical-align:middle;">'+s.nom_marketing+'</span><span class="tag tag-g" style="font-size:10px;padding:2px 6px;">'+s.duree+' min · '+s.objectif.join(' · ')+'</span></div>';
         }).join('');
         return '<div style="padding:8px 0;border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Week '+fw.num+'</div>'+rows+'</div>';
       }).join('');
@@ -12482,7 +12483,7 @@ function openAddToProgrammeModal(sessId){
   const s=[...SESSIONS,...userSessions].find(x=>x.id===sessId); if(!s) return;
   window._addToProgSessId = sessId;
   let html = '<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;">Add to a programme</div>'
-    + '<div style="font-size:13px;color:var(--gray);margin-bottom:14px;">'+s.nom_marketing+'</div>';
+    + '<div style="font-size:13px;color:var(--gray);margin-bottom:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.nom_marketing+'</div>';
   if(userProgrammes.length){
     html += userProgrammes.map(p=>{
       const already = Object.values(p.semaines).some(week=>week.includes(sessId));
@@ -12740,7 +12741,7 @@ function openSdExoParamsModal(exId){
   window._sdCurExo = exId;
   const p = getParamsExercice(ex);
   const rows = EX_PARAM_FIELDS.map(f => sdExParamStepperRow(f, p[f.key])).join('');
-  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;">'+ex.nom+'</div>'
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ex.nom+'</div>'
     +'<div style="font-size:13px;color:var(--gray);margin-bottom:4px;">Settings apply everywhere you do this exercise.</div>'
     +'<div style="margin-bottom:14px;"><span style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;" onclick="closeModal();openExerciceNouveau(\''+exId+'\')">▶ See exercise details (incl. video) →</span></div>'
     +rows
@@ -12812,9 +12813,9 @@ function startSessionFromDetail(){ demarrerSessionNouveau(window._curSessId); }
 // le même choix individuel/collectif mais sans pré-remplissage (pas de modèle connu depuis Home/calendrier).
 function assignSessionTemplate(){
   const s=[...SESSIONS,...userSessions].find(x=>x.id===window._curSessId); if(!s) return;
-  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:14px;">Assign "'+s.nom_marketing+'"</div>'
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Assign "'+s.nom_marketing+'"</div>'
     +'<button class="btn btn-orange" onclick="closeModal();startSessionAssignFlow(\'individuel\')"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> Individual session</button>'
-    +'<button class="btn btn-teal" style="color:var(--ink-on-accent);margin-top:10px;" onclick="closeModal();startSessionAssignFlow(\'collectif\')"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Group session</button>'
+    +'<button class="btn btn-teal" style="margin-top:10px;" onclick="closeModal();startSessionAssignFlow(\'collectif\')"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Group session</button>'
     +'<button class="btn-ghost" style="margin-top:8px;width:100%;color:var(--gray2);" onclick="closeModal()">Cancel</button>');
 }
 function startSessionAssignFlow(mode){
@@ -13630,7 +13631,7 @@ function openProgrammeDetail(id){
   const isActive = programmeActif && programmeActif.id===p.id;
   const isPersonal = !PROGRAMMES.some(x=>x.id===p.id);
   showModal('<div style="width:72px;height:72px;margin:0 auto 12px;border-radius:20px;background-image:url(\''+programmePhotoFor(p)+'\');background-size:cover;background-position:center;"></div>'
-    +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;text-align:center;">'+p.nom_marketing+'</div>'
+    +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.nom_marketing+'</div>'
     +'<div style="font-size:13px;color:var(--gray);margin-bottom:14px;text-align:center;">'+p.niveau+' · '+p.duree_semaines+' weeks · '+p.frequence+'x/week</div>'
     +'<div style="font-size:13px;color:var(--gray2);line-height:1.5;margin-bottom:14px;">'+p.description+'</div>'
     +weeks
@@ -14452,11 +14453,11 @@ function renderAdmin(){
     + CENTERS.map(ct=>{
         const attente=ct.statut==='attente';
         if(attente){
-          return '<div class="pat-item" style="cursor:default;"><div style="flex:1;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.licences+' licences</div></div>'
+          return '<div class="pat-item" style="cursor:default;"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.licences+' licences</div></div>'
             +'<div style="text-align:right;"><span class="pbdg" style="background:var(--bg3);color:var(--gray2);">PENDING ACTIVATION</span><div style="margin-top:6px;"><button class="pres-add" onclick="toast(\'Reminder sent to '+ct.nom+' ✓\')">Follow up →</button></div></div></div>';
         }
         const near=ct.renouvJ<100;
-        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--orange)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--orange)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\'📄 '+ct.nom+' report (demo)\')">📄 Centre report</button></div></div>';
+        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--orange)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--orange)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\'📄 '+ct.nom+' report (demo)\')">📄 Centre report</button></div></div>';
       }).join('')
     + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">➕ New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'📊 Full network export (demo)\')">📊 Export network</button></div>';
 
@@ -14490,11 +14491,11 @@ function renderAdmin(){
         const att=d.statut==='attente';
         const btn=att?'<button class="pres-add" onclick="toast(\'✉️ Director invitation sent (demo)\')">Invite</button>'
                      :'<button class="pres-add" onclick="toast(\'⏸ Account suspended (demo)\')">Suspend</button>';
-        return '<div class="pat-item" style="cursor:default;"><div style="flex:1;"><div class="pat-n">'+d.n+'</div><div class="pat-m">'+d.centre+(att?' · pending':' · active')+'</div></div>'+btn+'</div>';
+        return '<div class="pat-item" style="cursor:default;"><div style="flex:1;min-width:0;"><div class="pat-n">'+d.n+'</div><div class="pat-m">'+d.centre+(att?' · pending':' · active')+'</div></div>'+btn+'</div>';
       }).join('')
     + '<div class="px" style="padding-top:10px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="toast(\'➕ Create an account (demo)\')">➕ Create</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'⏸ Suspend a centre (demo)\')">⏸ Suspend centre</button></div>'
     + '<div class="ex-sec-t" style="padding:16px 20px 8px;">Login history</div>'
-    + LOGINS.map(l=>'<div class="pat-item" style="cursor:default;"><div style="flex:1;"><div class="pat-n">'+l.n+'</div><div class="pat-m">'+l.r+'</div></div><span style="font-size:12px;color:var(--gray);">'+l.t+'</span></div>').join('')
+    + LOGINS.map(l=>'<div class="pat-item" style="cursor:default;"><div style="flex:1;min-width:0;"><div class="pat-n">'+l.n+'</div><div class="pat-m">'+l.r+'</div></div><span style="font-size:12px;color:var(--gray);">'+l.t+'</span></div>').join('')
     + '<div class="ex-sec-t" style="padding:16px 20px 8px;">Global configuration</div>'
     +'<div class="card" style="margin:0 20px;">'
     +'<div style="display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--border);"><div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--white);">New sign-ups</div><div style="font-size:12px;color:var(--gray);">Allow account creation</div></div><div class="km-switch on" onclick="this.classList.toggle(\'on\')"><div class="km-knob"></div></div></div>'
@@ -14860,7 +14861,7 @@ function renderDefiPartList(){
   list.innerHTML=arr.map(p=>{
     const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
     const on=!!defiSelParticipants[p.id];
-    return '<div class="pat-item" onclick="toggleDefiPart(\''+p.id+'\')" style="'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div></div>';
+    return '<div class="pat-item" onclick="toggleDefiPart(\''+p.id+'\')" style="'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div></div>';
   }).join('');
 }
 function toggleDefiPart(id){
@@ -15789,7 +15790,7 @@ function renderCsiUserList(){
   const q=((document.getElementById('csiSearch')||{}).value||'').trim().toLowerCase();
   const arr=PATIENTS.filter(p=>p.statut!=='attente' && (!q || p.nom.toLowerCase().includes(q)));
   list.innerHTML=arr.map(p=>{ const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
-    return '<div class="pat-item" onclick="selectCsiUser(\''+p.id+'\')" id="csiRow_'+p.id+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" id="csiCheck_'+p.id+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);"></div></div>';
+    return '<div class="pat-item" onclick="selectCsiUser(\''+p.id+'\')" id="csiRow_'+p.id+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" id="csiCheck_'+p.id+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);"></div></div>';
   }).join('');
   if(csiUserId){
     const row=document.getElementById('csiRow_'+csiUserId); if(row) row.style.background='rgba(var(--orange-rgb),.06)';
@@ -15971,7 +15972,7 @@ function renderCscPartList(){
   const arr=PATIENTS.filter(p=>p.statut!=='attente' && (!q || p.nom.toLowerCase().includes(q)));
   list.innerHTML=arr.map(p=>{ const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
     const on=!!cscParticipants[p.id];
-    return '<div class="pat-item" onclick="toggleCscPart(\''+p.id+'\')" id="cscRow_'+p.id+'" style="'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" id="cscCheck_'+p.id+'" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div></div>';
+    return '<div class="pat-item" onclick="toggleCscPart(\''+p.id+'\')" id="cscRow_'+p.id+'" style="'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" id="cscCheck_'+p.id+'" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div></div>';
   }).join('');
 }
 function toggleCscPart(id){
@@ -15996,7 +15997,7 @@ function setCscStep(n){
   cscStep=n;
   const lbl=document.getElementById('cscStepLbl'); if(lbl) lbl.textContent=trDyn('Step 1 of 4');
   const footer=document.getElementById('cscFooter');
-  if(footer) footer.innerHTML='<button class="btn btn-teal" style="color:var(--ink-on-accent);" onclick="nextCscStep()">Continue</button>';
+  if(footer) footer.innerHTML='<button class="btn btn-teal" onclick="nextCscStep()">Continue</button>';
 }
 function nextCscStep(){
   if(Object.keys(cscParticipants).length<2){ toast('Select at least 2 participants'); return; }
@@ -16082,7 +16083,7 @@ function renderSalleAttente(){
   const el=document.getElementById('salleAttenteList'); if(!el) return;
   el.innerHTML = battleParticipants.map(p=>{
     const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
-    return '<div class="pat-item"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;"><div class="pat-n">'+p.nom+'</div></div>'
+    return '<div class="pat-item"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div></div>'
       +'<span style="font-size:11px;font-weight:700;padding:5px 10px;border-radius:100px;'+(p.connected?'background:rgba(var(--teal-rgb),.15);color:var(--teal);':'background:var(--bg2);color:var(--gray);')+'">'+(p.connected?'Connected ✓':'Waiting…')+'</span>'
       +'</div>';
   }).join('');
@@ -16234,7 +16235,7 @@ function resetCprog(){
   if(list){
     const arr=PATIENTS.filter(p=>p.statut!=='attente');
     list.innerHTML=arr.map(p=>{ const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
-      return '<div class="pat-item" onclick="selectCprogUser(\''+p.id+'\')" id="cprogRow_'+p.id+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" id="cprogCheck_'+p.id+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);"></div></div>';
+      return '<div class="pat-item" onclick="selectCprogUser(\''+p.id+'\')" id="cprogRow_'+p.id+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" id="cprogCheck_'+p.id+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);"></div></div>';
     }).join('');
   }
   const prof=document.getElementById('cprogProfile'); if(prof){ prof.style.display='none'; prof.innerHTML=''; }
@@ -17228,7 +17229,7 @@ function renderCalToday(){
     const teal=s.type==='collectif', st=CAL_STATUS[s.status]||CAL_STATUS.planned;
     const btn=s.status==='done'
       ? (teal ? '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="openCollectifSession('+gi+',true)">View results</button>' : '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="toast(\'Session results — coming soon\')">View results</button>')
-      : '<button class="btn '+(teal?'btn-teal':'btn-orange')+'" style="margin-top:10px;padding:12px;'+(teal?'color:var(--ink-on-accent);':'')+'" onclick="'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">Start →</button>';
+      : '<button class="btn '+(teal?'btn-teal':'btn-orange')+'" style="margin-top:10px;padding:12px;" onclick="'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">Start →</button>';
     return '<div class="card" style="margin-bottom:10px;border-left:4px solid '+(teal?'var(--teal)':'#9C9CD4')+';">'
       +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">'+(teal?s.name+' ('+s.pers+' people)':s.name)+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+(teal?'Group':'Individual')+' · '+s.prog+'</div></div><span class="pbdg '+st.c+'">'+st.t+'</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);margin-top:8px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg> '+hh(s.time)+' · '+s.dur+'</div>'+btn+'</div>';
@@ -17280,7 +17281,7 @@ function calSessionPop(gi){
   const teal=s.type==='collectif', st=CAL_STATUS[s.status]||CAL_STATUS.planned;
   const btn=s.status==='done'
     ? (teal ? '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();openCollectifSession('+gi+',true)">View results</button>' : '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();toast(\'Results — coming soon\')">View results</button>')
-    : '<button class="btn '+(teal?'btn-teal':'btn-orange')+'" style="margin-top:14px;'+(teal?'color:var(--ink-on-accent);':'')+'" onclick="closeModal();'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">Start the session →</button>';
+    : '<button class="btn '+(teal?'btn-teal':'btn-orange')+'" style="margin-top:14px;" onclick="closeModal();'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">Start the session →</button>';
   const attendanceTag = (!teal && s.avecCoach!==undefined)
     ? '<span class="tag" style="margin-top:8px;display:inline-block;'+(s.avecCoach?'background:rgba(var(--teal-rgb),.12);color:var(--teal);':'background:var(--bg3);color:var(--gray2);')+'">'+(s.avecCoach?'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> With the coach':'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> Autonomous')+'</span>'
     : '';
