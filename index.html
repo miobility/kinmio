@@ -10857,6 +10857,7 @@ const EN_FR = {
   "· CURRENT": "· ACTUEL",
   "Next session:": "Prochaine séance :",
   "Week complete.": "Semaine terminée.",
+  "No upcoming session set": "Pas de prochaine séance planifiée",
   "Next — Settings →": "Suivant — Réglages →",
   "Next — Schedule →": "Suivant — Planification →",
   "No message yet.": "Aucun message pour l'instant.",
@@ -14574,20 +14575,29 @@ function toggleProgPlanWeek(n){
 // Bloc "prochaine séance" affiché après les stats dans resume
 const WEEKDAY_ORDER=['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
 const DAY_LABELS_EN={lundi:'Monday',mardi:'Tuesday',mercredi:'Wednesday',jeudi:'Thursday',vendredi:'Friday',samedi:'Saturday',dimanche:'Sunday'};
+// Corrigé (audit Home, sept. 2026) : reposait sur DEUX données fausses à la fois — USER_WEEK pour
+// "aujourd'hui" (toujours jeudi, figé) ET currentProgram.jours pour "quels jours je m'entraîne"
+// (toujours ['lundi','jeudi','samedi'] par défaut, jamais réassigné nulle part dans le code — vérifié,
+// aucune écriture sur currentProgram.jours). Résultat réel : ce message ne reflétait jamais tes vrais
+// jours choisis (profile.jours). Remplacé par getNextTrainingDayAfterToday(), même source réelle que
+// la frise de Home (computeWeekStrip/getNextTrainingDayInfo).
+function getNextTrainingDayAfterToday(){
+  const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const now=new Date();
+  const todayIdx=(now.getDay()+6)%7;
+  const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
+  for(let i=1;i<=7;i++){
+    const name=dayNames[(todayIdx+i)%7];
+    if(trainDays.includes(name)) return {name, inDays:i};
+  }
+  return null;
+}
 function renderNextSeance(){
   const el=document.getElementById('resumeNextSeance'); if(!el) return;
-  const todayIdx=USER_WEEK.findIndex(d=>d.state==='today');
-  const jours=(currentProgram.jours||[]).slice().sort((a,b)=>WEEKDAY_ORDER.indexOf(a)-WEEKDAY_ORDER.indexOf(b));
-  const remaining=jours.filter(j=>{ const idx=USER_WEEK.findIndex(d=>d.full===j); return idx>todayIdx; });
-  const cap=s=>DAY_LABELS_EN[s]||s;
-  // Icône calendrier : signale que c'est un vrai rendez-vous planifié (issu de currentProgram.jours),
-  // pas une estimation — cf discussion "je ne suis même pas sûr que ce soit vrai".
-  if(remaining.length){
-    el.innerHTML='<div style="font-size:13px;color:var(--gray2);text-align:center;">'+ICON_CALENDAR+' Next session: <strong style="color:var(--white);">'+cap(remaining[0])+'</strong></div>';
-  } else {
-    const next=jours[0]||'lundi';
-    el.innerHTML='<div style="font-size:13px;color:var(--gray2);text-align:center;line-height:1.5;">'+ICON_CALENDAR+' Week complete.<br>Next session: <strong style="color:var(--white);">'+cap(next)+'</strong></div>';
-  }
+  const next=getNextTrainingDayAfterToday();
+  el.innerHTML = next
+    ? '<div style="font-size:13px;color:var(--gray2);text-align:center;">'+ICON_CALENDAR+' Next session: <strong style="color:var(--white);">'+trDyn(next.name)+'</strong></div>'
+    : '<div style="font-size:13px;color:var(--gray2);text-align:center;">'+ICON_CALENDAR+' '+trDyn('No upcoming session set')+'</div>';
 }
 
 // ===== CONSENTEMENT SANTÉ (onboarding) =====
@@ -17282,10 +17292,14 @@ const resumeMessages={
   first:"First session done. Well done!",
   regular:"Session complete. You're building a real habit."
 };
+// Corrigé (audit Home, sept. 2026) : USER_WEEK compte toujours exactement 2 séances "done" (lundi,
+// mercredi, figées) — ce message affichait donc systématiquement "3 sessions this week" pour tout le
+// monde, peu importe la réalité. getWeekDaysTrained() lit le vrai userSessionHistory ; submitFeedback()
+// y a déjà ajouté la séance qu'on vient de terminer avant d'appeler go('resume') (vérifié dans l'ordre
+// du code), donc plus besoin du "+1" qui compensait la staleness de USER_WEEK.
 function setResumeCoachMsg(){
-  const doneBefore=USER_WEEK.filter(d=>d.state==='done').length;
-  const weekSessions=doneBefore+1;   // +1 pour la séance qu'on vient de terminer, pas encore reflétée dans USER_WEEK
-  const key = doneBefore===0 ? 'first' : (weekSessions>=3 ? 'streak' : 'regular');
+  const weekSessions=getWeekDaysTrained().sessions;
+  const key = weekSessions<=1 ? 'first' : (weekSessions>=3 ? 'streak' : 'regular');
   renderCoachTip('resumeCoachTip', resumeMessages[key].replace('$N', weekSessions));
 }
 // ===== resume — stats réelles de la séance qui vient de se terminer =====
@@ -17393,10 +17407,13 @@ function updateHomeCentreCollective(){
   const b=document.getElementById('homeCentreCollectiveBanner'); if(b) b.style.display='none';
 }
 // Date du jour affichée sous le prénom — dérivée du jour "today" de USER_WEEK + des dates réelles du calendrier référent (REF_DATES), pour rester cohérente avec le reste de la démo.
+// Corrigé (audit Home, sept. 2026) : dérivait avant du jour "today" figé de USER_WEEK (toujours
+// jeudi, dates fixes autour de fin juillet 2025) — pouvait afficher un jour différent de celui
+// réellement surligné sur la frise (computeWeekStrip, branchée sur new Date()). Vraie date système
+// désormais, comme le reste de l'app.
 function todayDateLabel(){
-  const idx=USER_WEEK.findIndex(d=>d.state==='today'); if(idx===-1) return '';
   const locale = currentLang==='fr' ? 'fr-FR' : 'en-US';
-  return refDateObj(idx).toLocaleDateString(locale,{weekday:'long',day:'numeric',month:'long'});
+  return new Date().toLocaleDateString(locale,{weekday:'long',day:'numeric',month:'long'});
 }
 let avatarChoice={};
 
