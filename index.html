@@ -722,21 +722,21 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <!-- Logo + slogan -->
   <div style="position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14vh 28px 0;">
     <div style="display:inline-flex;flex-direction:column;align-items:center;">
-      <div style="margin-bottom:6px;">
-        <img id="entryLogoImg" src="kinmio_logo_app.png" alt="kinmio" style="height:32px;width:auto;display:block;">
+      <div style="margin-bottom:8px;">
+        <img id="entryLogoImg" src="kinmio_logo_app.png" alt="kinmio" style="height:40px;width:auto;display:block;">
       </div>
-      <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-style:italic;font-size:17px;letter-spacing:1.39px;text-transform:uppercase;margin:0;" id="t_tagline" data-notranslate="1"><span style="color:var(--white);">Ready for HIIT</span></p>
+      <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-style:italic;font-size:21px;letter-spacing:1.6px;text-transform:uppercase;margin:0;" id="t_tagline" data-notranslate="1"><span style="color:var(--white);">Ready for HIIT</span></p>
     </div>
   </div>
   <!-- Boutons bas -->
   <div style="position:relative;z-index:3;padding:0 24px calc(48px + env(safe-area-inset-bottom));">
-    <button class="btn btn-brand-fixed" style="margin-bottom:12px;font-size:15px;" onclick="go('login')" id="t_login">Log in</button>
-    <button class="btn btn-outline" style="margin-bottom:6px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="go('centre_entry')">I have an invitation code</button>
-    <div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:14px;">Reserved for members invited by a partner centre</div>
+    <button class="btn btn-brand-fixed" style="margin-bottom:10px;font-size:15px;" onclick="go('login')" id="t_login">Log in</button>
+    <button class="btn btn-outline" style="margin-bottom:8px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="go('centre_entry')">I have an invitation code</button>
+    <div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:24px;">Reserved for members invited by a partner centre</div>
     <div style="text-align:center;">
       <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;" onclick="userParcours='B';go('ob_intro')">New here? Discover kinmio</button>
     </div>
-    <div style="text-align:center;margin-top:16px;">
+    <div style="text-align:center;margin-top:4px;">
       <button onclick="showLang()" id="langBtn" style="background:none;border:none;color:var(--gray);font-size:12px;font-weight:600;cursor:pointer;">🇬🇧 EN</button>
     </div>
   </div>
@@ -916,7 +916,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="display:flex;justify-content:center;margin-bottom:32px;">
       <img src="kinmio_logo_app.png" alt="kinmio" style="height:28px;width:auto;display:block;">
     </div>
-    <div style="position:relative;height:190px;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1a0e0a,#2d1409);margin-bottom:32px;">
+    <div style="position:relative;height:230px;flex-shrink:0;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1a0e0a,#2d1409);margin-bottom:32px;">
       <video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"><source src="ob_vision.mp4" type="video/mp4"></video>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0) 55%,rgba(10,10,15,.55) 100%);"></div>
     </div>
@@ -954,7 +954,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <h2 class="gap8">Meet your bar</h2>
     <p class="sub gap20">30 seconds to get it right — anchor, adjust, go.</p>
-    <div style="position:relative;height:200px;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1a0e0a,#2d1409);margin-bottom:16px;" onclick="advanceObDemo()">
+    <div style="position:relative;height:200px;flex-shrink:0;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1a0e0a,#2d1409);margin-bottom:16px;" onclick="advanceObDemo()">
       <video id="obDemoVideo" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"><source id="obDemoVideoSrc" src="ob_demo_step1.mp4" type="video/mp4"></video>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:20px;" id="obDemoDots"></div>
