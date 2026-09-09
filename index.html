@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>kinmio</title>
 <script>
 /* Applique le thème avant le premier paint pour éviter un flash sombre→clair.
@@ -311,7 +311,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 /* UTILITY */
 .px{padding-left:20px;padding-right:20px;}
 .pt{padding-top:16px;}
-.pb{padding-bottom:24px;}
+.pb{padding-bottom:calc(24px + env(safe-area-inset-bottom));}
 .gap4{margin-bottom:4px;}
 .gap8{margin-bottom:8px;}
 .gap12{margin-bottom:12px;}
@@ -344,7 +344,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .splash-tag{font-size:15px;color:var(--gray2);text-align:center;max-width:280px;line-height:1.5;}
 .splash-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 .splash-video-fallback{position:absolute;inset:0;background:linear-gradient(160deg,#1a0e05 0%,var(--bg) 40%,#001a12 100%);z-index:0;}
-.splash-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,.55) 0%,rgba(10,10,15,.3) 40%,rgba(10,10,15,.75) 100%);z-index:1;}
+.splash-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,.25) 0%,rgba(10,10,15,.15) 40%,rgba(10,10,15,.5) 100%);z-index:1;}
 .splash-cta{position:relative;padding:0 28px 44px;z-index:2;}
 .social-row{display:flex;gap:10px;margin-top:12px;}
 .social-btn{flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
@@ -729,7 +729,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
   </div>
   <!-- Boutons bas -->
-  <div style="position:relative;z-index:3;padding:0 24px 48px;">
+  <div style="position:relative;z-index:3;padding:0 24px calc(48px + env(safe-area-inset-bottom));">
     <button class="btn btn-brand-fixed" style="margin-bottom:12px;font-size:15px;" onclick="go('login')" id="t_login">Log in</button>
     <button class="btn btn-outline" style="margin-bottom:6px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="go('centre_entry')">I have an invitation code</button>
     <div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:14px;">Reserved for members invited by a partner centre</div>
@@ -746,13 +746,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="ob_intro">
   <div class="splash-video-fallback"></div>
   <video class="splash-video" autoplay muted loop playsinline><source src="onboarding2.mp4" type="video/mp4"></video>
-  <div class="splash-overlay" style="background:linear-gradient(180deg,rgba(10,10,15,.4) 0%,rgba(10,10,15,.85) 100%);"></div>
+  <div class="splash-overlay"></div>
   <div style="position:relative;z-index:3;padding:52px 20px 0;flex-shrink:0;"><button class="btn-back" onclick="back()">←</button></div>
   <div style="position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:flex-start;padding:24px 28px 0;">
-    <h1 style="font-size:32px;font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-.8px;margin-bottom:12px;" id="t_ob_intro_title">Let's build your profile together</h1>
-    <p style="font-size:15px;color:var(--gray);line-height:1.5;" id="t_ob_intro_sub">A few questions so every session fits you.</p>
+    <h1 style="font-size:32px;font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-.8px;margin-bottom:12px;text-shadow:0 1px 6px rgba(0,0,0,.5);" id="t_ob_intro_title">Let's build your profile together</h1>
+    <p style="font-size:15px;color:rgba(255,255,255,.82);line-height:1.5;text-shadow:0 1px 4px rgba(0,0,0,.5);" id="t_ob_intro_sub">A few questions so every session fits you.</p>
   </div>
-  <div style="position:relative;z-index:2;padding:0 28px 48px;">
+  <div style="position:relative;z-index:2;padding:0 28px calc(48px + env(safe-area-inset-bottom));">
     <button class="btn btn-brand-fixed" onclick="go('ob1')" id="t_ob_intro_cta">Let's go! →</button>
     <div style="text-align:center;margin-top:12px;"><button class="btn-ghost" style="color:var(--gray);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip ›</button></div>
   </div>
@@ -774,7 +774,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="allonge"><div class="ob-icon"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=4.5 cy=14 r=2.3 /><path d=M6.8,14h12.2 /><path d=M17,11.5v5 /><path d=M3,19h18 /></svg></div><div style="flex:1"><div class="ob-label">Lying down</div></div><div class="ob-check"></div></div>
     </div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" id="ob1next" style="opacity:.4;" onclick="nextIfOb1()">Continue →</button>
   </div>
 </div>
@@ -790,7 +790,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="testimonialCard"></div>
     <div style="display:flex;justify-content:center;gap:6px;margin-top:18px;" id="testimonialDots"></div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;">
     <button class="btn btn-brand-fixed" onclick="go('ob6')">Continue →</button>
   </div>
 </div>
@@ -813,7 +813,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="sauts"><div class="ob-icon"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3v7 /><path d=M8,7l4,-4l4,4 /><path d=M5,21h14 /><path d=M4,20l16,-16 /></svg></div><div style="flex:1"><div class="ob-label">Avoid jumping</div></div><div class="ob-check"></div></div>
     </div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" onclick="renderObDaysChips();go('ob7')">Continue →</button>
   </div>
 </div>
@@ -845,7 +845,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <p class="sub" style="margin-bottom:14px;">Pre-filled to match — tap a day to change it, anytime.</p>
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="obDaysChips"></div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" onclick="go('ob8')">Continue →</button>
   </div>
 </div>
@@ -866,7 +866,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="ob-opt" onclick="selOb8(this)" data-val="60"><div class="ob-icon"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,2c1,4,-3,5,-3,9a3,3,0,0,0,6,0c0,-1.5,-1,-2,-1,-3.5c1.5,1,2.5,3,2.5,5.5a5,5,0,0,1,-10,0c0,-5,3,-7,5.5,-11Z /></svg></div><div style="flex:1"><div class="ob-label">60 min</div></div><div class="ob-check"></div></div>
     </div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" id="ob8next" style="opacity:.4;" onclick="go('ob_commit')">Continue →</button>
   </div>
 </div>
@@ -879,7 +879,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <p class="sub gap24">Pick a horizon — we'll check back in with you then.</p>
     <div style="display:flex;gap:8px;" id="obProjWeeksChips"></div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" onclick="go('ob_projection')">Continue →</button>
   </div>
 </div>
@@ -904,7 +904,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div onclick="go('ob8')" style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);cursor:pointer;"><span style="font-size:28px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=13 r=8 /><path d=M12,9v4l3,2 /><path d=M9.5,2.5h5 /></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Preferred duration</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sum_duree">—</div></div><span style="font-size:16px;color:var(--gray);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,20l.8-3.8L15.5,5.5a1.8,1.8,0,0,1,2.5,0l.5,.5a1.8,1.8,0,0,1,0,2.5L7.8,19.2,4,20Z /><path d=M13.5,7.5l3,3 /></svg></span></div>
     </div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" onclick="go('ob_vision')">Continue →</button>
   </div>
 </div>
@@ -944,7 +944,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
     </div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" onclick="obDemoStepIdx=0;renderObDemoStep();go('ob_demo')">Continue →</button>
   </div>
 </div>
@@ -960,7 +960,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="display:flex;gap:6px;margin-bottom:20px;" id="obDemoDots"></div>
     <div style="display:flex;align-items:center;gap:12px;" id="obDemoStep"></div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" id="obDemoNextBtn" onclick="advanceObDemo()">Got it, next step →</button>
   </div>
 </div>
@@ -2590,7 +2590,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div style="height:24px;"></div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);" id="csiFooter"></div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);" id="csiFooter"></div>
 </div>
 
 <!-- ================= CRÉATION SESSION COLLECTIVE (référent) ================= -->
@@ -2606,14 +2606,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div style="height:24px;"></div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);" id="cscFooter"></div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);" id="cscFooter"></div>
 </div>
 
 <!-- ================= SALLE D'ATTENTE (battle collectif simulé) ================= -->
 <div class="screen" id="salle_attente">
   <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Waiting room</div><div class="topnav-r"></div></div>
   <div class="scroll" id="salleAttenteList"></div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;">
     <button class="btn btn-orange" id="salleAttenteCta" style="width:100%;opacity:.4;pointer-events:none;" onclick="salleAttenteStart()">Start</button>
     <div style="text-align:center;font-size:12px;color:var(--gray);margin-top:8px;" id="salleAttenteHint"></div>
   </div>
@@ -2689,7 +2689,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="height:24px;"></div>
   </div>
   <div id="defiStepSummary" style="display:none;padding:8px 20px 0;font-size:12px;font-weight:700;color:var(--gray2);text-align:center;background:var(--bg);flex-shrink:0;">&nbsp;</div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);" id="defiFooter"></div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);" id="defiFooter"></div>
 </div>
 
 <!-- ================= DÉFI D'INTENSITÉ — LIVE (référent) =================
@@ -2838,7 +2838,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="height:24px;"></div>
   </div>
   <div id="friendStepSummary" style="display:none;padding:8px 20px 0;font-size:12px;font-weight:700;color:var(--gray2);text-align:center;background:var(--bg);flex-shrink:0;">&nbsp;</div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);" id="friendFooter"></div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);" id="friendFooter"></div>
 </div>
 
 <!-- ================= DÉFI ENTRE AMIS — ATTENTE (membre) ================= -->
@@ -2853,7 +2853,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="font-size:12.5px;font-weight:700;color:var(--teal);">Waiting…</div>
     </div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;"><button class="btn btn-outline" style="width:100%;" onclick="cancelFriendWait()">Cancel</button></div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;"><button class="btn btn-outline" style="width:100%;" onclick="cancelFriendWait()">Cancel</button></div>
 </div>
 
 <!-- ================= MES AMIS (membre) ================= -->
@@ -2912,7 +2912,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="display:flex;justify-content:space-between;padding:9px 0;"><span style="color:var(--gray);font-size:13px;">Threshold</span><span style="font-weight:700;font-size:13px;color:var(--white);" id="inviteThresholdNom">—</span></div>
     </div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;display:flex;gap:10px;">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;display:flex;gap:10px;">
     <button class="btn btn-outline" style="flex:1;" onclick="declineInvite()">Decline</button>
     <button class="btn btn-orange" style="flex:1;" onclick="acceptInvite()">Accept</button>
   </div>
@@ -2963,7 +2963,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="soloLiveSummaryMetrics" class="card-sm" style="display:none;margin:0 0 16px;"></div>
     </div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;">
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;">
     <button class="btn btn-outline" style="width:100%;" id="soloLiveBottomBtn" onclick="endSoloLiveNow()">Stop watching</button>
   </div>
 </div>
@@ -3014,7 +3014,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div style="height:24px;"></div>
   </div>
-  <div style="padding:12px 20px 24px;flex-shrink:0;background:var(--bg);" id="cprogFooter"></div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);" id="cprogFooter"></div>
 </div>
 
 <!-- ================= SANTÉ & OBJETS CONNECTÉS (8.1 → 8.5) ================= -->
@@ -3372,7 +3372,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <button class="bnav-item" onclick="go('bibliotheque')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Exercises</span></button>
     <button class="bnav-item" onclick="setRefView('stats');go('dashboard_referent')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Stats</span></button>
   </div>
-  <div id="calPickFooter" style="display:none;padding:12px 20px 24px;flex-shrink:0;background:var(--bg);">
+  <div id="calPickFooter" style="display:none;padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-orange" id="calPickPrimaryBtn" onclick="calPickContinue()">Validate →</button>
     <button class="btn-ghost" style="width:100%;margin-top:10px;color:var(--gray2);" onclick="calPickSkipDate()">Assign without a date →</button>
   </div>
