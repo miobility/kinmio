@@ -768,10 +768,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Which position(s) do you train in?</h2>
     <p class="sub gap20">Multiple choices possible — your sessions adapt.</p>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;" id="pos_opts">
       <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="debout"><div class="ob-icon"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=4.5 r=2.3 /><path d=M12,7v7 /><path d=M8,10h8 /><path d=M12,14l-3.5,6.5M12,14l3.5,6.5 /></svg></div><div style="flex:1"><div class="ob-label">Standing</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="assis"><div class="ob-icon"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8 cy=4.5 r=2.3 /><path d=M8,7v6h6 /><path d=M14,13v7 /><path d=M4,20h16 /></svg></div><div style="flex:1"><div class="ob-label">Seated</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="allonge"><div class="ob-icon"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=4.5 cy=14 r=2.3 /><path d=M6.8,14h12.2 /><path d=M17,11.5v5 /><path d=M3,19h18 /></svg></div><div style="flex:1"><div class="ob-label">Lying down</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt multi" onclick="toggleAllPositions(this)" data-val="toutes"><div class="ob-icon"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg></div><div style="flex:1"><div class="ob-label">All positions</div></div><div class="ob-check"></div></div>
     </div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
@@ -4935,6 +4936,7 @@ function go(id){
   // .mode) jusqu'au prochain démarrage réel de séance. initApresOnboarding() est la vraie activation.
   if(id==='ob_summary_centre') setTimeout(function(){ populateSummary(); initApresOnboarding(); }, 50);
   if(id==='ob_commit' || id==='ob_projection') setTimeout(function(){ populateSummary(); renderObProjection(); }, 50);
+  if(id==='ob_vision') preloadObDemoVideo(OB_DEMO_STEPS[0]);
   if(id==='ob_consent'){
     const el=document.getElementById('obConsentCoachShare'); if(el) el.style.display = centreMode ? 'flex' : 'none';
     // Le bouton annonce la vraie prochaine étape : créer son compte (parcours découverte, pas encore de
@@ -9008,6 +9010,7 @@ const EN_FR = {
   "Standing": "Debout",
   "Seated": "Assis",
   "Lying down": "Allongé",
+  "All positions": "Toutes",
   "Continue": "Continuer",
   // ob2/ob3 (préhension de la barre) retirés du parcours (6 questions désormais) — ces 3 options
   // restent utilisées ailleurs (mon_equipement, mon_profil_entrainement), le reste a été purgé.
@@ -11008,6 +11011,28 @@ function toggleMulti(el){
     if(chk) chk.textContent = '✓';
     posSelections.add(val);
   }
+  // "Toutes" reflète l'état réel : cochée seulement quand les 3 positions le sont, jamais posée à la main.
+  const allEl = document.querySelector('#pos_opts [data-val="toutes"]');
+  if(allEl){
+    const indiv = document.querySelectorAll('#pos_opts .ob-opt[data-val]:not([data-val="toutes"])');
+    const allSelected = Array.from(indiv).every(o => o.classList.contains('sel'));
+    allEl.classList.toggle('sel', allSelected);
+    const c = allEl.querySelector('.ob-check'); if(c) c.textContent = allSelected ? '✓' : '';
+  }
+  const btn = document.getElementById('ob1next');
+  if(btn) btn.style.opacity = posSelections.size > 0 ? '1' : '.4';
+}
+function toggleAllPositions(el){
+  const indiv = document.querySelectorAll('#pos_opts .ob-opt[data-val]:not([data-val="toutes"])');
+  const nowSelecting = !el.classList.contains('sel');
+  indiv.forEach(o => {
+    const v = o.getAttribute('data-val');
+    o.classList.toggle('sel', nowSelecting);
+    const c = o.querySelector('.ob-check'); if(c) c.textContent = nowSelecting ? '✓' : '';
+    if(nowSelecting) posSelections.add(v); else posSelections.delete(v);
+  });
+  el.classList.toggle('sel', nowSelecting);
+  const c = el.querySelector('.ob-check'); if(c) c.textContent = nowSelecting ? '✓' : '';
   const btn = document.getElementById('ob1next');
   if(btn) btn.style.opacity = posSelections.size > 0 ? '1' : '.4';
 }
@@ -11035,6 +11060,19 @@ function renderObDemoStep(){
   // La vidéo change avec l'étape — un vrai tuto séquentiel, pas une boucle générique identique du début à la fin.
   const vidSrc=document.getElementById('obDemoVideoSrc'), vid=document.getElementById('obDemoVideo');
   if(vidSrc && vid && vidSrc.getAttribute('src')!==s.video){ vidSrc.setAttribute('src', s.video); vid.load(); vid.play().catch(()=>{}); }
+  preloadObDemoVideo(OB_DEMO_STEPS[obDemoStepIdx+1]);
+}
+// Précharge en tâche de fond la vidéo de l'étape suivante (fichiers lourds, non compressés) pour que
+// le changement d'étape n'attende plus le réseau — le navigateur sert depuis son cache disque.
+function preloadObDemoVideo(step){
+  if(!step) return;
+  if(document.querySelector('video[data-preload="'+step.video+'"]')) return;
+  const pre = document.createElement('video');
+  pre.muted = true; pre.preload = 'auto'; pre.setAttribute('data-preload', step.video);
+  pre.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;';
+  pre.src = step.video;
+  document.body.appendChild(pre);
+  pre.load();
 }
 function advanceObDemo(){
   if(obDemoStepIdx < OB_DEMO_STEPS.length-1){ obDemoStepIdx++; renderObDemoStep(); }
