@@ -932,11 +932,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div style="display:flex;align-items:center;gap:14px;">
         <span style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand-fixed);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:18px;height:18px;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg></span>
-        <span style="font-size:13.5px;color:var(--white);font-weight:600;">An AI coach that adjusts to you — and helps correct your form</span>
+        <span style="font-size:13.5px;color:var(--white);font-weight:600;">AI coach — adapts, corrects your form</span>
       </div>
       <div style="display:flex;align-items:center;gap:14px;">
         <span style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand-fixed);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:18px;height:18px;><path d=M4,20V10M12,20V4M20,20v-7 /></svg></span>
-        <span style="font-size:13.5px;color:var(--white);font-weight:600;">Progress tracked automatically, week after week</span>
+        <span style="font-size:13.5px;color:var(--white);font-weight:600;">Progress tracked automatically</span>
       </div>
       <div style="display:flex;align-items:center;gap:14px;">
         <span style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand-fixed);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:18px;height:18px;><rect x=4 y=4 width=7 height=7 rx=1.5 /><rect x=13 y=4 width=7 height=7 rx=1.5 /><rect x=4 y=13 width=7 height=7 rx=1.5 /><rect x=13 y=13 width=7 height=7 rx=1.5 /></svg></span>
@@ -8952,7 +8952,7 @@ function hideLang(){document.getElementById('langPopup').style.display='none';}
 // Dictionnaire plat anglais -> français. L'anglais (déjà dans le HTML) reste la source de vérité ;
 // le passage en français remplace le texte en place (sans jamais toucher au HTML/classes/état),
 // et repasser en anglais restaure via la table inverse. Voir sweepTranslate()/setLang().
-let currentLang = 'en';
+let currentLang = 'fr';
 const EN_FR = {
   // screen2 (splash)
   "Get started": "Commencer",
@@ -8972,16 +8972,16 @@ const EN_FR = {
   "Pick a frequency, or tap the days that work for you — they stay in sync.": "Choisis une fréquence, ou touche les jours qui te conviennent — ils restent synchronisés.",
   "Which days?": "Quels jours ?",
   "Pre-filled to match — tap a day to change it, anytime.": "Pré-rempli en fonction — touche un jour pour le changer, à tout moment.",
-  "Meet your bar": "Découvre ta barre",
-  "30 seconds to get it right — anchor, adjust, go.": "30 secondes pour bien l'installer — ancre, ajuste, c'est parti.",
+  "Meet your bar": "Découvre ta barre kinmio",
+  "30 seconds to get it right — anchor, adjust, go.": "30 secondes pour bien t'installer.",
   "✦ Your plan is ready": "✦ Ton plan est prêt",
-  "Real habits, your effort truly measured.": "De vraies habitudes, ton effort vraiment mesuré.",
+  "Real habits, your effort truly measured.": "Des habitudes qui durent, ton effort vraiment mesuré.",
   "The HIIT bar connected to your effort": "La barre HIIT connectée à ton effort",
-  "Real-time effort, measured as you train": "Effort mesuré en temps réel, pendant ta séance",
-  "An AI coach that adjusts to you — and helps correct your form": "Un coach IA qui s'adapte à toi — et t'aide à corriger ton geste",
-  "Exercises picked for your profile, every time": "Des exercices choisis pour ton profil, à chaque fois",
+  "Real-time effort, measured as you train": "Ton effort mesuré en temps réel",
+  "AI coach — adapts, corrects your form": "Coach IA — s'adapte à toi, corrige ton geste",
+  "Exercises picked for your profile, every time": "Des exercices choisis pour ton profil",
   "Challenges with people at your level": "Des défis avec des personnes de ton niveau",
-  "Progress tracked automatically, week after week": "Progression suivie automatiquement, semaine après semaine",
+  "Progress tracked automatically": "Progression suivie automatiquement",
   "Designed with pros, used by everyone": "Conçu avec des pros, utilisé par tous",
   "New here? Discover kinmio": "Nouveau ici ? Découvre kinmio",
   "Explore kinmio for 7 days.": "Découvre kinmio pendant 7 jours.",
@@ -10598,6 +10598,8 @@ const EN_FR_PATTERNS = [
   // "X day/week" ou "X days/week" (récap onboarding, fréquence choisie) — posé en JS brut via
   // textContent (populateSummary), jamais capté par un balayage statique sans ce pattern.
   [/^(\d+) days?\/week$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''}/semaine`],
+  // Stat de projection onboarding (ob_projection, "150 min/week") — posé en JS brut via textContent.
+  [/^(\d+) min\/week$/, (m)=>`${m[1]} min/semaine`],
   // Résumé "N coaches · avg M members/coach" (onglet Coaches, direction) — "coach" traduit en "référent"
   // pour rester cohérent avec "Centre coaches"→"Référents du centre" déjà dans le dico.
   [/^(\d+) coaches? · avg ([\d.]+) members\/coach$/, (m)=>`${m[1]} référent${Number(m[1])>1?'s':''} · moy. ${m[2]} membres/référent`],
@@ -10946,6 +10948,7 @@ function setLang(lang){
   });
   hideLang();
 }
+document.addEventListener('DOMContentLoaded', function(){ setLang('fr'); });
 
 
 
@@ -11234,7 +11237,7 @@ function renderObProjection(){
   const duree = profile.duree || 30;
   const weeklyMin = freqNum * duree;
   const pctEl = document.getElementById('obProjectionPct');
-  if(pctEl) pctEl.textContent = weeklyMin + ' min/week';
+  if(pctEl) pctEl.textContent = trDyn(weeklyMin + ' min/week');
 }
 
 // Check-in réel à l'horizon choisi (ob_commit) — pas juste un chiffre affiché puis oublié : la date est
