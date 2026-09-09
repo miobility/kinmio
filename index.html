@@ -939,7 +939,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <span style="font-size:13.5px;color:var(--white);font-weight:600;">Real-time effort, measured as you train</span>
       </div>
       <div style="display:flex;align-items:center;gap:14px;">
-        <span style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand-fixed);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:18px;height:18px;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg></span>
+        <span style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand-fixed);"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg></span>
         <span style="font-size:13.5px;color:var(--white);font-weight:600;">AI coach — adapts, corrects your form</span>
       </div>
       <div style="display:flex;align-items:center;gap:14px;">
@@ -957,7 +957,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
-    <button class="btn btn-brand-fixed" onclick="obDemoStepIdx=0;renderObDemoStep();go('ob_demo')">Continue →</button>
+    <button class="btn btn-brand-fixed" onclick="obDemoReviewMode=false;obDemoStepIdx=0;renderObDemoStep();go('ob_demo')">Continue →</button>
   </div>
 </div>
 
@@ -1160,7 +1160,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="centrePendingBanner" style="display:none;margin:6px 20px 4px;border-radius:16px;padding:14px 16px;align-items:center;gap:12px;"></div>
 
     <!-- Coach IA — recalibrage hebdomadaire -->
-    <div id="homeCentreCoachCard" style="display:none;margin:18px 20px 0;background:linear-gradient(135deg,rgba(var(--brand-fixed-rgb),.12),rgba(var(--brand-fixed-rgb),.03));border:1px solid rgba(var(--brand-fixed-rgb),.3);border-radius:18px;padding:18px;"></div>
 
     <!-- Score Kinmio du jour + objectif -->
     <div id="homeCentreScoreDial" style="display:none;margin:18px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;align-items:center;gap:18px;"></div>
@@ -1205,6 +1204,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="bnav">
     <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
     <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item" onclick="initAssistantIa();go('assistant_ia')"><span class="bnav-icon" style="position:relative;"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--gray)" stroke="none"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg><span class="coachIaBadgeDot" style="display:none;position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg2);"></span></span><span class="bnav-label">AI Coach</span></button>
     <button class="bnav-item" onclick="go('defis')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label">Challenges</span></button>
     <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
@@ -1530,14 +1530,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="home-top gap4">
       <div><div class="hw">Hello</div><div class="hname" style="display:flex;align-items:center;gap:8px;min-width:0;"><span id="homeUserName" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marc</span><span id="subBadgeHome" style="display:none;font-size:11px;font-weight:700;color:var(--teal);background:rgba(var(--teal-rgb),.12);padding:3px 8px;border-radius:8px;letter-spacing:0;flex-shrink:0;">Subscribed ✓</span></div><div style="font-size:12px;color:var(--gray);margin-top:4px;" id="homeDateLabel"></div></div>
       <div style="display:flex;align-items:center;gap:10px;">
-        <div class="bell" onclick="initAssistantIa();go('assistant_ia')" title="Assistant"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg></div>
+        <div class="bell" onclick="initAssistantIa();go('assistant_ia')" title="AI Coach"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-0.125em;display:inline-block;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg></div>
         <div class="bell" onclick="openNotifs()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z /><path d=M9.5,18.5a2.5,2.5,0,0,0,5,0 /></svg><span class="bell-dot"></span></div>
         <div class="hav" onclick="go('profil')" style="cursor:pointer;border-radius:50%;overflow:hidden;padding:0;background:transparent;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
     </div>
 
     <!-- Coach IA — recalibrage hebdomadaire -->
-    <div id="homeCoachCard" style="display:none;margin:18px 20px 0;background:linear-gradient(135deg,rgba(var(--brand-fixed-rgb),.12),rgba(var(--brand-fixed-rgb),.03));border:1px solid rgba(var(--brand-fixed-rgb),.3);border-radius:18px;padding:18px;"></div>
 
     <!-- Score Kinmio du jour + objectif -->
     <div id="homeScoreDial" style="display:none;margin:18px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;align-items:center;gap:18px;"></div>
@@ -1587,6 +1586,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="bnav">
     <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
     <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item" onclick="initAssistantIa();go('assistant_ia')"><span class="bnav-icon" style="position:relative;"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--gray)" stroke="none"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg><span class="coachIaBadgeDot" style="display:none;position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg2);"></span></span><span class="bnav-label">AI Coach</span></button>
     <button class="bnav-item" onclick="go('defis')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label">Challenges</span></button>
     <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
@@ -1655,6 +1655,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll px pt pb">
     <h2 class="gap8">30 seconds before you start</h2>
     <p class="sub gap24">A few gentle moves, adapted to what you told us — skip anytime.</p>
+    <div id="warmupBarReminder" class="coach-tip" style="display:none;margin-bottom:18px;"><span class="ct-ic"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=6 y=2 width=12 height=20 rx=2.5 /><path d=M9,6h6 /></svg></span><span>Don't forget to clip your phone onto the bar</span></div>
     <div id="warmupList" style="display:flex;flex-direction:column;gap:10px;"></div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);display:flex;flex-direction:column;gap:10px;">
@@ -1677,6 +1678,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="sess-pbar"><div class="sess-pfill" style="width:28%;"></div></div>
   <div id="sessIntensityBanner" style="display:none;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;">
+    <span id="sessIntensityIcon" style="display:none;flex-shrink:0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--brand-fixed)" stroke="none"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg>
+    </span>
     <div style="flex:1;min-width:0;">
       <div style="font-size:12px;font-weight:700;color:var(--white);">Intensity: <span id="sessIntensityVal">Moderate</span></div>
       <div id="sessIntensityReason" style="font-size:11px;color:var(--gray);margin-top:1px;"></div>
@@ -1738,7 +1742,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         </div>
       </div>
       <div id="sessPaceRow" style="display:none;text-align:center;margin:-8px 0 16px;"><span id="sessPaceBadge" class="pbdg" style="background:var(--bg2);color:var(--gray2);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M3,12h4l2,-6l4,12l2,-6h6 /></svg> Steady pace</span></div>
-      <div class="sess-tip" id="sessTipWrap"><div class="sess-tip-txt" id="sessTipTxt"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M9,18h6 /><path d=M10,21h4 /><path d=M12,3a6,6,0,0,0,-3,11.2c.6,.4,1,1.1,1,1.8h4c0,-.7,.4,-1.4,1,-1.8A6,6,0,0,0,12,3Z /></svg> Keep your shoulders down and back straight. Exhale on the lift, control the descent.</div></div>
+      <div class="sess-tip" id="sessTipWrap"><div class="sess-tip-txt" id="sessTipTxt"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-0.125em;display:inline-block;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg> Keep your shoulders down and back straight. Exhale on the lift, control the descent.</div></div>
       <div style="display:flex;flex-direction:column;gap:10px;width:100%;">
         <button class="sess-next" id="stdNextBtn" style="width:100%;" onclick="go('next_exercise')">Next exercise →</button>
       </div>
@@ -1824,7 +1828,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
          export Santé), regroupées et discrètes plutôt qu'au même niveau que le contenu principal. -->
     <div style="padding:8px 20px 32px;">
       <div class="resume-kine" id="resumeKineBox" style="display:none;margin:0 0 14px;">
-        <div style="font-size:13px;color:var(--teal);line-height:1.5;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Your note was sent to your coach. Your next session will adapt.</div>
+        <div style="font-size:13px;color:var(--teal);line-height:1.5;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Your note was sent to your coach. Your next session will adapt.</div>
       </div>
       <div id="resumeHR" class="resume-badge" style="display:none;margin:0 0 14px;">
         <span style="font-size:26px;"><span class="hr-beat">❤️</span></span>
@@ -1890,7 +1894,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="sessSearchWrap" style="display:none;padding:10px 20px 0;"><input id="sessSearchInput" type="text" placeholder="Search a session…" oninput="renderProgSessionsView()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div class="px pt" style="padding-bottom:10px;display:flex;gap:8px;overflow-x:auto;">
         <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openSessFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="sessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-        <button class="lib-chip" id="sessChipFavoris" onclick="toggleSessFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="sessChipMatchProfile" onclick="toggleSessMatchProfileChip()">✨ For you</button><button class="lib-chip" id="sessChipCoach" onclick="toggleSessCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Coach</button></div>
+        <button class="lib-chip" id="sessChipFavoris" onclick="toggleSessFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="sessChipMatchProfile" onclick="toggleSessMatchProfileChip()">✨ For you</button><button class="lib-chip" id="sessChipCoach" onclick="toggleSessCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
       <div class="px" style="padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <div id="progSessionsCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 sessions</div>
         <button class="btn-ghost" id="sessResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetSessFilters()">Reset all</button>
@@ -1911,7 +1915,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="progSearchWrap" style="display:none;padding:10px 20px 0;"><input id="progSearchInput" type="text" placeholder="Search a programme…" oninput="renderProgProgrammesView()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div class="px pt" style="padding-bottom:10px;display:flex;gap:8px;overflow-x:auto;">
         <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openProgFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="progFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-        <button class="lib-chip" id="progChipFavoris" onclick="toggleProgFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="progChipMatchProfile" onclick="toggleProgMatchProfileChip()">✨ For you</button><button class="lib-chip" id="progChipCoach" onclick="toggleProgCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Coach</button></div>
+        <button class="lib-chip" id="progChipFavoris" onclick="toggleProgFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="progChipMatchProfile" onclick="toggleProgMatchProfileChip()">✨ For you</button><button class="lib-chip" id="progChipCoach" onclick="toggleProgCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
       <div class="px" style="padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <div id="progProgrammesCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 programmes</div>
         <button class="btn-ghost" id="progResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetProgFilters()">Reset all</button>
@@ -1937,6 +1941,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="bnav">
     <button class="bnav-item" onclick="go('home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
     <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item" onclick="initAssistantIa();go('assistant_ia')"><span class="bnav-icon" style="position:relative;"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--gray)" stroke="none"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg><span class="coachIaBadgeDot" style="display:none;position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg2);"></span></span><span class="bnav-label">AI Coach</span></button>
     <button class="bnav-item" onclick="go('defis')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label">Challenges</span></button>
     <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
@@ -1964,6 +1969,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="bnav">
     <button class="bnav-item" onclick="go(currentRole==='user_centre'?'home_centre':'home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
     <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item" onclick="initAssistantIa();go('assistant_ia')"><span class="bnav-icon" style="position:relative;"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--gray)" stroke="none"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg><span class="coachIaBadgeDot" style="display:none;position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg2);"></span></span><span class="bnav-label">AI Coach</span></button>
     <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label" style="color:var(--orange);">Challenges</span></button>
     <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
@@ -2007,6 +2013,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="bnav" id="progBnav">
     <button class="bnav-item" onclick="go(currentRole==='user_centre'?'home_centre':'home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
     <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item" onclick="initAssistantIa();go('assistant_ia')"><span class="bnav-icon" style="position:relative;"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--gray)" stroke="none"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg><span class="coachIaBadgeDot" style="display:none;position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg2);"></span></span><span class="bnav-label">AI Coach</span></button>
+    <button class="bnav-item" onclick="go('defis')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label">Challenges</span></button>
     <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
 </div>
@@ -2154,7 +2162,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibNouveauFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libNouveauFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
       <button class="lib-chip" id="libChipFavoris" onclick="toggleLibFavorisChip()">❤️ Favourites</button>
       <button class="lib-chip" id="libChipMatchProfile" onclick="toggleLibMatchProfileChip()">✨ For you</button>
-      <button class="lib-chip" id="libChipCoach" onclick="toggleLibCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Coach</button>
+      <button class="lib-chip" id="libChipCoach" onclick="toggleLibCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button>
     </div>
     <div style="padding:0 20px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
       <div id="libNouveauCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 exercises</div>
@@ -3370,11 +3378,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My equipment</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div class="ex-sec-t">My kinmio bar</div>
-    <div class="card" id="equipBarCard" onclick="toggleEquipOwned('bar')" style="display:flex;align-items:center;gap:14px;margin-bottom:20px;cursor:pointer;">
+    <div class="card" id="equipBarCard" onclick="toggleEquipOwned('bar')" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;cursor:pointer;">
       <div style="font-size:34px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6.5,9v6 /><path d=M17.5,9v6 /><rect x=3 y=10 width=3 height=4 rx=1 /><rect x=18 y=10 width=3 height=4 rx=1 /><path d=M6.5,12h11 /></svg></div>
       <div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--white);">kinmio bar</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">Serial no. KIN-2024-8842 · activated Feb 12, 2026</div><div style="font-size:12px;font-weight:700;margin-top:4px;" id="equipBarStatusTxt">Bar connected ✓</div></div>
       <span class="pbdg bdg-a" id="equipBarBadge">Active</span>
     </div>
+    <div style="margin:0 0 20px;"><span onclick="reviewBarTutorial()" style="color:var(--orange);font-size:13.5px;font-weight:700;cursor:pointer;">▶ Review the bar tutorial</span></div>
     <div class="ex-sec-t">My accessories</div>
     <div class="card" id="equipElastiqueCard" onclick="toggleEquipOwned('elastique')" style="display:flex;align-items:center;gap:14px;margin-bottom:18px;cursor:pointer;">
       <div style="font-size:30px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><ellipse cx=12 cy=12 rx=9 ry=5 /></svg></div>
@@ -3448,12 +3457,20 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= ASSISTANT IA (maquette — pas branché à une vraie IA, réponses calculées depuis les vraies données) ================= -->
 <div class="screen" id="assistant_ia">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Assistant</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">AI Coach</div><div class="topnav-r"><button class="btn-back" style="width:36px;height:36px;font-size:16px;" onclick="openCoachHistoryModal()" title="History"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg></button></div></div>
+  <div id="coachIaWeeklyCard" style="display:none;flex-shrink:0;margin:14px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;"></div>
   <div class="scroll px pt pb" id="assistantThread" style="display:flex;flex-direction:column;gap:12px;"></div>
   <div id="assistantChips" style="padding:10px 20px 4px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;"></div>
   <div style="padding:8px 20px 20px;flex-shrink:0;display:flex;gap:8px;align-items:center;">
     <input type="text" id="assistantInput" placeholder="Try a suggestion above…" readonly style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:14px;color:var(--gray);font-family:inherit;outline:none;">
     <button style="width:44px;height:44px;border-radius:14px;background:var(--bg3);border:none;color:var(--gray);font-size:18px;cursor:pointer;flex-shrink:0;">→</button>
+  </div>
+  <div class="bnav">
+    <button class="bnav-item" onclick="go(currentRole==='user_centre'?'home_centre':'home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
+    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--orange)" stroke="none"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg></span><span class="bnav-label" style="color:var(--orange);">AI Coach</span></button>
+    <button class="bnav-item" onclick="go('defis')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label">Challenges</span></button>
+    <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
 </div>
 
@@ -4702,6 +4719,16 @@ function equipmentOk(ex){
   if(eq==='Barre avec élastique' && !own.elastique) return false;
   return true;
 }
+// Rappel d'installation avant séance (cf Manques identifiés, démo du mouvement) : n'a de sens
+// que si au moins un exercice de la séance utilise réellement la barre.
+function sessionUsesBar(s){
+  if(!s || !s.exercices) return false;
+  const allEx=[...EXERCICES,...userExercices];
+  return s.exercices.some(exId=>{
+    const ex=allEx.find(e=>e.id===exId);
+    return ex && ex.equipement!=='Aucun';
+  });
+}
 function sessionMissingEquipment(ses){
   const allEx=[...EXERCICES,...userExercices];
   return (ses.exercices||[]).some(exId=>{
@@ -4917,8 +4944,9 @@ let hist=['splash'];
 // Racines de bottom-nav : écrans frères entre eux (onglets), jamais une pile — un aller-retour entre
 // deux d'entre eux ne doit jamais avoir de direction ni de "profondeur" visuelle, contrairement à un
 // vrai push (fiche exercice, création de séance...). Liste à plat car chaque id est unique dans l'app.
-const BNAV_ROOTS=new Set(['home','home_centre','bibliotheque','programme','progression','dashboard_referent','calendrier_referent']);
+const BNAV_ROOTS=new Set(['home','home_centre','bibliotheque','programme','progression','dashboard_referent','calendrier_referent','assistant_ia','defis']);
 function go(id){
+  updateCoachIaBadge();
   if(viewingDemoPatientId && id!=='progression') restoreMarcState();
   const ne=document.getElementById(id);
   if(!ne) return;                                     // cible inexistante : no-op propre
@@ -5047,13 +5075,14 @@ function go(id){
     // catalogue legacy jamais mis à jour — cf discussion). preselectLibNouveau()/renderLibNouveau()
     // gèrent déjà tous les cas ; le FAB "+" route vers le bon formulaire de création selon le rôle
     // (voir openCreateExercise()).
-    // Les onglets Séances/Programmes (ajoutés pour le référent) ne s'affichent QUE pour lui : le B2C/
-    // user_centre a déjà ces deux destinations en items dédiés de sa bottom nav (Séances/Programmes) —
-    // les dupliquer en sous-onglets de "Exercices" créait deux chemins différents vers la même chose,
-    // confus. Bug réel trouvé en testant : les 3 rôles voyaient les onglets alors que seul le référent
-    // n'a pas d'autre accès à Séances/Programmes.
+    // Onglets Exercices/Séances/Programmes visibles pour TOUS les rôles (corrigé sept. 2026) : masqués
+    // pour le B2C/user_centre à une époque où sa bottom nav avait encore des items dédiés Séances/
+    // Programmes — la simplification de la nav à 4 onglets (Home/Library/Challenges/Progress) a retiré
+    // ces items sans mettre à jour cette condition, laissant le self-view sans aucun accès aux
+    // catalogues Séances/Programmes. Les données/filtres derrière (renderLibSeances/renderLibProgrammes,
+    // correction équipement) sont déjà partagés et role-agnostic — seul l'affichage des onglets était en cause.
     const topTabs=document.querySelector('#libNouveauWrap .p-tabs');
-    if(topTabs) topTabs.style.display = currentRole==='referent' ? 'flex' : 'none';
+    if(topTabs) topTabs.style.display = 'flex';
     setLibTopTab('exercices');
     renderLibBnav();
     preselectLibNouveau(); renderLibNouveau();
@@ -5453,6 +5482,22 @@ function bnavIconSvg(key, color){
   };
   return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+paths[key]+'</svg>';
 }
+// Symbole unique pour tout contenu généré par le Coach IA — plein (pas en trait comme les icônes de
+// nav) pour se distinguer volontairement, convention déjà répandue ailleurs (Gemini, Notion IA) pour
+// signaler "généré par IA". Remplace à la fois l'ancienne bulle de chat ET l'emoji ✨ utilisés pour ce
+// rôle par endroits différents (cf audit artefact — deux traitements pour la même chose).
+function aiSparkleIcon(size, color){
+  size = size || 18;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="'+(color||'currentColor')+'" stroke="none" style="display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg>';
+}
+// Symbole pour un mot venant du référent HUMAIN (jamais l'IA) — boussole, déjà utilisé pour les notes
+// coachNote ; centralisé ici car les chips filtre "Coach" et la notification de message réutilisaient
+// par erreur le symbole IA alors qu'ils désignent du contenu humain (filtré sur ex.referent/s.referent).
+function humanCoachIcon(size, color){
+  size = size || 18;
+  color = color || 'currentColor';
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M15.5,8.5l-2,5-5,2,2-5,5-2Z"/></svg>';
+}
 // Barre de nav basse du Progress — écran partagé self-view/coach-view. En self-view c'est la nav B2C
 // standard (Home/Exercises/Sessions/Programmes/Progress). En coach-view elle reprenait celle-ci par
 // défaut (jamais adaptée), donc un tap "Home" renvoyait le référent dans SON propre espace B2C au lieu
@@ -5467,6 +5512,7 @@ function renderProgBnav(viaCoach){
       +'<button class="bnav-item" onclick="setRefView(\'stats\');go(\'dashboard_referent\')"><span class="bnav-icon">'+bnavIconSvg('stats','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Stats')+'</span></button>'
     : '<button class="bnav-item" onclick="go(currentRole===\'user_centre\'?\'home_centre\':\'home\')"><span class="bnav-icon">'+bnavIconSvg('home','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Home')+'</span></button>'
       +'<button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Library')+'</span></button>'
+      +'<button class="bnav-item" onclick="initAssistantIa();go(\'assistant_ia\')"><span class="bnav-icon" style="position:relative;">'+aiSparkleIcon(22,'var(--gray)')+'<span class="coachIaBadgeDot" style="display:none;position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg2);"></span></span><span class="bnav-label">'+trDyn('AI Coach')+'</span></button>'
       +'<button class="bnav-item" onclick="go(\'defis\')"><span class="bnav-icon">'+bnavIconSvg('defis','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Challenges')+'</span></button>'
       +'<button class="bnav-item active"><span class="bnav-icon">'+bnavIconSvg('stats','var(--orange)')+'</span><span class="bnav-label" style="color:var(--orange);">'+trDyn('Progress')+'</span></button>';
 }
@@ -7475,7 +7521,6 @@ function renderHomeExplore(prefix){
 }
 function renderHomeV2(prefix, data, profile){
   renderHomeScoreDial(prefix);
-  renderHomeCoachCard(prefix);
   renderHomeKpiZone(prefix, profile);
   initHomeCheckin(prefix);
   renderHomeSeance(prefix, data);
@@ -7485,7 +7530,14 @@ function renderHomeV2(prefix, data, profile){
 // et validé). Ne fait rien de neuf côté calcul : recommendedIntensityLevel()/getExerciseMastery()
 // tournaient déjà en coulisses, jamais montrées. La maîtrise (getExerciseMastery) ne couvre que les
 // exercices en mode INTENSITE (jauge) — cf getTopMasteredByLevel, même limite reprise ici.
+// Carte déplacée de Home vers l'onglet Coach IA (sept. 2026) — un seul emplacement plutôt que dupliqué
+// entre home/home_centre, et un vrai historique possible maintenant que ce n'est plus juste une carte
+// qui disparaît (cf coachHistory plus bas).
 let coachWeeklyDismissedWeekStart = null;
+let coachHistory = [];               // journal Coach IA : propositions hebdo (acceptées/refusées) + messages de fin de séance
+function logCoachHistory(entry){
+  coachHistory.unshift(Object.assign({date:Date.now()}, entry));
+}
 function getWeekStartTimestamp(){
   const d=new Date(); const day=(d.getDay()+6)%7; d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d.getTime();
 }
@@ -7500,43 +7552,63 @@ function getCoachWeeklyProposal(){
       if(ex) best={exId, ex, mastery:m};
     }
   });
-  if(!best) return null;
-  const week=getWeekDaysTrained();
-  const pain=getPainSignal();
-  const painKey = pain.trend==='baisse' ? 'pain trending down' : pain.trend==='hausse' ? 'pain trending up' : 'pain stable';
-  return {exId:best.exId, exName:best.ex.nom, pctZone:best.mastery.pctAvg, level:best.mastery.jauge, sessionsDone:week.fait, sessionsGoal:week.objectif, painKey};
+  if(best){
+    const week=getWeekDaysTrained();
+    const pain=getPainSignal();
+    const painKey = pain.trend==='baisse' ? 'pain trending down' : pain.trend==='hausse' ? 'pain trending up' : 'pain stable';
+    return {type:'level', exId:best.exId, exName:best.ex.nom, pctZone:best.mastery.pctAvg, level:best.mastery.jauge, sessionsDone:week.fait, sessionsGoal:week.objectif, painKey};
+  }
+  // Préférences d'exercice ("j'aime pas ce mouvement" -> proposer une alternative) : envisagé ici,
+  // PAS construit. Vérifié en essayant : le seul signal d'exclusion existant (activeExcludedStore/
+  // isExcluded/findAlternatives) appartient à l'ancien catalogue référent EXERCISES (20 exercices,
+  // ids numériques, champ "zone"), pas au catalogue moderne EXERCICES/userSessions (49 exercices,
+  // champ "zones") utilisé par tout le reste de ce chantier — les deux ne se recoupent pas, et le
+  // bouton d'exclusion (#exExclWrap) est d'ailleurs explicitement masqué sur la fiche exercice
+  // moderne (openExerciceNouveau). Construire ça pour de vrai demande un signal d'exclusion propre
+  // au catalogue moderne, pas juste réutiliser findAlternatives() en supposant que les deux coïncident.
+  return null;
 }
-function renderHomeCoachCard(prefix){
-  const el=document.getElementById(prefix+'CoachCard'); if(!el) return;
+function renderCoachIaWeeklyCard(){
+  const el=document.getElementById('coachIaWeeklyCard'); if(!el) return;
   const p=getCoachWeeklyProposal();
   if(!p){ el.style.display='none'; return; }
   el.style.display='block';
   el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
-    +'<div style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
-    +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M4 5.5h16v11H9l-4 3.5v-3.5H4Z"/></svg></div>'
-    +'<div style="font-size:11px;font-weight:700;color:var(--brand-fixed);letter-spacing:.6px;text-transform:uppercase;">'+trDyn('Weekly check-in')+'</div></div>'
+    +'<div style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+aiSparkleIcon(18,'var(--brand-fixed)')+'</div>'
+    +'<div style="font-size:11px;font-weight:700;color:var(--brand-fixed);letter-spacing:.6px;text-transform:uppercase;">'+trDyn('This week')+'</div></div>'
     +'<div style="font-size:14.5px;color:var(--white);line-height:1.55;">'
     +trDyn(p.sessionsDone+'/'+p.sessionsGoal+' sessions')+', '+trDyn(p.painKey)+', '+trDyn(p.pctZone+'% time in zone on ')+trDyn(p.exName)+'.'
     +'<br>'+trDyn('I suggest moving up to level '+(p.level+1)+'.')
     +'</div>'
     +'<div style="display:flex;gap:10px;margin-top:16px;">'
-    +'<button style="flex:1;padding:13px;border:none;border-radius:13px;font-size:14px;font-weight:700;background:var(--brand-fixed);color:var(--ink-on-accent);" onclick="applyCoachLevelUp(\''+p.exId+'\',\''+prefix+'\')">'+trDyn('Confirm level up')+'</button>'
-    +'<button style="flex:1;padding:13px;border:1.5px solid var(--border);border-radius:13px;font-size:14px;font-weight:700;background:transparent;color:var(--white);" onclick="dismissCoachWeekly(\''+prefix+'\')">'+trDyn('Not this week')+'</button>'
+    +'<button style="flex:1;padding:13px;border:none;border-radius:13px;font-size:14px;font-weight:700;background:var(--brand-fixed);color:var(--ink-on-accent);" onclick="applyCoachLevelUp(\''+p.exId+'\')">'+trDyn('Confirm level up')+'</button>'
+    +'<button style="flex:1;padding:13px;border:1.5px solid var(--border);border-radius:13px;font-size:14px;font-weight:700;background:transparent;color:var(--white);" onclick="dismissCoachWeekly()">'+trDyn('Not this week')+'</button>'
     +'</div>';
 }
-function applyCoachLevelUp(exId, prefix){
+function applyCoachLevelUp(exId){
   const exos=[...EXERCICES,...userExercices];
   const ex=exos.find(e=>e.id===exId); if(!ex) return;
   const curParams=getParamsExercice(ex);
   const curLevel=curParams.jauge!==undefined?curParams.jauge:1;
   userParamsOverrides[exId]={...(userParamsOverrides[exId]||{}), jauge:curLevel+1};
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
+  logCoachHistory({type:'weekly', kind:'level', exName:ex.nom, level:curLevel+1, accepted:true});
   toast(trDyn('Level updated ✓'));
-  renderHomeCoachCard(prefix);
+  renderCoachIaWeeklyCard();
+  updateCoachIaBadge();
 }
-function dismissCoachWeekly(prefix){
+function dismissCoachWeekly(){
+  const p=getCoachWeeklyProposal();
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
-  renderHomeCoachCard(prefix);
+  if(p) logCoachHistory({type:'weekly', kind:'level', exName:p.exName, level:p.level+1, accepted:false});
+  renderCoachIaWeeklyCard();
+  updateCoachIaBadge();
+}
+// Point rouge sur l'icône de l'onglet Coach IA — un seul état, répercuté sur toutes les barres de nav
+// à l'écran (chaque écran a sa propre copie statique du bnav, cf discussion nav à 5 onglets).
+function updateCoachIaBadge(){
+  const show = !!getCoachWeeklyProposal();
+  document.querySelectorAll('.coachIaBadgeDot').forEach(d=>{ d.style.display = show ? 'block' : 'none'; });
 }
 // Défi de volume hebdomadaire — 1er type de défi construit parmi les 4 du backlog (temps passé,
 // indépendamment de l'intensité). Toi : vraies minutes de la semaine (getSessionsInPeriod, même
@@ -9013,6 +9085,8 @@ function renderIntensityBanner(){
   const val=document.getElementById('sessIntensityVal'); if(val) val.textContent=trDyn(LABELS[lvl]||'Moderate');
   const reasonEl=document.getElementById('sessIntensityReason');
   if(reasonEl) reasonEl.textContent = currentProgram._sessIntensityReason ? (trDyn('Lowered')+' — '+currentProgram._sessIntensityReason) : '';
+  const iconEl=document.getElementById('sessIntensityIcon');
+  if(iconEl) iconEl.style.display = currentProgram._sessIntensityReason ? 'flex' : 'none';
 }
 // Écran "Prêt ?" affiché à l'entrée sur la séance (portrait ou paysage) — le décompte 3-2-1 ne se
 // lance jamais tout seul, seulement sur ce tap explicite. Si l'invite à pivoter est encore affichée
@@ -9831,6 +9905,7 @@ const EN_FR = {
   "kinmio bar": "barre kinmio",
   "Serial no. KIN-2024-8842 · activated Feb 12, 2026": "N° de série KIN-2024-8842 · activée le 12 fév. 2026",
   "Bar connected ✓": "Barre connectée ✓",
+  "▶ Review the bar tutorial": "▶ Revoir le tuto barre",
   "My accessories": "Mes accessoires",
   "Included with your kinmio bar": "Inclus avec ta barre kinmio",
   "Owned": "Possédé",
@@ -10225,11 +10300,15 @@ const EN_FR = {
   "Level updated ✓": "Niveau mis à jour ✓",
   "Confirm level up": "Valider",
   "Not this week": "Pas encore",
+  "AI Coach": "Coach IA",
+  "No history yet — check back after your first weekly check-in or session.": "Pas encore d'historique — reviens après ton premier bilan hebdo ou ta première séance.",
+  "declined": "refusé",
   "My programme →": "Mon programme →",
   "Weekly volume challenge": "Défi de volume hebdomadaire",
   "Warm-up": "Échauffement",
   "30 seconds before you start": "30 secondes avant de démarrer",
   "A few gentle moves, adapted to what you told us — skip anytime.": "Quelques mouvements doux, adaptés à ce que tu nous as dit — passe quand tu veux.",
+  "Don't forget to clip your phone onto the bar": "N'oublie pas de clipser ton téléphone sur la barre",
   "Start session →": "Démarrer la séance →",
   "Skip warm-up": "Passer l'échauffement",
   "Neck rolls": "Rotations du cou",
@@ -10913,6 +10992,9 @@ const EN_FR_PATTERNS = [
   [/^(\d+)\/(\d+) sessions$/, (m)=>`${m[1]}/${m[2]} séances`],
   [/^(\d+)% time in zone on $/, (m)=>`${m[1]}% de temps dans la zone sur `],
   [/^I suggest moving up to level (\d+)\.$/, (m)=>`Je te propose de passer au niveau ${m[1]}.`],
+  // Historique Coach IA (openCoachHistoryModal, coachHistoryRow) — même principe, nombre variable.
+  [/^Moved up to level (\d+) on $/, (m)=>`Passé au niveau ${m[1]} sur `],
+  [/^Suggested level (\d+) on $/, (m)=>`Niveau ${m[1]} proposé sur `],
   // Défi de volume hebdo (Défis, renderDefiVolumeChallenge).
   [/^(\d+) min$/, (m)=>`${m[1]} min`],
   [/^(\d+) days? left$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''} restant${Number(m[1])>1?'s':''}`],
@@ -11387,8 +11469,18 @@ function preloadObDemoVideo(step){
   document.body.appendChild(pre);
   pre.load();
 }
+let obDemoReviewMode = false;
+// Réouverture depuis Paramètres › Mon équipement — même tuto que l'onboarding, mais ne doit pas
+// enchaîner sur le consentement d'onboarding en sortie (cf advanceObDemo).
+function reviewBarTutorial(){
+  obDemoReviewMode = true;
+  obDemoStepIdx = 0;
+  renderObDemoStep();
+  go('ob_demo');
+}
 function advanceObDemo(){
   if(obDemoStepIdx < OB_DEMO_STEPS.length-1){ obDemoStepIdx++; renderObDemoStep(); }
+  else if(obDemoReviewMode){ obDemoReviewMode=false; go('mon_equipement'); }
   else go('ob_consent');
 }
 
@@ -11833,6 +11925,7 @@ function renderLibBnav(){
       +'<button class="bnav-item" onclick="setRefView(\'stats\');go(\'dashboard_referent\')"><span class="bnav-icon">'+bnavIconSvg('stats','var(--gray)')+'</span><span class="bnav-label">Stats</span></button>'
     : '<button class="bnav-item" onclick="go(currentRole===\'user_centre\'?\'home_centre\':\'home\')"><span class="bnav-icon">'+bnavIconSvg('home','var(--gray)')+'</span><span class="bnav-label">Home</span></button>'
       +'<button class="bnav-item active"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--orange)')+'</span><span class="bnav-label" style="color:var(--orange);">Library</span></button>'
+      +'<button class="bnav-item" onclick="initAssistantIa();go(\'assistant_ia\')"><span class="bnav-icon" style="position:relative;">'+aiSparkleIcon(22,'var(--gray)')+'<span class="coachIaBadgeDot" style="display:none;position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg2);"></span></span><span class="bnav-label">AI Coach</span></button>'
       +'<button class="bnav-item" onclick="go(\'defis\')"><span class="bnav-icon">'+bnavIconSvg('defis','var(--gray)')+'</span><span class="bnav-label">Challenges</span></button>'
       +'<button class="bnav-item" onclick="go(\'progression\')"><span class="bnav-icon">'+bnavIconSvg('stats','var(--gray)')+'</span><span class="bnav-label">Progress</span></button>';
   sweepTranslate(el, currentLang);
@@ -12227,7 +12320,7 @@ function renderLibNouveau(){
   if(coachChip){
     coachChip.classList.toggle('on', libNouveauFilters.coach);
     coachChip.style.display = (currentRole==='user_centre' || currentRole==='referent') ? '' : 'none';
-    coachChip.innerHTML = currentRole==='referent' ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> My creations' : '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Coach';
+    coachChip.innerHTML = currentRole==='referent' ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> My creations' : humanCoachIcon(16)+' Coach';
   }
   if(matchChip){ matchChip.classList.toggle('on', libNouveauFilters.matchProfile); matchChip.style.display = currentRole==='referent' ? 'none' : ''; }
   const list=document.getElementById('libListNouveau'); if(!list) return;
@@ -14203,6 +14296,8 @@ function getWarmupMoves(){
   return list.length ? list : WARMUP_MOVES.filter(m=>!m.zone);
 }
 function renderWarmupList(){
+  const reminder=document.getElementById('warmupBarReminder');
+  if(reminder) reminder.style.display = sessionUsesBar(sessionActuelle) ? 'flex' : 'none';
   const el=document.getElementById('warmupList'); if(!el) return;
   const moves=getWarmupMoves();
   el.innerHTML=moves.map(m=>
@@ -14528,12 +14623,12 @@ function toast(msg){
   t.classList.add('show');
   clearTimeout(window._toastT); window._toastT=setTimeout(()=>t.classList.remove('show'),2400);
 }
-// Rendu générique d'un bloc message coach (icône ✨ + texte), réutilisé sur les 10 écrans concernés
+// Rendu générique d'un bloc message Coach IA (icône unifiée + texte), réutilisé sur les écrans concernés
 function renderCoachTip(elId,text){
   const el=document.getElementById(elId); if(!el) return;
   if(!text){ el.style.display='none'; return; }
   el.style.display='flex';
-  el.innerHTML='<span class="ct-ic">✨</span><span>'+text+'</span>';
+  el.innerHTML='<span class="ct-ic">'+aiSparkleIcon(14,'var(--brand-fixed)')+'</span><span>'+text+'</span>';
 }
 
 // ============================================================
@@ -15064,7 +15159,7 @@ function withSkeleton(containerId,n,renderFn){ const el=document.getElementById(
 let NOTIFS=[
   {ic:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg>',t:'Your free trial ends in 2 days',x:'D+5 · subscribe on kinmio.com',unread:true,go:'paywall_j30'},
   {ic:'🔥',t:"5 days in a row, well done!",x:'Yesterday',unread:true,go:null},
-  {ic:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg>',t:"Martin Dupont sent you a message",x:'2 days ago',unread:false,go:null}
+  {ic:humanCoachIcon(16),t:"Martin Dupont sent you a message",x:'2 days ago',unread:false,go:null}
 ];
 function renderNotifs(){
   const el=document.getElementById('notifList'); if(!el) return;
@@ -17130,7 +17225,7 @@ const sessionMessages={
 function setSessionCoachMsg(){
   const el=document.getElementById('sessTipTxt'); if(!el) return;
   const key = sessCurrent===1 ? 'start' : (sessCurrent===sessTotal ? 'last' : 'mid');
-  el.textContent='✨ '+sessionMessages[key];
+  el.innerHTML=aiSparkleIcon(14)+' '+trDyn(sessionMessages[key]);
 }
 // ===== feedback — message coach selon douleur avant/après réelles =====
 let lastSessionPain=4;   // référence "avant" = douleur déclarée à la fin de la séance précédente
@@ -17157,7 +17252,10 @@ const feedbackMessages={
 };
 function setFeedbackCoachMsg(){
   const key = painAfter<painBefore ? 'great' : (painAfter>painBefore ? 'careful' : 'good');
-  renderCoachTip('feedbackCoachTip', feedbackMessages[key]);
+  const week=getWeekDaysTrained();
+  const msg = trDyn(feedbackMessages[key])+' '+trDyn(week.fait+'/'+week.objectif+' sessions')+'.';
+  renderCoachTip('feedbackCoachTip', msg);
+  logCoachHistory({type:'session', message: msg});
 }
 function onFbPainInput(el){
   document.getElementById('fbPainVal').innerHTML=el.value+'<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span>';
@@ -17420,7 +17518,11 @@ function renderDemoSection(containerId){
 // l'utilisateur, via un jeu de questions suggérées dont la réponse est calculée en direct par les
 // mêmes fonctions que le reste de l'app (pas de texte inventé, pas de LLM).
 function assistantBubble(text, fromUser){
-  return '<div style="align-self:'+(fromUser?'flex-end':'flex-start')+';max-width:80%;background:'+(fromUser?'var(--orange)':'var(--bg2)')+';color:'+(fromUser?'#fff':'var(--white)')+';border-radius:'+(fromUser?'16px 16px 4px 16px':'16px 16px 16px 4px')+';padding:12px 14px;font-size:14px;line-height:1.4;">'+text+'</div>';
+  const bubble='<div style="max-width:'+(fromUser?'80%':'100%')+';background:'+(fromUser?'var(--orange)':'var(--bg2)')+';color:'+(fromUser?'#fff':'var(--white)')+';border-radius:'+(fromUser?'16px 16px 4px 16px':'16px 16px 16px 4px')+';padding:12px 14px;font-size:14px;line-height:1.4;">'+text+'</div>';
+  if(fromUser) return '<div style="align-self:flex-end;max-width:80%;">'+bubble+'</div>';
+  return '<div style="align-self:flex-start;max-width:88%;display:flex;align-items:flex-start;gap:8px;">'
+    +'<span style="width:26px;height:26px;border-radius:50%;background:rgba(var(--brand-fixed-rgb),.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">'+aiSparkleIcon(13,'var(--brand-fixed)')+'</span>'
+    +bubble+'</div>';
 }
 const ASSISTANT_QUESTIONS=[
   {id:'seances', q:"Combien de séances cette semaine ?"},
@@ -17491,9 +17593,30 @@ function renderAssistantChips(){
   c.innerHTML=ASSISTANT_QUESTIONS.map(q=>'<button class="lib-chip" style="white-space:nowrap;flex-shrink:0;" onclick="assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')">'+q.q+'</button>').join('');
 }
 function initAssistantIa(){
+  renderCoachIaWeeklyCard();
   const t=document.getElementById('assistantThread'); if(!t) return;
   t.innerHTML=assistantBubble("Salut ! Pose-moi une question sur ton entraînement — je réponds à partir de tes vraies données. (Maquette : pas encore une vraie IA, juste des réponses calculées en direct.)", false);
   renderAssistantChips();
+}
+function coachHistoryRow(h){
+  const d=new Date(h.date);
+  const dateLbl=d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
+  let text;
+  if(h.type==='weekly'){
+    text = h.accepted ? trDyn('Moved up to level '+h.level+' on ')+trDyn(h.exName) : trDyn('Suggested level '+h.level+' on ')+trDyn(h.exName)+' — '+trDyn('declined');
+  } else {
+    text = h.message;
+  }
+  return '<div style="display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);">'
+    +'<span style="flex-shrink:0;margin-top:2px;">'+aiSparkleIcon(14,'var(--brand-fixed)')+'</span>'
+    +'<div style="flex:1;min-width:0;"><div style="font-size:13.5px;color:var(--white);line-height:1.4;">'+text+'</div><div style="font-size:11px;color:var(--gray);margin-top:3px;">'+dateLbl+'</div></div></div>';
+}
+function openCoachHistoryModal(){
+  const rows = coachHistory.length ? coachHistory.map(coachHistoryRow).join('')
+    : '<div style="font-size:13.5px;color:var(--gray);padding:20px 0;text-align:center;">'+trDyn('No history yet — check back after your first weekly check-in or session.')+'</div>';
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:12px;">'+trDyn('History')+'</div>'
+    +'<div style="max-height:60vh;overflow-y:auto;">'+rows+'</div>'
+    +'<button class="btn-ghost" style="margin-top:14px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
 }
 // ===== MON PROFIL D'ENTRAÎNEMENT (réponses onboarding éditables au tap) =====
 const TP_FIELDS=[
