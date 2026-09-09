@@ -255,6 +255,10 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
    data-accent, ce qui n'a pas de sens tant qu'aucune plateforme n'est encore identifiée. */
 .btn-brand-fixed{background:var(--brand-fixed-btn);color:#fff;box-shadow:0 8px 16px -8px rgba(var(--brand-fixed-rgb),.28),0 2px 5px rgba(var(--brand-fixed-rgb),.1);}
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--white);cursor:pointer;}
+/* Etat desactive reel : un bouton a 40% d'opacite reste cliquable, passe sous le seuil de
+   contraste, et ne dit pas s'il agit ou non — deux ecrans du parcours faisaient l'inverse
+   l'un de l'autre dans cet etat (cf audit onboarding). */
+.btn[disabled]{background:var(--bg3);color:var(--gray);border-color:var(--border);cursor:not-allowed;box-shadow:none;}
 .btn-danger{background:transparent;border:1.5px solid var(--border);color:var(--red);}
 .btn-ghost{background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
 .icon-btn{width:36px;height:36px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
@@ -288,13 +292,13 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 
 /* ONBOARDING OPTION */
 .ob-opt{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .15s,background .15s;}
-.ob-opt.sel{border-color:var(--orange);background:rgba(var(--orange-rgb),.07);}
+.ob-opt.sel{border-color:var(--brand-fixed);background:rgba(var(--brand-fixed-rgb),.07);}
 .ob-icon{width:44px;height:44px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.ob-opt.sel .ob-icon{background:rgba(var(--orange-rgb),.12);}
+.ob-opt.sel .ob-icon{background:rgba(var(--brand-fixed-rgb),.12);}
 .ob-label{font-size:15px;font-weight:600;color:var(--white);}
 .ob-desc{font-size:12px;color:var(--gray);margin-top:2px;line-height:1.4;}
 .ob-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-on-accent);font-weight:700;}
-.ob-opt.sel .ob-check{background:var(--orange);border-color:var(--orange);}
+.ob-opt.sel .ob-check{background:var(--brand-fixed);border-color:var(--brand-fixed);}
 
 /* TAGS */
 .tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;}
@@ -842,8 +846,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- OB1 : Profil -->
 <div class="screen" id="ob1">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
-  <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
+  <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
@@ -857,7 +860,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
-    <button class="btn btn-brand-fixed" id="ob1next" style="opacity:.4;" onclick="nextIfOb1()">Continue →</button>
+    <button class="btn btn-brand-fixed" id="ob1next" disabled onclick="nextIfOb1()">Continue →</button>
   </div>
 </div>
 
@@ -879,8 +882,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <div class="screen" id="ob6">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
-  <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
+  <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
@@ -902,8 +904,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <div class="screen" id="ob7">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
-  <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
+  <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
@@ -934,8 +935,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <div class="screen" id="ob8">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
-  <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
+  <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
@@ -949,15 +949,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
-    <button class="btn btn-brand-fixed" id="ob8next" style="opacity:.4;" onclick="go('ob_commit')">Continue →</button>
+    <button class="btn btn-brand-fixed" id="ob8next" disabled onclick="go('ob_commit')">Continue →</button>
   </div>
 </div>
 
 <!-- Écran engagement : horizon de check-in choisi par la personne, seul sur son écran -->
 <div class="screen" id="ob_commit">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
-  <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div></div>
+  <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
@@ -1057,7 +1056,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <button class="btn-back" onclick="back()" style="position:absolute;top:14px;left:14px;z-index:5;"><svg class="ki"><use href="#ki-back"/></svg></button>
   <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
     <div style="padding:68px 20px 20px;background:linear-gradient(180deg,rgba(var(--brand-fixed-rgb),.12) 0%,var(--bg) 100%);flex-shrink:0;">
-      <div class="eyebrow" style="color:var(--red);margin-bottom:10px;">⏰ TRIAL ENDED</div>
+      <div class="eyebrow" style="color:var(--vigilance);margin-bottom:10px;">TRIAL ENDED</div>
       <h2 class="h2-hero" style="margin-bottom:8px;">Your free trial has ended</h2>
       <p style="font-size:14px;color:var(--gray);line-height:1.5;">Subscribe on kinmio.com to keep training — come back and log in, we'll recognize your account instantly.</p>
     </div>
@@ -3198,7 +3197,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="ob_consent">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
-    <div style="font-size:44px;margin-bottom:8px;">❤️</div>
     <div class="eyebrow" style="color:var(--brand-fixed);margin-bottom:10px;">Almost done</div>
     <h2 class="gap8">Connect your health data?</h2>
     <p class="sub gap24">Optional — syncs your heart rate, sleep, and sessions. You can do this later in settings.</p>
@@ -10828,7 +10826,6 @@ const EN_FR = {
   "/3 months": "/3 mois",
   "/year": "/an",
   "Charged on —": "Facturé le —",
-  "⏰ TRIAL ENDED": "⏰ ESSAI TERMINÉ",
   "My access": "Mon accès",
   "Annual": "Annuel",
   "Confirm · No charge today": "Confirmer · Aucun prélèvement aujourd'hui",
@@ -11484,7 +11481,7 @@ function toggleMulti(el){
     const c = allEl.querySelector('.ob-check'); if(c) c.textContent = allSelected ? '✓' : '';
   }
   const btn = document.getElementById('ob1next');
-  if(btn) btn.style.opacity = posSelections.size > 0 ? '1' : '.4';
+  if(btn) btn.disabled = posSelections.size === 0;
 }
 function toggleAllPositions(el){
   const indiv = document.querySelectorAll('#pos_opts .ob-opt[data-val]:not([data-val="toutes"])');
@@ -11498,7 +11495,7 @@ function toggleAllPositions(el){
   el.classList.toggle('sel', nowSelecting);
   const c = el.querySelector('.ob-check'); if(c) c.textContent = nowSelecting ? '✓' : '';
   const btn = document.getElementById('ob1next');
-  if(btn) btn.style.opacity = posSelections.size > 0 ? '1' : '.4';
+  if(btn) btn.disabled = posSelections.size === 0;
 }
 function nextIfOb1(){
   if(posSelections.size > 0){ go('preuve_sociale'); renderTestimonialCarousel(0); }
@@ -11709,7 +11706,7 @@ function selOb8(el){
   el.classList.add('sel'); const check=el.querySelector('.ob-check'); if(check) check.textContent='✓';
   ob8Selected=parseInt(el.dataset.val);
   profile.duree=ob8Selected;
-  const btn=document.getElementById('ob8next'); if(btn) btn.style.opacity='1';
+  const btn=document.getElementById('ob8next'); if(btn) btn.disabled=false;
 }
 function populateSummary(){
   var posLabels = Array.from(document.querySelectorAll('#ob1 .ob-opt.sel')).map(e=>e.querySelector('.ob-label').textContent);
