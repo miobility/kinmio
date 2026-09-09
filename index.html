@@ -1177,9 +1177,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="homeCentreSeanceZone"></div>
     <div style="text-align:center;margin:4px 20px 0;"><button class="btn-ghost" style="color:var(--gray);font-size:12.5px;text-decoration:underline;" onclick="go('programme')">My programme →</button></div>
 
-    <!-- Score Kinmio du jour + objectif — après la séance (dont le niveau peut venir d'être ajusté ci-dessus) -->
-    <div id="homeCentreScoreDial" style="display:none;"></div>
-
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeCentreKpiZone"></div>
 
@@ -1535,9 +1532,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div id="homeSeanceZone"></div>
     <div style="text-align:center;margin:4px 20px 0;"><button class="btn-ghost" style="color:var(--gray);font-size:12.5px;text-decoration:underline;" onclick="go('programme')">My programme →</button></div>
-
-    <!-- Score Kinmio du jour + objectif — après la séance (dont le niveau peut venir d'être ajusté ci-dessus) -->
-    <div id="homeScoreDial" style="display:none;"></div>
 
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeKpiZone"></div>
@@ -7380,9 +7374,14 @@ function initHomeCheckin(prefix){
 // — remplace le strip qui existait avant et avait été retiré (raison non retrouvée dans le code ni
 // en mémoire), réintroduit à la demande explicite, cette fois branché sur du réel plutôt que sur
 // homeData.semaine (donnée simulée, jamais connectée aux vrais choix de jours).
+// 4 états, pas 3 (audit Home, sept. 2026) : "avenir" servait avant aussi bien aux jours futurs qu'aux
+// jours d'entraînement passés jamais faits — aucune distinction entre "pas encore atteint" et
+// "manqué". Ajout de "manque" (jour passé, jour d'entraînement, pas fait), séparé de "avenir" (jour
+// futur, pas encore atteint) — même principe que "missed" dans le calendrier de Progress.
 function computeWeekStrip(){
   const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const now=new Date();
+  const today0=new Date(now); today0.setHours(0,0,0,0);
   const monday=new Date(now); monday.setDate(now.getDate()-((now.getDay()+6)%7)); monday.setHours(0,0,0,0);
   const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
   const hist=(typeof userSessionHistory!=='undefined'&&userSessionHistory)?userSessionHistory:[];
@@ -7391,7 +7390,11 @@ function computeWeekStrip(){
     const d=new Date(monday); d.setDate(monday.getDate()+i);
     const isToday=d.toDateString()===now.toDateString();
     const isTrainDay=trainDays.includes(name);
-    const statut=!isTrainDay?'repos':(histDates.has(d.getTime())?'fait':'avenir');
+    let statut;
+    if(!isTrainDay) statut='repos';
+    else if(histDates.has(d.getTime())) statut='fait';
+    else if(d.getTime()<today0.getTime()) statut='manque';
+    else statut='avenir';
     return {j:name.slice(0,3), statut, today:isToday};
   });
 }
@@ -7413,17 +7416,26 @@ function getNextTrainingDayInfo(){
 // Chaque jour du strip est cliquable — avant, seul "aujourd'hui" menait quelque part (via la carte
 // séance), impossible de voir/lancer un autre jour de la semaine. Renvoie vers Programme (où chaque
 // séance de la semaine est listée et lançable), pas juste un lien texte "voir mon programme" séparé.
+// Charte revue (audit Home, sept. 2026) : "aujourd'hui" ne se lisait qu'à un anneau de la même teinte
+// que "fait" (vert plein vs vert creux) — confondu au premier coup d'œil, confirmé en le montrant.
+// Découplé désormais : le POINT porte le statut (fait/manqué/à venir/repos), le LIBELLÉ du jour porte
+// "aujourd'hui" (fond clair + gras), jamais la même couleur pour les deux questions à la fois. Repos
+// n'a plus de point du tout (rien à signaler) ; manqué et à venir ont enfin un contraste réel au lieu
+// de deux teintes de gris-sur-noir indistinctes.
 function renderWeekStripHtml(strip){
   return '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:0 20px 18px;">'
     +strip.map(d=>{
-      const dot = d.statut==='fait' ? 'background:var(--orange);'
-        : d.today ? 'border:2px solid var(--orange);'
-        : d.statut==='avenir' ? 'border:1.5px solid var(--border);'
-        : 'background:var(--bg2);';
-      const lblColor = d.today ? 'var(--orange)' : (d.statut==='repos' ? 'var(--gray)' : 'var(--gray2)');
+      let dotStyle='', dotContent='';
+      if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
+      else if(d.statut==='manque') dotStyle='border:2px solid var(--vigilance);';
+      else if(d.statut==='avenir') dotStyle='border:1.5px solid var(--gray2);';
+      else dotContent='<span style="color:var(--gray);font-size:12px;line-height:20px;">–</span>';
+      const lblStyle = d.today
+        ? 'color:var(--white);font-weight:800;background:rgba(255,255,255,.12);border-radius:6px;padding:2px 0;'
+        : 'color:'+(d.statut==='repos'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
       return '<div style="text-align:center;cursor:pointer;" onclick="go(\'programme\')">'
-        +'<div style="font-size:10px;color:'+lblColor+';font-weight:700;text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
-        +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dot+'"></div>'
+        +'<div style="font-size:10px;'+lblStyle+'text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
+        +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'">'+dotContent+'</div>'
         +'</div>';
     }).join('')
     +'</div>';
@@ -7461,7 +7473,21 @@ function renderHomeSeance(prefix, data){
   // aujourd'hui tu la fais". Le CTA n'est donc plus jamais remplacé par un simple lien "voir mon programme".
   const nextDay=getNextTrainingDayInfo();
   const cardLbl = nextDay ? ('Next planned: '+nextDay.name+' · in '+nextDay.inDays+' day'+(nextDay.inDays>1?'s':'')) : 'Your next session';
-  const cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">View session →</button>';
+  // "Fait aujourd'hui" — remplace la carte Score Kinmio séparée (retirée, sept. 2026 : jugée redondante
+  // avec le point du strip pour la question "as-tu fait ta séance", cf discussion). Le bouton change
+  // vraiment d'état une fois fait plutôt que de rester identique — avant, "View session →" ne changeait
+  // jamais, même après la séance. Le % ne s'affiche que si la séance a été commencée sans être finie
+  // (comparé à l'objectif du jour, même calcul que l'ancienne carte, juste plus discret).
+  const todayEntry = weekStrip.find(d=>d.today);
+  const doneToday = todayEntry && todayEntry.statut==='fait';
+  let cta;
+  if(doneToday){
+    const target=computeObjectifDuJourScore(), current=computeScoreAujourdhui();
+    const pct = target ? Math.min(100, Math.round(current/target*100)) : 100;
+    cta='<div style="width:100%;padding:15px;font-size:15px;text-align:center;border-radius:14px;background:rgba(var(--brand-fixed-rgb),.15);color:var(--brand-fixed);font-weight:700;cursor:pointer;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">✓ '+trDyn('Done today')+(pct<100?' · '+pct+'%':'')+'</div>';
+  } else {
+    cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">View session →</button>';
+  }
   const badgeId=prefix+'SeanceBdg';
   // Photo de la VRAIE séance affichée (même logique que partout ailleurs, sessionPhotoFor) — avant,
   // la photo venait de l'objectif du profil, pas de la séance réellement montrée, donc pouvait ne
@@ -7517,7 +7543,6 @@ function renderHomeExplore(prefix){
   sweepTranslate(el, currentLang);
 }
 function renderHomeV2(prefix, data, profile){
-  renderHomeScoreDial(prefix);
   renderHomeKpiZone(prefix, profile);
   initHomeCheckin(prefix);
   renderHomeSeance(prefix, data);
@@ -7664,35 +7689,10 @@ function computeScoreAujourdhui(){
   const startOfDay=new Date(); startOfDay.setHours(0,0,0,0);
   return Math.round(userSessionHistory.filter(h=>h.date>=startOfDay.getTime()).reduce((s,h)=>s+(h.cardioScore||0)+(h.renfoScore||0),0));
 }
-// Repassé en chiffre plat (sept. 2026, audit Home) : l'anneau était le seul bloc de la page à ne pas
-// suivre le patron partagé par Regularity/Volume/Intensity (renderHomeKpiZone) — gros chiffre + libellé,
-// même icône ⓘ/showInfoSheet(). Message reformulé en invitation quand rien n'est encore fait aujourd'hui
-// (current===0) plutôt qu'en "retard" : le profil n'a qu'un jour préféré, jamais une heure — à 7h du
-// matin, "0%, encore N points" se lit comme si la séance du soir était déjà manquée.
-function renderHomeScoreDial(prefix){
-  const el=document.getElementById(prefix+'ScoreDial'); if(!el) return;
-  const target=computeObjectifDuJourScore();
-  const current=computeScoreAujourdhui();
-  if(!target){ el.style.display='none'; return; }
-  el.style.display='block';
-  const pct=Math.min(100, Math.round(current/target*100));
-  const remaining=Math.max(0, target-current);
-  const infoIcon='style="cursor:pointer;margin-left:3px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);color:var(--gray);font-size:9px;display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;text-transform:none;letter-spacing:0;flex-shrink:0;"';
-  const infoBody='Comes from the session assigned for today: duration times intensity level for cardio moves, or reps times sets times resistance for strength moves — the same formula as your real score. Resets at midnight. Your weekly trend (Intensity, below) is what really tracks progress over time, not this daily number.';
-  const subText = current===0
-    ? trDyn('Today’s session is waiting — ')+trDyn(target+' points up for grabs')
-    : (pct>=100 ? trDyn("Today's goal reached") : trDyn(pct+"% of today's goal"));
-  const remainText = (current>0 && pct<100) ? trDyn(remaining+' points to go') : '';
-  el.innerHTML = '<div class="zone-lbl" style="margin-top:0;display:flex;align-items:center;gap:6px;">'+trDyn('SCORE KINMIO')+'<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Score Kinmio\',\''+infoBody+'\')" '+infoIcon+'>i</span></div>'
-    +'<div class="scard">'
-    +'<div style="display:flex;align-items:baseline;gap:8px;">'
-    +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums;">'+current+'</div>'
-    +'<div style="font-size:12px;color:var(--gray2);">'+trDyn('/ '+target+' pts')+'</div>'
-    +'</div>'
-    +'<div style="font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.4;">'+subText+'</div>'
-    +(remainText ? '<div style="font-size:12px;color:var(--brand-fixed);margin-top:5px;font-weight:600;">'+remainText+'</div>' : '')
-    +'</div>';
-}
+// renderHomeScoreDial() retirée (sept. 2026, audit Home) : carte jugée redondante avec le point du
+// strip pour "as-tu fait ta séance" (cf discussion), sa seule vraie info en plus (le % en cas de
+// séance partielle) est reprise directement dans le badge "Fait aujourd'hui" de renderHomeSeance().
+// computeObjectifDuJourScore()/computeScoreAujourdhui() restent utilisées là, et par le chat Coach IA.
 
 // ===== PROGRESSION — moteur de calcul réel =====
 // Tout ce qui suit dérive de userSessionHistory (rempli à chaque submitFeedback()),
@@ -9594,6 +9594,7 @@ const EN_FR = {
   "Good energy today — nice work.": "Belle énergie aujourd'hui — bien joué.",
   "Great energy — let's make the most of it 💪": "Super énergie — profitons-en 💪",
   "Your next session": "Ta prochaine séance",
+  "Done today": "Faite aujourd'hui",
   "See all": "Voir tout",
   "Session in progress": "Séance en cours",
   "Join →": "Rejoindre →",
@@ -9779,8 +9780,6 @@ const EN_FR = {
   "Got it": "Compris",
   "How hard you've trained recently vs your usual pace (Acute:Chronic Workload Ratio). Calculation: your average daily load over the last 7 days, divided by your average daily load over the last 28 days. Load itself = your own effort rating right after each session (easy/moderate/intense/max) × session duration — a recognized sports-science method (session-RPE), not a device measurement. 0.8–1.3× is a healthy zone — much higher means you're ramping up fast (injury risk), much lower means you could safely do more.": "À quel point tu t'es entraîné intensément récemment, comparé à ton rythme habituel (Acute:Chronic Workload Ratio). Calcul : ta charge moyenne quotidienne sur les 7 derniers jours, divisée par ta charge moyenne quotidienne sur les 28 derniers jours. La charge elle-même = ton propre ressenti d'effort juste après chaque séance (facile/modéré/intense/maximal) × la durée de la séance — une méthode reconnue en sciences du sport (session-RPE), pas une mesure d'appareil. 0,8–1,3× est une zone saine — beaucoup plus haut signifie que tu montes en charge trop vite (risque de blessure), beaucoup plus bas signifie que tu pourrais faire plus sans risque.",
   "Your self-reported pain level, from your last sessions where you answered the pain question. Calculation: level = your most recent answer (out of 10). Trend = that value minus your answer from up to 3 sessions ago (skipped sessions don't count against you) — only shown as rising or easing if the change is 2 points or more, so small day-to-day noise isn't flagged as a real trend.": "Ton niveau de douleur déclaré, à partir de tes dernières séances où tu as répondu à la question douleur. Calcul : le niveau = ta réponse la plus récente (sur 10). La tendance = cette valeur moins ta réponse d'il y a jusqu'à 3 séances (les séances sautées ne comptent pas contre toi) — affichée en hausse ou en baisse seulement si le changement est de 2 points ou plus, pour ne pas signaler une petite variation comme une vraie tendance.",
-  "Comes from the session assigned for today: duration times intensity level for cardio moves, or reps times sets times resistance for strength moves — the same formula as your real score. Resets at midnight. Your weekly trend (Intensity, below) is what really tracks progress over time, not this daily number.": "Vient de la séance assignée pour aujourd'hui : durée fois niveau d'intensité pour les mouvements cardio, ou reps fois séries fois résistance pour les mouvements de renfo — la même formule que ton vrai score. Se réinitialise à minuit. Ta tendance hebdomadaire (Intensité, plus bas) est ce qui suit vraiment ta progression dans le temps, pas ce chiffre du jour.",
-  "Today’s session is waiting — ": "Ta séance du jour t'attend — ",
   "How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you're matching your all-time best week.": "À quel point ton entraînement a été intense récemment, comparé à ton propre pic. Calcul : ton score d'effort sur les 7 derniers jours glissants, divisé par ta meilleure fenêtre de 7 jours jamais enregistrée — cardio et renforcement sont chacun notés par temps/reps × niveau d'intensité, puis combinés. 100% veut dire que tu égales ta meilleure semaine de tous les temps.",
   "How intense your training has been over the last 7 days, compared to your own peak. Calculation: your effort score over this window, divided by your single best 7 days window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you're matching your all-time best window of this length.": "À quel point ton entraînement a été intense sur les 7 derniers jours, comparé à ton propre pic. Calcul : ton score d'effort sur cette période, divisé par ta meilleure période de 7 jours jamais enregistrée — cardio et renforcement sont chacun notés par temps/reps × niveau d'intensité, puis combinés. 100% veut dire que tu égales ta meilleure période de cette durée, tous temps confondus.",
   "How intense your training has been over the last 30 days, compared to your own peak. Calculation: your effort score over this window, divided by your single best 30 days window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you're matching your all-time best window of this length.": "À quel point ton entraînement a été intense sur les 30 derniers jours, comparé à ton propre pic. Calcul : ton score d'effort sur cette période, divisé par ta meilleure période de 30 jours jamais enregistrée — cardio et renforcement sont chacun notés par temps/reps × niveau d'intensité, puis combinés. 100% veut dire que tu égales ta meilleure période de cette durée, tous temps confondus.",
@@ -10295,7 +10294,6 @@ const EN_FR = {
   "Session done": "Séance faite",
   "No session that day": "Pas de séance ce jour-là",
   "Score Kinmio · today": "Score Kinmio · aujourd'hui",
-  "Today's goal reached": "Objectif du jour atteint",
   "Weekly check-in": "Bilan de la semaine",
   "pain trending down": "douleur en baisse",
   "pain trending up": "douleur en hausse",
@@ -10988,10 +10986,6 @@ const EN_FR_PATTERNS = [
   [/^(\d+) days?\/week$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''}/semaine`],
   // Stat de projection onboarding (ob_projection, "150 min/week") — posé en JS brut via textContent.
   [/^(\d+) min\/week$/, (m)=>`${m[1]} min/semaine`],
-  // Score Kinmio du jour (Home, renderHomeScoreDial) — posé en JS brut via innerHTML.
-  [/^(\d+)% of today's goal$/, (m)=>`${m[1]}% de ton objectif du jour`],
-  [/^(\d+) points to go$/, (m)=>`Encore ${m[1]} point${Number(m[1])>1?'s':''} pour l'atteindre`],
-  [/^(\d+) points up for grabs$/, (m)=>`${m[1]} point${Number(m[1])>1?'s':''} à la clé`],
   // Carte Coach hebdo (Home, renderHomeCoachCard) — composée à partir de segments traduits séparément.
   [/^(\d+)\/(\d+) sessions$/, (m)=>`${m[1]}/${m[2]} séances`],
   [/^(\d+)% time in zone on $/, (m)=>`${m[1]}% de temps dans la zone sur `],
