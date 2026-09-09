@@ -733,9 +733,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <button class="btn btn-brand-fixed" style="margin-bottom:10px;font-size:15px;" onclick="go('login')" id="t_login">Log in</button>
     <button class="btn btn-outline" style="margin-bottom:8px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="go('centre_entry')">I have an invitation code</button>
     <div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:16px;">Reserved for members invited by a partner centre</div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+    <div style="text-align:center;margin-bottom:8px;">
       <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;" onclick="userParcours='B';go('ob_intro')">New here? Discover kinmio</button>
-      <span style="color:var(--gray);font-size:12px;">·</span>
+    </div>
+    <div style="text-align:center;">
       <button onclick="showLang()" id="langBtn" style="background:none;border:none;color:var(--gray);font-size:12px;font-weight:600;cursor:pointer;">🇬🇧 EN</button>
     </div>
   </div>
@@ -751,9 +752,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <h1 style="font-size:32px;font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-.8px;margin-bottom:12px;text-shadow:0 1px 6px rgba(0,0,0,.5);" id="t_ob_intro_title">Let's build your profile together</h1>
     <p style="font-size:15px;color:rgba(255,255,255,.82);line-height:1.5;text-shadow:0 1px 4px rgba(0,0,0,.5);" id="t_ob_intro_sub">A few questions so every session fits you.</p>
   </div>
-  <div style="position:relative;z-index:2;padding:0 28px calc(48px + env(safe-area-inset-bottom));">
+  <div style="position:relative;z-index:2;padding:0 28px calc(24px + env(safe-area-inset-bottom));">
     <button class="btn btn-brand-fixed" onclick="go('ob1')" id="t_ob_intro_cta">Let's go! →</button>
-    <div style="text-align:center;margin-top:12px;"><button class="btn-ghost" style="color:var(--gray);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip ›</button></div>
+    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost" style="color:var(--gray);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip ›</button></div>
   </div>
 </div>
 
@@ -761,8 +762,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="ob1">
   <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 4</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Which position(s) do you train in?</h2>
@@ -797,8 +798,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="ob6">
   <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 4</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Do you have an area to protect?</h2>
@@ -820,8 +821,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="ob7">
   <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 4</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">When do you train?</h2>
@@ -852,8 +853,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="ob8">
   <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div></div>
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 4</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 5</div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">How long do you like to train?</h2>
@@ -873,6 +874,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- Écran engagement : horizon de check-in choisi par la personne, seul sur son écran -->
 <div class="screen" id="ob_commit">
   <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div style="padding:0 20px 8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 of 5</div>
+  </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">How long do you want to commit, to start?</h2>
     <p class="sub gap24">Pick a horizon — we'll check back in with you then.</p>
