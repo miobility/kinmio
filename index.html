@@ -396,6 +396,13 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .emini-body{padding:10px;}
 .emini-name{font-size:13px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .emini-meta{font-size:11px;color:var(--gray);margin-top:2px;}
+.exo-prev-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.exo-prev-row{display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;cursor:pointer;}
+.exo-prev-num{width:22px;height:22px;border-radius:50%;background:var(--bg3);color:var(--gray2);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.exo-prev-img{width:46px;height:46px;border-radius:10px;background-size:cover;background-position:center;flex-shrink:0;background-color:#1E1D26;}
+.exo-prev-body{flex:1;min-width:0;}
+.exo-prev-name{font-size:14px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exo-prev-meta{font-size:12px;color:var(--gray);margin-top:2px;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ===== HOME V2 (refonte) ===== */
 .zone-lbl{font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;margin:22px 20px 12px;}
@@ -1152,6 +1159,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div id="centrePendingBanner" style="display:none;margin:6px 20px 4px;border-radius:16px;padding:14px 16px;align-items:center;gap:12px;"></div>
 
+    <!-- Coach IA — recalibrage hebdomadaire -->
+    <div id="homeCentreCoachCard" style="display:none;margin:18px 20px 0;background:linear-gradient(135deg,rgba(var(--brand-fixed-rgb),.12),rgba(var(--brand-fixed-rgb),.03));border:1px solid rgba(var(--brand-fixed-rgb),.3);border-radius:18px;padding:18px;"></div>
+
+    <!-- Score Kinmio du jour + objectif -->
+    <div id="homeCentreScoreDial" style="display:none;margin:18px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;align-items:center;gap:18px;"></div>
+
     <!-- ZONE 2 — TODAY : check-in humeur + séance du jour -->
     <div id="homeCentreCheckinBlock" style="margin-top:16px;">
       <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
@@ -1168,6 +1181,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <span style="font-size:13px;font-weight:700;color:var(--orange);">Join →</span>
     </div>
     <div id="homeCentreSeanceZone"></div>
+    <div style="text-align:center;margin:4px 20px 0;"><button class="btn-ghost" style="color:var(--gray);font-size:12.5px;text-decoration:underline;" onclick="go('programme')">My programme →</button></div>
 
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeCentreKpiZone"></div>
@@ -1190,9 +1204,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="bnav">
     <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
-    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Exercises</span></button>
-    <button class="bnav-item" onclick="goSessions()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9.5 3h5"/></svg></span><span class="bnav-label">Sessions</span></button>
-    <button class="bnav-item" onclick="go('programme')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z"/><path d="M8.5 11.3l1.4 1.4L13 9.3M8.5 15.8h7"/></svg></span><span class="bnav-label">Programmes</span></button>
+    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item" onclick="go('defis')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label">Challenges</span></button>
     <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
 </div>
@@ -1523,6 +1536,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
     </div>
 
+    <!-- Coach IA — recalibrage hebdomadaire -->
+    <div id="homeCoachCard" style="display:none;margin:18px 20px 0;background:linear-gradient(135deg,rgba(var(--brand-fixed-rgb),.12),rgba(var(--brand-fixed-rgb),.03));border:1px solid rgba(var(--brand-fixed-rgb),.3);border-radius:18px;padding:18px;"></div>
+
+    <!-- Score Kinmio du jour + objectif -->
+    <div id="homeScoreDial" style="display:none;margin:18px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;align-items:center;gap:18px;"></div>
+
     <!-- ZONE 2 — TODAY : check-in humeur + séance du jour -->
     <div id="homeCheckinBlock" style="margin-top:16px;">
       <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
@@ -1534,6 +1553,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
     </div>
     <div id="homeSeanceZone"></div>
+    <div style="text-align:center;margin:4px 20px 0;"><button class="btn-ghost" style="color:var(--gray);font-size:12.5px;text-decoration:underline;" onclick="go('programme')">My programme →</button></div>
 
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeKpiZone"></div>
@@ -1566,9 +1586,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="bnav">
     <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
-    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Exercises</span></button>
-    <button class="bnav-item" onclick="goSessions()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9.5 3h5"/></svg></span><span class="bnav-label">Sessions</span></button>
-    <button class="bnav-item" onclick="go('programme')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z"/><path d="M8.5 11.3l1.4 1.4L13 9.3M8.5 15.8h7"/></svg></span><span class="bnav-label">Programmes</span></button>
+    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item" onclick="go('defis')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label">Challenges</span></button>
     <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
 </div>
@@ -1630,6 +1649,20 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <!-- ================= SESSION (entraînement) ================= -->
+<!-- ================= ÉCHAUFFEMENT (avant le 1er exercice de la séance, skippable) ================= -->
+<div class="screen" id="session_warmup">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Warm-up</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">30 seconds before you start</h2>
+    <p class="sub gap24">A few gentle moves, adapted to what you told us — skip anytime.</p>
+    <div id="warmupList" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);display:flex;flex-direction:column;gap:10px;">
+    <button class="btn btn-brand-fixed" onclick="continueToSession()">Start session →</button>
+    <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;align-self:center;" onclick="skipWarmup()">Skip warm-up</button>
+  </div>
+</div>
+
 <div class="screen" id="session">
   <div id="sessWithRefBadge" style="display:none;text-align:center;padding:8px 16px;background:rgba(var(--teal-rgb),.12);color:var(--teal);font-size:12px;font-weight:700;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Session with Martin Dupont</div>
   <div class="sess-top">
@@ -1857,7 +1890,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="sessSearchWrap" style="display:none;padding:10px 20px 0;"><input id="sessSearchInput" type="text" placeholder="Search a session…" oninput="renderProgSessionsView()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div class="px pt" style="padding-bottom:10px;display:flex;gap:8px;overflow-x:auto;">
         <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openSessFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="sessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-        <button class="lib-chip" id="sessChipFavoris" onclick="toggleSessFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="sessChipMatchProfile" onclick="toggleSessMatchProfileChip()">✨ For you</button><button class="lib-chip" id="sessChipCoach" onclick="toggleSessCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
+        <button class="lib-chip" id="sessChipFavoris" onclick="toggleSessFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="sessChipMatchProfile" onclick="toggleSessMatchProfileChip()">✨ For you</button><button class="lib-chip" id="sessChipCoach" onclick="toggleSessCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Coach</button></div>
       <div class="px" style="padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <div id="progSessionsCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 sessions</div>
         <button class="btn-ghost" id="sessResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetSessFilters()">Reset all</button>
@@ -1878,7 +1911,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="progSearchWrap" style="display:none;padding:10px 20px 0;"><input id="progSearchInput" type="text" placeholder="Search a programme…" oninput="renderProgProgrammesView()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div class="px pt" style="padding-bottom:10px;display:flex;gap:8px;overflow-x:auto;">
         <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openProgFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="progFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-        <button class="lib-chip" id="progChipFavoris" onclick="toggleProgFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="progChipMatchProfile" onclick="toggleProgMatchProfileChip()">✨ For you</button><button class="lib-chip" id="progChipCoach" onclick="toggleProgCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
+        <button class="lib-chip" id="progChipFavoris" onclick="toggleProgFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="progChipMatchProfile" onclick="toggleProgMatchProfileChip()">✨ For you</button><button class="lib-chip" id="progChipCoach" onclick="toggleProgCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Coach</button></div>
       <div class="px" style="padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <div id="progProgrammesCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 programmes</div>
         <button class="btn-ghost" id="progResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetProgFilters()">Reset all</button>
@@ -1903,9 +1936,35 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="bnav">
     <button class="bnav-item" onclick="go('home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
-    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Exercises</span></button>
-    <button class="bnav-item" id="bnavSessItem" onclick="goSessions()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9.5 3h5"/></svg></span><span class="bnav-label">Sessions</span></button>
-    <button class="bnav-item active" id="bnavProgItem" onclick="showProgMonView()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z"/><path d="M8.5 11.3l1.4 1.4L13 9.3M8.5 15.8h7"/></svg></span><span class="bnav-label">Programmes</span></button>
+    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item" onclick="go('defis')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label">Challenges</span></button>
+    <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
+  </div>
+</div>
+
+<!-- ================= DÉFIS ================= -->
+<div class="screen" id="defis">
+  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Challenges</div><div class="topnav-r"></div></div>
+  <div class="scroll">
+    <div style="display:flex;align-items:center;gap:10px;margin:18px 20px 0;">
+      <div style="display:flex;flex-shrink:0;">
+        <div style="width:30px;height:30px;border-radius:50%;background:var(--brand-fixed);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--ink-on-accent);">M</div>
+        <div style="width:30px;height:30px;border-radius:50%;background:#529CFE;border:2px solid var(--bg);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0A0F;">L</div>
+        <div style="width:30px;height:30px;border-radius:50%;background:#A87EFD;border:2px solid var(--bg);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0A0F;">K</div>
+      </div>
+      <div style="font-size:12.5px;color:var(--gray);" id="defisGroupLabel">Your group · 3 members</div>
+    </div>
+
+    <div class="zone-lbl" style="margin-top:22px;">ACTIVE CHALLENGE</div>
+    <div id="defisVolumeChallenge" class="card-sm" style="margin:10px 20px 0;padding:18px;border-radius:18px;"></div>
+
+    <div class="zone-lbl" style="margin-top:22px;">BADGES</div>
+    <div id="defisBadgesSection" style="margin:10px 20px 24px;"></div>
+  </div>
+  <div class="bnav">
+    <button class="bnav-item" onclick="go(currentRole==='user_centre'?'home_centre':'home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
+    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
+    <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/></svg></span><span class="bnav-label" style="color:var(--orange);">Challenges</span></button>
     <button class="bnav-item" onclick="go('progression')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
 </div>
@@ -1919,14 +1978,23 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="p-tab active" onclick="setProgTab(this,'semaine')">7 days</div>
     <div class="p-tab" onclick="setProgTab(this,'mois')">30 days</div>
     <div class="p-tab" onclick="setProgTab(this,'annee')">90 days</div>
-    <div class="p-tab" id="progTab4" onclick="setProgTab(this,'records')">Badges</div>
+    <div class="p-tab" id="progTab4" onclick="setProgTab(this,'records')">Calendar</div>
   </div>
   <div class="scroll">
     <div id="progPeriodView" class="px"></div>
     <div id="progRecordsView" class="px" style="display:none;">
-      <div class="pt"><h3 class="gap4">My badges</h3></div>
-      <div id="progBadgesSection"></div>
-      <div id="progNotesSection" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)">‹</button>
+        <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(1)">›</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
+      <div style="display:flex;gap:16px;margin-top:14px;font-size:11px;color:var(--gray);">
+        <div style="display:flex;align-items:center;gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:var(--brand-fixed);"></div><span>Session done</span></div>
+      </div>
+      <div id="progCalDayDetail" style="margin-top:16px;"></div>
+      <div id="progNotesSection" style="display:none;margin-top:16px;">
         <div class="pt"><h3 class="gap4">My notes</h3></div>
         <div id="progNotesList"></div>
       </div>
@@ -1938,9 +2006,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="bnav" id="progBnav">
     <button class="bnav-item" onclick="go(currentRole==='user_centre'?'home_centre':'home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
-    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Exercises</span></button>
-    <button class="bnav-item" onclick="goSessions()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9.5 3h5"/></svg></span><span class="bnav-label">Sessions</span></button>
-    <button class="bnav-item" onclick="go('programme')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z"/><path d="M8.5 11.3l1.4 1.4L13 9.3M8.5 15.8h7"/></svg></span><span class="bnav-label">Programmes</span></button>
+    <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
     <button class="bnav-item active"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/></svg></span><span class="bnav-label">Progress</span></button>
   </div>
 </div>
@@ -2088,7 +2154,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibNouveauFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libNouveauFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
       <button class="lib-chip" id="libChipFavoris" onclick="toggleLibFavorisChip()">❤️ Favourites</button>
       <button class="lib-chip" id="libChipMatchProfile" onclick="toggleLibMatchProfileChip()">✨ For you</button>
-      <button class="lib-chip" id="libChipCoach" onclick="toggleLibCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button>
+      <button class="lib-chip" id="libChipCoach" onclick="toggleLibCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Coach</button>
     </div>
     <div style="padding:0 20px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
       <div id="libNouveauCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 exercises</div>
@@ -2374,10 +2440,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="ex-sec-t" style="padding:0;">Exercises</div>
       <span onclick="openAddExoRich()" style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;">+ Add</span>
     </div>
-    <div style="position:relative;">
-      <div id="sdExoList"></div>
-      <div style="position:absolute;top:0;right:0;bottom:0;width:36px;pointer-events:none;background:linear-gradient(90deg,transparent,var(--bg) 88%);"></div>
-    </div>
+    <div id="sdExoList"></div>
     <div style="height:20px;"></div>
     <button class="btn btn-orange" id="sdStartBtn" onclick="startSessionFromDetail()">Start this session →</button>
     <button class="btn btn-orange" id="sdAssignBtn" style="display:none;" onclick="assignSessionTemplate()">Assign this session →</button>
@@ -4937,6 +5000,8 @@ function go(id){
   if(id==='ob_summary_centre') setTimeout(function(){ populateSummary(); initApresOnboarding(); }, 50);
   if(id==='ob_commit' || id==='ob_projection') setTimeout(function(){ populateSummary(); renderObProjection(); }, 50);
   if(id==='ob_vision') preloadObDemoVideo(OB_DEMO_STEPS[0]);
+  if(id==='defis') setTimeout(function(){ renderProgBadges('defisBadgesSection'); renderDefiVolumeChallenge(); }, 20);
+  if(id==='session_warmup') setTimeout(renderWarmupList, 20);
   if(id==='ob_consent'){
     const el=document.getElementById('obConsentCoachShare'); if(el) el.style.display = centreMode ? 'flex' : 'none';
     // Le bouton annonce la vraie prochaine étape : créer son compte (parcours découverte, pas encore de
@@ -5350,14 +5415,13 @@ function syncProgHeader(){
   const t=document.getElementById('progTitle');
   const viaCoach = currentRole==='referent' && curPatient;
   if(t) t.textContent = viaCoach ? curPatient.nom : 'Progress';
-  // Depuis l'espace référent, le 4e onglet devient "Historique" au lieu de "Badges" — les badges sont
-  // une mécanique de motivation pour la personne elle-même, pas un outil de suivi coach ; l'historique
-  // séance par séance est ce qui est réellement utile ici (cf discussion). Reste "Badges" côté B2C/
-  // centre qui consulte sa propre fiche.
+  // Depuis l'espace référent, le 4e onglet devient "Historique" — l'historique séance par séance est
+  // ce qui est réellement utile à un coach. Côté B2C/centre qui consulte sa propre fiche, c'est
+  // "Calendar" (sept. 2026 : remplace "Badges", qui vit désormais uniquement dans l'onglet Défis).
   const tab4=document.getElementById('progTab4');
   if(tab4){
     if(viaCoach){ tab4.textContent='History'; tab4.setAttribute('onclick',"setProgTab(this,'historique')"); }
-    else { tab4.textContent='Badges'; tab4.setAttribute('onclick',"setProgTab(this,'records')"); }
+    else { tab4.textContent='Calendar'; tab4.setAttribute('onclick',"setProgTab(this,'records')"); }
     // Si l'onglet 4 était actif (ou si son contenu affiché ne correspond plus au bon contexte), on
     // retombe sur le 1er onglet plutôt que de laisser un mauvais panneau affiché/actif.
     if(tab4.classList.contains('active')){
@@ -5384,7 +5448,8 @@ function bnavIconSvg(key, color){
     exercises: '<path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/>',
     stats: '<path d="M3 19h18"/><path d="M4 16l5-6 4 4 6-8"/><path d="M15.5 6H19v3.5"/>',
     sessions: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9.5 3h5"/>',
-    programmes: '<rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z"/><path d="M8.5 11.3l1.4 1.4L13 9.3M8.5 15.8h7"/>'
+    programmes: '<rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z"/><path d="M8.5 11.3l1.4 1.4L13 9.3M8.5 15.8h7"/>',
+    defis: '<path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 15v3M14 15v3M8 20h8"/>'
   };
   return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+paths[key]+'</svg>';
 }
@@ -5401,9 +5466,8 @@ function renderProgBnav(viaCoach){
       +'<button class="bnav-item" onclick="go(\'bibliotheque\')"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Exercises')+'</span></button>'
       +'<button class="bnav-item" onclick="setRefView(\'stats\');go(\'dashboard_referent\')"><span class="bnav-icon">'+bnavIconSvg('stats','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Stats')+'</span></button>'
     : '<button class="bnav-item" onclick="go(currentRole===\'user_centre\'?\'home_centre\':\'home\')"><span class="bnav-icon">'+bnavIconSvg('home','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Home')+'</span></button>'
-      +'<button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Exercises')+'</span></button>'
-      +'<button class="bnav-item" onclick="goSessions()"><span class="bnav-icon">'+bnavIconSvg('sessions','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Sessions')+'</span></button>'
-      +'<button class="bnav-item" onclick="go(\'programme\')"><span class="bnav-icon">'+bnavIconSvg('programmes','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Programmes')+'</span></button>'
+      +'<button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Library')+'</span></button>'
+      +'<button class="bnav-item" onclick="go(\'defis\')"><span class="bnav-icon">'+bnavIconSvg('defis','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Challenges')+'</span></button>'
       +'<button class="bnav-item active"><span class="bnav-icon">'+bnavIconSvg('stats','var(--orange)')+'</span><span class="bnav-label" style="color:var(--orange);">'+trDyn('Progress')+'</span></button>';
 }
 function openPatientProgress(id){
@@ -7410,10 +7474,154 @@ function renderHomeExplore(prefix){
   sweepTranslate(el, currentLang);
 }
 function renderHomeV2(prefix, data, profile){
+  renderHomeScoreDial(prefix);
+  renderHomeCoachCard(prefix);
   renderHomeKpiZone(prefix, profile);
   initHomeCheckin(prefix);
   renderHomeSeance(prefix, data);
   renderHomeExplore(prefix);
+}
+// Coach IA — recalibrage hebdomadaire (cf discussion : jamais d'ajustement silencieux, toujours expliqué
+// et validé). Ne fait rien de neuf côté calcul : recommendedIntensityLevel()/getExerciseMastery()
+// tournaient déjà en coulisses, jamais montrées. La maîtrise (getExerciseMastery) ne couvre que les
+// exercices en mode INTENSITE (jauge) — cf getTopMasteredByLevel, même limite reprise ici.
+let coachWeeklyDismissedWeekStart = null;
+function getWeekStartTimestamp(){
+  const d=new Date(); const day=(d.getDay()+6)%7; d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d.getTime();
+}
+function getCoachWeeklyProposal(){
+  if(coachWeeklyDismissedWeekStart===getWeekStartTimestamp()) return null;
+  const exos=[...EXERCICES,...userExercices];
+  let best=null;
+  Object.keys(exerciseZoneHistory).forEach(exId=>{
+    const m=getExerciseMastery(exId);
+    if(m && m.mastered && (!best || m.pctAvg>best.mastery.pctAvg)){
+      const ex=exos.find(e=>e.id===exId);
+      if(ex) best={exId, ex, mastery:m};
+    }
+  });
+  if(!best) return null;
+  const week=getWeekDaysTrained();
+  const pain=getPainSignal();
+  const painKey = pain.trend==='baisse' ? 'pain trending down' : pain.trend==='hausse' ? 'pain trending up' : 'pain stable';
+  return {exId:best.exId, exName:best.ex.nom, pctZone:best.mastery.pctAvg, level:best.mastery.jauge, sessionsDone:week.fait, sessionsGoal:week.objectif, painKey};
+}
+function renderHomeCoachCard(prefix){
+  const el=document.getElementById(prefix+'CoachCard'); if(!el) return;
+  const p=getCoachWeeklyProposal();
+  if(!p){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+    +'<div style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M4 5.5h16v11H9l-4 3.5v-3.5H4Z"/></svg></div>'
+    +'<div style="font-size:11px;font-weight:700;color:var(--brand-fixed);letter-spacing:.6px;text-transform:uppercase;">'+trDyn('Weekly check-in')+'</div></div>'
+    +'<div style="font-size:14.5px;color:var(--white);line-height:1.55;">'
+    +trDyn(p.sessionsDone+'/'+p.sessionsGoal+' sessions')+', '+trDyn(p.painKey)+', '+trDyn(p.pctZone+'% time in zone on ')+trDyn(p.exName)+'.'
+    +'<br>'+trDyn('I suggest moving up to level '+(p.level+1)+'.')
+    +'</div>'
+    +'<div style="display:flex;gap:10px;margin-top:16px;">'
+    +'<button style="flex:1;padding:13px;border:none;border-radius:13px;font-size:14px;font-weight:700;background:var(--brand-fixed);color:var(--ink-on-accent);" onclick="applyCoachLevelUp(\''+p.exId+'\',\''+prefix+'\')">'+trDyn('Confirm level up')+'</button>'
+    +'<button style="flex:1;padding:13px;border:1.5px solid var(--border);border-radius:13px;font-size:14px;font-weight:700;background:transparent;color:var(--white);" onclick="dismissCoachWeekly(\''+prefix+'\')">'+trDyn('Not this week')+'</button>'
+    +'</div>';
+}
+function applyCoachLevelUp(exId, prefix){
+  const exos=[...EXERCICES,...userExercices];
+  const ex=exos.find(e=>e.id===exId); if(!ex) return;
+  const curParams=getParamsExercice(ex);
+  const curLevel=curParams.jauge!==undefined?curParams.jauge:1;
+  userParamsOverrides[exId]={...(userParamsOverrides[exId]||{}), jauge:curLevel+1};
+  coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
+  toast(trDyn('Level updated ✓'));
+  renderHomeCoachCard(prefix);
+}
+function dismissCoachWeekly(prefix){
+  coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
+  renderHomeCoachCard(prefix);
+}
+// Défi de volume hebdomadaire — 1er type de défi construit parmi les 4 du backlog (temps passé,
+// indépendamment de l'intensité). Toi : vraies minutes de la semaine (getSessionsInPeriod, même
+// source que Regularity/Volume sur Progress). L'ami : simulé, pas de backend/2e utilisateur réel —
+// mais stable pour toute la semaine (seedé sur la semaine + l'ami), pas un random qui changerait
+// d'un rafraîchissement à l'autre.
+function getUserWeeklyMinutes(){
+  return getSessionsInPeriod('semaine').reduce((s,h)=>s+(h.duree||0),0);
+}
+function simulatedFriendWeeklyMinutes(friend){
+  const weekNum=Math.floor(getWeekStartTimestamp()/(7*HIST_DAY));
+  const seed=weekNum + friend.id.split('').reduce((s,c)=>s+c.charCodeAt(0),0);
+  const pseudo=Math.abs(Math.sin(seed*12.9898)*43758.5453)%1;
+  return Math.round(60 + pseudo*90);
+}
+function getChallengeDaysLeft(){
+  const now=new Date();
+  const day=(now.getDay()+6)%7;
+  return 6-day;
+}
+function renderDefiVolumeChallenge(){
+  const el=document.getElementById('defisVolumeChallenge'); if(!el) return;
+  const friend=FRIENDS.find(f=>f.statut==='actif') || {id:'demo', nom:'Léa Martin'};
+  const you=getUserWeeklyMinutes(), them=simulatedFriendWeeklyMinutes(friend);
+  const max=Math.max(you, them, 1);
+  const daysLeft=getChallengeDaysLeft();
+  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+    +'<div><div style="font-size:15px;font-weight:700;">'+trDyn('Weekly volume challenge')+'</div>'
+    +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn('You vs ')+trDyn(friend.nom)+' · '+trDyn(daysLeft+' day'+(daysLeft>1?'s':'')+' left')+'</div></div>'
+    +'<div style="width:32px;height:32px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9.5 3h5"/></svg></div>'
+    +'</div>'
+    +'<div style="margin-top:18px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><div style="font-weight:700;color:var(--white);">'+trDyn('You')+'</div><div style="color:var(--gray2);font-variant-numeric:tabular-nums;">'+trDyn(you+' min')+'</div></div>'
+    +'<div style="height:8px;border-radius:5px;background:var(--border);overflow:hidden;"><div style="width:'+Math.round(you/max*100)+'%;height:100%;background:var(--brand-fixed);border-radius:5px;"></div></div></div>'
+    +'<div style="margin-top:14px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><div style="font-weight:700;color:var(--white);">'+trDyn(friend.nom)+'</div><div style="color:var(--gray2);font-variant-numeric:tabular-nums;">'+trDyn(them+' min')+'</div></div>'
+    +'<div style="height:8px;border-radius:5px;background:var(--border);overflow:hidden;"><div style="width:'+Math.round(them/max*100)+'%;height:100%;background:#529CFE;border-radius:5px;"></div></div></div>';
+}
+// Score Kinmio du jour — même formule que l'Intensity% (minutes×jauge / reps×résistance), juste à
+// l'échelle de la séance plutôt que de la fenêtre 7/30/90j : l'objectif du jour = le score que donnerait
+// la séance du jour telle qu'assignée (getSessionDuJour, même source que la carte séance) ; le score
+// atteint = ce qui est déjà banqué aujourd'hui dans userSessionHistory. Jamais un badge réussite/échec
+// (cf discussion) — juste informatif, le vrai signal de progression reste l'Intensity% hebdo.
+function computeObjectifDuJourScore(){
+  const sess = getSessionDuJour(); if(!sess) return 0;
+  const exos=[...EXERCICES,...userExercices];
+  let total=0;
+  (sess.exercices||[]).forEach(exId=>{
+    const ex=exos.find(e=>e.id===exId); if(!ex) return;
+    const params=getParamsExercice(ex);
+    if(ex.type==='Cardio'){ total += (params.duree||0) * (params.jauge!==undefined?params.jauge:1); }
+    else { total += (params.reps||0) * (params.series||1) * (params.resistance!==undefined?params.resistance:1); }
+  });
+  return Math.round(total);
+}
+function computeScoreAujourdhui(){
+  const startOfDay=new Date(); startOfDay.setHours(0,0,0,0);
+  return Math.round(userSessionHistory.filter(h=>h.date>=startOfDay.getTime()).reduce((s,h)=>s+(h.cardioScore||0)+(h.renfoScore||0),0));
+}
+function renderHomeScoreDial(prefix){
+  const el=document.getElementById(prefix+'ScoreDial'); if(!el) return;
+  const target=computeObjectifDuJourScore();
+  const current=computeScoreAujourdhui();
+  if(!target){ el.style.display='none'; return; }
+  el.style.display='flex';
+  const pct=Math.min(100, Math.round(current/target*100));
+  const r=40, circumference=2*Math.PI*r;
+  const offset=Math.round(circumference*(1-pct/100));
+  const remaining=Math.max(0, target-current);
+  const subText = pct>=100 ? trDyn("Today's goal reached")
+    : trDyn(pct+"% of today's goal");
+  const remainText = pct>=100 ? '' : trDyn(remaining+' points to go');
+  el.innerHTML = '<div style="position:relative;width:96px;height:96px;flex-shrink:0;">'
+    +'<svg width="96" height="96" viewBox="0 0 96 96">'
+    +'<circle cx="48" cy="48" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="9"/>'
+    +'<circle cx="48" cy="48" r="'+r+'" fill="none" stroke="var(--brand-fixed)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+circumference.toFixed(1)+'" stroke-dashoffset="'+offset+'" transform="rotate(-90 48 48)"/>'
+    +'</svg>'
+    +'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+    +'<div style="font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1;">'+current+'</div>'
+    +'<div style="font-size:10.5px;color:var(--gray);margin-top:2px;">'+trDyn('/ '+target+' pts')+'</div>'
+    +'</div></div>'
+    +'<div style="flex:1;min-width:0;">'
+    +'<div style="font-size:11px;font-weight:700;color:var(--gray2);letter-spacing:.6px;text-transform:uppercase;">'+trDyn("Score Kinmio · today")+'</div>'
+    +'<div style="font-size:14px;color:var(--white);margin-top:8px;line-height:1.4;">'+subText+'</div>'
+    +(remainText ? '<div style="font-size:12px;color:var(--brand-fixed);margin-top:5px;font-weight:600;">'+remainText+'</div>' : '')
+    +'</div>';
 }
 
 // ===== PROGRESSION — moteur de calcul réel =====
@@ -7632,13 +7840,21 @@ function getPeriodBars(periodKey, sessions){
 function getRealBadges(){
   const total=userSessionHistory.length, best=computeBestStreak(), weekSessions=getSessionsInPeriod('semaine'), goal=getWeeklyGoal();
   const weekHadRegress = getExerciseVerdictsForPeriod(weekSessions).some(v=>v.verdict==='regress');
+  // 3 badges ajoutés (sept. 2026) pour couvrir les types du backlog produit encore absents — mêmes
+  // données déjà trackées (historique de séances, exerciseZoneHistory), rien de nouveau à collecter.
+  const weekendActive = userSessionHistory.some(h=>{ const d=new Date(h.date).getDay(); return d===0||d===6; });
+  const totalMinutes = userSessionHistory.reduce((s,h)=>s+(h.duree||0),0);
+  const zoneMastered80 = Object.values(exerciseZoneHistory).some(hist=>hist.some(e=>e.pctZone>=80));
   return [
     {ic:'🔥', t:'5-streak', d:'5 days in a row', unlocked: best>=5},
     {ic:'🏅', t:'Consistency', d:goal+' sessions this week', unlocked: weekSessions.length>=goal},
     {ic:'💪', t:'First month', d:'18 sessions', unlocked: total>=18, target:18},
     {ic:'🏆', t:'Marathon', d:'50 sessions', unlocked: total>=50, target:50},
     {ic:'⭐', t:'Dedicated', d:'3 months running', unlocked: computeActiveMonthsCount()>=3},
-    {ic:'🎯', t:'Flawless', d:'Perfect week', unlocked: weekSessions.length>=goal && !weekHadRegress}
+    {ic:'🎯', t:'Flawless', d:'Perfect week', unlocked: weekSessions.length>=goal && !weekHadRegress},
+    {ic:'🌅', t:'Weekend warrior', d:'Trained on a weekend', unlocked: weekendActive},
+    {ic:'⏱️', t:'5 hours logged', d:'300 min cumulated', unlocked: totalMinutes>=300, target:300},
+    {ic:'🎚️', t:'In the zone', d:'80%+ time on target', unlocked: zoneMastered80}
   ];
 }
 function renderProgBadges(elId){
@@ -7816,6 +8032,54 @@ function setProgTab(el,view){
   else if(isHistory) renderPatientHistoryList();
   else renderProgPeriod(view);
 }
+// Calendrier mensuel (remplace l'ancien 4e onglet "Badges" — les badges vivent désormais uniquement
+// dans Défis, cf discussion). Historique + à venir : les jours passés viennent de userSessionHistory,
+// les jours à venir du jour préféré déjà choisi en onboarding (pas de vraies séances futures assignées
+// pour l'instant côté B2C direct — un référent peut en assigner, à relier dans une passe suivante).
+let progCalMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+function shiftProgCalendarMonth(delta){
+  progCalMonth = new Date(progCalMonth.getFullYear(), progCalMonth.getMonth()+delta, 1);
+  renderProgCalendar();
+}
+function renderProgCalendar(){
+  const labelEl=document.getElementById('progCalMonthLabel');
+  const wdEl=document.getElementById('progCalWeekdays');
+  const gridEl=document.getElementById('progCalGrid');
+  if(!labelEl || !wdEl || !gridEl) return;
+  const locale = currentLang==='fr' ? 'fr-FR' : 'en-US';
+  labelEl.textContent = progCalMonth.toLocaleDateString(locale, {month:'long', year:'numeric'});
+  const weekdayLabels = currentLang==='fr' ? ['L','M','M','J','V','S','D'] : ['M','T','W','T','F','S','S'];
+  wdEl.innerHTML = weekdayLabels.map(l=>'<div style="text-align:center;font-size:10.5px;color:var(--gray);font-weight:700;">'+l+'</div>').join('');
+
+  const year=progCalMonth.getFullYear(), month=progCalMonth.getMonth();
+  const firstDay=new Date(year,month,1);
+  const startOffset=(firstDay.getDay()+6)%7;   // grille lundi-first, getDay() est dimanche-first
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const doneDays=new Set(userSessionHistory.map(h=>{ const d=new Date(h.date); return d.getFullYear()===year && d.getMonth()===month ? d.getDate() : null; }).filter(Boolean));
+  const todayD=new Date();
+  let html='';
+  for(let i=0;i<startOffset;i++) html+='<div></div>';
+  for(let d=1; d<=daysInMonth; d++){
+    const isDone=doneDays.has(d);
+    const isToday = todayD.getFullYear()===year && todayD.getMonth()===month && todayD.getDate()===d;
+    const bg = isDone ? 'background:var(--brand-fixed);color:var(--ink-on-accent);font-weight:800;' : 'color:var(--gray);';
+    const ring = isToday ? 'outline:1.5px solid var(--white);outline-offset:2px;' : '';
+    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+'">'+d+'</div>';
+  }
+  gridEl.innerHTML = html;
+}
+function selectProgCalDay(year, month, day){
+  const el=document.getElementById('progCalDayDetail'); if(!el) return;
+  const session = userSessionHistory.find(h=>{ const d=new Date(h.date); return d.getFullYear()===year && d.getMonth()===month && d.getDate()===day; });
+  const dateLbl = new Date(year, month, day).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US', {weekday:'long', day:'numeric', month:'long'});
+  if(!session){ el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div><div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div></div>'; return; }
+  el.innerHTML = '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
+    +'<div style="width:44px;height:44px;border-radius:12px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>'
+    +'<div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
+    +'<div style="font-size:14px;font-weight:700;margin-top:2px;">'+trDyn(session.nom)+'</div>'
+    +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(session.duree+' min')+(session.exercices?' · '+trDyn(session.exercices+' exercise'+(session.exercices>1?'s':'')):'')+'</div></div></div>';
+}
 // Historique séance par séance de la personne actuellement chargée dans userSessionHistory — jamais
 // une navigation vers l'écran Programme partagé (qui a déjà causé une vraie fuite de données Marc/
 // patient simulé, cf discussion), donc toujours cohérent avec la fiche affichée.
@@ -7845,7 +8109,7 @@ function renderPatientHistoryList(){
 // personal records" (PROG_RECORDS/PROG_RECORDS_MARC) était 100% inventée (aucun lien avec les vraies
 // séances) — retirée plutôt que déplacée.
 function renderProgRecords(){
-  renderProgBadges('progBadgesSection');
+  renderProgCalendar();
   renderPersonalNotes();
 }
 function renderTopExercises(){
@@ -9300,6 +9564,13 @@ const EN_FR = {
   "Home": "Accueil",
   "Progress": "Progrès",
   "Library": "Bibliothèque",
+  "Challenges": "Défis",
+  "Your group · 3 members": "Ton groupe · 3 membres",
+  "You vs Julie · ends in 2 d": "Toi vs Julie · se termine dans 2 j",
+  "Intensity challenge": "Défi d'intensité",
+  "2 earned · 2 to unlock": "2 gagnés · 2 à débloquer",
+  "ACTIVE CHALLENGE": "DÉFI EN COURS",
+  "BADGES": "BADGES",
   // fiche_referent_public
   "Your coach": "Ton référent",
   "Last message": "Dernier message",
@@ -9943,6 +10214,38 @@ const EN_FR = {
   "+ Invite a member": "+ Inviter un membre",
   "Urgent situations": "Situations urgentes",
   "Calendar": "Calendrier",
+  "Session done": "Séance faite",
+  "No session that day": "Pas de séance ce jour-là",
+  "Score Kinmio · today": "Score Kinmio · aujourd'hui",
+  "Today's goal reached": "Objectif du jour atteint",
+  "Weekly check-in": "Bilan de la semaine",
+  "pain trending down": "douleur en baisse",
+  "pain trending up": "douleur en hausse",
+  "pain stable": "douleur stable",
+  "Level updated ✓": "Niveau mis à jour ✓",
+  "Confirm level up": "Valider",
+  "Not this week": "Pas encore",
+  "My programme →": "Mon programme →",
+  "Weekly volume challenge": "Défi de volume hebdomadaire",
+  "Warm-up": "Échauffement",
+  "30 seconds before you start": "30 secondes avant de démarrer",
+  "A few gentle moves, adapted to what you told us — skip anytime.": "Quelques mouvements doux, adaptés à ce que tu nous as dit — passe quand tu veux.",
+  "Start session →": "Démarrer la séance →",
+  "Skip warm-up": "Passer l'échauffement",
+  "Neck rolls": "Rotations du cou",
+  "Slowly roll your head in a circle, both directions.": "Fais lentement rouler ta tête en cercle, dans les deux sens.",
+  "Shoulder rolls": "Rotations d'épaules",
+  "Roll your shoulders backward, then forward.": "Fais rouler tes épaules vers l'arrière, puis vers l'avant.",
+  "Arm swings": "Balancements de bras",
+  "Swing both arms gently across your body.": "Balance doucement les deux bras devant toi.",
+  "Torso twists": "Torsions du buste",
+  "Rotate your torso side to side, controlled.": "Fais tourner ton buste d'un côté à l'autre, contrôlé.",
+  "Wrist circles": "Rotations de poignets",
+  "Circle your wrists in both directions.": "Fais tourner tes poignets dans les deux sens.",
+  "Knee circles": "Rotations de genoux",
+  "Gently circle your knees, seated or standing.": "Fais tourner doucement tes genoux, assis ou debout.",
+  "You vs ": "Toi vs ",
+  "You": "Toi",
   // onboarding_directeur
   "Welcome": "Bienvenue",
   "Welcome to Centre Kerpape management": "Bienvenue à la direction du Centre Kerpape",
@@ -10603,6 +10906,16 @@ const EN_FR_PATTERNS = [
   [/^(\d+) days?\/week$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''}/semaine`],
   // Stat de projection onboarding (ob_projection, "150 min/week") — posé en JS brut via textContent.
   [/^(\d+) min\/week$/, (m)=>`${m[1]} min/semaine`],
+  // Score Kinmio du jour (Home, renderHomeScoreDial) — posé en JS brut via innerHTML.
+  [/^(\d+)% of today's goal$/, (m)=>`${m[1]}% de ton objectif du jour`],
+  [/^(\d+) points to go$/, (m)=>`Encore ${m[1]} point${Number(m[1])>1?'s':''} pour l'atteindre`],
+  // Carte Coach hebdo (Home, renderHomeCoachCard) — composée à partir de segments traduits séparément.
+  [/^(\d+)\/(\d+) sessions$/, (m)=>`${m[1]}/${m[2]} séances`],
+  [/^(\d+)% time in zone on $/, (m)=>`${m[1]}% de temps dans la zone sur `],
+  [/^I suggest moving up to level (\d+)\.$/, (m)=>`Je te propose de passer au niveau ${m[1]}.`],
+  // Défi de volume hebdo (Défis, renderDefiVolumeChallenge).
+  [/^(\d+) min$/, (m)=>`${m[1]} min`],
+  [/^(\d+) days? left$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''} restant${Number(m[1])>1?'s':''}`],
   // Résumé "N coaches · avg M members/coach" (onglet Coaches, direction) — "coach" traduit en "référent"
   // pour rester cohérent avec "Centre coaches"→"Référents du centre" déjà dans le dico.
   [/^(\d+) coaches? · avg ([\d.]+) members\/coach$/, (m)=>`${m[1]} référent${Number(m[1])>1?'s':''} · moy. ${m[2]} membres/référent`],
@@ -11519,9 +11832,8 @@ function renderLibBnav(){
       +'<button class="bnav-item active"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--orange)')+'</span><span class="bnav-label" style="color:var(--orange);">Exercises</span></button>'
       +'<button class="bnav-item" onclick="setRefView(\'stats\');go(\'dashboard_referent\')"><span class="bnav-icon">'+bnavIconSvg('stats','var(--gray)')+'</span><span class="bnav-label">Stats</span></button>'
     : '<button class="bnav-item" onclick="go(currentRole===\'user_centre\'?\'home_centre\':\'home\')"><span class="bnav-icon">'+bnavIconSvg('home','var(--gray)')+'</span><span class="bnav-label">Home</span></button>'
-      +'<button class="bnav-item active"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--orange)')+'</span><span class="bnav-label" style="color:var(--orange);">Exercises</span></button>'
-      +'<button class="bnav-item" onclick="goSessions()"><span class="bnav-icon">'+bnavIconSvg('sessions','var(--gray)')+'</span><span class="bnav-label">Sessions</span></button>'
-      +'<button class="bnav-item" onclick="go(\'programme\')"><span class="bnav-icon">'+bnavIconSvg('programmes','var(--gray)')+'</span><span class="bnav-label">Programmes</span></button>'
+      +'<button class="bnav-item active"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--orange)')+'</span><span class="bnav-label" style="color:var(--orange);">Library</span></button>'
+      +'<button class="bnav-item" onclick="go(\'defis\')"><span class="bnav-icon">'+bnavIconSvg('defis','var(--gray)')+'</span><span class="bnav-label">Challenges</span></button>'
       +'<button class="bnav-item" onclick="go(\'progression\')"><span class="bnav-icon">'+bnavIconSvg('stats','var(--gray)')+'</span><span class="bnav-label">Progress</span></button>';
   sweepTranslate(el, currentLang);
 }
@@ -11555,6 +11867,7 @@ let libProgFilters = { objectif:[], niveau:[], position:[], duree:[], perso:fals
 function libSectionLbl(txt){ return '<div style="font-size:13px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:20px 0 10px;">'+txt+'</div>'; }
 function filterLibSession(s){
   const f = libSessFilters;
+  if(sessionMissingEquipment(s)) return false;
   if(f.objectif.length && !s.objectif.some(o=>f.objectif.includes(o))) return false;
   if(f.intensite.length && !f.intensite.includes(s.intensite)) return false;
   if(f.position.length && !f.position.some(p=>s.positions.includes(p))) return false;
@@ -11563,6 +11876,7 @@ function filterLibSession(s){
 }
 function filterLibProgramme(p){
   const f = libProgFilters;
+  if(programmeMissingEquipment(p)) return false;
   if(f.objectif.length && !p.objectif.some(o=>f.objectif.includes(o))) return false;
   if(f.position.length && !f.position.some(pos=>p.positions.includes(pos))) return false;
   if(f.duree.length && !f.duree.includes(p.duree_semaines)) return false;
@@ -11913,7 +12227,7 @@ function renderLibNouveau(){
   if(coachChip){
     coachChip.classList.toggle('on', libNouveauFilters.coach);
     coachChip.style.display = (currentRole==='user_centre' || currentRole==='referent') ? '' : 'none';
-    coachChip.innerHTML = currentRole==='referent' ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> My creations' : '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach';
+    coachChip.innerHTML = currentRole==='referent' ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> My creations' : '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,5.5h16v11H9l-4,3.5v-3.5H4Z /></svg> Coach';
   }
   if(matchChip){ matchChip.classList.toggle('on', libNouveauFilters.matchProfile); matchChip.style.display = currentRole==='referent' ? 'none' : ''; }
   const list=document.getElementById('libListNouveau'); if(!list) return;
@@ -12544,6 +12858,7 @@ function resetSessFilters(){
 }
 function filterSession(s){
   const f = sessNouveauFilters;
+  if(sessionMissingEquipment(s)) return false;
   // Séance collective (course groupe ou Défi) limitée au 100% cardio — même raisonnement sécurité déjà
   // en place pour le Défi : le renfo pousserait à la course aux reps, à l'opposé de l'esprit de l'app.
   if(sessionPickMode==='csc' && !(s.objectif && s.objectif.length===1 && s.objectif[0]==='Cardio')) return false;
@@ -12874,12 +13189,16 @@ function renderSessionDetail(){
   if(noteBlock){ noteBlock.style.display = s.coachNote ? 'flex' : 'none'; if(noteTxt) noteTxt.textContent = s.coachNote||''; }
   const listEl=document.getElementById('sdExoList');
   if(listEl){
-    listEl.innerHTML = '<div class="exo-row" style="padding:0;margin-bottom:0;">' + s.exercices.map(exId=>{
+    listEl.innerHTML = '<div class="exo-prev-list">' + s.exercices.map((exId,i)=>{
       const ex=exos.find(e=>e.id===exId); if(!ex) return '';
-      return '<div class="emini" style="position:relative;" onclick="openSdExoParamsModal(\''+exId+'\')">'
-        +'<div class="emini-img" style="background-image:url(\''+exoPhotoFor(ex)+'\');background-size:cover;background-position:center;"></div>'
-        +'<button onclick="event.stopPropagation();removeExoFromSession(\''+exId+'\')" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.55);border:none;color:#fff;font-size:14px;cursor:pointer;line-height:1;">×</button>'
-        +'<div class="emini-body"><div class="emini-name">'+ex.nom+'</div><div class="emini-meta">'+sdExoSummary(ex)+'</div></div>'
+      const posLabel=(ex.positions||[]).map(p=>trDyn(POS_LABELS[p]||p)).join('/');
+      const posIcon=SD_POS_ICON[(ex.positions||[])[0]]||SD_ICON_STAND;
+      const meta=[posLabel ? (posIcon+' '+posLabel) : '', sdExoSummary(ex)].filter(Boolean).join(' · ');
+      return '<div class="exo-prev-row" onclick="openSdExoParamsModal(\''+exId+'\')">'
+        +'<div class="exo-prev-num">'+(i+1)+'</div>'
+        +'<div class="exo-prev-img" style="background-image:url(\''+exoPhotoFor(ex)+'\');"></div>'
+        +'<div class="exo-prev-body"><div class="exo-prev-name">'+ex.nom+'</div><div class="exo-prev-meta">'+meta+'</div></div>'
+        +'<button onclick="event.stopPropagation();removeExoFromSession(\''+exId+'\')" style="width:26px;height:26px;border-radius:50%;background:var(--bg3);border:none;color:var(--gray2);font-size:14px;cursor:pointer;line-height:1;flex-shrink:0;">×</button>'
         +'</div>';
     }).join('') + '</div>';
   }
@@ -13540,6 +13859,7 @@ function resetProgFilters(){
 }
 function filterProgramme(p){
   const f = progNouveauFilters;
+  if(programmeMissingEquipment(p)) return false;
   if(f.favoris && !isFavori('programmes', p.id)) return false;
   if(f.coach && !p.referent) return false;
   if(f.objectif.length && !p.objectif.some(o=>f.objectif.includes(o))) return false;
@@ -13863,8 +14183,37 @@ function demarrerSessionNouveau(id){
   sessionRpeLog = [];
   currentProgram = { titre: s.nom_marketing, exercices: list, duree: s.duree, objectifLabel: s.objectif.join(' · '), jours: currentProgram.jours, semaine: semaineActuelle, excluded: [], avecCoach: !!s.avecCoach };
   sessCurrent = 1;
-  go('session');   // "Before you start" retiré du parcours : le calibrage d'intensité s'affiche directement dans la séance live
+  go('session_warmup');   // échauffement skippable, adapté au profil, avant la séance live (cf discussion P0)
 }
+// Échauffement — P0 sécurité (cf Manques identifiés) : aucune notion de warm-up n'existait avant dans
+// le déroulé de séance. Skippable, adapté au profil : filtré par userProfileData.zones_eviter, même
+// vocabulaire interne (Épaules/Dos/Genoux/Poignets) que ex.contre_indications sur les vrais exercices —
+// pas une nouvelle taxonomie posée à côté.
+const WARMUP_MOVES=[
+  {id:'wu_neck', zone:null, nom:'Neck rolls', dur:20, instr:'Slowly roll your head in a circle, both directions.'},
+  {id:'wu_shoulder', zone:'Épaules', nom:'Shoulder rolls', dur:20, instr:'Roll your shoulders backward, then forward.'},
+  {id:'wu_arms', zone:'Épaules', nom:'Arm swings', dur:20, instr:'Swing both arms gently across your body.'},
+  {id:'wu_torso', zone:'Dos', nom:'Torso twists', dur:20, instr:'Rotate your torso side to side, controlled.'},
+  {id:'wu_wrist', zone:'Poignets', nom:'Wrist circles', dur:15, instr:'Circle your wrists in both directions.'},
+  {id:'wu_knee', zone:'Genoux', nom:'Knee circles', dur:15, instr:'Gently circle your knees, seated or standing.'}
+];
+function getWarmupMoves(){
+  const avoid=userProfileData.zones_eviter||[];
+  const list=WARMUP_MOVES.filter(m=>!m.zone || !avoid.includes(m.zone));
+  return list.length ? list : WARMUP_MOVES.filter(m=>!m.zone);
+}
+function renderWarmupList(){
+  const el=document.getElementById('warmupList'); if(!el) return;
+  const moves=getWarmupMoves();
+  el.innerHTML=moves.map(m=>
+    '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
+    +'<div style="width:38px;height:38px;border-radius:11px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;color:var(--brand-fixed);">'+m.dur+'s</div>'
+    +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);">'+trDyn(m.nom)+'</div>'
+    +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(m.instr)+'</div></div></div>'
+  ).join('');
+}
+function continueToSession(){ go('session'); }
+function skipWarmup(){ go('session'); }
 // Démarrer UN SEUL exercice depuis sa fiche (pas une séance) : la fiche expose déjà
 // tous les réglages (reps/durée/repos/intensité) — direct sur l'écran live, le décompte
 // vocal 3-2-1 existant tient lieu de "avant".
@@ -17077,8 +17426,19 @@ const ASSISTANT_QUESTIONS=[
   {id:'seances', q:"Combien de séances cette semaine ?"},
   {id:'acwr', q:"Je m'entraîne trop fort en ce moment ?"},
   {id:'prochaine', q:"C'est quoi ma prochaine séance ?"},
-  {id:'effort', q:"Comment évolue mon effort ?"}
+  {id:'effort', q:"Comment évolue mon effort ?"},
+  {id:'score', q:"C'est quoi mon score aujourd'hui ?"},
+  {id:'objectif', q:"Pourquoi cet objectif aujourd'hui ?"}
 ];
+// Raisons de recommendedIntensityLevel() traduites — cette fonction reste en anglais en interne
+// (signal technique, jamais montré tel quel ailleurs), donc pas de trDyn ici, juste ce mapping local.
+const ASSISTANT_REASON_FR={
+  'your pain was high last time': "ta douleur était élevée la dernière fois",
+  "you're returning after a break — let's ease back in": "tu reprends après une pause, on y va doucement",
+  'your training load has ramped up fast recently': "ta charge d'entraînement a beaucoup augmenté récemment",
+  "you're feeling tired today": "tu te sens fatigué aujourd'hui",
+  'your last session felt tough': "ta dernière séance était difficile"
+};
 function assistantComputeAnswer(id){
   if(id==='seances'){
     const days=new Set(getSessionsInPeriod('semaine').map(h=>Math.floor(h.date/HIST_DAY))).size;
@@ -17104,6 +17464,19 @@ function assistantComputeAnswer(id){
     const d=ptsDelta(cur, prev||0);
     const trend=d.dir==='up'?'en hausse de '+d.pct+' points':d.dir==='down'?'en baisse de '+d.pct+' points':'stable';
     return 'Ton effort réel est à '+cur+'% de ton meilleur niveau, '+trend+' par rapport à la semaine dernière.';
+  }
+  if(id==='score'){
+    const cur=computeScoreAujourdhui(), target=computeObjectifDuJourScore();
+    if(!target) return "Pas de séance programmée aujourd'hui, donc pas d'objectif à viser pour l'instant.";
+    const pct=Math.min(100, Math.round(cur/target*100));
+    return 'Ton score aujourd\'hui est de '+cur+' point'+(cur>1?'s':'')+' sur un objectif de '+target+' ('+pct+'%).'+(cur>=target?' Objectif atteint 🎉':'');
+  }
+  if(id==='objectif'){
+    const target=computeObjectifDuJourScore();
+    if(!target) return "Aucune séance programmée aujourd'hui, donc pas d'objectif calculé.";
+    const base='Ton objectif du jour ('+target+' points) vient directement de ta séance programmée — durée/reps × ton niveau actuel sur chaque exercice.';
+    const rec=recommendedIntensityLevel();
+    return rec ? base+' En ce moment, '+(ASSISTANT_REASON_FR[rec.reason]||rec.reason)+', donc le niveau proposé en tient compte.' : base;
   }
   return '';
 }
