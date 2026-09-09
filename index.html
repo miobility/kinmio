@@ -389,6 +389,26 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .today-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .stats3{display:flex;gap:10px;margin:16px 20px;}
 .scard{flex:1;background:var(--bg2);border-radius:16px;padding:16px;border:1px solid var(--border);}
+/* Zone KPI de Home, refondue (cf audit "la home au banc d'essai") : le suivi pur passe en trio
+   compact — trois chiffres qui se comparent d'un coup d'oeil au lieu de trois cartes a faire
+   defiler — et les seuls vrais signaux de securite (charge, douleur) gardent la carte pleine.
+   Avant, cinq cartes rigoureusement identiques occupaient la moitie du defilement sans jamais
+   dire laquelle regarder. */
+.ktrio{display:flex;gap:8px;padding:0 20px;}
+.ktrio .kt{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 12px 13px;}
+.kt-l{font-size:9.5px;font-weight:700;color:var(--gray);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;}
+.kt-v{font-size:20px;font-weight:800;color:var(--white);line-height:1;font-variant-numeric:tabular-nums;font-family:var(--font-head);letter-spacing:-.3px;}
+.kt-u{font-size:10px;color:var(--gray2);font-weight:600;}
+.kt-d{font-size:10px;font-weight:700;margin-top:6px;}
+/* Carte de signal : les trois marqueurs simultanes de la charte — bordure gauche 3px,
+   pictogramme et libelle en toutes lettres. Jamais la couleur seule. */
+.ksig{display:flex;gap:11px;align-items:flex-start;margin:0 20px 9px;background:var(--bg2);border:1px solid var(--border);border-left-width:3px;border-radius:0 16px 16px 0;padding:13px 15px;}
+.ksig-ic{flex-shrink:0;font-size:18px;display:flex;margin-top:1px;}
+.ksig-b{flex:1;min-width:0;display:block;}
+.ksig-h{display:flex;align-items:baseline;gap:8px;}
+.ksig-t{font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;}
+.ksig-v{font-size:18px;font-weight:800;line-height:1;margin-left:auto;font-variant-numeric:tabular-nums;font-family:var(--font-head);flex-shrink:0;}
+.ksig-s{display:block;font-size:11px;color:var(--gray);margin-top:6px;line-height:1.45;}
 .sval{font-size:22px;font-weight:800;color:var(--white);}
 .slbl{font-size:11px;color:var(--gray);margin-top:2px;}
 .coach-tip{display:flex;align-items:flex-start;gap:8px;padding:12px 14px;background:rgba(var(--orange-rgb),.06);border-left:3px solid var(--orange);border-radius:12px;font-size:13px;color:var(--gray2);line-height:1.4;}
@@ -753,6 +773,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 17.6a7.6 7.6 0 0 1 15.2 0"/><path d="M12 17.6l3.9-4.6"/><circle cx="12" cy="17.6" r="1.15" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-hold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 18.4h3.2l2.2-8.8h6.4l2.2 8.8h3.2"/></symbol>
   <symbol id="ki-duel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.4v15.2" stroke-dasharray="2.6 2.6"/><path d="M7.6 7.4 4 12l3.6 4.6"/><path d="M16.4 7.4 20 12l-3.6 4.6"/></symbol>
+  <symbol id="ki-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2 21 19.4H3Z"/><path d="M12 10.2v4"/><circle cx="12" cy="16.9" r="1.05" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-media" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.4" y="5" width="17.2" height="14" rx="2.6"/><circle cx="9" cy="10.4" r="1.7"/><path d="M3.4 16.4l4.4-4 3.4 3 3.2-2.6 6.2 5"/></symbol>
   <symbol id="ki-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.3"/><path d="M5.2 20c0-3.5 3-5.4 6.8-5.4s6.8 1.9 6.8 5.4"/></symbol>
   <symbol id="ki-coach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.6" r="3"/><path d="M5.6 19.4c0-3.3 2.8-5 6.4-5s6.4 1.7 6.4 5"/><path d="M16.6 3.4l1.05 2.2 2.35.32-1.7 1.68.42 2.4-2.12-1.14-2.12 1.14.42-2.4-1.7-1.68 2.35-.32Z"/></symbol>
@@ -7284,24 +7305,37 @@ function buildLoadPainHtml(pad, compact){
     return '<div style="'+(pad?'padding:0 20px;':'')+'display:flex;gap:12px;">'+moodCard+loadCard+painCard+'</div>';
   }
 
-  const hero='font-size:32px;font-weight:800;color:var(--white);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums;';
-  const sub='font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.4;';
-  const heading=(label,iconHtml)=>'<div class="zone-lbl" style="margin-top:22px;margin-bottom:12px;margin-left:'+(pad?'20px':'0')+';margin-right:'+(pad?'20px':'0')+';display:flex;align-items:center;gap:6px;">'+label+iconHtml+'</div>';
-  const wrap=body=>'<div style="'+(pad?'padding:0 20px;':'')+'margin-bottom:16px;"><div class="scard">'+body+'</div></div>';
+  // Signaux de securite, refondus (cf audit "la home au banc d'essai") : la charte impose trois
+  // marqueurs SIMULTANES pour tout etat — bordure gauche 3px, pictogramme et libelle en toutes
+  // lettres — et jamais la couleur seule. Avant, une douleur a 8/10 s'affichait en rouge dans
+  // exactement la meme boite qu'un volume en blanc : le signal le plus important de l'ecran ne
+  // tenait qu'a la teinte d'un chiffre. La barre ACWR est conservee (elle situe la valeur sur
+  // l'echelle), le gros chiffre passe a droite du libelle.
+  const sig=(tone,icon,title,value,subline,extra)=>'<div class="ksig" style="'+(pad?'':'margin-left:0;margin-right:0;')+'border-left-color:'+tone+';">'
+    +'<span class="ksig-ic" style="color:'+tone+';"><svg class="ki"><use href="#ki-'+icon+'"/></svg></span>'
+    +'<span class="ksig-b">'
+      +'<span class="ksig-h"><span class="ksig-t" style="color:'+tone+';">'+title+'</span>'
+      +(value?'<span class="ksig-v" style="color:'+tone+';">'+value+'</span>':'')+'</span>'
+      +(extra||'')
+      +(subline?'<span class="ksig-s">'+subline+'</span>':'')
+    +'</span></div>';
   let out='';
   if(fatigue.acwr!=null){
-    out += heading('LOAD', loadInfo)
-      + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
-        +'<div style="'+hero+'color:'+acwrColor+';">'+fatigue.acwr.toFixed(1)+'×</div>'
-        +'<div style="font-size:12px;color:var(--gray2);">ACWR</div>'
-        +'</div>'
-        +'<div style="height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 15%,var(--vigilance) 15%,var(--vigilance) 40%,var(--teal) 40%,var(--teal) 65%,var(--vigilance) 65%,var(--vigilance) 90%,var(--red) 90%,var(--red) 100%);margin-top:9px;position:relative;width:100%;"><div style="position:absolute;top:-2px;left:'+acwrPct+'%;width:2px;height:8px;background:var(--white);"></div></div>'
-        +'<div style="'+sub+'">'+loadTip+'</div>');
+    const loadTone = fatigue.level==='high' ? 'var(--red)' : fatigue.level==='low' ? 'var(--vigilance)' : 'var(--teal)';
+    const loadTitle = fatigue.level==='high' ? 'LOAD RISING FAST' : fatigue.level==='low' ? 'LOAD BELOW USUAL' : 'LOAD STEADY';
+    const bar='<span style="display:block;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 15%,var(--vigilance) 15%,var(--vigilance) 40%,var(--teal) 40%,var(--teal) 65%,var(--vigilance) 65%,var(--vigilance) 90%,var(--red) 90%,var(--red) 100%);margin-top:9px;position:relative;width:100%;"><span style="position:absolute;top:-2px;left:'+acwrPct+'%;width:2px;height:8px;background:var(--white);"></span></span>';
+    out += sig(loadTone, fatigue.level==='high'?'alert':fatigue.level==='low'?'alert':'check-circle',
+               loadTitle, fatigue.acwr.toFixed(1)+'×', loadTip, bar);
   }
-  out += heading('PAIN', painInfo)
-    + wrap((pain.level==null ? '<div style="font-size:14px;font-weight:600;color:var(--gray);">Not enough data yet</div>'
-      : '<div style="display:flex;align-items:baseline;gap:8px;"><div style="'+hero+'color:'+painColor+';">'+Math.round(pain.level)+'/10</div><span style="font-size:14px;font-weight:700;color:'+painArrowColor+';">'+painArrow+'</span></div>')
-      +(painComment ? '<div style="'+sub+'">'+painComment+'</div>' : ''));
+  if(pain.level==null){
+    out += sig('var(--gray)','info','PAIN','', 'Not enough data yet','');
+  } else {
+    const lvl=Math.round(pain.level);
+    const painTone = lvl<=3 ? 'var(--teal)' : lvl<=6 ? 'var(--vigilance)' : 'var(--red)';
+    const painTitle = lvl<=3 ? 'LOW PAIN' : lvl<=6 ? 'MODERATE PAIN' : 'HIGH PAIN';
+    out += sig(painTone, lvl<=3?'check-circle':'alert', painTitle,
+               lvl+'/10', painComment, '');
+  }
 
   return out;
 }
@@ -7320,52 +7354,39 @@ function renderHomeKpiZone(prefix, profile){
   const el=document.getElementById(prefix+'KpiZone'); if(!el) return;
   const arrow=d=>d.dir==='up'?'↑':d.dir==='down'?'↓':'→';
   const color=d=>d.dir==='up'?'var(--teal)':d.dir==='down'?'var(--vigilance)':'var(--gray)';
-  const hero='font-size:32px;font-weight:800;color:var(--white);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums;';
-  const sub='font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.4;';
-  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"';
-  const heading=(label,iconHtml)=>'<div class="zone-lbl" style="margin-top:22px;display:flex;align-items:center;gap:6px;">'+label+iconHtml+'</div>';
-  const wrap=body=>'<div style="padding:0 20px;margin-bottom:16px;"><div class="scard">'+body+'</div></div>';
-  let out='';
+  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
+  // Trois indicateurs de suivi cote a cote : ils se comparent, donc ils tiennent sur une ligne.
+  // Aucune couleur d'etat ici — le blanc est reserve au suivi pur, la couleur aux signaux.
+  const tile=(lbl,inf,val,unit,delta)=>'<div class="kt">'
+    +'<div class="kt-l">'+lbl+inf+'</div>'
+    +'<div style="display:flex;align-items:baseline;gap:4px;"><span class="kt-v">'+val+'</span>'+(unit?'<span class="kt-u">'+unit+'</span>':'')+'</div>'
+    +'<div class="kt-d" style="color:'+(delta?delta.c:'var(--dim)')+';">'+(delta?delta.t:'—')+'</div>'
+    +'</div>';
 
-  // --- Regularity ---
   const week=getWeekDaysTrained();
   const prevWeek=getPreviousWeekStats();
   const daysDelta=week.fait-prevWeek.fait;
   const regState=getRegularityState(profile);
   const regColor = regState.key==='douleur_hausse' ? 'var(--red)' : (regState.key==='objectif_semaine_atteint'||regState.key==='bon_streak'||regState.key==='programme_complete') ? 'var(--teal)' : 'var(--gray)';
-  out += heading('REGULARITY','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you have trained this week versus your weekly goal. Resets every Monday, same calendar week used for Volume below.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>')
-    + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
-      +'<div style="'+hero+'">'+week.fait+'/'+week.objectif+'</div>'
-      +'<div style="font-size:12px;color:var(--gray2);">training days</div>'
-      +(daysDelta!==0 ? '<span style="font-size:12px;font-weight:700;color:'+(daysDelta>0?'var(--teal)':'var(--red)')+';margin-left:auto;">'+(daysDelta>0?'↑':'↓')+Math.abs(daysDelta)+'d</span>' : '')
-      +'</div>'
-      +'<div style="'+sub+'color:'+regColor+';">'+regState.text+'</div>');
-
-  // --- Volume ---
   const volDelta = prevWeek.minutes>0 ? pctDelta(week.minutes, prevWeek.minutes) : null;
-  out += heading('VOLUME','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained this week, and how many sessions that took. Same calendar week as Regularity above, resetting every Monday.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>')
-    + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
-      +'<div style="'+hero+'">'+week.minutes+'</div>'
-      +'<div style="font-size:12px;color:var(--gray2);">min this week</div>'
-      +(volDelta ? '<span style="font-size:12px;font-weight:700;color:'+color(volDelta)+';margin-left:auto;">'+arrow(volDelta)+' '+volDelta.pct+'%</span>' : '')
-      +'</div>'
-      +'<div style="'+sub+'">'+week.sessions+' session'+(week.sessions!==1?'s':'')+' this week</div>');
-
-  // --- Intensity ---
   const sessions=getSessionsInPeriod('semaine'), prevSessions=getPreviousPeriodSessions('semaine');
   const pct=computeEffortScorePct(sessions);
-  if(pct!=null){
-    const pctPrev=computeEffortScorePct(prevSessions);
-    const delta=ptsDelta(pct, pctPrev||0);
-    out += heading('INTENSITY','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>')
-      + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
-        +'<div style="'+hero+'">'+pct+'%</div>'
-        +(pctPrev ? '<span style="font-size:12px;font-weight:700;color:'+color(delta)+';margin-left:auto;">'+arrow(delta)+' '+delta.pct+'pts</span>' : '')
-        +'</div>'
-        +'<div style="'+sub+'">vs your all-time best 7-day window</div>');
-  }
+  const pctPrev = pct==null ? null : computeEffortScorePct(prevSessions);
+  const intDelta = (pct==null||!pctPrev) ? null : ptsDelta(pct, pctPrev||0);
 
-  // --- Load + Pain : signaux d'état actuel, gabarit partagé avec Progress (buildLoadPainHtml) ---
+  let trio = tile('REGULARITY', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you have trained this week versus your weekly goal. Resets every Monday, same calendar week used for Volume below.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', week.fait+'/'+week.objectif, 'days',
+        daysDelta!==0 ? {c:(daysDelta>0?'var(--teal)':'var(--red)'), t:(daysDelta>0?'↑':'↓')+Math.abs(daysDelta)+'d'} : null)
+    + tile('VOLUME', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained this week, and how many sessions that took. Same calendar week as Regularity above, resetting every Monday.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', week.minutes, 'min',
+        volDelta ? {c:color(volDelta), t:arrow(volDelta)+' '+volDelta.pct+'%'} : null);
+  if(pct!=null) trio += tile('INTENSITY', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', pct+'%', '',
+        intDelta ? {c:color(intDelta), t:arrow(intDelta)+' '+intDelta.pct+'pts'} : null);
+
+  // La phrase de regularite descend sous le trio : c'est le seul message contextuel de la zone,
+  // il n'a pas besoin d'une carte a lui — et il ne rentrerait pas dans une tuile compacte.
+  let out = '<div class="ktrio">'+trio+'</div>'
+    + '<div style="margin:11px 20px 20px;font-size:11.5px;line-height:1.45;color:'+regColor+';">'+regState.text+'</div>';
+
+  // --- Charge + douleur : les seuls vrais signaux de securite, en cartes developpees ---
   out += buildLoadPainHtml(true);
 
   // Training balance (Cardio vs Strength) retiré — kinmio ne fait plus que du HIIT, l'axe n'a plus
@@ -9852,6 +9873,13 @@ const EN_FR = {
   "90 days": "90 jours",
   "training days": "jours d'entraînement",
   "REGULARITY": "RÉGULARITÉ",
+  "LOAD RISING FAST": "CHARGE EN FORTE HAUSSE",
+  "LOAD BELOW USUAL": "CHARGE SOUS L'HABITUEL",
+  "LOAD STEADY": "CHARGE STABLE",
+  "LOW PAIN": "DOULEUR FAIBLE",
+  "MODERATE PAIN": "DOULEUR MODÉRÉE",
+  "HIGH PAIN": "DOULEUR ÉLEVÉE",
+  "PAIN": "DOULEUR",
   "VOLUME": "VOLUME",
   "Avg. across the roster this week": "Moy. sur l'ensemble du centre cette semaine",
   "min / member": "min / membre",
