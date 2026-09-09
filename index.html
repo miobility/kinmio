@@ -1159,12 +1159,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div id="centrePendingBanner" style="display:none;margin:6px 20px 4px;border-radius:16px;padding:14px 16px;align-items:center;gap:12px;"></div>
 
-    <!-- Coach IA — recalibrage hebdomadaire -->
-
-    <!-- Score Kinmio du jour + objectif -->
-    <div id="homeCentreScoreDial" style="display:none;margin:18px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;align-items:center;gap:18px;"></div>
-
-    <!-- ZONE 2 — TODAY : check-in humeur + séance du jour -->
+    <!-- ZONE 2 — TODAY : check-in humeur (avant la séance, dont il peut ajuster le niveau) + séance du jour -->
     <div id="homeCentreCheckinBlock" style="margin-top:16px;">
       <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
       <div class="checkin-row">
@@ -1182,18 +1177,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="homeCentreSeanceZone"></div>
     <div style="text-align:center;margin:4px 20px 0;"><button class="btn-ghost" style="color:var(--gray);font-size:12.5px;text-decoration:underline;" onclick="go('programme')">My programme →</button></div>
 
+    <!-- Score Kinmio du jour + objectif — après la séance (dont le niveau peut venir d'être ajusté ci-dessus) -->
+    <div id="homeCentreScoreDial" style="display:none;"></div>
+
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeCentreKpiZone"></div>
-
-    <!-- ZONE 3.5 — Défi entre amis (cardio uniquement, cf discussion) -->
-    <div class="card-sm" style="margin:16px 20px 0;border-color:rgba(var(--orange-rgb),.3);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiAmi()">
-      <div style="width:38px;height:38px;border-radius:12px;background:rgba(var(--orange-rgb),.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:14px;font-weight:700;color:var(--orange);">Challenge a friend</div>
-        <div style="font-size:11.5px;color:var(--gray);margin-top:1px;">Duel it out on a cardio move</div>
-      </div>
-      <div style="color:var(--gray);font-size:16px;">›</div>
-    </div>
 
     <!-- ZONE 4 — Explorer -->
     <div class="zone-lbl" style="cursor:pointer;" onclick="go('bibliotheque')">RECOMMENDED FOR YOU</div>
@@ -1528,20 +1516,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll">
     <!-- ZONE 1 — Header -->
     <div class="home-top gap4">
-      <div><div class="hw">Hello</div><div class="hname" style="display:flex;align-items:center;gap:8px;min-width:0;"><span id="homeUserName" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marc</span><span id="subBadgeHome" style="display:none;font-size:11px;font-weight:700;color:var(--teal);background:rgba(var(--teal-rgb),.12);padding:3px 8px;border-radius:8px;letter-spacing:0;flex-shrink:0;">Subscribed ✓</span></div><div style="font-size:12px;color:var(--gray);margin-top:4px;" id="homeDateLabel"></div></div>
+      <div><div class="hw">Hello</div><div class="hname"><span id="homeUserName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marc</span></div><div style="font-size:12px;color:var(--gray);margin-top:4px;" id="homeDateLabel"></div></div>
       <div style="display:flex;align-items:center;gap:10px;">
-        <div class="bell" onclick="initAssistantIa();go('assistant_ia')" title="AI Coach"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:-0.125em;display:inline-block;flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L13.5 8.5a2 2 0 0 0 1.437 1.437l6.135 1.582a.5.5 0 0 1 0 .962L14.937 14.063A2 2 0 0 0 13.5 15.5l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg></div>
         <div class="bell" onclick="openNotifs()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z /><path d=M9.5,18.5a2.5,2.5,0,0,0,5,0 /></svg><span class="bell-dot"></span></div>
         <div class="hav" onclick="go('profil')" style="cursor:pointer;border-radius:50%;overflow:hidden;padding:0;background:transparent;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
     </div>
 
-    <!-- Coach IA — recalibrage hebdomadaire -->
-
-    <!-- Score Kinmio du jour + objectif -->
-    <div id="homeScoreDial" style="display:none;margin:18px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;align-items:center;gap:18px;"></div>
-
-    <!-- ZONE 2 — TODAY : check-in humeur + séance du jour -->
+    <!-- ZONE 2 — TODAY : check-in humeur (avant la séance, dont il peut ajuster le niveau) + séance du jour -->
     <div id="homeCheckinBlock" style="margin-top:16px;">
       <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
       <div class="checkin-row">
@@ -1554,18 +1536,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="homeSeanceZone"></div>
     <div style="text-align:center;margin:4px 20px 0;"><button class="btn-ghost" style="color:var(--gray);font-size:12.5px;text-decoration:underline;" onclick="go('programme')">My programme →</button></div>
 
+    <!-- Score Kinmio du jour + objectif — après la séance (dont le niveau peut venir d'être ajusté ci-dessus) -->
+    <div id="homeScoreDial" style="display:none;"></div>
+
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeKpiZone"></div>
-
-    <!-- ZONE 3.5 — Défi entre amis (cardio uniquement, cf discussion) -->
-    <div class="card-sm" style="margin:16px 20px 0;border-color:rgba(var(--orange-rgb),.3);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiAmi()">
-      <div style="width:38px;height:38px;border-radius:12px;background:rgba(var(--orange-rgb),.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:14px;font-weight:700;color:var(--orange);">Challenge a friend</div>
-        <div style="font-size:11.5px;color:var(--gray);margin-top:1px;">Duel it out on a cardio move</div>
-      </div>
-      <div style="color:var(--gray);font-size:16px;">›</div>
-    </div>
 
     <!-- ZONE 4 — Explorer -->
     <div class="zone-lbl" style="cursor:pointer;" onclick="go('bibliotheque')">RECOMMENDED FOR YOU</div>
@@ -1957,7 +1932,19 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div style="width:30px;height:30px;border-radius:50%;background:#529CFE;border:2px solid var(--bg);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0A0F;">L</div>
         <div style="width:30px;height:30px;border-radius:50%;background:#A87EFD;border:2px solid var(--bg);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0A0F;">K</div>
       </div>
-      <div style="font-size:12.5px;color:var(--gray);" id="defisGroupLabel">Your group · 3 members</div>
+      <div style="flex:1;min-width:0;font-size:12.5px;color:var(--gray);" id="defisGroupLabel">Your group · 3 members</div>
+      <span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="go('mes_amis')">Manage friends</span>
+    </div>
+
+    <!-- Défi 1v1 — déplacé depuis Home (audit sept. 2026) : vivait seul sur Home, déconnecté de tout
+         le reste de la compétition sociale. Vit ici désormais, à côté du défi de groupe et des badges. -->
+    <div class="card-sm" style="margin:16px 20px 0;border-color:rgba(var(--orange-rgb),.3);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiAmi()">
+      <div style="width:38px;height:38px;border-radius:12px;background:rgba(var(--orange-rgb),.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:700;color:var(--orange);">Challenge a friend</div>
+        <div style="font-size:11.5px;color:var(--gray);margin-top:1px;">Duel it out on a cardio move</div>
+      </div>
+      <div style="color:var(--gray);font-size:16px;">›</div>
     </div>
 
     <div class="zone-lbl" style="margin-top:22px;">ACTIVE CHALLENGE</div>
@@ -5047,7 +5034,6 @@ function go(id){
     }
   }, 20);
   if(id==='home') currentRole='user';
-  if(id==='home'){ const b=document.getElementById('subBadgeHome'); if(b) b.style.display=subscribed?'inline-block':'none'; }
   if(id==='login'){
     // La sélection de rôle (démo) ne doit jamais rester "collée" d'une visite à l'autre — sinon un
     // retour sur cet écran après avoir exploré un autre rôle connecte silencieusement sous le mauvais rôle.
@@ -7357,13 +7343,24 @@ function renderCheckinPrompt(prefix){
 // Titre de section conservé même une fois répondu (cf discussion : "on perd le titre, on devrait le
 // garder") — repris tel quel dans les deux états au lieu de disparaître avec le bloc de sélection.
 const CHECKIN_TITLE='<div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>';
+// Conséquence réelle affichée après le check-in (audit Home, sept. 2026) : avant, la réponse
+// n'aboutissait qu'à un accusé "emoji + Changer", sans lien visible avec quoi que ce soit — le vrai
+// ajustement (recommendedIntensityLevel) n'arrivait qu'en silence à l'entrée en séance, plus tard.
 function renderCheckinDone(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
+  const rec=recommendedIntensityLevel();
+  const impact = rec
+    ? trDyn('Today’s session adjusts: ')+(ASSISTANT_REASON_FR[rec.reason]&&currentLang==='fr' ? ASSISTANT_REASON_FR[rec.reason] : trDyn(rec.reason))
+    : trDyn('No change needed — today’s session stays as planned.');
   b.innerHTML=CHECKIN_TITLE
-    +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;">'
+    +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
+    +'<div style="display:flex;align-items:center;gap:12px;">'
     +'<span style="font-size:26px;flex-shrink:0;">'+checkinEmoji(val)+'</span>'
     +'<span style="flex:1;"></span>'
-    +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span></div>';
+    +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span>'
+    +'</div>'
+    +'<div style="font-size:12.5px;color:'+(rec?'var(--brand-fixed)':'var(--gray)')+';margin-top:10px;line-height:1.4;">'+impact+'</div>'
+    +'</div>';
 }
 function selCheckinHome(el,val,prefix){
   todayCheckin=val;
@@ -7667,31 +7664,32 @@ function computeScoreAujourdhui(){
   const startOfDay=new Date(); startOfDay.setHours(0,0,0,0);
   return Math.round(userSessionHistory.filter(h=>h.date>=startOfDay.getTime()).reduce((s,h)=>s+(h.cardioScore||0)+(h.renfoScore||0),0));
 }
+// Repassé en chiffre plat (sept. 2026, audit Home) : l'anneau était le seul bloc de la page à ne pas
+// suivre le patron partagé par Regularity/Volume/Intensity (renderHomeKpiZone) — gros chiffre + libellé,
+// même icône ⓘ/showInfoSheet(). Message reformulé en invitation quand rien n'est encore fait aujourd'hui
+// (current===0) plutôt qu'en "retard" : le profil n'a qu'un jour préféré, jamais une heure — à 7h du
+// matin, "0%, encore N points" se lit comme si la séance du soir était déjà manquée.
 function renderHomeScoreDial(prefix){
   const el=document.getElementById(prefix+'ScoreDial'); if(!el) return;
   const target=computeObjectifDuJourScore();
   const current=computeScoreAujourdhui();
   if(!target){ el.style.display='none'; return; }
-  el.style.display='flex';
+  el.style.display='block';
   const pct=Math.min(100, Math.round(current/target*100));
-  const r=40, circumference=2*Math.PI*r;
-  const offset=Math.round(circumference*(1-pct/100));
   const remaining=Math.max(0, target-current);
-  const subText = pct>=100 ? trDyn("Today's goal reached")
-    : trDyn(pct+"% of today's goal");
-  const remainText = pct>=100 ? '' : trDyn(remaining+' points to go');
-  el.innerHTML = '<div style="position:relative;width:96px;height:96px;flex-shrink:0;">'
-    +'<svg width="96" height="96" viewBox="0 0 96 96">'
-    +'<circle cx="48" cy="48" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="9"/>'
-    +'<circle cx="48" cy="48" r="'+r+'" fill="none" stroke="var(--brand-fixed)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+circumference.toFixed(1)+'" stroke-dashoffset="'+offset+'" transform="rotate(-90 48 48)"/>'
-    +'</svg>'
-    +'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-    +'<div style="font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1;">'+current+'</div>'
-    +'<div style="font-size:10.5px;color:var(--gray);margin-top:2px;">'+trDyn('/ '+target+' pts')+'</div>'
-    +'</div></div>'
-    +'<div style="flex:1;min-width:0;">'
-    +'<div style="font-size:11px;font-weight:700;color:var(--gray2);letter-spacing:.6px;text-transform:uppercase;">'+trDyn("Score Kinmio · today")+'</div>'
-    +'<div style="font-size:14px;color:var(--white);margin-top:8px;line-height:1.4;">'+subText+'</div>'
+  const infoIcon='style="cursor:pointer;margin-left:3px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);color:var(--gray);font-size:9px;display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;text-transform:none;letter-spacing:0;flex-shrink:0;"';
+  const infoBody='Comes from the session assigned for today: duration times intensity level for cardio moves, or reps times sets times resistance for strength moves — the same formula as your real score. Resets at midnight. Your weekly trend (Intensity, below) is what really tracks progress over time, not this daily number.';
+  const subText = current===0
+    ? trDyn('Today’s session is waiting — ')+trDyn(target+' points up for grabs')
+    : (pct>=100 ? trDyn("Today's goal reached") : trDyn(pct+"% of today's goal"));
+  const remainText = (current>0 && pct<100) ? trDyn(remaining+' points to go') : '';
+  el.innerHTML = '<div class="zone-lbl" style="margin-top:0;display:flex;align-items:center;gap:6px;">'+trDyn('SCORE KINMIO')+'<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Score Kinmio\',\''+infoBody+'\')" '+infoIcon+'>i</span></div>'
+    +'<div class="scard">'
+    +'<div style="display:flex;align-items:baseline;gap:8px;">'
+    +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums;">'+current+'</div>'
+    +'<div style="font-size:12px;color:var(--gray2);">'+trDyn('/ '+target+' pts')+'</div>'
+    +'</div>'
+    +'<div style="font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.4;">'+subText+'</div>'
     +(remainText ? '<div style="font-size:12px;color:var(--brand-fixed);margin-top:5px;font-weight:600;">'+remainText+'</div>' : '')
     +'</div>';
 }
@@ -9725,6 +9723,8 @@ const EN_FR = {
   "Firm": "Ferme",
   "Max": "Max",
   "How are you feeling?": "Comment te sens-tu ?",
+  "Today’s session adjusts: ": "Ta séance du jour s'ajuste : ",
+  "No change needed — today’s session stays as planned.": "Rien à changer — ta séance du jour reste comme prévu.",
   "😀 Great": "😀 Très bien",
   "😐 Okay": "😐 Correct",
   "😣 Tired": "😣 Fatigué",
@@ -9779,6 +9779,8 @@ const EN_FR = {
   "Got it": "Compris",
   "How hard you've trained recently vs your usual pace (Acute:Chronic Workload Ratio). Calculation: your average daily load over the last 7 days, divided by your average daily load over the last 28 days. Load itself = your own effort rating right after each session (easy/moderate/intense/max) × session duration — a recognized sports-science method (session-RPE), not a device measurement. 0.8–1.3× is a healthy zone — much higher means you're ramping up fast (injury risk), much lower means you could safely do more.": "À quel point tu t'es entraîné intensément récemment, comparé à ton rythme habituel (Acute:Chronic Workload Ratio). Calcul : ta charge moyenne quotidienne sur les 7 derniers jours, divisée par ta charge moyenne quotidienne sur les 28 derniers jours. La charge elle-même = ton propre ressenti d'effort juste après chaque séance (facile/modéré/intense/maximal) × la durée de la séance — une méthode reconnue en sciences du sport (session-RPE), pas une mesure d'appareil. 0,8–1,3× est une zone saine — beaucoup plus haut signifie que tu montes en charge trop vite (risque de blessure), beaucoup plus bas signifie que tu pourrais faire plus sans risque.",
   "Your self-reported pain level, from your last sessions where you answered the pain question. Calculation: level = your most recent answer (out of 10). Trend = that value minus your answer from up to 3 sessions ago (skipped sessions don't count against you) — only shown as rising or easing if the change is 2 points or more, so small day-to-day noise isn't flagged as a real trend.": "Ton niveau de douleur déclaré, à partir de tes dernières séances où tu as répondu à la question douleur. Calcul : le niveau = ta réponse la plus récente (sur 10). La tendance = cette valeur moins ta réponse d'il y a jusqu'à 3 séances (les séances sautées ne comptent pas contre toi) — affichée en hausse ou en baisse seulement si le changement est de 2 points ou plus, pour ne pas signaler une petite variation comme une vraie tendance.",
+  "Comes from the session assigned for today: duration times intensity level for cardio moves, or reps times sets times resistance for strength moves — the same formula as your real score. Resets at midnight. Your weekly trend (Intensity, below) is what really tracks progress over time, not this daily number.": "Vient de la séance assignée pour aujourd'hui : durée fois niveau d'intensité pour les mouvements cardio, ou reps fois séries fois résistance pour les mouvements de renfo — la même formule que ton vrai score. Se réinitialise à minuit. Ta tendance hebdomadaire (Intensité, plus bas) est ce qui suit vraiment ta progression dans le temps, pas ce chiffre du jour.",
+  "Today’s session is waiting — ": "Ta séance du jour t'attend — ",
   "How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you're matching your all-time best week.": "À quel point ton entraînement a été intense récemment, comparé à ton propre pic. Calcul : ton score d'effort sur les 7 derniers jours glissants, divisé par ta meilleure fenêtre de 7 jours jamais enregistrée — cardio et renforcement sont chacun notés par temps/reps × niveau d'intensité, puis combinés. 100% veut dire que tu égales ta meilleure semaine de tous les temps.",
   "How intense your training has been over the last 7 days, compared to your own peak. Calculation: your effort score over this window, divided by your single best 7 days window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you're matching your all-time best window of this length.": "À quel point ton entraînement a été intense sur les 7 derniers jours, comparé à ton propre pic. Calcul : ton score d'effort sur cette période, divisé par ta meilleure période de 7 jours jamais enregistrée — cardio et renforcement sont chacun notés par temps/reps × niveau d'intensité, puis combinés. 100% veut dire que tu égales ta meilleure période de cette durée, tous temps confondus.",
   "How intense your training has been over the last 30 days, compared to your own peak. Calculation: your effort score over this window, divided by your single best 30 days window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you're matching your all-time best window of this length.": "À quel point ton entraînement a été intense sur les 30 derniers jours, comparé à ton propre pic. Calcul : ton score d'effort sur cette période, divisé par ta meilleure période de 30 jours jamais enregistrée — cardio et renforcement sont chacun notés par temps/reps × niveau d'intensité, puis combinés. 100% veut dire que tu égales ta meilleure période de cette durée, tous temps confondus.",
@@ -10198,6 +10200,7 @@ const EN_FR = {
   "▶ Send challenge": "▶ Envoyer le défi",
   // Communauté / Mes amis — cf discussion
   "My friends": "Mes amis",
+  "Manage friends": "Gérer mes amis",
   "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> My friends": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Mes amis",
   "Enter a friend's code": "Entre le code d'un ami",
   "Your code": "Ton code",
@@ -10988,6 +10991,7 @@ const EN_FR_PATTERNS = [
   // Score Kinmio du jour (Home, renderHomeScoreDial) — posé en JS brut via innerHTML.
   [/^(\d+)% of today's goal$/, (m)=>`${m[1]}% de ton objectif du jour`],
   [/^(\d+) points to go$/, (m)=>`Encore ${m[1]} point${Number(m[1])>1?'s':''} pour l'atteindre`],
+  [/^(\d+) points up for grabs$/, (m)=>`${m[1]} point${Number(m[1])>1?'s':''} à la clé`],
   // Carte Coach hebdo (Home, renderHomeCoachCard) — composée à partir de segments traduits séparément.
   [/^(\d+)\/(\d+) sessions$/, (m)=>`${m[1]}/${m[2]} séances`],
   [/^(\d+)% time in zone on $/, (m)=>`${m[1]}% de temps dans la zone sur `],
