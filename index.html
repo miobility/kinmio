@@ -5147,7 +5147,7 @@ function validateCentreAccess(){
   const activeScreen=document.querySelector('.screen.active');
   if(activeScreen && activeScreen.id==='attente_validation'){
     centreMode=true;
-    showSuccessOverlay('<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg>',"Martin Dupont accepted your request. Welcome!",'ob1',1200);
+    showSuccessOverlay('<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg>',"Martin Dupont accepted your request. Welcome!",'ob_intro',1200);
   } else {
     toast('Access approved ✓ Welcome to kinmio');
   }
