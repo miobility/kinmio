@@ -238,12 +238,15 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 
 /* TOP NAV */
 .topnav{display:flex;align-items:center;padding:20px 20px 12px;gap:12px;flex-shrink:0;}
+/* Pictogrammes : la couleur vient de currentColor, donc du color: du parent — c'est ce qui
+   leur permet de suivre l'accent de la plateforme et la bascule sombre/clair. */
+.ki{display:block;flex-shrink:0;width:1em;height:1em;}
 .btn-back{width:44px;height:44px;border-radius:50%;background:transparent;border:none;color:var(--white);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .topnav-title{flex:1;font-size:17px;font-weight:700;color:var(--white);text-align:center;font-family:var(--font-head);}
 .topnav-r{width:44px;}
 
 /* BUTTONS */
-.btn{width:100%;padding:17px;border:none;border-radius:13px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.2px;transition:opacity .12s;}
+.btn{width:100%;padding:17px;border:none;border-radius:13px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.2px;transition:opacity .12s;display:flex;align-items:center;justify-content:center;gap:9px;}
 .btn:active{opacity:.82;}
 .btn-orange{background:var(--orange-btn);color:#fff;box-shadow:0 8px 16px -8px rgba(var(--orange-rgb),.28),0 2px 5px rgba(var(--orange-rgb),.1);}
 .btn-teal{background:var(--teal-btn);color:#fff;}
@@ -253,7 +256,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 .btn-brand-fixed{background:var(--brand-fixed-btn);color:#fff;box-shadow:0 8px 16px -8px rgba(var(--brand-fixed-rgb),.28),0 2px 5px rgba(var(--brand-fixed-rgb),.1);}
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--white);cursor:pointer;}
 .btn-danger{background:transparent;border:1.5px solid var(--border);color:var(--red);}
-.btn-ghost{background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;}
+.btn-ghost{background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
 .icon-btn{width:36px;height:36px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
 
 /* CARDS */
@@ -563,7 +566,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .lib-flabel{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
 .lib-fchips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
 .lib-fchips::-webkit-scrollbar{display:none;}
-.lib-chip{flex-shrink:0;border:1.5px solid var(--border);background:var(--bg2);color:var(--gray2);border-radius:12px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.lib-chip{flex-shrink:0;border:1.5px solid var(--border);background:var(--bg2);color:var(--gray2);border-radius:12px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
 .lib-chip.on{border-color:var(--orange);color:var(--orange);background:rgba(var(--orange-rgb),.08);}
 .lib-card{display:flex;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;}
 .lib-thumb{width:60px;height:60px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
@@ -707,6 +710,52 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </head>
 <body>
 <div id="app">
+<!-- ===== JEU DE PICTOGRAMMES kinmio =====
+     Grille 24x24 (zone vive 20x20), trait 1.6, currentColor, extremites arrondies.
+     Cf charte "kinmio - le jeu de pictogrammes". Definis une seule fois ici, appeles
+     partout en <use href="#ki-xxx"> via la classe .ki (ou le helper ki() cote JS).
+     Remplissage plein reserve a 3 exceptions nommees : play / pause / stop (convention
+     universelle du transport media) + la variante pleine du favori. -->
+<svg width="0" height="0" style="position:absolute;visibility:hidden;" aria-hidden="true">
+  <symbol id="ki-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.6 5.4 8 12l6.6 6.6"/></symbol>
+  <symbol id="ki-fwd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.4 5.4 16 12l-6.6 6.6"/></symbol>
+  <symbol id="ki-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 5.9a.9.9 0 0 1 1.36-.78l9.1 5.32a.75.75 0 0 1 0 1.3l-9.1 5.32A.9.9 0 0 1 8.4 16.4Z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.4" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/><rect x="13.1" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.4v13.2"/><path d="M5.4 12h13.2"/></symbol>
+  <symbol id="ki-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 6.6 17.4 17.4"/><path d="M17.4 6.6 6.6 17.4"/></symbol>
+  <symbol id="ki-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 7h14.8"/><path d="M9.6 7V4.9h4.8V7"/><path d="M6.7 7l.95 12.1h8.7L17.3 7"/><path d="M10.4 10.6v5.6"/><path d="M13.6 10.6v5.6"/></symbol>
+  <symbol id="ki-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.4h8.2L18.4 8.6v11H6Z"/><path d="M14.2 4.4v4.2h4.2"/><path d="M9 12.8h6"/><path d="M9 16.1h4"/></symbol>
+  <symbol id="ki-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.6C6.4 15.6 3.9 12.9 3.9 9.7 3.9 7 5.9 5.1 8.3 5.1c1.5 0 2.8.75 3.7 1.95.9-1.2 2.2-1.95 3.7-1.95 2.4 0 4.4 1.9 4.4 4.6 0 3.2-2.5 5.9-8.1 9.9Z"/></symbol>
+  <symbol id="ki-heart-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.6C6.4 15.6 3.9 12.9 3.9 9.7 3.9 7 5.9 5.1 8.3 5.1c1.5 0 2.8.75 3.7 1.95.9-1.2 2.2-1.95 3.7-1.95 2.4 0 4.4 1.9 4.4 4.6 0 3.2-2.5 5.9-8.1 9.9Z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.6 3.3a.42.42 0 0 1 .8 0l1.05 4.05a2.1 2.1 0 0 0 1.5 1.5l4.05 1.05a.42.42 0 0 1 0 .8l-4.05 1.05a2.1 2.1 0 0 0-1.5 1.5L12.4 17.3a.42.42 0 0 1-.8 0l-1.05-4.05a2.1 2.1 0 0 0-1.5-1.5L5 10.7a.42.42 0 0 1 0-.8l4.05-1.05a2.1 2.1 0 0 0 1.5-1.5Z" fill="currentColor" stroke="none"/><path d="M17.7 16.1a.26.26 0 0 1 .5 0l.36 1.34 1.34.36a.26.26 0 0 1 0 .5l-1.34.36-.36 1.34a.26.26 0 0 1-.5 0l-.36-1.34-1.34-.36a.26.26 0 0 1 0-.5l1.34-.36Z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 12.6l4.2 4.2 8.6-9.4"/></symbol>
+  <symbol id="ki-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M8.2 12.3l2.6 2.6 5-5.5"/></symbol>
+  <symbol id="ki-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.8" y="10.4" width="14.4" height="9.4" rx="2.4"/><path d="M8.3 10.4V7.9a3.7 3.7 0 0 1 7.4 0v2.5"/><path d="M12 14.2v1.9"/></symbol>
+  <symbol id="ki-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.4h9.6M17.7 8.4h1.8"/><path d="M4.5 15.6h1.8M9.9 15.6h9.6"/><circle cx="15.9" cy="8.4" r="2.3"/><circle cx="8.1" cy="15.6" r="2.3"/></symbol>
+  <symbol id="ki-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5.2"/><circle cx="12" cy="7.9" r="1.05" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6.5H4c.5-1 2-2.5 2-6.5Z"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0"/></symbol>
+  <symbol id="ki-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.8 14.4 12 9.2l5.2 5.2"/></symbol>
+  <symbol id="ki-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.8 9.6 12 14.8l5.2-5.2"/></symbol>
+  <symbol id="ki-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.4V4.6"/><path d="M8.3 8.3 12 4.6l3.7 3.7"/><path d="M5.2 13.6v4.4a1.8 1.8 0 0 0 1.8 1.8h10a1.8 1.8 0 0 0 1.8-1.8v-4.4"/></symbol>
+  <symbol id="ki-replay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.4 12a7.4 7.4 0 1 1-2.4-5.45"/><path d="M19.6 4.6v4.2h-4.2"/></symbol>
+  <symbol id="ki-pos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.6" r="2.1"/><path d="M12 7v7.2"/><path d="M12 14.2 9.4 20"/><path d="M12 14.2 14.6 20"/><path d="M8.6 9.6h6.8"/></symbol>
+  <symbol id="ki-grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 11.4V6.6a1.5 1.5 0 0 1 3 0v4.2"/><path d="M11.2 10.8V5.4a1.5 1.5 0 0 1 3 0v5.4"/><path d="M14.2 11.4V7.8a1.5 1.5 0 0 1 3 0v6.4c0 3.3-2.3 5.6-5.6 5.6S6 17.5 6 14.2v-2.4a1.4 1.4 0 0 1 2.2-1.1"/></symbol>
+  <symbol id="ki-grip-ease" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.6v5.8"/><path d="M8.5 11.6 6 9.1"/><path d="M15.5 11.6 18 9.1"/><circle cx="12" cy="13.6" r="1.9"/><path d="M6.6 17.4c1.4 1.8 3.2 2.7 5.4 2.7s4-.9 5.4-2.7"/></symbol>
+  <symbol id="ki-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 19 6.2v5.5c0 4.1-2.8 7-7 8.7-4.2-1.7-7-4.6-7-8.7V6.2Z"/><path d="M9.4 12.2h5.2"/></symbol>
+  <symbol id="ki-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.8" y="5.6" width="16.4" height="14" rx="2.4"/><path d="M3.8 10.2h16.4"/><path d="M8.2 3.6v3.4"/><path d="M15.8 3.6v3.4"/><circle cx="8.9" cy="14.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="15.1" cy="14.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="17.2" r="1.15" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-cal-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.8" y="5.6" width="16.4" height="14" rx="2.4"/><path d="M3.8 10.2h16.4"/><path d="M8.2 3.6v3.4"/><path d="M15.8 3.6v3.4"/><path d="M8.7 14.8l2.4 2.4 4.4-4.6"/></symbol>
+  <symbol id="ki-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.6" r="6.5"/><path d="M12 10.2v3.4l2.3 1.6"/><path d="M9.7 3.8h4.6"/><path d="M12 3.8v3.3"/></symbol>
+  <symbol id="ki-threshold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 14.6h17.2" stroke-dasharray="2.6 2.6"/><path d="M7.4 10.8 12 6.2l4.6 4.6"/><path d="M12 6.2v8"/></symbol>
+  <symbol id="ki-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 17.6a7.6 7.6 0 0 1 15.2 0"/><path d="M12 17.6l3.9-4.6"/><circle cx="12" cy="17.6" r="1.15" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-hold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 18.4h3.2l2.2-8.8h6.4l2.2 8.8h3.2"/></symbol>
+  <symbol id="ki-duel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.4v15.2" stroke-dasharray="2.6 2.6"/><path d="M7.6 7.4 4 12l3.6 4.6"/><path d="M16.4 7.4 20 12l-3.6 4.6"/></symbol>
+  <symbol id="ki-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.3"/><path d="M5.2 20c0-3.5 3-5.4 6.8-5.4s6.8 1.9 6.8 5.4"/></symbol>
+  <symbol id="ki-coach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.6" r="3"/><path d="M5.6 19.4c0-3.3 2.8-5 6.4-5s6.4 1.7 6.4 5"/><path d="M16.6 3.4l1.05 2.2 2.35.32-1.7 1.68.42 2.4-2.12-1.14-2.12 1.14.42-2.4-1.7-1.68 2.35-.32Z"/></symbol>
+  <symbol id="ki-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 20V8.8L12 4.4l7.6 4.4V20"/><path d="M3 20h18"/><path d="M9.9 20v-4.7h4.2V20"/></symbol>
+  <symbol id="ki-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="7.4" width="17.6" height="12.4" rx="2.4"/><path d="M8.6 7.4V5.6a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.8"/><path d="M3.2 12.6h17.6"/></symbol>
+  <symbol id="ki-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.9"/><path d="M12 3.4v2.2M12 18.4v2.2M20.6 12h-2.2M5.6 12H3.4M18.08 5.92l-1.56 1.56M7.48 16.52l-1.56 1.56M18.08 18.08l-1.56-1.56M7.48 7.48 5.92 5.92"/></symbol>
+</svg>
 
 <!-- SPLASH : juste le "n" du logo, recadré depuis le vrai fichier, avec un glow qui respire.
      Remplace l'ancien icône générique + wordmark complet : sur un écran vu ~2s avant l'onboarding,
@@ -754,7 +803,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="splash-video-fallback"></div>
   <video class="splash-video" autoplay muted loop playsinline><source src="onboarding2.mp4" type="video/mp4"></video>
   <div class="splash-overlay"></div>
-  <div style="position:relative;z-index:3;padding:52px 20px 0;flex-shrink:0;"><button class="btn-back" onclick="back()">←</button></div>
+  <div style="position:relative;z-index:3;padding:52px 20px 0;flex-shrink:0;"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button></div>
   <div style="position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:flex-start;padding:24px 28px 0;">
     <h1 style="font-size:32px;font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-.8px;margin-bottom:12px;text-shadow:0 1px 6px rgba(0,0,0,.5);" id="t_ob_intro_title">Let's build your profile together</h1>
     <p style="font-size:15px;color:rgba(255,255,255,.82);line-height:1.5;text-shadow:0 1px 4px rgba(0,0,0,.5);" id="t_ob_intro_sub">A few questions so every session fits you.</p>
@@ -767,7 +816,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- OB1 : Profil -->
 <div class="screen" id="ob1">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 5</div>
@@ -789,7 +838,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- PREUVE SOCIALE : interstitiel de confiance entre ob1 et ob6 (pas une question, pas de barre de progression) -->
 <div class="screen" id="preuve_sociale">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:center;flex:1;">
     <div style="text-align:center;margin-bottom:24px;">
       <div style="width:64px;height:64px;border-radius:20px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3l7,3v6c0,4.5-3,7.5-7,9c-4-1.5-7-4.5-7-9V6Z /><path d=M9,12l2,2l4,-4 /></svg></div>
@@ -804,7 +853,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <div class="screen" id="ob6">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 5</div>
@@ -827,7 +876,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <div class="screen" id="ob7">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 5</div>
@@ -859,7 +908,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <div class="screen" id="ob8">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--border);border-radius:2px;"></div></div>
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 5</div>
@@ -881,7 +930,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- Écran engagement : horizon de check-in choisi par la personne, seul sur son écran -->
 <div class="screen" id="ob_commit">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div><div style="flex:1;height:3px;background:var(--brand-fixed);border-radius:2px;"></div></div>
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 of 5</div>
@@ -898,7 +947,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- Écran projection : récompense immédiate juste après la 4e question, avant la promesse/pratique/permissions -->
 <div class="screen" id="ob_projection">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <div class="eyebrow" style="color:var(--brand-fixed);margin-bottom:12px;">✦ Your plan is ready</div>
     <h2 id="obSummaryTitle" class="h2-hero" style="margin-bottom:24px;">Real habits, your effort truly measured.</h2>
@@ -923,7 +972,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- Écran vision : le tagline complet + les fonctionnalités clés, une fois le profil paramétré -->
 <div class="screen" id="ob_vision">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="display:flex;justify-content:center;margin-bottom:20px;">
       <img src="kinmio_logo_app.png" alt="kinmio" style="height:28px;width:auto;display:block;">
@@ -962,7 +1011,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <div class="screen" id="ob_demo">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <h2 class="gap8">Meet your bar</h2>
     <p class="sub gap20">30 seconds to get it right — anchor, adjust, go.</p>
@@ -980,7 +1029,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ob_summary supprimé (fusionné dans ob_projection + ob_consent) -->
 <!-- PAYWALL J+30 -->
 <div class="screen" id="paywall_j30">
-  <button class="btn-back" onclick="back()" style="position:absolute;top:14px;left:14px;z-index:5;">←</button>
+  <button class="btn-back" onclick="back()" style="position:absolute;top:14px;left:14px;z-index:5;"><svg class="ki"><use href="#ki-back"/></svg></button>
   <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
     <div style="padding:68px 20px 20px;background:linear-gradient(180deg,rgba(var(--brand-fixed-rgb),.12) 0%,var(--bg) 100%);flex-shrink:0;">
       <div class="eyebrow" style="color:var(--red);margin-bottom:10px;">⏰ TRIAL ENDED</div>
@@ -1001,7 +1050,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- PROFIL B2C -->
 <div class="screen" id="profil">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
   <div class="scroll">
     <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
       <div id="profilAvatarImg" style="width:64px;height:64px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;border:2.5px solid var(--orange);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
@@ -1061,7 +1110,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div onclick="showLang()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span class="lang-row-label" style="font-size:15px;color:var(--white);">English</span><span style="color:var(--gray);">›</span></div>
       </div>
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
-        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);">🔧 Prototype demo</span><span style="color:var(--gray);">›</span></div>
+        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);"><svg class="ki"><use href="#ki-sliders"/></svg>Prototype demo</span><span style="color:var(--gray);">›</span></div>
       </div>
       <button class="btn btn-danger" onclick="resetDemoState();goHome();go('screen2')" style="margin-bottom:40px;">Log out</button>
     </div>
@@ -1070,7 +1119,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- CENTRE ENTRY -->
 <div class="screen" id="centre_entry">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Partner centre access</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Partner centre access</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="background:rgba(var(--teal-rgb),.07);border:1px solid rgba(var(--teal-rgb),.2);border-radius:18px;padding:20px;margin-bottom:28px;">
       <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:8px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=4.5 y=3.5 width=11 height=17 rx=1.5 /><path d=M9,7h2 /><path d=M9,11h2 /><path d=M9,15h2 /><path d=M15.5,10.5h4v10h-4 /></svg> kinmio partner centre</div>
@@ -1097,7 +1146,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= ATTENTE VALIDATION ACCÈS CENTRE ================= -->
 <div class="screen" id="attente_validation">
-  <button class="btn-back" onclick="back()" style="position:absolute;top:14px;left:14px;z-index:5;">←</button>
+  <button class="btn-back" onclick="back()" style="position:absolute;top:14px;left:14px;z-index:5;"><svg class="ki"><use href="#ki-back"/></svg></button>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;">
     <div style="width:52px;height:52px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--brand-fixed);animation:spin .7s linear infinite;margin:0 auto 20px;"></div>
     <h2 class="gap8">Waiting for approval…</h2>
@@ -1108,7 +1157,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- OB SUMMARY CENTRE -->
 <div class="screen" id="ob_summary_centre">
-  <button class="btn-back" onclick="back()" style="position:absolute;top:14px;left:14px;z-index:5;">←</button>
+  <button class="btn-back" onclick="back()" style="position:absolute;top:14px;left:14px;z-index:5;"><svg class="ki"><use href="#ki-back"/></svg></button>
   <div style="flex:1;display:flex;flex-direction:column;overflow-y:auto;">
     <div style="padding:68px 20px 24px;background:linear-gradient(180deg,rgba(var(--teal-rgb),.12) 0%,var(--bg) 100%);">
       <div class="eyebrow" style="color:var(--teal);margin-bottom:12px;">✦ Your kinmio programme</div>
@@ -1129,7 +1178,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- SIGNUP CENTRE -->
 <div class="screen" id="signup_centre">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Last step</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Last step</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <h2 class="gap8">Last step 🎉</h2>
     <p class="sub gap28">Create your account to access your programme.</p>
@@ -1197,7 +1246,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= FICHE RÉFÉRENT (vue publique utilisateur) ================= -->
 <div class="screen" id="fiche_referent_public">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Your coach</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Your coach</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
       <div class="pat-av" style="width:56px;height:56px;border:2.5px solid var(--teal);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
@@ -1216,7 +1265,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- TRANSITION SCREEN -->
 <div class="screen" id="transition_screen">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="eyebrow" style="color:var(--teal);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,20v-6 /><path d=M12,20v-10 /><path d=M19,20v-4 /></svg> Your kinmio journey</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="eyebrow" style="color:var(--teal);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,20v-6 /><path d=M12,20v-10 /><path d=M19,20v-4 /></svg> Your kinmio journey</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="background:linear-gradient(135deg,rgba(var(--teal-rgb),.1),rgba(var(--teal-rgb),.04));border:1px solid rgba(var(--teal-rgb),.2);border-radius:20px;padding:20px;margin-bottom:20px;">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
@@ -1250,7 +1299,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- PROFIL CENTRE -->
 <div class="screen" id="profil_centre">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
   <div class="scroll">
     <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
       <div id="profilCentreAvatarImg" style="width:64px;height:64px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;border:2.5px solid var(--teal);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
@@ -1308,7 +1357,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div onclick="showLang()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span class="lang-row-label" style="font-size:15px;color:var(--white);">English</span><span style="color:var(--gray);">›</span></div>
       </div>
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
-        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);">🔧 Prototype demo</span><span style="color:var(--gray);">›</span></div>
+        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);"><svg class="ki"><use href="#ki-sliders"/></svg>Prototype demo</span><span style="color:var(--gray);">›</span></div>
       </div>
       <button class="btn btn-danger" onclick="resetDemoState();goHome();go('screen2')" style="margin-bottom:40px;">Log out</button>
     </div>
@@ -1317,7 +1366,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= PROFIL RÉFÉRENT ================= -->
 <div class="screen" id="profil_referent">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
   <div class="scroll">
     <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
       <div style="width:64px;height:64px;border-radius:20px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--ink-on-accent);">M</div>
@@ -1356,7 +1405,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div onclick="showLang()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span class="lang-row-label" style="font-size:15px;color:var(--white);">English</span><span style="color:var(--gray);">›</span></div>
       </div>
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
-        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);">🔧 Prototype demo</span><span style="color:var(--gray);">›</span></div>
+        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);"><svg class="ki"><use href="#ki-sliders"/></svg>Prototype demo</span><span style="color:var(--gray);">›</span></div>
       </div>
       <button class="btn btn-danger" onclick="resetDemoState();goHome();go('screen2')" style="margin-bottom:40px;">Log out</button>
     </div>
@@ -1365,7 +1414,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= PROFIL DIRECTEUR ================= -->
 <div class="screen" id="profil_directeur">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
   <div class="scroll">
     <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
       <div style="width:64px;height:64px;border-radius:20px;background:#EDEDF0;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#1A1A22;">C</div>
@@ -1400,7 +1449,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div onclick="showLang()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span class="lang-row-label" style="font-size:15px;color:var(--white);">English</span><span style="color:var(--gray);">›</span></div>
       </div>
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
-        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);">🔧 Prototype demo</span><span style="color:var(--gray);">›</span></div>
+        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);"><svg class="ki"><use href="#ki-sliders"/></svg>Prototype demo</span><span style="color:var(--gray);">›</span></div>
       </div>
       <button class="btn btn-danger" onclick="resetDemoState();goHome();go('screen2')" style="margin-bottom:40px;">Log out</button>
     </div>
@@ -1409,7 +1458,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= PROFIL ADMIN ================= -->
 <div class="screen" id="profil_admin">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My profile</div><div class="topnav-r"></div></div>
   <div class="scroll">
     <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
       <div style="width:64px;height:64px;border-radius:20px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--ink-on-accent);">k</div>
@@ -1443,7 +1492,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div onclick="showLang()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span class="lang-row-label" style="font-size:15px;color:var(--white);">English</span><span style="color:var(--gray);">›</span></div>
       </div>
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
-        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);">🔧 Prototype demo</span><span style="color:var(--gray);">›</span></div>
+        <div onclick="go('demo_hub')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--orange);"><svg class="ki"><use href="#ki-sliders"/></svg>Prototype demo</span><span style="color:var(--gray);">›</span></div>
       </div>
       <button class="btn btn-danger" onclick="resetDemoState();goHome();go('screen2')" style="margin-bottom:40px;">Log out</button>
     </div>
@@ -1457,7 +1506,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      "reprends la logique de design déjà là"). Les 3 autres n'ont que leur carte résumé (déjà construite
      pour la liste Coaches), promue ici en écran plein. ================= -->
 <div class="screen" id="dir_fiche_referent">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title" id="dirFicheTitle">Coach</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="dirFicheTitle">Coach</div><div class="topnav-r"></div></div>
   <div class="scroll">
     <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
       <div class="pat-av" id="dirFicheAvatar" style="width:56px;height:56px;overflow:hidden;padding:0;"></div>
@@ -1474,9 +1523,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="p-tab" data-key="annee" style="font-size:11px;padding:9px 4px;" onclick="setDirFicheStatsTab(this,'annee')">Year</div>
       </div>
       <div class="px" style="display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px;">
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setDirFicheStatsNav(-1)">‹</button>
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setDirFicheStatsNav(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
         <div id="dirFicheStatsPeriodLabel" style="font-size:13px;font-weight:700;color:var(--white);min-width:150px;text-align:center;">—</div>
-        <button class="btn-back" id="dirFicheStatsNextBtn" style="width:32px;height:32px;font-size:14px;" onclick="setDirFicheStatsNav(1)">›</button>
+        <button class="btn-back" id="dirFicheStatsNextBtn" style="width:32px;height:32px;font-size:14px;" onclick="setDirFicheStatsNav(1)"><svg class="ki"><use href="#ki-fwd"/></svg></button>
       </div>
       <div class="px pb" id="dirFicheStatsPeriodView"></div>
     </div>
@@ -1489,7 +1538,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      référent) plutôt qu'un nouveau calcul — cartes en lecture seule (pas d'action coach ici, la
      direction constate, elle n'intervient pas patient par patient). ================= -->
 <div class="screen" id="dir_alertes">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Alerts</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Alerts</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb">
     <p class="sub gap16">Members currently flagged across the centre's roster.</p>
     <div class="ex-sec-t" style="padding:0 0 6px;color:var(--red);" id="dirAlertesTitle">Alerts</div>
@@ -1503,7 +1552,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= DEMO HUB — point d'entrée unique aux parcours démo (cf discussion : les 5 écrans
      profil affichaient chacun le menu complet en double, y compris des actions hors du rôle courant) ================= -->
 <div class="screen" id="demo_hub">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Prototype demo</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Prototype demo</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb"><div id="demoHubContent"></div></div>
 </div>
 
@@ -1563,7 +1612,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= LOGIN ================= -->
 <div class="screen" id="login">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <h2 class="gap8">Welcome back</h2>
     <p class="sub gap24">Log in with your kinmio account.</p>
@@ -1597,7 +1646,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= SIGNUP B2C ================= -->
 <!-- ÉCRAN signup_decouverte -->
 <div class="screen" id="signup_decouverte">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div class="eyebrow" style="color:var(--brand-fixed);margin-bottom:10px;">Free trial</div>
     <h2 class="gap8">Create your account</h2>
@@ -1620,7 +1669,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= SESSION (entraînement) ================= -->
 <!-- ================= ÉCHAUFFEMENT (avant le 1er exercice de la séance, skippable) ================= -->
 <div class="screen" id="session_warmup">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Warm-up</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Warm-up</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb">
     <h2 class="gap8">30 seconds before you start</h2>
     <p class="sub gap24">A few gentle moves, adapted to what you told us — skip anytime.</p>
@@ -1659,7 +1708,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="font-size:38px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,4v16 /><path d=M16,4v16 /></svg></div>
     <div style="font-size:19px;font-weight:800;color:var(--white);">Paused</div>
     <button class="btn btn-orange" style="min-width:200px;" onclick="togglePause()">Resume</button>
-    <button class="btn-ghost" style="width:100%;max-width:220px;color:var(--red);padding:14px;" onclick="quitSession()">■ Quit workout</button>
+    <button class="btn-ghost" style="width:100%;max-width:220px;color:var(--red);padding:14px;" onclick="quitSession()"><svg class="ki"><use href="#ki-stop"/></svg>Quit workout</button>
   </div>
   <div id="sessCountdownOverlay" style="display:none;position:absolute;inset:0;background:var(--bg);z-index:55;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
     <div id="sessCountdownNum" style="font-size:120px;font-weight:800;color:var(--orange);line-height:1;">3</div>
@@ -1738,7 +1787,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= FEEDBACK post-séance ================= -->
 <div class="screen" id="feedback">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Session summary</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Session summary</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <h2 class="gap8">How did it go?</h2>
     <p class="sub gap24">Your feedback adjusts your next sessions.</p>
@@ -1810,7 +1859,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= PROGRAMME ================= -->
 <div class="screen" id="programme">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title" id="programmeTopTitle">Programmes</div><div class="topnav-r"><button class="btn-back" id="progSearchBtn" style="width:36px;height:36px;font-size:17px;display:none;" onclick="toggleActiveSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="programmeTopTitle">Programmes</div><div class="topnav-r"><button class="btn-back" id="progSearchBtn" style="width:36px;height:36px;font-size:17px;display:none;" onclick="toggleActiveSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button></div></div>
   <div id="progPickStepLbl" style="display:none;padding:8px 20px 0;flex-shrink:0;font-size:12px;color:var(--gray);font-weight:600;">Step 2 of 4</div>
   <div class="p-tabs" id="progPTabs" style="flex-shrink:0;">
     <div class="p-tab active" onclick="setProgrammeTab(this,'mon')">Current</div>
@@ -1863,7 +1912,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="sessSearchWrap" style="display:none;padding:10px 20px 0;"><input id="sessSearchInput" type="text" placeholder="Search a session…" oninput="renderProgSessionsView()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div class="px pt" style="padding-bottom:10px;display:flex;gap:8px;overflow-x:auto;">
         <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openSessFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="sessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-        <button class="lib-chip" id="sessChipFavoris" onclick="toggleSessFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="sessChipMatchProfile" onclick="toggleSessMatchProfileChip()">✨ For you</button><button class="lib-chip" id="sessChipCoach" onclick="toggleSessCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
+        <button class="lib-chip" id="sessChipFavoris" onclick="toggleSessFavorisChip()"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</button><button class="lib-chip" id="sessChipMatchProfile" onclick="toggleSessMatchProfileChip()"><svg class="ki"><use href="#ki-spark"/></svg>For you</button><button class="lib-chip" id="sessChipCoach" onclick="toggleSessCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
       <div class="px" style="padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <div id="progSessionsCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 sessions</div>
         <button class="btn-ghost" id="sessResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetSessFilters()">Reset all</button>
@@ -1884,7 +1933,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="progSearchWrap" style="display:none;padding:10px 20px 0;"><input id="progSearchInput" type="text" placeholder="Search a programme…" oninput="renderProgProgrammesView()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div class="px pt" style="padding-bottom:10px;display:flex;gap:8px;overflow-x:auto;">
         <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openProgFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="progFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-        <button class="lib-chip" id="progChipFavoris" onclick="toggleProgFavorisChip()">❤️ Favourites</button><button class="lib-chip" id="progChipMatchProfile" onclick="toggleProgMatchProfileChip()">✨ For you</button><button class="lib-chip" id="progChipCoach" onclick="toggleProgCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
+        <button class="lib-chip" id="progChipFavoris" onclick="toggleProgFavorisChip()"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</button><button class="lib-chip" id="progChipMatchProfile" onclick="toggleProgMatchProfileChip()"><svg class="ki"><use href="#ki-spark"/></svg>For you</button><button class="lib-chip" id="progChipCoach" onclick="toggleProgCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
       <div class="px" style="padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <div id="progProgrammesCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 programmes</div>
         <button class="btn-ghost" id="progResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetProgFilters()">Reset all</button>
@@ -1918,7 +1967,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= DÉFIS ================= -->
 <div class="screen" id="defis">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Challenges</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Challenges</div><div class="topnav-r"></div></div>
   <div class="scroll">
     <div style="display:flex;align-items:center;gap:10px;margin:18px 20px 0;">
       <div style="display:flex;flex-shrink:0;">
@@ -1958,7 +2007,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= PROGRESSION ================= -->
 <div class="screen" id="progression">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title" id="progTitle">Progress</div><div class="topnav-r" id="progCoachActions" style="display:flex;align-items:center;justify-content:center;gap:10px;"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="progTitle">Progress</div><div class="topnav-r" id="progCoachActions" style="display:flex;align-items:center;justify-content:center;gap:10px;"></div></div>
   <div id="progPatientInfo" class="px" style="display:none;margin-top:14px;"></div>
   <div id="progSafetyBlock" class="px" style="margin:10px 0 20px;"></div>
   <div class="p-tabs" style="flex-shrink:0;">
@@ -1971,9 +2020,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="progPeriodView" class="px"></div>
     <div id="progRecordsView" class="px" style="display:none;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)">‹</button>
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
         <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(1)">›</button>
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(1)"><svg class="ki"><use href="#ki-fwd"/></svg></button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
@@ -2021,7 +2070,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <!-- VUE UTILISATEURS -->
     <div id="refv_utilisateurs" style="display:none;">
-      <div class="topnav"><button class="btn-back" onclick="setRefView('accueil')">←</button><div class="topnav-title">Members</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="memSearchBtn" style="width:36px;height:36px;font-size:16px;flex-shrink:0;" onclick="toggleMemSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button></div></div>
+      <div class="topnav"><button class="btn-back" onclick="setRefView('accueil')"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Members</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="memSearchBtn" style="width:36px;height:36px;font-size:16px;flex-shrink:0;" onclick="toggleMemSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button></div></div>
       <div id="memSearchBox" style="display:none;padding:0 20px 12px;position:relative;">
         <input id="refSearchInput" type="text" placeholder="Search a member..." oninput="renderRefSearch()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;font-size:14px;color:var(--white);">
         <div id="refSearchResults" style="display:none;position:absolute;left:20px;right:20px;top:52px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;z-index:5;"></div>
@@ -2041,7 +2090,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <!-- VUE STATS -->
     <div id="refv_stats" style="display:none;">
-      <div class="topnav"><button class="btn-back" onclick="setRefView('accueil')">←</button><div class="topnav-title">Stats</div><div class="topnav-r"></div></div>
+      <div class="topnav"><button class="btn-back" onclick="setRefView('accueil')"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Stats</div><div class="topnav-r"></div></div>
       <div class="p-tabs" style="margin-top:4px;gap:5px;">
         <div class="p-tab active" style="font-size:11px;padding:9px 4px;" onclick="setRefStatsTab(this,'semaine')">Week</div>
         <div class="p-tab" style="font-size:11px;padding:9px 4px;" onclick="setRefStatsTab(this,'mois')">Month</div>
@@ -2049,9 +2098,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="p-tab" style="font-size:11px;padding:9px 4px;" onclick="setRefStatsTab(this,'annee')">Year</div>
       </div>
       <div class="px" style="display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px;">
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setRefStatsNav(-1)">‹</button>
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setRefStatsNav(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
         <div id="refStatsPeriodLabel" style="font-size:13px;font-weight:700;color:var(--white);min-width:150px;text-align:center;">—</div>
-        <button class="btn-back" id="refStatsNextBtn" style="width:32px;height:32px;font-size:14px;" onclick="setRefStatsNav(1)">›</button>
+        <button class="btn-back" id="refStatsNextBtn" style="width:32px;height:32px;font-size:14px;" onclick="setRefStatsNav(1)"><svg class="ki"><use href="#ki-fwd"/></svg></button>
       </div>
       <div class="px pb" id="refStatsPeriodView"></div>
     </div>
@@ -2127,7 +2176,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= BIBLIOTHÈQUE D'EXERCICES ================= -->
 <div class="screen" id="bibliotheque">
   <div id="libNouveauWrap" style="display:flex;flex-direction:column;flex:1;min-height:0;position:relative;">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title" id="libTopTitle">Exercises</div><div class="topnav-r"><button class="btn-back" style="width:36px;height:36px;font-size:17px;" onclick="toggleLibSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="libTopTitle">Exercises</div><div class="topnav-r"><button class="btn-back" style="width:36px;height:36px;font-size:17px;" onclick="toggleLibSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button></div></div>
   <!-- Bibliothèque référent : mêmes 3 catalogues que côté B2C (SESSIONS/PROGRAMMES partagés, jamais
        inventés) — avant, seuls les exercices étaient consultables ici (cf discussion). Pour l'instant
        simple parcours (voir/ouvrir le détail) ; le branchement "utiliser ce modèle pour assigner"
@@ -2141,8 +2190,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="libSearchWrap" style="display:none;padding:0 20px 10px;flex-shrink:0;"><input id="libSearchInput" type="text" placeholder="Search an exercise…" oninput="renderLibNouveau()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
     <div style="padding:0 20px 10px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;">
       <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibNouveauFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libNouveauFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-      <button class="lib-chip" id="libChipFavoris" onclick="toggleLibFavorisChip()">❤️ Favourites</button>
-      <button class="lib-chip" id="libChipMatchProfile" onclick="toggleLibMatchProfileChip()">✨ For you</button>
+      <button class="lib-chip" id="libChipFavoris" onclick="toggleLibFavorisChip()"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</button>
+      <button class="lib-chip" id="libChipMatchProfile" onclick="toggleLibMatchProfileChip()"><svg class="ki"><use href="#ki-spark"/></svg>For you</button>
       <button class="lib-chip" id="libChipCoach" onclick="toggleLibCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button>
     </div>
     <div style="padding:0 20px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
@@ -2178,7 +2227,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= CRÉER UN EXERCICE (référent) ================= -->
 <div class="screen" id="creer_exercice">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Create an exercise</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create an exercise</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div class="ps-section">
       <div class="ps-title">Exercise name</div>
@@ -2246,7 +2295,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= CRÉER UN EXERCICE — nouveau modèle (utilisateur B2C/centre) ================= -->
 <div class="screen" id="creer_exercice_nouveau">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Create an exercise</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create an exercise</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div class="ps-section">
       <div class="ps-title">Exercise name</div>
@@ -2305,7 +2354,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= CRÉER UNE SESSION (utilisateur B2C/centre) ================= -->
 <div class="screen" id="creer_session_nouveau">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title" id="csnTopTitle">Create a session</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="csnTopTitle">Create a session</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div class="ps-section" id="csnNomSection">
       <div class="ps-title">Session name</div>
@@ -2347,7 +2396,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= CRÉER UN PROGRAMME (utilisateur B2C/centre) ================= -->
 <div class="screen" id="creer_programme_nouveau">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Create a programme</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create a programme</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div class="ps-section">
       <div class="ps-title">Programme name</div>
@@ -2376,7 +2425,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="margin-bottom:10px;"><input id="cpnSearchInput" type="text" placeholder="Search a session…" oninput="renderCpnSessList()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;">
         <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openCpnFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="cpnFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-        <button class="lib-chip" id="cpnChipMatchProfile" onclick="toggleCpnMatchProfileChip()">✨ For you</button>
+        <button class="lib-chip" id="cpnChipMatchProfile" onclick="toggleCpnMatchProfileChip()"><svg class="ki"><use href="#ki-spark"/></svg>For you</button>
       </div>
       <div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Tap sessions in the order you want them to repeat — picked first comes first.</div>
       <div id="cpnSelectedWrap" style="display:none;margin-bottom:16px;">
@@ -2398,14 +2447,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= DÉTAIL SESSION (utilisateur B2C/centre) ================= -->
 <div class="screen" id="session_detail">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title" id="sdTopTitle">Session</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="sdNoteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="editSessionCoachNote()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5 y=3.5 width=14 height=17 rx=2 /><path d=M8.5,9h7 /><path d=M8.5,13h7 /><path d=M8.5,17h4 /></svg></button><button class="btn-back" id="sdDeleteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="deleteUserSession()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,7h14 /><path d=M9,7V5a1,1,0,0,1,1,-1h4a1,1,0,0,1,1,1V7 /><path d=M7,7l1,13a1,1,0,0,0,1,1h6a1,1,0,0,0,1,-1L17,7 /><path d=M10,11v6 /><path d=M14,11v6 /></svg></button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="sdTopTitle">Session</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="sdNoteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="editSessionCoachNote()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5 y=3.5 width=14 height=17 rx=2 /><path d=M8.5,9h7 /><path d=M8.5,13h7 /><path d=M8.5,17h4 /></svg></button><button class="btn-back" id="sdDeleteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="deleteUserSession()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,7h14 /><path d=M9,7V5a1,1,0,0,1,1,-1h4a1,1,0,0,1,1,1V7 /><path d=M7,7l1,13a1,1,0,0,0,1,1h6a1,1,0,0,0,1,-1L17,7 /><path d=M10,11v6 /><path d=M14,11v6 /></svg></button></div></div>
   <div id="sdPickStepLbl" style="display:none;padding:8px 20px 0;flex-shrink:0;font-size:12px;color:var(--gray);font-weight:600;">Step 3 of 4</div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="sdPickBanner" style="display:none;margin-bottom:14px;font-size:17px;font-weight:700;color:var(--white);"><span id="sdPickBannerTxt"></span></div>
     <div class="hero-glow" style="margin:0 0 14px;">
       <div id="sdHero" style="position:relative;height:180px;border-radius:20px;overflow:hidden;background:#1E1D26;background-size:cover;background-position:center;">
         <span id="sdHeroBadge" style="position:absolute;top:14px;left:14px;z-index:2;font-size:11px;font-weight:800;letter-spacing:.3px;padding:5px 11px;border-radius:8px;text-transform:uppercase;"></span>
-        <button id="sdFavBtn" class="icon-btn" onclick="toggleSessionDetailFavori()" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.14);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.18);font-size:17px;">🤍</button>
+        <button id="sdFavBtn" class="icon-btn" onclick="toggleSessionDetailFavori()" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.14);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.18);font-size:17px;"><svg class="ki"><use href="#ki-heart"/></svg></button>
         <div id="sdHeroTitle" style="position:absolute;left:16px;right:16px;bottom:14px;z-index:2;font-size:20px;font-weight:800;letter-spacing:-.4px;color:#fff;"></div>
       </div>
     </div>
@@ -2434,14 +2483,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <button class="btn btn-orange" id="sdStartBtn" onclick="startSessionFromDetail()">Start this session →</button>
     <button class="btn btn-orange" id="sdAssignBtn" style="display:none;" onclick="assignSessionTemplate()">Assign this session →</button>
     <button class="btn btn-orange" id="sdPickBtn" style="display:none;" onclick="confirmSessionPick()">Schedule this session →</button>
-    <button class="btn btn-teal" style="margin-top:10px;display:none;" id="sdPickNowBtn" onclick="startPickNow()">▶ Start now</button>
+    <button class="btn btn-teal" style="margin-top:10px;display:none;" id="sdPickNowBtn" onclick="startPickNow()"><svg class="ki"><use href="#ki-play"/></svg>Start now</button>
     <div style="height:24px;"></div>
   </div>
 </div>
 
 <!-- ================= FICHE EXERCICE ================= -->
 <div class="screen" id="exercice_detail">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title" id="exTopTitle">Exercise</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="exNoteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="editExerciseCoachNote()">🗒️</button><button class="btn-back" id="exDeleteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="deleteUserExercice()">🗑️</button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="exTopTitle">Exercise</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="exNoteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="editExerciseCoachNote()"><svg class="ki"><use href="#ki-note"/></svg></button><button class="btn-back" id="exDeleteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="deleteUserExercice()"><svg class="ki"><use href="#ki-trash"/></svg></button></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="text-align:center;padding:20px 0 8px;">
       <div style="width:140px;height:140px;margin:0 auto;border-radius:24px;background:var(--bg2);overflow:hidden;position:relative;">
@@ -2474,7 +2523,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= FICHE PATIENT (5.2) ================= -->
 <!-- ================= CONFIG ALERTES (5.5) ================= -->
 <div class="screen" id="alertes_config">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Alerts</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Alerts</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb">
     <p class="sub gap20">Set the thresholds that trigger an alert on your members.</p>
     <div class="card gap12" style="display:flex;align-items:center;gap:14px;">
@@ -2509,7 +2558,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= ESPACE ADMIN — VUE RÉSEAU (6.1 → 6.3) ================= -->
 <!-- ================= CRÉATION CENTRE (admin) ================= -->
 <div class="screen" id="creation_centre">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Create a centre</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create a centre</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <p class="sub gap20">The centre will appear pending activation until the director's first login.</p>
     <div class="ps-title" style="margin-bottom:6px;">Centre name *</div>
@@ -2533,7 +2582,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <div class="screen" id="dashboard_admin">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title" id="admTitle">kinmio Admin</div><div class="topnav-r"><div onclick="go('profil_admin')" style="width:34px;height:34px;border-radius:50%;background:var(--orange);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;cursor:pointer;">k</div></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="admTitle">kinmio Admin</div><div class="topnav-r"><div onclick="go('profil_admin')" style="width:34px;height:34px;border-radius:50%;background:var(--orange);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;cursor:pointer;">k</div></div></div>
   <div class="scroll">
     <div style="padding:0 20px 8px;"><div style="font-size:12px;font-weight:700;color:var(--orange);letter-spacing:.6px;text-transform:uppercase;">kinmio · Network admin</div></div>
     <div class="kine-stats" style="grid-template-columns:1fr 1fr;">
@@ -2559,13 +2608,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= HOME — ÉTAT VIDE / PREMIÈRE CONNEXION (7.3) ================= -->
 <!-- ================= NOTIFICATIONS (7.4) ================= -->
 <div class="screen" id="notifications">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Notifications</div><button class="btn-back" onclick="markNotifsRead()" title="Mark all read">✓</button></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Notifications</div><button class="btn-back" onclick="markNotifsRead()" title="Mark all read"><svg class="ki"><use href="#ki-check"/></svg></button></div>
   <div class="scroll" id="notifList"></div>
 </div>
 
 <!-- ================= MODE COLLECTIF CENTRE (7.5) ================= -->
 <div class="screen" id="collectif">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Group session</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Group session</div><div class="topnav-r"></div></div>
   <div class="scroll px pt">
 
     <!-- En-tête persistant (nom/meta écrits directement en JS) — le vrai palier d'attente/validation
@@ -2589,7 +2638,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="collectifLiveGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;"></div>
       <div class="ex-sec-t" style="padding:0 0 6px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg> Live ranking</div>
       <div id="collectifLiveRanking" style="margin-bottom:18px;"><div class="lib-empty">No one has finished yet.</div></div>
-      <button class="btn-ghost" style="width:100%;color:var(--red);padding:14px;" onclick="endCollectifSession()">■ End the session</button>
+      <button class="btn-ghost" style="width:100%;color:var(--red);padding:14px;" onclick="endCollectifSession()"><svg class="ki"><use href="#ki-stop"/></svg>End the session</button>
       <div style="height:24px;"></div>
     </div>
 
@@ -2617,7 +2666,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= ONBOARDING RÉFÉRENT (7.6) ================= -->
 <!-- ================= INVITER UN UTILISATEUR (référent) ================= -->
 <div class="screen" id="invite_utilisateur">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Invite a member</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Invite a member</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <p class="sub gap20">The member will receive an email to create their account and join your care.</p>
     <div class="ps-title" style="margin-bottom:6px;">First name *</div>
@@ -2637,7 +2686,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= CRÉATION SESSION INDIVIDUELLE (référent) ================= -->
 <div class="screen" id="creation_session_individuelle">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Individual session</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Individual session</div><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;"><div style="font-size:12px;color:var(--gray);font-weight:600;" id="csiStepLbl">Step 1 of 4</div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="csi_step1">
@@ -2652,7 +2701,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= CRÉATION SESSION COLLECTIVE (référent) ================= -->
 <div class="screen" id="creation_session_collective">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Group session</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Group session</div><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;"><div style="font-size:12px;color:var(--gray);font-weight:600;" id="cscStepLbl">Step 1 of 4</div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="csc_step1">
@@ -2668,7 +2717,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= SALLE D'ATTENTE (battle collectif simulé) ================= -->
 <div class="screen" id="salle_attente">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Waiting room</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Waiting room</div><div class="topnav-r"></div></div>
   <div class="scroll" id="salleAttenteList"></div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;">
     <button class="btn btn-orange" id="salleAttenteCta" style="width:100%;opacity:.4;pointer-events:none;" onclick="salleAttenteStart()">Start</button>
@@ -2689,7 +2738,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      course à travers toute une séance (cf collectif) — cf discussion Nicolas : chaque règle change ce
      qui fait avancer le score/temps, indépendamment du fait qu'on affronte quelqu'un ou non. -->
 <div class="screen" id="defi_config">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Intensity duel</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Intensity duel</div><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;"><div style="font-size:12px;color:var(--gray);font-weight:600;" id="defiStepLbl">Step 1 of 3</div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="defi_step1">
@@ -2778,7 +2827,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
     <div class="ex-sec-t" style="padding:0 0 6px;" id="defiLiveRankTitle"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg> Live ranking</div>
     <div id="defiLiveRanking" style="margin-bottom:18px;"><div class="lib-empty">No one has finished yet.</div></div>
-    <button class="btn-ghost" style="width:100%;color:var(--red);padding:14px;" onclick="endDefiSession()">■ End the duel</button>
+    <button class="btn-ghost" style="width:100%;color:var(--red);padding:14px;" onclick="endDefiSession()"><svg class="ki"><use href="#ki-stop"/></svg>End the duel</button>
     <div style="height:24px;"></div>
   </div>
 </div>
@@ -2828,7 +2877,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      aucun graphe social côté membre), exercice cardio uniquement, mêmes seuil/mode/durée réutilisés
      tels quels via DEFI_MODES/JAUGE_LABELS. -->
 <div class="screen" id="defi_ami_config">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Challenge a friend</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Challenge a friend</div><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;"><div style="font-size:12px;color:var(--gray);font-weight:600;" id="friendStepLbl">Step 1 of 3</div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="friend_step1">
@@ -2845,7 +2894,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         </div>
         <div style="font-size:12px;font-weight:700;color:var(--teal);flex-shrink:0;" onclick="event.stopPropagation();copyFriendInviteCode();">Copy link</div>
       </div>
-      <button class="btn btn-teal" onclick="shareFriendInvite()">Share invite ↗</button>
+      <button class="btn btn-teal" onclick="shareFriendInvite()">Share invite<svg class="ki"><use href="#ki-share"/></svg></button>
     </div>
 
     <div id="friend_step2" style="display:none;">
@@ -2900,7 +2949,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= DÉFI ENTRE AMIS — ATTENTE (membre) ================= -->
 <div class="screen" id="defi_ami_attente">
-  <div class="topnav"><button class="btn-back" onclick="cancelFriendWait()">←</button><div class="topnav-title">Challenge a friend</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="cancelFriendWait()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Challenge a friend</div><div class="topnav-r"></div></div>
   <div class="scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:70px 30px 0;flex:1;">
     <div style="width:88px;height:88px;border-radius:50%;background:rgba(var(--orange-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:22px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
     <div style="font-size:17px;font-weight:800;margin-bottom:8px;">Invite sent!</div>
@@ -2915,7 +2964,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= MES AMIS (membre) ================= -->
 <div class="screen" id="mes_amis">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My friends</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My friends</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb">
     <div class="ex-sec-t" style="padding:0 0 8px;">Your code</div>
     <div class="card-sm" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -2936,7 +2985,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= FICHE AMI (membre) ================= -->
 <div class="screen" id="fiche_ami">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Friend</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Friend</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb">
     <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 0 20px;">
       <div id="ficheAmiAvatar" style="margin-bottom:12px;"></div>
@@ -2958,7 +3007,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      Cf discussion : un seul écran générique, paramétré par pendingInvite.kind, plutôt que deux flows
      séparés — réutilise le même moteur defiConfig/battle_countdown/defi_live que Défi référent/ami. -->
 <div class="screen" id="invite_recue">
-  <div class="topnav"><button class="btn-back" onclick="declineInvite()">←</button><div class="topnav-title">Invite</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="declineInvite()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Invite</div><div class="topnav-r"></div></div>
   <div class="scroll" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:50px 30px 0;flex:1;">
     <div id="inviteRecueAvatar" style="margin-bottom:16px;"></div>
     <div style="font-size:17px;font-weight:800;margin-bottom:4px;" data-notranslate="1" id="inviteRecueNom">—</div>
@@ -3027,7 +3076,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= CRÉATION PROGRAMME (référent) ================= -->
 <div class="screen" id="creation_programme">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Create a programme</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create a programme</div><div class="topnav-r"></div></div>
   <div style="padding:0 20px 8px;flex-shrink:0;"><div style="font-size:12px;color:var(--gray);font-weight:600;" id="cprogStepLbl">Step 1 of 4</div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="cprog_step1">
@@ -3076,7 +3125,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= SANTÉ & OBJETS CONNECTÉS (8.1 → 8.5) ================= -->
 <div class="screen" id="sante">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My connections</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My connections</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb">
     <p class="sub gap8" id="santePlatform">Connect your health data for complete tracking.</p>
     <div style="font-size:11px;color:var(--gray);margin-bottom:18px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5 y=11 width=14 height=9 rx=2 /><path d=M8,11V7.5a4,4,0,0,1,8,0V11 /></svg> Health data processed under GDPR · read/write only with your consent.</div>
@@ -3122,7 +3171,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= ONBOARDING — CONSENTEMENT SANTÉ / DONNÉES TIERS ================= -->
 <div class="screen" id="ob_consent">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="font-size:44px;margin-bottom:8px;">❤️</div>
     <div class="eyebrow" style="color:var(--brand-fixed);margin-bottom:10px;">Almost done</div>
@@ -3149,7 +3198,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= DASHBOARD DIRECTEUR (centre) ================= -->
 <!-- ================= ONBOARDING DIRECTEUR ================= -->
 <div class="screen" id="onboarding_directeur">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Welcome</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Welcome</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:center;flex:1;">
     <div style="text-align:center;margin:8px 0 20px;">
       <div style="width:72px;height:72px;border-radius:22px;background:var(--gray2);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--bg);"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 20V8.8L12 4.4l7.6 4.4V20"/><path d="M3 20h18"/><path d="M9.9 20v-4.7h4.2V20"/></svg></div>
@@ -3164,7 +3213,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= INVITER UN RÉFÉRENT (directeur) ================= -->
 <div class="screen" id="invite_referent">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Invite a coach</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Invite a coach</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <p class="sub gap20">The coach will receive an email to create their account and access the centre space.</p>
     <div class="ps-title" style="margin-bottom:6px;">First name *</div>
@@ -3187,7 +3236,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <div class="screen" id="dashboard_directeur">
-  <div class="topnav" id="dirTopnav"><button class="btn-back" onclick="setDirView('global')">←</button><div class="topnav-title" id="dirTitle">Overview</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="dirRefSearchBtn" style="width:36px;height:36px;font-size:16px;flex-shrink:0;display:none;" onclick="toggleDirRefSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button><div onclick="go('profil_directeur')" style="width:34px;height:34px;border-radius:50%;background:#EDEDF0;color:#1A1A22;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0;">C</div></div></div>
+  <div class="topnav" id="dirTopnav"><button class="btn-back" onclick="setDirView('global')"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="dirTitle">Overview</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="dirRefSearchBtn" style="width:36px;height:36px;font-size:16px;flex-shrink:0;display:none;" onclick="toggleDirRefSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button><div onclick="go('profil_directeur')" style="width:34px;height:34px;border-radius:50%;background:#EDEDF0;color:#1A1A22;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0;">C</div></div></div>
   <div style="padding:0 20px 8px;" id="dirCentreLabelRow"><div style="font-size:12px;font-weight:700;color:var(--gray2);letter-spacing:.6px;text-transform:uppercase;">Centre Kerpape</div></div>
   <div class="scroll">
     <!-- VUE GLOBALE — traitée comme une home page (pas de topnav/flèche retour, cf discussion
@@ -3271,9 +3320,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="p-tab" data-key="annee" style="font-size:11px;padding:9px 4px;" onclick="setDirStatsTab(this,'annee')">Year</div>
       </div>
       <div class="px" style="display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px;">
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setDirStatsNav(-1)">‹</button>
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setDirStatsNav(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
         <div id="dirStatsPeriodLabel" style="font-size:13px;font-weight:700;color:var(--white);min-width:150px;text-align:center;">—</div>
-        <button class="btn-back" id="dirStatsNextBtn" style="width:32px;height:32px;font-size:14px;" onclick="setDirStatsNav(1)">›</button>
+        <button class="btn-back" id="dirStatsNextBtn" style="width:32px;height:32px;font-size:14px;" onclick="setDirStatsNav(1)"><svg class="ki"><use href="#ki-fwd"/></svg></button>
       </div>
       <div class="px pb" id="dirStatsPeriodView"></div>
       <div class="ex-sec-t" style="padding:0 20px 8px;color:var(--gray2);">Coach ranking</div>
@@ -3312,7 +3361,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= INFORMATIONS PERSONNELLES ================= -->
 <div class="screen" id="infos_perso">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Personal information</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Personal information</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
       <div style="width:64px;height:64px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;border:2.5px solid var(--orange);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
@@ -3336,7 +3385,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= PERSONAL INFORMATION — RÉFÉRENT (parité avec infos_perso B2C) ================= -->
 <div class="screen" id="infos_perso_referent">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">Personal information</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Personal information</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
       <div style="width:64px;height:64px;border-radius:20px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--ink-on-accent);">M</div>
@@ -3356,7 +3405,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= MY EQUIPMENT ================= -->
 <div class="screen" id="mon_equipement">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My equipment</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My equipment</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div class="ex-sec-t">My kinmio bar</div>
     <div class="card" id="equipBarCard" onclick="toggleEquipOwned('bar')" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;cursor:pointer;">
@@ -3364,7 +3413,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--white);">kinmio bar</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">Serial no. KIN-2024-8842 · activated Feb 12, 2026</div><div style="font-size:12px;font-weight:700;margin-top:4px;" id="equipBarStatusTxt">Bar connected ✓</div></div>
       <span class="pbdg bdg-a" id="equipBarBadge">Active</span>
     </div>
-    <div style="margin:0 0 20px;"><span onclick="reviewBarTutorial()" style="color:var(--orange);font-size:13.5px;font-weight:700;cursor:pointer;">▶ Review the bar tutorial</span></div>
+    <div style="margin:0 0 20px;"><span onclick="reviewBarTutorial()" style="color:var(--orange);font-size:13.5px;font-weight:700;cursor:pointer;"><svg class="ki"><use href="#ki-play"/></svg>Review the bar tutorial</span></div>
     <div class="ex-sec-t">My accessories</div>
     <div class="card" id="equipElastiqueCard" onclick="toggleEquipOwned('elastique')" style="display:flex;align-items:center;gap:14px;margin-bottom:18px;cursor:pointer;">
       <div style="font-size:30px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><ellipse cx=12 cy=12 rx=9 ry=5 /></svg></div>
@@ -3378,7 +3427,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= MY TRAINING PROFILE ================= -->
 <div class="screen" id="mon_profil_entrainement">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">My training profile</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">My training profile</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <p class="sub" style="margin-bottom:16px;">Your starting answers. Tap a row to change it — your sessions adapt.</p>
     <div id="mpe_list" style="display:flex;flex-direction:column;gap:10px;"></div>
@@ -3388,7 +3437,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= CALENDRIER RÉFÉRENT ================= -->
 <div class="screen" id="calendrier_referent">
-  <div class="topnav"><button class="btn-back" onclick="calBackFromPicking()">←</button><div class="topnav-title" id="calTopTitle">Calendar</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="calBackFromPicking()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="calTopTitle">Calendar</div><div class="topnav-r"></div></div>
   <div id="calPickStepLbl" style="display:none;padding:8px 20px 0;flex-shrink:0;font-size:12px;color:var(--gray);font-weight:600;">Step 4 of 4</div>
   <div id="calPickBanner" style="display:none;margin:14px 20px 0;flex-shrink:0;font-size:17px;font-weight:700;color:var(--white);"><span id="calPickBannerTxt"></span></div>
   <div class="k-tabs" style="margin:0 20px 10px;">
@@ -3397,9 +3446,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="k-tab" data-cv="month" onclick="setCalView(this)">Month</div>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 10px;flex-shrink:0;">
-    <button class="btn-back" onclick="calNav(-1)" style="width:34px;height:34px;">‹</button>
+    <button class="btn-back" onclick="calNav(-1)" style="width:34px;height:34px;"><svg class="ki"><use href="#ki-back"/></svg></button>
     <div id="calWeekLabel" style="font-size:14px;font-weight:700;color:var(--white);">—</div>
-    <button class="btn-back" onclick="calNav(1)" style="width:34px;height:34px;">›</button>
+    <button class="btn-back" onclick="calNav(1)" style="width:34px;height:34px;"><svg class="ki"><use href="#ki-fwd"/></svg></button>
   </div>
   <div class="scroll">
     <div id="calUnscheduled" class="px" style="display:none;"></div>
@@ -3438,7 +3487,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= ASSISTANT IA (maquette — pas branché à une vraie IA, réponses calculées depuis les vraies données) ================= -->
 <div class="screen" id="assistant_ia">
-  <div class="topnav"><button class="btn-back" onclick="back()">←</button><div class="topnav-title">AI Coach</div><div class="topnav-r"><button class="btn-back" style="width:36px;height:36px;font-size:16px;" onclick="openCoachHistoryModal()" title="History"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg></button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">AI Coach</div><div class="topnav-r"><button class="btn-back" style="width:36px;height:36px;font-size:16px;" onclick="openCoachHistoryModal()" title="History"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg></button></div></div>
   <div id="coachIaWeeklyCard" style="display:none;flex-shrink:0;margin:14px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;"></div>
   <div class="scroll px pt pb" id="assistantThread" style="display:flex;flex-direction:column;gap:12px;"></div>
   <div id="assistantChips" style="padding:10px 20px 4px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;"></div>
@@ -4640,14 +4689,14 @@ function refreshHomeSeanceZones(){
 function pauseProgramme(){
   if(!programmeActif || programmeActif.pausedAt) return;
   programmeActif.pausedAt = Date.now();
-  toast('⏸ '+trDyn('Programme paused'));
+  toast(trDyn('Programme paused'));
   if(document.getElementById('progMonView')) renderProgMonView();
   refreshHomeSeanceZones();
 }
 function resumeProgramme(){
   if(!programmeActif || !programmeActif.pausedAt) return;
   programmeActif.pausedAt = null;
-  toast('▶ '+trDyn('Programme resumed'));
+  toast(trDyn('Programme resumed'));
   if(document.getElementById('progMonView')) renderProgMonView();
   refreshHomeSeanceZones();
 }
@@ -9612,7 +9661,7 @@ const EN_FR = {
   "Mobility focus": "Focus mobilité",
   "Maintenance focus": "Focus maintien",
   "Your programme": "Ton programme",
-  "❤️ Cardio": "❤️ Cardio",
+  "Cardio": "Cardio",
   "💪 Strength": "💪 Renforcement",
   "TODAY": "AUJOURD'HUI",
   "NEXT SESSION": "PROCHAINE SÉANCE",
@@ -9900,7 +9949,7 @@ const EN_FR = {
   "kinmio bar": "barre kinmio",
   "Serial no. KIN-2024-8842 · activated Feb 12, 2026": "N° de série KIN-2024-8842 · activée le 12 fév. 2026",
   "Bar connected ✓": "Barre connectée ✓",
-  "▶ Review the bar tutorial": "▶ Revoir le tuto barre",
+  "Review the bar tutorial": "Revoir le tuto barre",
   "My accessories": "Mes accessoires",
   "Included with your kinmio bar": "Inclus avec ta barre kinmio",
   "Owned": "Possédé",
@@ -10107,7 +10156,7 @@ const EN_FR = {
   // collectif — simulation live (roster réel, jauges/depart/classement simulés sur un seul appareil)
   "Group session": "Séance collective",
   "Waiting": "En attente",
-  "▶ Launch the session": "▶ Lancer la séance",
+  "Launch the session": "Lancer la séance",
   "Live gauges are simulated for this demo — not connected to participants' real phones.": "Les jauges en direct sont simulées pour cette démo — non connectées aux téléphones réels des participants.",
   "Get ready…": "Prépare-toi…",
   "connected": "connectés",
@@ -10115,7 +10164,7 @@ const EN_FR = {
   "Average progress": "Progression moyenne",
   "Live ranking": "Classement en direct",
   "No one has finished yet.": "Personne n'a encore terminé.",
-  "■ End the session": "■ Terminer la séance",
+  "End the session": "Terminer la séance",
   "Here's how the group did.": "Voici comment le groupe s'en est sorti.",
   "Finished": "Terminé",
   "Final ranking": "Classement final",
@@ -10131,7 +10180,7 @@ const EN_FR = {
   "Mode": "Mode",
   "Time budget": "Budget de temps",
   "Live intensity is simulated for this demo — not connected to participants' real phones.": "L'intensité en direct est simulée pour cette démo — non connectée aux téléphones réels des participants.",
-  "▶ Start the duel": "▶ Lancer le défi",
+  "Start the duel": "Lancer le défi",
   "Gauge": "Jauge",
   "Hybrid": "Hybride",
   "Hold": "Tenue",
@@ -10146,7 +10195,7 @@ const EN_FR = {
   "Above threshold": "Au-dessus du seuil",
   "Below threshold": "En dessous du seuil",
   "Last one": "Dernier participant",
-  "■ End the duel": "■ Terminer le défi",
+  "End the duel": "Terminer le défi",
   "Duel complete!": "Défi terminé !",
   "Here's how everyone did.": "Voici comment chacun s'en est sorti.",
   "Today's records": "Records du jour",
@@ -10182,13 +10231,13 @@ const EN_FR = {
   "Duel it out on a cardio move": "Affronte-toi sur un exercice cardio",
   "Share this code": "Partage ce code",
   "Copy link": "Copier le lien",
-  "Share invite ↗": "Partager l'invitation ↗",
+  "Share invite": "Partager l'invitation",
   "Cardio moves only.": "Exercices cardio uniquement.",
   "Invite sent!": "Invitation envoyée !",
   "Waiting for your friend to join with code": "En attente que ton ami rejoigne avec le code",
   "✓ Code copied": "✓ Code copié",
   "✓ Invite shared": "✓ Invitation partagée",
-  "▶ Send challenge": "▶ Envoyer le défi",
+  "Send challenge": "Envoyer le défi",
   // Communauté / Mes amis — cf discussion
   "My friends": "Mes amis",
   "Manage friends": "Gérer mes amis",
@@ -10516,13 +10565,13 @@ const EN_FR = {
   "+23 this month": "+23 ce mois-ci",
   "PENDING ACTIVATION": "EN ATTENTE D'ACTIVATION",
   "Follow up →": "Relancer →",
-  "➕ New centre": "➕ Nouveau centre",
+  "New centre": "Nouveau centre",
   "Business metrics": "Indicateurs business",
   "Total MRR": "MRR total",
   "network-wide": "à l'échelle du réseau",
   "centre → independent": "centre → autonome",
   "Churn this month": "Résiliations ce mois",
-  "🔒 Anonymised data — usable for research (GDPR)": "🔒 Données anonymisées — utilisables pour la recherche (RGPD)",
+  "Anonymised data — usable for research (GDPR)": "Données anonymisées — utilisables pour la recherche (RGPD)",
   "Most practised exercises": "Exercices les plus pratiqués",
   "Average pain by muscle group (0–10)": "Douleur moyenne par groupe musculaire (0–10)",
   "Progress week 1 → week 4": "Progression semaine 1 → semaine 4",
@@ -10530,15 +10579,15 @@ const EN_FR = {
   "Director accounts": "Comptes directeurs",
   "Invite": "Inviter",
   "Suspend": "Suspendre",
-  "➕ Create": "➕ Créer",
-  "⏸ Suspend centre": "⏸ Suspendre un centre",
+  "Create": "Créer",
+  "Suspend centre": "Suspendre un centre",
   "Login history": "Historique des connexions",
   "Maintenance mode": "Mode maintenance",
   "Suspend access to the network": "Suspendre l'accès au réseau",
-  "✉️ Director invitation sent (demo)": "✉️ Invitation directeur envoyée (démo)",
-  "⏸ Account suspended (demo)": "⏸ Compte suspendu (démo)",
-  "➕ Create an account (demo)": "➕ Créer un compte (démo)",
-  "⏸ Suspend a centre (demo)": "⏸ Suspendre un centre (démo)",
+  "Director invitation sent (demo)": "Invitation directeur envoyée (démo)",
+  "Account suspended (demo)": "Compte suspendu (démo)",
+  "Create an account (demo)": "Créer un compte (démo)",
+  "Suspend a centre (demo)": "Suspendre un centre (démo)",
   "active": "actif",
   "pending": "en attente",
   "yesterday": "hier",
@@ -10657,7 +10706,7 @@ const EN_FR = {
   "(simulated)": "(simulée)",
   "(via Health)": "(via Santé)",
   // Section démo prototype (raccourcis profil)
-  "🔧 Prototype demo": "🔧 Démo du prototype",
+  "Prototype demo": "Démo du prototype",
   "B2C user": "Utilisateur B2C",
   "Full journey": "Parcours complet",
   "Start — B2C onboarding": "Départ — onboarding B2C",
@@ -10682,7 +10731,7 @@ const EN_FR = {
   "Marc D. — full detail": "Marc D. — détail complet",
   "Director first login": "Première connexion du directeur",
   "Creation form": "Formulaire de création",
-  "↺ Replay": "↺ Rejouer",
+  "Replay": "Rejouer",
   "Back to the entry screen": "Retour à l'écran d'entrée",
   "Onboarding": "Intégration",
   "Centre exit → independent": "Sortie du centre → autonome",
@@ -10700,7 +10749,7 @@ const EN_FR = {
   "Actual": "Réalisé",
   "💪 Strengthening 56%": "💪 Renforcement 56%",
   "🔀 Mobility 33%": "🔀 Mobilité 33%",
-  "❤️ Cardio 11%": "❤️ Cardio 11%",
+  "Cardio 11%": "Cardio 11%",
   "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Marc is doing more strengthening than planned. Check the programme.": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Marc fait plus de renforcement que prévu. Vérifier le programme.",
   "Detected signals": "Signaux détectés",
   "→ 3 shortened sessions this week": "→ 3 séances écourtées cette semaine",
@@ -10753,7 +10802,7 @@ const EN_FR = {
   "Intensity:": "Intensité :",
   "Paused": "En pause",
   "Resume": "Reprendre",
-  "■ Quit workout": "■ Quitter la séance",
+  "Quit workout": "Quitter la séance",
   "Rest": "Repos",
   "Skip rest →": "Passer le repos →",
   "Resistance": "Résistance",
@@ -10764,8 +10813,8 @@ const EN_FR = {
   "Finish →": "Terminer →",
   "Upcoming weeks": "Semaines à venir",
   "Manage my programme →": "Gérer mon programme →",
-  "❤️ Favourites": "❤️ Favoris",
-  "✨ For you": "✨ Pour toi",
+  "Favourites": "Favoris",
+  "For you": "Pour toi",
   "Badges": "Badges",
   "TRAINING PROFILE": "PROFIL D'ENTRAÎNEMENT",
   "FAVORITE EXERCISES": "EXERCICES FAVORIS",
@@ -10792,7 +10841,6 @@ const EN_FR = {
   "+ Add to a session": "+ Ajouter à une séance",
   "Settings": "Réglages",
   "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Participants": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Participants",
-  "⏸ Pause": "⏸ Pause",
   "Weight": "Poids",
   "(optional — improves calorie estimates)": "(facultatif — améliore l'estimation des calories)",
   "Access pending approval": "Accès en attente d'approbation",
@@ -10831,7 +10879,7 @@ const EN_FR = {
   "+ Create a new programme": "+ Créer un nouveau programme",
   "No session matches these filters.": "Aucune séance ne correspond à ces filtres.",
   "Settings apply everywhere you do this exercise.": "Les réglages s'appliquent partout où tu fais cet exercice.",
-  "▶ See exercise details (incl. video) →": "▶ Voir la fiche exercice (avec vidéo) →",
+  "See exercise details (incl. video) →": "Voir la fiche exercice (avec vidéo) →",
   "No programme matches these filters.": "Aucun programme ne correspond à ces filtres.",
   "Currently active": "Actuellement actif",
   "Activate this programme": "Activer ce programme",
@@ -10875,7 +10923,7 @@ const EN_FR = {
   "Choosing a slot for": "Choix d'un créneau pour",
   "Choosing a slot for the group": "Choix d'un créneau pour le groupe",
   "Choose a time": "Choisir une heure",
-  "▶ Start now": "▶ Démarrer maintenant",
+  "Start now": "Démarrer maintenant",
   "Watching": "Suivi en direct",
   "Current exercise": "Exercice en cours",
   "Stop watching": "Arrêter le suivi",
@@ -10889,7 +10937,6 @@ const EN_FR = {
   "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Group session": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> Séance collective",
   "Continue → Choose exercises": "Continuer → Choisir les exercices",
   "Confirm the session": "Confirmer la séance",
-  "← Back": "← Retour",
   "4-week pain trend": "Tendance douleur 4 semaines",
   "My goal": "Mon objectif",
   "Reps": "Reps",
@@ -10954,8 +11001,8 @@ const EN_FR = {
   "💡 Rising over your last 3 sessions": "💡 En hausse sur tes 3 dernières séances",
   "💡 Easing over your last 3 sessions": "💡 En baisse sur tes 3 dernières séances",
   "💡 Stable over your last 3 sessions": "💡 Stable sur tes 3 dernières séances",
-  "❤️ Cardio minutes": "❤️ Minutes de cardio",
-  "❤️ Cardio score": "❤️ Score cardio",
+  "Cardio minutes": "Minutes de cardio",
+  "Cardio score": "Score cardio",
   "💪 Strength score": "💪 Score renforcement",
   "Mixed session": "Séance mixte",
   "💪 Strength reps": "💪 Reps renforcement",
@@ -12215,11 +12262,11 @@ function openLibNouveauFilterModal(){
   if(currentRole!=='referent'){
     html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
       +'<input type="checkbox" onchange="toggleLibMatchProfile(this.checked)" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(libNouveauFilters.matchProfile?'checked':'')+'>'
-      +'<span style="font-size:14px;color:var(--white);font-weight:600;">✨ For you</span></label>';
+      +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg class="ki"><use href="#ki-spark"/></svg>For you</span></label>';
   }
   html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
     +'<input type="checkbox" onchange="toggleLibNouveauFilterVal(\'favoris\',null,this.checked)" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(libNouveauFilters.favoris?'checked':'')+'>'
-    +'<span style="font-size:14px;color:var(--white);font-weight:600;">❤️ Favourites</span></label>';
+    +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</span></label>';
   if(currentRole==='user_centre' || currentRole==='referent'){
     const coachLabel = currentRole==='referent' ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> My creations' : '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> From your coach';
     html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
@@ -12291,7 +12338,7 @@ function renderLibExoCard(ex){
     +'<div class="lib-meta">'+ex.equipement+'</div>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;">'
-    +'<button class="icon-btn" onclick="event.stopPropagation();toggleFavori(\'exercices\',\''+ex.id+'\');renderLibNouveau();" style="background:none;font-size:19px;">'+(fav?'❤️':'🤍')+'</button>'
+    +'<button class="icon-btn" onclick="event.stopPropagation();toggleFavori(\'exercices\',\''+ex.id+'\');renderLibNouveau();" style="background:none;font-size:19px;">'+(fav?'<svg class="ki"><use href="#ki-heart-fill"/></svg>':'<svg class="ki"><use href="#ki-heart"/></svg>')+'</button>'
     +'<button class="icon-btn" onclick="event.stopPropagation();openAddToSessionModal(\''+ex.id+'\')" style="background:var(--bg3);color:var(--white);font-size:16px;line-height:1;">+</button>'
     +'</div>'
     +'</div>';
@@ -12616,7 +12663,7 @@ function isFavori(type, id){
 }
 function updateFavoriUI(type, id){
   document.querySelectorAll('[data-favori-type="'+type+'"][data-favori-id="'+id+'"]').forEach(el=>{
-    el.textContent = isFavori(type, id) ? '❤️' : '🤍';
+    el.innerHTML = isFavori(type, id) ? '<svg class="ki"><use href="#ki-heart-fill"/></svg>' : '<svg class="ki"><use href="#ki-heart"/></svg>';
   });
 }
 
@@ -12976,11 +13023,11 @@ function openSessFilterModal(){
   if(currentRole!=='referent'){
     html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
       +'<input type="checkbox" onchange="toggleSessMatchProfile(this.checked)" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(sessNouveauFilters.matchProfile?'checked':'')+'>'
-      +'<span style="font-size:14px;color:var(--white);font-weight:600;">✨ For you</span></label>';
+      +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg class="ki"><use href="#ki-spark"/></svg>For you</span></label>';
   }
   html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
     +'<input type="checkbox" onchange="toggleSessFilterVal(\'favoris\',true,this.checked)" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(sessNouveauFilters.favoris?'checked':'')+'>'
-    +'<span style="font-size:14px;color:var(--white);font-weight:600;">❤️ Favourites</span></label>';
+    +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</span></label>';
   html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
     +'<input type="checkbox" onchange="toggleSessPersoChip()" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(sessNouveauFilters.perso?'checked':'')+'>'
     +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> Your sessions</span></label>';
@@ -13016,7 +13063,7 @@ function renderSessCard(s, origin){
     +'<div class="lib-tags">'+originPill+(s.objectif&&s.objectif.length?'<span class="tag tag-g">'+s.objectif.join(' · ')+'</span>':'')+'<span class="tag tag-g">'+s.intensite+'</span><span class="tag tag-g">'+s.duree+' min</span></div>'
     +'<div class="lib-meta">'+s.exercices.length+' exercises</div></div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;">'
-    +'<button onclick="event.stopPropagation();toggleFavori(\'sessions\',\''+s.id+'\');renderProgSessionsView();" style="background:none;border:none;font-size:19px;cursor:pointer;">'+(fav?'❤️':'🤍')+'</button>'
+    +'<button onclick="event.stopPropagation();toggleFavori(\'sessions\',\''+s.id+'\');renderProgSessionsView();" style="background:none;border:none;font-size:19px;cursor:pointer;">'+(fav?'<svg class="ki"><use href="#ki-heart-fill"/></svg>':'<svg class="ki"><use href="#ki-heart"/></svg>')+'</button>'
     +'<button onclick="event.stopPropagation();openAddToProgrammeModal(\''+s.id+'\')" style="width:22px;height:22px;border-radius:50%;background:var(--bg3);border:none;color:var(--white);font-size:14px;cursor:pointer;line-height:1;">+</button>'
     +'</div>'
     +'</div>';
@@ -13247,7 +13294,7 @@ function renderSessionDetail(){
       + (s.positions||[]).map(p=>chip(SD_POS_ICON[p]||SD_ICON_STAND, p)).join('')
       + equipements.map(eq=>chip(SD_ICON_BARBELL, eq)).join('');
   }
-  const favBtn=document.getElementById('sdFavBtn'); if(favBtn){ favBtn.textContent = isFavori('sessions', s.id) ? '❤️' : '🤍'; favBtn.style.display = sessionPickMode ? 'none' : 'flex'; }
+  const favBtn=document.getElementById('sdFavBtn'); if(favBtn){ favBtn.innerHTML = isFavori('sessions', s.id) ? '<svg class="ki"><use href="#ki-heart-fill"/></svg>' : '<svg class="ki"><use href="#ki-heart"/></svg>'; favBtn.style.display = sessionPickMode ? 'none' : 'flex'; }
   const delBtn=document.getElementById('sdDeleteBtn'); if(delBtn) delBtn.style.display = (isCatalogSession(s.id)||sessionPickMode) ? 'none' : 'block';
   const noteBtn=document.getElementById('sdNoteBtn'); if(noteBtn) noteBtn.style.display = (currentRole==='referent'&&!sessionPickMode) ? 'block' : 'none';
   const startBtn=document.getElementById('sdStartBtn'); if(startBtn) startBtn.style.display = (currentRole==='referent'||sessionPickMode) ? 'none' : 'block';
@@ -13290,7 +13337,7 @@ function openSdExoParamsModal(exId){
   const rows = EX_PARAM_FIELDS.map(f => sdExParamStepperRow(f, p[f.key])).join('');
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ex.nom+'</div>'
     +'<div style="font-size:13px;color:var(--gray);margin-bottom:4px;">Settings apply everywhere you do this exercise.</div>'
-    +'<div style="margin-bottom:14px;"><span style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;" onclick="closeModal();openExerciceNouveau(\''+exId+'\')">▶ See exercise details (incl. video) →</span></div>'
+    +'<div style="margin-bottom:14px;"><span style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;" onclick="closeModal();openExerciceNouveau(\''+exId+'\')">See exercise details (incl. video) →</span></div>'
     +rows
     +'<button class="btn-ghost" style="margin-top:12px;width:100%;color:var(--gray2);" onclick="closeModal()">Close</button>');
 }
@@ -13352,7 +13399,7 @@ function onSdDescInput(){
 }
 function toggleSessionDetailFavori(){
   toggleFavori('sessions', window._curSessId);
-  const favBtn=document.getElementById('sdFavBtn'); if(favBtn) favBtn.textContent = isFavori('sessions', window._curSessId) ? '❤️' : '🤍';
+  const favBtn=document.getElementById('sdFavBtn'); if(favBtn) favBtn.innerHTML = isFavori('sessions', window._curSessId) ? '<svg class="ki"><use href="#ki-heart-fill"/></svg>' : '<svg class="ki"><use href="#ki-heart"/></svg>';
 }
 function startSessionFromDetail(){ demarrerSessionNouveau(window._curSessId); }
 // Référent : "Assigner cette séance" utilise le modèle (thème/durée/exercices) comme point de départ
@@ -13737,7 +13784,7 @@ function openCpnFilterModal(){
   html+='<div style="max-height:56vh;overflow-y:auto;margin:0 -4px;padding:0 4px;">';
   html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
     +'<input type="checkbox" onchange="toggleCpnMatchProfile(this.checked)" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(cpnFilters.matchProfile?'checked':'')+'>'
-    +'<span style="font-size:14px;color:var(--white);font-weight:600;">✨ For you</span></label>';
+    +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg class="ki"><use href="#ki-spark"/></svg>For you</span></label>';
   SESS_FILTERS_DEF.forEach(sec=>{
     html+='<div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;">'+sec.title+'</div>';
     sec.options.forEach(o=>{
@@ -13778,8 +13825,8 @@ function renderCpnSelectedList(){
       +'<div style="width:22px;height:22px;border-radius:50%;background:var(--orange);color:var(--ink-on-accent);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(i+1)+'</div>'
       +'<div style="flex:1;min-width:0;font-size:13.5px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.nom_marketing+'</div>'
       +'<div style="display:flex;gap:4px;flex-shrink:0;">'
-      +'<button onclick="cpnMoveSess(\''+id+'\',-1)" '+(i===0?'disabled style="opacity:.3;"':'')+' style="width:26px;height:26px;border-radius:8px;background:var(--bg3);border:none;color:var(--white);font-size:12px;cursor:pointer;'+(i===0?'opacity:.3;':'')+'">▲</button>'
-      +'<button onclick="cpnMoveSess(\''+id+'\','+1+')" '+(i===cpnSel.length-1?'disabled':'')+' style="width:26px;height:26px;border-radius:8px;background:var(--bg3);border:none;color:var(--white);font-size:12px;cursor:pointer;'+(i===cpnSel.length-1?'opacity:.3;':'')+'">▼</button>'
+      +'<button onclick="cpnMoveSess(\''+id+'\',-1)" '+(i===0?'disabled style="opacity:.3;"':'')+' style="width:26px;height:26px;border-radius:8px;background:var(--bg3);border:none;color:var(--white);font-size:12px;cursor:pointer;'+(i===0?'opacity:.3;':'')+'"><svg class="ki"><use href="#ki-up"/></svg></button>'
+      +'<button onclick="cpnMoveSess(\''+id+'\','+1+')" '+(i===cpnSel.length-1?'disabled':'')+' style="width:26px;height:26px;border-radius:8px;background:var(--bg3);border:none;color:var(--white);font-size:12px;cursor:pointer;'+(i===cpnSel.length-1?'opacity:.3;':'')+'"><svg class="ki"><use href="#ki-down"/></svg></button>'
       +'</div>'
       +'</div>';
   }).join('');
@@ -13972,10 +14019,10 @@ function openProgFilterModal(){
   html+='<div style="max-height:56vh;overflow-y:auto;margin:0 -4px;padding:0 4px;">';
   html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
     +'<input type="checkbox" onchange="toggleProgMatchProfile(this.checked)" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(progNouveauFilters.matchProfile?'checked':'')+'>'
-    +'<span style="font-size:14px;color:var(--white);font-weight:600;">✨ For you</span></label>';
+    +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg class="ki"><use href="#ki-spark"/></svg>For you</span></label>';
   html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
     +'<input type="checkbox" onchange="toggleProgFilterVal(\'favoris\',true,this.checked)" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(progNouveauFilters.favoris?'checked':'')+'>'
-    +'<span style="font-size:14px;color:var(--white);font-weight:600;">❤️ Favourites</span></label>';
+    +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</span></label>';
   html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
     +'<input type="checkbox" onchange="toggleProgPersoChip()" style="width:18px;height:18px;accent-color:var(--orange);flex-shrink:0;" '+(progNouveauFilters.perso?'checked':'')+'>'
     +'<span style="font-size:14px;color:var(--white);font-weight:600;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> Your programmes</span></label>';
@@ -14011,7 +14058,7 @@ function renderProgCard(p, origin){
     +'<div class="lib-body"><div class="lib-name">'+p.nom_marketing+(active?' <span class="pbdg bdg-o" style="font-size:9px;padding:2px 7px;vertical-align:middle;">Active</span>':'')+'</div>'
     +'<div class="lib-tags">'+originPill+'<span class="tag tag-g">'+p.niveau+'</span><span class="tag tag-g">'+p.duree_semaines+' weeks</span><span class="tag tag-g">'+p.frequence+'x/week</span></div>'
     +'<div class="lib-meta">'+p.objectif+' · '+p.progression+'</div></div>'
-    +'<button onclick="event.stopPropagation();toggleFavori(\'programmes\',\''+p.id+'\');renderProgProgrammesView();" style="background:none;border:none;font-size:19px;cursor:pointer;align-self:center;flex-shrink:0;">'+(fav?'❤️':'🤍')+'</button>'
+    +'<button onclick="event.stopPropagation();toggleFavori(\'programmes\',\''+p.id+'\');renderProgProgrammesView();" style="background:none;border:none;font-size:19px;cursor:pointer;align-self:center;flex-shrink:0;">'+(fav?'<svg class="ki"><use href="#ki-heart-fill"/></svg>':'<svg class="ki"><use href="#ki-heart"/></svg>')+'</button>'
     +'</div>';
 }
 function renderProgProgrammesView(){
@@ -14547,7 +14594,7 @@ function renderProgrammePlan(){
     return '<div class="card" style="margin-bottom:10px;'+(isCurrent?'border-color:var(--orange);':'')+'">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleProgPlanWeek('+w.numero+')">'
       +'<div style="font-size:15px;font-weight:700;color:var(--white);">Week '+w.numero+(isCurrent?' <span style="color:var(--orange);font-size:11px;font-weight:700;">· CURRENT</span>':'')+'</div>'
-      +'<span id="progPlanChevron'+w.numero+'" style="color:var(--gray);font-size:16px;display:inline-block;transition:transform .2s;">⌄</span>'
+      +'<span id="progPlanChevron'+w.numero+'" style="color:var(--gray);font-size:16px;display:inline-block;transition:transform .2s;"><svg class="ki"><use href="#ki-down"/></svg></span>'
       +'</div>'
       +'<div id="progPlanWeek'+w.numero+'" style="display:none;">'+seancesHtml+'</div>'
       +'</div>';
@@ -15049,7 +15096,7 @@ function renderAdmin(){
         const near=ct.renouvJ<100;
         return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--orange)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--orange)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\'📄 '+ct.nom+' report (demo)\')">📄 Centre report</button></div></div>';
       }).join('')
-    + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">➕ New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'📊 Full network export (demo)\')">📊 Export network</button></div>';
+    + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'📊 Full network export (demo)\')">📊 Export network</button></div>';
 
   // ===== GROWTH (croissance réseau — courbes + transition + renouvellement) =====
   const gr=document.getElementById('adm_metriques');
@@ -15079,11 +15126,11 @@ function renderAdmin(){
      '<div class="ex-sec-t" style="padding:12px 20px 8px;">Director accounts</div>'
     + DIRECTORS.map(d=>{
         const att=d.statut==='attente';
-        const btn=att?'<button class="pres-add" onclick="toast(\'✉️ Director invitation sent (demo)\')">Invite</button>'
-                     :'<button class="pres-add" onclick="toast(\'⏸ Account suspended (demo)\')">Suspend</button>';
+        const btn=att?'<button class="pres-add" onclick="toast(\'Director invitation sent (demo)\')">Invite</button>'
+                     :'<button class="pres-add" onclick="toast(\'Account suspended (demo)\')">Suspend</button>';
         return '<div class="pat-item" style="cursor:default;"><div style="flex:1;min-width:0;"><div class="pat-n">'+d.n+'</div><div class="pat-m">'+d.centre+(att?' · pending':' · active')+'</div></div>'+btn+'</div>';
       }).join('')
-    + '<div class="px" style="padding-top:10px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="toast(\'➕ Create an account (demo)\')">➕ Create</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'⏸ Suspend a centre (demo)\')">⏸ Suspend centre</button></div>'
+    + '<div class="px" style="padding-top:10px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="toast(\'Create an account (demo)\')">Create</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'Suspend a centre (demo)\')">Suspend centre</button></div>'
     + '<div class="ex-sec-t" style="padding:16px 20px 8px;">Login history</div>'
     + LOGINS.map(l=>'<div class="pat-item" style="cursor:default;"><div style="flex:1;min-width:0;"><div class="pat-n">'+l.n+'</div><div class="pat-m">'+l.r+'</div></div><span style="font-size:12px;color:var(--gray);">'+l.t+'</span></div>').join('')
     + '<div class="ex-sec-t" style="padding:16px 20px 8px;">Global configuration</div>'
@@ -15105,7 +15152,7 @@ function renderAdmin(){
   const maxPain=5;
   const g=document.getElementById('adm_config');
   if(g) g.innerHTML=
-     '<div style="margin:12px 20px 12px;padding:12px 14px;background:rgba(var(--teal-rgb),.07);border:1px solid rgba(var(--teal-rgb),.2);border-radius:14px;font-size:12px;color:var(--teal);line-height:1.5;">🔒 Anonymised data — usable for research (GDPR)</div>'
+     '<div style="margin:12px 20px 12px;padding:12px 14px;background:rgba(var(--teal-rgb),.07);border:1px solid rgba(var(--teal-rgb),.2);border-radius:14px;font-size:12px;color:var(--teal);line-height:1.5;"><svg class="ki"><use href="#ki-lock"/></svg>Anonymised data — usable for research (GDPR)</div>'
     +'<div class="ex-sec-t" style="padding:0 20px 8px;">Most practised exercises</div>'
     +'<div class="px">'+EXO_USAGE.map(u=>{const ex=EXERCISES.find(e=>e.id===u.id);return '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;"><span style="font-size:20px;width:26px;flex-shrink:0;">'+(ex?ex.emoji:'🏋️')+'</span><div style="width:118px;flex-shrink:0;font-size:13px;color:var(--white);">'+(ex?ex.nom:u.id)+'</div>'+admBar(Math.round(u.n/maxUse*100),'var(--orange)')+'<div style="width:44px;text-align:right;font-size:12px;color:var(--gray);">'+u.n+'</div></div>';}).join('')+'</div>'
     +'<div class="ex-sec-t" style="padding:14px 20px 8px;">Average pain by muscle group (0–10)</div>'
@@ -15395,11 +15442,11 @@ function defiExoSummaryLabel(){
 // (pas de backend dans ce proto), mais persiste entre plusieurs défis au sein d'une même session démo.
 let DAILY_RECORDS={};
 const DEFI_MODES=[
-  {key:'seuil', icon:'🎯', label:'Threshold', desc:"Fixed time, but the clock only runs while you're above the threshold — first to finish wins."},
-  {key:'jauge', icon:'⛽', label:'Gauge', desc:'Fill a target score — every second counts, whatever your intensity.'},
+  {key:'seuil', icon:'<svg class="ki"><use href="#ki-threshold"/></svg>', label:'Threshold', desc:"Fixed time, but the clock only runs while you're above the threshold — first to finish wins."},
+  {key:'jauge', icon:'<svg class="ki"><use href="#ki-gauge"/></svg>', label:'Gauge', desc:'Fill a target score — every second counts, whatever your intensity.'},
   {key:'hybride', icon:'⚡', label:'Hybrid', desc:'Fill the same target, but only seconds above the threshold count — push hard to finish early.'},
-  {key:'tenue', icon:'🏔️', label:'Hold', desc:"No target, no time limit — hold above the threshold as long as you can. Turn by turn, best hold wins."},
-  {key:'duel', icon:'⚔️', label:'Head-to-head', desc:"Everyone starts with the same time budget — it only ticks down for whoever is pushing hardest right now."}
+  {key:'tenue', icon:'<svg class="ki"><use href="#ki-hold"/></svg>', label:'Hold', desc:"No target, no time limit — hold above the threshold as long as you can. Turn by turn, best hold wins."},
+  {key:'duel', icon:'<svg class="ki"><use href="#ki-duel"/></svg>', label:'Head-to-head', desc:"Everyone starts with the same time budget — it only ticks down for whoever is pushing hardest right now."}
 ];
 let defiSelExoIds=[], defiSelThreshold=3, defiSelMode='seuil', defiSelDuration=45;
 let defiSelSource='manual', defiSelSessionId=null, defiSelRoundMode='sequential', defiSelRounds=1, defiSelRestSec=15;
@@ -15426,7 +15473,7 @@ function setDefiStep(n){
   const summary=document.getElementById('defiStepSummary'); if(summary) summary.style.display = n===2 ? 'block' : 'none';
   const footer=document.getElementById('defiFooter'); if(footer) footer.innerHTML = n<3
     ? '<button class="btn btn-orange" style="width:100%;" onclick="nextDefiStep()">Continue</button>'
-    : '<button class="btn btn-orange" style="width:100%;" onclick="launchDefi()">▶ Start the duel</button>';
+    : '<button class="btn btn-orange" style="width:100%;" onclick="launchDefi()"><svg class="ki"><use href="#ki-play"/></svg>Start the duel</button>';
 }
 function nextDefiStep(){
   if(defiStep===1 && Object.keys(defiSelParticipants).length<2){ toast('Select at least 2 participants'); return; }
@@ -16095,7 +16142,7 @@ function setFriendStep(n){
   const summary=document.getElementById('friendStepSummary'); if(summary) summary.style.display = n===2 ? 'block' : 'none';
   const footer=document.getElementById('friendFooter'); if(footer) footer.innerHTML = n<3
     ? '<button class="btn btn-orange" style="width:100%;" onclick="nextFriendStep()">Continue</button>'
-    : '<button class="btn btn-orange" style="width:100%;" onclick="sendFriendChallenge()">▶ Send challenge</button>';
+    : '<button class="btn btn-orange" style="width:100%;" onclick="sendFriendChallenge()"><svg class="ki"><use href="#ki-play"/></svg>Send challenge</button>';
 }
 function nextFriendStep(){
   if(friendStep===2 && !defiResolveExercises(friendSelExoIds, friendSelSource, friendSelSessionId).length){ toast('Choose at least one exercise'); return; }
@@ -17434,11 +17481,11 @@ function paintAvatar(elId,key,name,letter,color){
   el.innerHTML=a.inner;
 }
 const ROLE_SWITCH_DATA=[
-  {key:'user', label:'B2C user', sub:'Marc', icon:'🙋', color:'var(--orange)', dest:'home'},
-  {key:'user_centre', label:'Centre user', sub:'Marc · Centre Kerpape', icon:'🏥', color:'var(--teal)', dest:'home_centre'},
+  {key:'user', label:'B2C user', sub:'Marc', icon:'<svg class="ki"><use href="#ki-user"/></svg>', color:'var(--orange)', dest:'home'},
+  {key:'user_centre', label:'Centre user', sub:'Marc · Centre Kerpape', icon:'<svg class="ki"><use href="#ki-building"/></svg>', color:'var(--teal)', dest:'home_centre'},
   {key:'referent', label:'Coach', sub:'Martin Dupont', icon:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg>', color:'var(--teal)', dest:'dashboard_referent'},
-  {key:'directeur', label:'Director', sub:'Claire Dubois', icon:'💼', color:'var(--gray2)', dest:'dashboard_directeur'},
-  {key:'admin', label:'kinmio admin', sub:'Network view', icon:'⚙️', color:'var(--orange)', dest:'dashboard_admin'}
+  {key:'directeur', label:'Director', sub:'Claire Dubois', icon:'<svg class="ki"><use href="#ki-briefcase"/></svg>', color:'var(--gray2)', dest:'dashboard_directeur'},
+  {key:'admin', label:'kinmio admin', sub:'Network view', icon:'<svg class="ki"><use href="#ki-gear"/></svg>', color:'var(--orange)', dest:'dashboard_admin'}
 ];
 function renderRoleSwitcher(elId){
   const el=document.getElementById(elId); if(!el) return;
@@ -17456,7 +17503,7 @@ function renderRoleSwitcher(elId){
       +'<span style="width:8px;height:8px;border-radius:50%;background:'+active.color+';flex-shrink:0;"></span>'
       +'<span style="font-size:18px;">'+active.icon+'</span>'
       +'<div style="flex:1;"><div style="font-size:14px;color:var(--white);">'+active.label+'</div><div style="font-size:12px;color:var(--gray);margin-top:1px;">'+active.sub+'</div></div>'
-      +'<span id="'+elId+'Chevron" style="color:var(--gray);font-size:16px;display:inline-block;transition:transform .2s;">⌄</span>'
+      +'<span id="'+elId+'Chevron" style="color:var(--gray);font-size:16px;display:inline-block;transition:transform .2s;"><svg class="ki"><use href="#ki-down"/></svg></span>'
     +'</div>'
     +'<div id="'+elId+'Body" style="display:none;border-top:1px solid var(--border);">'
     +others.map((r,i)=>row(r,i===others.length-1)).join('')
@@ -17479,7 +17526,7 @@ function renderDemoSection(containerId){
   const card=inner=>'<div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:4px;">'+inner+'</div>';
   const O='var(--orange)', T='var(--teal)', G='var(--gray2)';
   el.innerHTML=
-     '<div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.6px;margin:18px 0 2px;">🔧 Prototype demo</div>'
+     '<div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.6px;margin:18px 0 2px;"><svg class="ki"><use href="#ki-sliders"/></svg>Prototype demo</div>'
     + secTitle('B2C user')
     + card(
         row('','Full journey','Start — B2C onboarding','userParcours=\'B\';go(\'ob_intro\')',O)
@@ -17512,7 +17559,7 @@ function renderDemoSection(containerId){
         row('','Create a centre','Creation form','go(\'creation_centre\')',O)
       )
     + card(
-        row('','↺ Replay','From the splash animation','replaySplash()',G)
+        row('','<svg class="ki"><use href="#ki-replay"/></svg>Replay','From the splash animation','replaySplash()',G)
       );
 }
 // ===== ASSISTANT IA (maquette) =====
@@ -17623,13 +17670,13 @@ function openCoachHistoryModal(){
 }
 // ===== MON PROFIL D'ENTRAÎNEMENT (réponses onboarding éditables au tap) =====
 const TP_FIELDS=[
-  {key:'pos', icon:'🧍', label:'Positions', multi:true, opts:['Standing','Seated','Lying down']},
-  {key:'grip', icon:'🤲', label:'Grip', opts:['Both wrists','One hand — centre grip','Both, depending on the exercise']},
-  {key:'grip_ease', icon:'👐', label:'Grip ease', opts:['Easy and stable','It depends on the moment','I need adaptations']},
-  {key:'zones', icon:'🛡️', label:'Area to protect', multi:true, empty:'No specific area', opts:['Shoulder(s)','Back / lower back','Knee(s)','Wrist(s) / arms']},
-  {key:'freq', icon:'📅', label:'Frequency', opts:['1×/week','2×/week','3×/week','4×/week','5×/week']},
-  {key:'jours', icon:'📆', label:'Training days', multi:true, opts:OB_DAYS},
-  {key:'duree', icon:'⏱️', label:'Preferred duration', opts:['15 min','30 min','45 min','60 min']}
+  {key:'pos', icon:'<svg class="ki"><use href="#ki-pos"/></svg>', label:'Positions', multi:true, opts:['Standing','Seated','Lying down']},
+  {key:'grip', icon:'<svg class="ki"><use href="#ki-grip"/></svg>', label:'Grip', opts:['Both wrists','One hand — centre grip','Both, depending on the exercise']},
+  {key:'grip_ease', icon:'<svg class="ki"><use href="#ki-grip-ease"/></svg>', label:'Grip ease', opts:['Easy and stable','It depends on the moment','I need adaptations']},
+  {key:'zones', icon:'<svg class="ki"><use href="#ki-shield"/></svg>', label:'Area to protect', multi:true, empty:'No specific area', opts:['Shoulder(s)','Back / lower back','Knee(s)','Wrist(s) / arms']},
+  {key:'freq', icon:'<svg class="ki"><use href="#ki-cal"/></svg>', label:'Frequency', opts:['1×/week','2×/week','3×/week','4×/week','5×/week']},
+  {key:'jours', icon:'<svg class="ki"><use href="#ki-cal-check"/></svg>', label:'Training days', multi:true, opts:OB_DAYS},
+  {key:'duree', icon:'<svg class="ki"><use href="#ki-timer"/></svg>', label:'Preferred duration', opts:['15 min','30 min','45 min','60 min']}
 ];
 function tpSeed(){
   if(!profile.pos||!profile.pos.length) profile.pos=['Standing','Seated'];
