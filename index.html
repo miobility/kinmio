@@ -417,7 +417,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .checkin-opt{flex:1;padding:14px 8px;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;text-align:center;cursor:pointer;font-size:26px;transition:all .15s;}
 .exo-row{display:flex;gap:12px;padding:0 20px;overflow-x:auto;margin-bottom:20px;}
 .exo-row::-webkit-scrollbar{display:none;}
-.emini{width:148px;flex-shrink:0;background:var(--bg2);border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid var(--border);}
+.emini{width:170px;flex-shrink:0;background:var(--bg2);border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid var(--border);}
 .emini-img{height:84px;display:flex;align-items:center;justify-content:center;font-size:34px;}
 .emini-body{padding:10px;}
 .emini-name{font-size:13px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -7503,7 +7503,11 @@ function renderWeekStripHtml(strip){
       if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
       else if(d.statut==='manque') dotStyle='border:2px solid var(--vigilance);';
       else if(d.statut==='avenir') dotStyle='border:1.5px solid var(--gray2);';
-      else dotContent='<span style="color:var(--gray);font-size:12px;line-height:20px;">–</span>';
+      // Repos : une 4e forme, pas un caractere. Le tiret typographique etait le seul etat du
+      // bandeau a ne pas etre une pastille — il cassait la lecture de la ligne (cf audit Home).
+      // Le meme cercle, reduit a 6px et en --dim : present, mais visiblement plus discret que
+      // "a venir", ce qui est exactement ce que "rien de prevu" doit dire.
+      else dotStyle='background:var(--dim);transform:scale(.3);';
       const lblStyle = d.today
         ? 'color:var(--white);font-weight:800;background:rgba(255,255,255,.12);border-radius:6px;padding:2px 0;'
         : 'color:'+(d.statut==='repos'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
@@ -7608,7 +7612,7 @@ function renderHomeExplore(prefix){
   const el=document.getElementById(prefix+'ExploreRow'); if(!el) return;
   const list = getExercicesCompatibles().slice(0,8);
   el.innerHTML=list.map(ex=>{
-    return '<div class="emini" style="width:170px;" onclick="openExerciceHero(\''+ex.id+'\',this)">'
+    return '<div class="emini" onclick="openExerciceHero(\''+ex.id+'\',this)">'
     +'<div class="emini-img" style="background-image:url(\''+exoPhotoFor(ex)+'\');background-size:cover;background-position:center;"></div>'
     +'<div class="emini-body"><div class="emini-name">'+ex.nom+'</div><div style="margin:4px 0;display:flex;flex-wrap:wrap;gap:5px;">'
     +'<span class="tag tag-g">'+exoPrimaryZone(ex)+'</span>'
