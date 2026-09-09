@@ -376,7 +376,10 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .hero-glow{position:relative;}
 .hero-glow::before{content:'';position:absolute;left:26px;right:26px;top:10px;height:60%;background:radial-gradient(ellipse at 30% 20%,rgba(var(--orange-rgb),.32),transparent 70%);filter:blur(26px);z-index:0;pointer-events:none;}
 .today{position:relative;z-index:1;margin:0 20px;background:var(--bg2);border-radius:22px;overflow:hidden;border:1px solid var(--border);cursor:pointer;}
-.today-thumb{height:118px;background:linear-gradient(135deg,#1a0e0a,#2d1409);display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;}
+/* Fond tokenise (etait un degrade brun code en dur, vestige de l'accent orange) et repli
+   ramene a un pictogramme neutre : une vignette qui n'a pas charge montre un media absent,
+   pas un emoji de 64px. */
+.today-thumb{height:118px;background:var(--bg3);color:var(--dim);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;}
 .today-bdg{position:absolute;top:14px;left:14px;background:var(--orange);color:var(--ink-on-accent);font-size:10px;font-weight:800;padding:4px 12px;border-radius:9px;}
 .today-dur{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.55);color:var(--ink-on-media);font-size:11px;font-weight:600;padding:4px 10px;border-radius:9px;}
 .today-body{padding:16px;}
@@ -412,7 +415,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 
 /* ===== PROGRAMME ===== */
 .prog-hero{padding:24px 20px 20px;flex-shrink:0;}
-.prog-thumb{height:160px;background:linear-gradient(160deg,#1a0e0a,#2d1409);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:72px;margin-bottom:16px;position:relative;}
+.prog-thumb{height:160px;background:var(--bg3);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:72px;margin-bottom:16px;position:relative;}
 .prog-info{display:flex;justify-content:space-around;padding:16px 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-shrink:0;}
 .piv{font-size:18px;font-weight:800;color:var(--white);text-align:center;}
 .pil{font-size:11px;color:var(--gray);margin-top:2px;text-align:center;}
@@ -577,7 +580,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .lib-empty{text-align:center;color:var(--gray);padding:40px 20px;font-size:14px;line-height:1.5;}
 
 /* ===== FICHE EXERCICE ===== */
-.ex-hero{position:relative;height:150px;border-radius:20px;background:linear-gradient(135deg,#1a0e0a,#2d1409);display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden;}
+.ex-hero{position:relative;height:150px;border-radius:20px;background:var(--bg3);display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden;}
 .ex-hero .ex-illus{font-size:72px;animation:exfloat 2.6s ease-in-out infinite;}
 @keyframes exfloat{0%,100%{transform:translateY(-6px) scale(1);}50%{transform:translateY(6px) scale(1.07);}}
 .ex-badge{position:absolute;top:12px;right:12px;background:var(--orange);color:var(--ink-on-accent);font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px;}
@@ -750,6 +753,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 17.6a7.6 7.6 0 0 1 15.2 0"/><path d="M12 17.6l3.9-4.6"/><circle cx="12" cy="17.6" r="1.15" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-hold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 18.4h3.2l2.2-8.8h6.4l2.2 8.8h3.2"/></symbol>
   <symbol id="ki-duel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.4v15.2" stroke-dasharray="2.6 2.6"/><path d="M7.6 7.4 4 12l3.6 4.6"/><path d="M16.4 7.4 20 12l-3.6 4.6"/></symbol>
+  <symbol id="ki-media" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.4" y="5" width="17.2" height="14" rx="2.6"/><circle cx="9" cy="10.4" r="1.7"/><path d="M3.4 16.4l4.4-4 3.4 3 3.2-2.6 6.2 5"/></symbol>
   <symbol id="ki-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.3"/><path d="M5.2 20c0-3.5 3-5.4 6.8-5.4s6.8 1.9 6.8 5.4"/></symbol>
   <symbol id="ki-coach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.6" r="3"/><path d="M5.6 19.4c0-3.3 2.8-5 6.4-5s6.4 1.7 6.4 5"/><path d="M16.6 3.4l1.05 2.2 2.35.32-1.7 1.68.42 2.4-2.12-1.14-2.12 1.14.42-2.4-1.7-1.68 2.35-.32Z"/></symbol>
   <symbol id="ki-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 20V8.8L12 4.4l7.6 4.4V20"/><path d="M3 20h18"/><path d="M9.9 20v-4.7h4.2V20"/></symbol>
@@ -977,7 +981,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="display:flex;justify-content:center;margin-bottom:20px;">
       <img src="kinmio_logo_app.png" alt="kinmio" style="height:28px;width:auto;display:block;">
     </div>
-    <div style="position:relative;height:230px;flex-shrink:0;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1a0e0a,#2d1409);margin-bottom:20px;">
+    <div style="position:relative;height:230px;flex-shrink:0;border-radius:18px;overflow:hidden;background:var(--bg3);margin-bottom:20px;">
       <video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"><source src="ob_vision.mp4" type="video/mp4"></video>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0) 55%,rgba(10,10,15,.55) 100%);"></div>
     </div>
@@ -1015,7 +1019,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <h2 class="gap8">Meet your bar</h2>
     <p class="sub gap20">30 seconds to get it right — anchor, adjust, go.</p>
-    <div style="position:relative;height:200px;flex-shrink:0;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1a0e0a,#2d1409);margin-bottom:16px;" onclick="advanceObDemo()">
+    <div style="position:relative;height:200px;flex-shrink:0;border-radius:18px;overflow:hidden;background:var(--bg3);margin-bottom:16px;" onclick="advanceObDemo()">
       <video id="obDemoVideo" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"><source id="obDemoVideoSrc" src="ob_demo_step1.mp4" type="video/mp4"></video>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:20px;" id="obDemoDots"></div>
@@ -6020,8 +6024,8 @@ function renderStatsPeriodShared(key, a){
       +(rateInsight ? '<div style="font-size:11px;font-weight:700;color:'+rateInsight.color+';margin-top:8px;">'+rateInsight.text+'</div>' : '')
     +'</div>' : '');
 
-  const infoIcon='style="cursor:pointer;color:var(--gray);font-size:11px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;"';
-  const zoneHead=(label,title,body)=>'<div class="zone-lbl" style="display:flex;align-items:center;gap:6px;">'+label+'<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\''+title+'\',\''+body+'\')" '+infoIcon+'>i</span></div>';
+  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"';
+  const zoneHead=(label,title,body)=>'<div class="zone-lbl" style="display:flex;align-items:center;gap:6px;">'+label+'<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\''+title+'\',\''+body+'\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span></div>';
 
   // ---- Regularity : renommé depuis "Avg. consistency", même calcul (seule métrique comparable
   // Week/Month/Quarter/Year, déjà normalisée par l'objectif personnel de chaque membre) ----
@@ -6258,7 +6262,7 @@ function renderDirOverviewKpi(){
   const color=d=>d.dir==='up'?'var(--teal)':d.dir==='down'?'var(--vigilance)':'var(--gray)';
   const hero='font-size:28px;font-weight:800;color:var(--white);line-height:1;';
   const sub='font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.4;';
-  const infoIcon='style="cursor:pointer;margin-left:3px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);color:var(--gray);font-size:9px;display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;text-transform:none;letter-spacing:0;flex-shrink:0;"';
+  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const heading=(label,iconHtml)=>'<div class="zone-lbl" style="display:flex;align-items:center;gap:6px;">'+label+iconHtml+'</div>';
   const wrap=body=>'<div style="padding:0 20px;margin-bottom:16px;"><div class="scard">'+body+'</div></div>';
   let out='';
@@ -6266,7 +6270,7 @@ function renderDirOverviewKpi(){
   const obsPct=statsObservancePct(patients, from, to);
   const obsPctPrev=statsObservancePct(patients, prevFrom, prevTo);
   const obsDelta=(obsPct!=null && obsPctPrev!=null) ? ptsDelta(obsPct, obsPctPrev) : null;
-  out += heading('REGULARITY','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Avg. regularity\',\'How close each member is to their own weekly goal, averaged across the roster.\')" '+infoIcon+'>i</span>')
+  out += heading('REGULARITY','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Avg. regularity\',\'How close each member is to their own weekly goal, averaged across the roster.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>')
     + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="'+hero+'">'+(obsPct!=null?obsPct+'%':'—')+'</div>'
       +(obsDelta?'<span style="font-size:12px;font-weight:700;color:'+color(obsDelta)+';margin-left:auto;">'+arrow(obsDelta)+' '+obsDelta.pct+'pts</span>':'')
@@ -6279,7 +6283,7 @@ function renderDirOverviewKpi(){
   const avgMinPerMember=activeP.length ? Math.round(sessions.reduce((s,h)=>s+(h.duree||0),0)/activeP.length) : 0;
   const avgMinPerMemberPrev=activeP.length ? prevSessions.reduce((s,h)=>s+(h.duree||0),0)/activeP.length : 0;
   const volDelta=avgMinPerMemberPrev>0 ? pctDelta(avgMinPerMember, avgMinPerMemberPrev) : null;
-  out += heading('VOLUME','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Average minutes trained per member this week, across the roster.\')" '+infoIcon+'>i</span>')
+  out += heading('VOLUME','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Average minutes trained per member this week, across the roster.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>')
     + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="'+hero+'">'+avgMinPerMember+'</div>'
       +'<div style="font-size:12px;color:var(--gray2);">min / member</div>'
@@ -7235,7 +7239,7 @@ function computeEffortScorePct(sessions, windowDays, history){
 // côte à côte sur une seule ligne, comme au tout début, mais avec les textes/règles de couleur actuels
 // (flèche seule sur Pain, pas de delta chiffré).
 function buildLoadPainHtml(pad, compact){
-  const infoIcon='style="cursor:pointer;margin-left:3px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);color:var(--gray);font-size:9px;display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;text-transform:none;letter-spacing:0;flex-shrink:0;"';
+  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const fatigue=getFatigueSignal();
   const pain=getPainSignal();
   const acwrColor = fatigue.acwr==null ? '' : fatigue.level==='high' ? 'var(--red)' : fatigue.level==='low' ? 'var(--vigilance)' : 'var(--teal)';
@@ -7243,10 +7247,10 @@ function buildLoadPainHtml(pad, compact){
   const painColor = pain.level==null ? 'var(--gray)' : pain.level<=3 ? 'var(--teal)' : pain.level<=6 ? 'var(--vigilance)' : 'var(--red)';
   const painArrow = pain.trend==='hausse' ? '↑' : pain.trend==='baisse' ? '↓' : '→';
   const painArrowColor = pain.trend==='hausse' ? 'var(--red)' : pain.trend==='baisse' ? 'var(--teal)' : 'var(--gray)';
-  const painComment = pain.level==null ? '' : pain.trend==='hausse' ? '💡 Rising over your last 3 sessions' : pain.trend==='baisse' ? '💡 Easing over your last 3 sessions' : '💡 Stable over your last 3 sessions';
+  const painComment = pain.level==null ? '' : pain.trend==='hausse' ? 'Rising over your last 3 sessions' : pain.trend==='baisse' ? 'Easing over your last 3 sessions' : 'Stable over your last 3 sessions';
   const loadTip = fatigue.level==='high'?'Load rising fast — consider a lighter session':fatigue.level==='low'?'Load lower than usual — good time to build back up':'Load steady and manageable';
-  const loadInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'ACWR\',\'How hard you\\\'ve trained recently vs your usual pace (Acute:Chronic Workload Ratio). Calculation: your average daily load over the last 7 days, divided by your average daily load over the last 28 days. Load itself = your own effort rating right after each session (easy/moderate/intense/max) × session duration — a recognized sports-science method (session-RPE), not a device measurement. 0.8–1.3× is a healthy zone — much higher means you\\\'re ramping up fast (injury risk), much lower means you could safely do more.\')" '+infoIcon+'>i</span>';
-  const painInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'Your self-reported pain level, from your last sessions where you answered the pain question. Calculation: level = your most recent answer (out of 10). Trend = that value minus your answer from up to 3 sessions ago (skipped sessions don\\\'t count against you) — only shown as rising or easing if the change is 2 points or more, so small day-to-day noise isn\\\'t flagged as a real trend.\')" '+infoIcon+'>i</span>';
+  const loadInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'ACWR\',\'How hard you\\\'ve trained recently vs your usual pace (Acute:Chronic Workload Ratio). Calculation: your average daily load over the last 7 days, divided by your average daily load over the last 28 days. Load itself = your own effort rating right after each session (easy/moderate/intense/max) × session duration — a recognized sports-science method (session-RPE), not a device measurement. 0.8–1.3× is a healthy zone — much higher means you\\\'re ramping up fast (injury risk), much lower means you could safely do more.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+  const painInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'Your self-reported pain level, from your last sessions where you answered the pain question. Calculation: level = your most recent answer (out of 10). Trend = that value minus your answer from up to 3 sessions ago (skipped sessions don\\\'t count against you) — only shown as rising or easing if the change is 2 points or more, so small day-to-day noise isn\\\'t flagged as a real trend.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
 
   if(compact){
     const heroC='font-size:22px;font-weight:800;line-height:1;';
@@ -7269,7 +7273,7 @@ function buildLoadPainHtml(pad, compact){
       +'<div style="'+lbl+'">Load'+loadInfo+'</div>'
       +'<div style="display:flex;align-items:baseline;gap:6px;"><div style="'+heroC+'color:'+acwrColor+';">'+fatigue.acwr.toFixed(1)+'×</div><div style="font-size:11px;color:var(--gray2);">ACWR</div></div>'
       +'<div style="height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 15%,var(--vigilance) 15%,var(--vigilance) 40%,var(--teal) 40%,var(--teal) 65%,var(--vigilance) 65%,var(--vigilance) 90%,var(--red) 90%,var(--red) 100%);margin-top:8px;position:relative;width:100%;"><div style="position:absolute;top:-2px;left:'+acwrPct+'%;width:2px;height:8px;background:var(--white);"></div></div>'
-      +'<div style="'+subC+'">💡 '+loadTip+'</div>'
+      +'<div style="'+subC+'">'+loadTip+'</div>'
       +'</div>';
     const painCard = '<div class="scard" style="flex:1;">'
       +'<div style="'+lbl+'">Pain'+painInfo+'</div>'
@@ -7292,7 +7296,7 @@ function buildLoadPainHtml(pad, compact){
         +'<div style="font-size:12px;color:var(--gray2);">ACWR</div>'
         +'</div>'
         +'<div style="height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 15%,var(--vigilance) 15%,var(--vigilance) 40%,var(--teal) 40%,var(--teal) 65%,var(--vigilance) 65%,var(--vigilance) 90%,var(--red) 90%,var(--red) 100%);margin-top:9px;position:relative;width:100%;"><div style="position:absolute;top:-2px;left:'+acwrPct+'%;width:2px;height:8px;background:var(--white);"></div></div>'
-        +'<div style="'+sub+'">💡 '+loadTip+'</div>');
+        +'<div style="'+sub+'">'+loadTip+'</div>');
   }
   out += heading('PAIN', painInfo)
     + wrap((pain.level==null ? '<div style="font-size:14px;font-weight:600;color:var(--gray);">Not enough data yet</div>'
@@ -7318,7 +7322,7 @@ function renderHomeKpiZone(prefix, profile){
   const color=d=>d.dir==='up'?'var(--teal)':d.dir==='down'?'var(--vigilance)':'var(--gray)';
   const hero='font-size:32px;font-weight:800;color:var(--white);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums;';
   const sub='font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.4;';
-  const infoIcon='style="cursor:pointer;margin-left:3px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);color:var(--gray);font-size:9px;display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;text-transform:none;letter-spacing:0;flex-shrink:0;"';
+  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const heading=(label,iconHtml)=>'<div class="zone-lbl" style="margin-top:22px;display:flex;align-items:center;gap:6px;">'+label+iconHtml+'</div>';
   const wrap=body=>'<div style="padding:0 20px;margin-bottom:16px;"><div class="scard">'+body+'</div></div>';
   let out='';
@@ -7329,7 +7333,7 @@ function renderHomeKpiZone(prefix, profile){
   const daysDelta=week.fait-prevWeek.fait;
   const regState=getRegularityState(profile);
   const regColor = regState.key==='douleur_hausse' ? 'var(--red)' : (regState.key==='objectif_semaine_atteint'||regState.key==='bon_streak'||regState.key==='programme_complete') ? 'var(--teal)' : 'var(--gray)';
-  out += heading('REGULARITY','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you have trained this week versus your weekly goal. Resets every Monday, same calendar week used for Volume below.\')" '+infoIcon+'>i</span>')
+  out += heading('REGULARITY','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you have trained this week versus your weekly goal. Resets every Monday, same calendar week used for Volume below.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>')
     + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="'+hero+'">'+week.fait+'/'+week.objectif+'</div>'
       +'<div style="font-size:12px;color:var(--gray2);">training days</div>'
@@ -7339,7 +7343,7 @@ function renderHomeKpiZone(prefix, profile){
 
   // --- Volume ---
   const volDelta = prevWeek.minutes>0 ? pctDelta(week.minutes, prevWeek.minutes) : null;
-  out += heading('VOLUME','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained this week, and how many sessions that took. Same calendar week as Regularity above, resetting every Monday.\')" '+infoIcon+'>i</span>')
+  out += heading('VOLUME','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained this week, and how many sessions that took. Same calendar week as Regularity above, resetting every Monday.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>')
     + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="'+hero+'">'+week.minutes+'</div>'
       +'<div style="font-size:12px;color:var(--gray2);">min this week</div>'
@@ -7353,7 +7357,7 @@ function renderHomeKpiZone(prefix, profile){
   if(pct!=null){
     const pctPrev=computeEffortScorePct(prevSessions);
     const delta=ptsDelta(pct, pctPrev||0);
-    out += heading('INTENSITY','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'>i</span>')
+    out += heading('INTENSITY','<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>')
       + wrap('<div style="display:flex;align-items:baseline;gap:8px;">'
         +'<div style="'+hero+'">'+pct+'%</div>'
         +(pctPrev ? '<span style="font-size:12px;font-weight:700;color:'+color(delta)+';margin-left:auto;">'+arrow(delta)+' '+delta.pct+'pts</span>' : '')
@@ -7533,7 +7537,7 @@ function renderHomeSeance(prefix, data){
   if(doneToday){
     const target=computeObjectifDuJourScore(), current=computeScoreAujourdhui();
     const pct = target ? Math.min(100, Math.round(current/target*100)) : 100;
-    cta='<div style="width:100%;padding:15px;font-size:15px;text-align:center;border-radius:14px;background:rgba(var(--brand-fixed-rgb),.15);color:var(--brand-fixed);font-weight:700;cursor:pointer;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">✓ '+trDyn('Done today')+(pct<100?' · '+pct+'%':'')+'</div>';
+    cta='<button class="btn btn-outline" style="padding:15px;font-size:15px;border-color:rgba(var(--brand-fixed-rgb),.45);color:var(--brand-fixed);" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')"><svg class="ki"><use href="#ki-check"/></svg>'+trDyn('Done today')+(pct<100?' · '+pct+'%':'')+'</button>';
   } else {
     cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">View session →</button>';
   }
@@ -7549,7 +7553,7 @@ function renderHomeSeance(prefix, data){
     +'<div style="margin:0 20px 8px;font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;">'+cardLbl+'</div>'
     +'<div class="hero-glow">'
     +'<div class="today" onclick="openSessionDetail(\''+realSess.id+'\')">'
-    +'<div class="today-thumb" style="'+thumbStyle+'">'+thumbVideo+(photo||video?'':'💪')+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')+'</div>'
+    +'<div class="today-thumb" style="'+thumbStyle+'">'+thumbVideo+(photo||video?'':'<svg class="ki"><use href="#ki-media"/></svg>')+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')+'</div>'
     +'<div class="today-body"><div class="today-title" style="font-size:22px;">'+realSess.nom_marketing+'</div>'
     +'<div class="today-sub">'+realSess.exercices.length+' exercises · '+realSess.duree+' min'+(priorityMuscle?' · '+priorityMuscle:'')+'</div>'
     +cta+'</div></div></div>';
@@ -8037,7 +8041,7 @@ function renderProgPeriod(periodKey){
   let html='';
   // ---- Bloc 1 : Regularity (même nom que Home, ex-"Consistency" — un seul mot pour la même métrique
   // sur les 2 écrans, cf discussion) — est-ce que je m'entraîne assez souvent ? ----
-  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over the last '+getPeriodLabel(periodKey)+', versus your goal for that window. Attendance rate = the same ratio read as a percentage. Best streak = your longest run of consecutive training days in that window.\')" style="cursor:pointer;color:var(--gray);font-size:11px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;">i</span></div>';
+  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over the last '+getPeriodLabel(periodKey)+', versus your goal for that window. Attendance rate = the same ratio read as a percentage. Best streak = your longest run of consecutive training days in that window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +'<div style="display:flex;align-items:baseline;gap:8px;min-width:0;margin-bottom:14px;">'
     +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;flex-shrink:0;">'+assiduitePct+'%</div>'
@@ -8063,7 +8067,7 @@ function renderProgPeriod(periodKey){
       +(prev ? '<div style="font-size:11px;font-weight:700;color:'+cc+';">'+(d.dir==='flat'?'–':ar+' '+d.pct+'%')+'</div>' : '')+'</div>';
   };
   const dureeDelta=pctDelta(dureeTotal, dureeTotalPrev);
-  html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">VOLUME<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained over the last '+getPeriodLabel(periodKey)+', and how many sessions/exercises that took.\')" style="cursor:pointer;color:var(--gray);font-size:11px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;">i</span></div>';
+  html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">VOLUME<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained over the last '+getPeriodLabel(periodKey)+', and how many sessions/exercises that took.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">'
     +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;">'+dureeTotal+'</div>'
@@ -8082,7 +8086,7 @@ function renderProgPeriod(periodKey){
   // même longueur ? Plus de split Cardio/Strength ici (retiré de Home, retiré ici pour la même raison :
   // rester simple, cf discussion) ----
   if(effortPct!=null){
-    html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">INTENSITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been over the last '+getPeriodLabel(periodKey)+', compared to your own peak. Calculation: your effort score over this window, divided by your single best '+getPeriodLabel(periodKey)+' window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best window of this length.\')" style="cursor:pointer;color:var(--gray);font-size:11px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;">i</span></div>';
+    html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">INTENSITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been over the last '+getPeriodLabel(periodKey)+', compared to your own peak. Calculation: your effort score over this window, divided by your single best '+getPeriodLabel(periodKey)+' window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best window of this length.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
     html+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;">'+effortPct+'%</div>'
@@ -8109,7 +8113,7 @@ function renderProgPeriod(periodKey){
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;"><div style="width:7px;height:7px;border-radius:50%;background:'+ZONE_DONUT_COLORS[k]+';flex-shrink:0;"></div><div style="flex:1;font-size:11px;color:var(--gray2);">'+ZONE_LABELS_RADAR[k]+'</div><div style="font-size:11px;font-weight:700;color:var(--white);">'+zonePct[k]+'%</div></div>'
     ).join('');
   }
-  html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">BODY ZONES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Body zones\',\'Where your training time actually goes, over the last '+getPeriodLabel(periodKey)+' — time spent per muscle group.\')" style="cursor:pointer;color:var(--gray);font-size:11px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;">i</span></div>';
+  html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">BODY ZONES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Body zones\',\'Where your training time actually goes, over the last '+getPeriodLabel(periodKey)+' — time spent per muscle group.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +(zonePct ? '<div style="display:flex;align-items:center;gap:20px;">'
       +'<div style="width:100px;height:100px;border-radius:50%;flex-shrink:0;background:conic-gradient('+donutGradient+');position:relative;"><div style="position:absolute;inset:22px;border-radius:50%;background:var(--bg2);"></div></div>'
@@ -8128,7 +8132,7 @@ function renderProgPeriod(periodKey){
   // niveau) — liste complète groupée par niveau, plus de Top cardio/renfo par effort ni d'évolution par
   // exercice (retirés, cf discussion "je dégage tout ça, je garde juste exercice maîtrisé").
   html+='<div id="progMasterySection" style="display:none;">'
-    +'<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">MASTERED EXERCISES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Mastered exercises\',\'≥75% time in zone, last 3 sessions at this level.\')" style="cursor:pointer;color:var(--gray);font-size:11px;width:14px;height:14px;border-radius:50%;border:1px solid var(--gray);display:inline-flex;align-items:center;justify-content:center;font-style:italic;font-weight:700;">i</span></div>'
+    +'<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">MASTERED EXERCISES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Mastered exercises\',\'≥75% time in zone, last 3 sessions at this level.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>'
     +'<div class="card-sm" style="margin-bottom:16px;"><div id="progMasteryList"></div></div>'
     +'</div>';
 
@@ -9651,7 +9655,6 @@ const EN_FR = {
   "Rest today": "Repos aujourd'hui",
   "Next session: Friday": "Prochaine séance : vendredi",
   "Coach · Centre Kerpape": "Référent · Centre Kerpape",
-  "💡 Continue at home": "💡 Continue chez toi",
   "Train between sessions": "Entraîne-toi entre les séances",
   "Order your kinmio bar and keep going at home.": "Commande ta barre kinmio et continue à la maison.",
   "-50% with your code → KERPAPE26": "-50% avec ton code → KERPAPE26",
@@ -10994,13 +10997,13 @@ const EN_FR = {
   "Total time": "Temps total",
   "Avg. intensity": "Intensité moy.",
   "⚖️ Training load": "⚖️ Charge d'entraînement",
-  "💡 Load rising fast — consider a lighter session": "💡 Charge en forte hausse — envisage une séance plus légère",
-  "💡 Load lower than usual — good time to build back up": "💡 Charge plus basse que d'habitude — bon moment pour reprendre progressivement",
-  "💡 Load steady and manageable": "💡 Charge stable et maîtrisée",
+  "Load rising fast — consider a lighter session": "Charge en forte hausse — envisage une séance plus légère",
+  "Load lower than usual — good time to build back up": "Charge plus basse que d'habitude — bon moment pour reprendre progressivement",
+  "Load steady and manageable": "Charge stable et maîtrisée",
   "Load": "Charge",
-  "💡 Rising over your last 3 sessions": "💡 En hausse sur tes 3 dernières séances",
-  "💡 Easing over your last 3 sessions": "💡 En baisse sur tes 3 dernières séances",
-  "💡 Stable over your last 3 sessions": "💡 Stable sur tes 3 dernières séances",
+  "Rising over your last 3 sessions": "En hausse sur tes 3 dernières séances",
+  "Easing over your last 3 sessions": "En baisse sur tes 3 dernières séances",
+  "Stable over your last 3 sessions": "Stable sur tes 3 dernières séances",
   "Cardio minutes": "Minutes de cardio",
   "Cardio score": "Score cardio",
   "💪 Strength score": "💪 Score renforcement",
