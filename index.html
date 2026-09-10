@@ -7541,17 +7541,16 @@ function objectifPace(actual, target, daysElapsed, daysTotal){
 // 4 mots, pas 5 (cf discussion "je ne parlerai pas de repos") : Fait / Manqué / Prévu / À rattraper.
 // "Vide" (jour non choisi déjà passé) n'a pas d'entrée — un point discret n'a pas besoin d'être
 // explicité, il se lit déjà comme "rien ici".
-// 3 mots (cf discussion "trop compliqué, je ferai fait/manqué/prévu") : Fait / Manqué / Prévu. +
-// "Planifié" ajouté (chantier calendrier/auto-assignation) — différent de l'ancien "Rattrapage" retiré
-// (auto-calculé, ambigu) : ici c'est un choix explicite de la personne, mérite sa propre légende.
+// 3 mots (cf discussion "trop compliqué, je ferai fait/manqué/prévu") : Fait / Manqué / Prévu. "Planifié"
+// retiré à nouveau (cf discussion "non je dirai fait/manqué/à venir") — le jour planifié reste distinct
+// visuellement dans la frise (anneau vert plutôt que gris) mais n'a plus d'entrée à part ici : il se lit
+// comme une variante de "à venir" (un jour à venir que tu as choisi), pas un 4e statut à expliciter.
 function weekStripLegendHtml(){
   const item=(dotStyle,label,inner)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;position:relative;'+dotStyle+'">'+(inner||'')+'</span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
-  const plannedDot='<span style="position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:var(--brand-fixed);transform:translate(-50%,-50%);"></span>';
   return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'
     +item('background:var(--brand-fixed);','Trained')
     +item('border:1.5px solid var(--vigilance);','Missed')
     +item('border:1.5px solid var(--gray2);','Upcoming')
-    +item('border:1.5px solid var(--gray2);','Self-planned',plannedDot)
     +'</div>';
 }
 // Alerte de rythme rendue actionnable au tap (cf discussion "proposerais-tu une reco en cliquant sur
@@ -7587,6 +7586,13 @@ function openObjectifPaceInfo(scope){
       body = currentLang==='fr'
         ? `${remaining} séance${remaining>1?'s':''} à rattraper`
         : `${remaining} session${remaining>1?'s':''} to catch up`;
+    } else if(plannedThisWeek>0){
+      // Vient de finir de planifier ses jours de rattrapage (cf discussion "on appuie et c'est bon, il
+      // faut une info 'tous tes jours sont planifiés'") — pas la phrase générique en minutes/jours
+      // ci-dessous, qui n'a aucun sens juste après avoir fini de cocher des jours. Réservée au cas où
+      // le compte tombe à 0 GRÂCE à de la planification — s'il tombe à 0 parce que tout est déjà
+      // réellement fait, la phrase générique reste la bonne réponse.
+      body = currentLang==='fr' ? 'Tous tes jours sont planifiés !' : 'All your days are planned!';
     } else {
       body = currentLang==='fr'
         ? `${week.minutes} / ${target} min, ${dayIdx+1}/7 jours écoulés cette semaine.`
@@ -7778,7 +7784,13 @@ function checkinLabel(val){ return trDyn(CHECKIN_LABELS[val]||CHECKIN_LABELS.neu
 // dans le temps") — array séparé de userSessionHistory : c'est un check-in quotidien, indépendant du
 // fait qu'une séance ait lieu ce jour-là. Dédoublonné par jour, unshift() pour rester cohérent avec
 // userSessionHistory (index 0 = le plus récent, cf getPainSignal).
-let userCheckinHistory = [];
+// Pré-rempli avec 2 jours passés (même convention que userSessionHistory ci-dessus) — sinon la flèche
+// de tendance n'apparaît qu'après 2 vrais jours d'usage, ce qu'un prototype ne permet pas de vivre en
+// une seule session (cf discussion "je préfère qu'on mette en dur, comme pour Charge/Douleur").
+let userCheckinHistory = [
+  {date:Date.now()-3*HIST_DAY, val:'epuise'},
+  {date:Date.now()-1*HIST_DAY, val:'neutre'}
+];
 const CHECKIN_ORDINAL={epuise:1, fatigue:2, neutre:3, bien:4, forme:5};
 function recordCheckinHistory(val){
   const today0=new Date(); today0.setHours(0,0,0,0);
@@ -8118,7 +8130,11 @@ function renderWeekStripHtml(strip){
       let dotStyle='', dotContent='';
       if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
       else if(d.statut==='manque') dotStyle='border:2px solid var(--vigilance);';
-      else if(d.statut==='planned'){ dotStyle='border:1.5px solid var(--gray2);position:relative;'; dotContent='<span style="position:absolute;top:50%;left:50%;width:7px;height:7px;border-radius:50%;background:var(--brand-fixed);transform:translate(-50%,-50%);"></span>'; }
+      // Anneau vert plutôt que gris + point (cf discussion "est-ce qu'on ne pourrait pas mettre un
+      // cercle vert ?") — la couleur seule porte maintenant "jour choisi par toi", le point central
+      // devenait redondant. Progression à 3 états : anneau gris (par défaut) → anneau vert (planifié) →
+      // rond plein vert (fait).
+      else if(d.statut==='planned') dotStyle='border:1.5px solid var(--brand-fixed);';
       else if(d.statut==='prevu') dotStyle='border:1.5px solid var(--gray2);';
       else dotStyle='background:var(--dim);transform:scale(.3);';
       const lblStyle = d.today
@@ -8126,12 +8142,14 @@ function renderWeekStripHtml(strip){
         : 'color:'+(d.statut==='libre'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
       // Un jour "fait" ouvre la vraie séance faite ce jour-là, pas toujours le même Programme générique
       // (audit Home, sept. 2026 — vérifié en testant : cliquer lundi ou mercredi ne montrait jamais
-      // rien de spécifique). "Aujourd'hui", pas encore fait, ouvre directement la vraie séance du jour
-      // (cf discussion) — pas de raison de renvoyer vers Programme pour un jour où une séance précise
-      // est déjà proposée sur la carte juste en dessous. Les autres jours (rien de précis à montrer)
-      // gardent Programme.
+      // rien de spécifique). Tout jour à venir déjà "prévu" ou "planifié" (aujourd'hui inclus) ouvre
+      // directement la vraie séance du jour (cf discussion "mes séances à venir, ça devrait renvoyer
+      // vers ma séance, elle est déjà planifiée, non ?") — le programme est une rotation, pas des
+      // séances assignées par date : "la séance de vendredi" EST la même séance que celle d'aujourd'hui
+      // tant qu'elle n'est pas faite, pas la peine de renvoyer vers Programme pour la retrouver. Les
+      // jours manqués/libres (rien de précis à montrer) gardent Programme.
       const dayClick = (d.statut==='fait' && d.sessionId) ? "openSessionDetail('"+d.sessionId+"')"
-        : d.today ? "openSessionDetail(getSessionDuJour().id)"
+        : (d.today || d.statut==='prevu' || d.statut==='planned') ? "openSessionDetail(getSessionDuJour().id)"
         : "go('programme')";
       return '<div style="text-align:center;cursor:pointer;" onclick="'+dayClick+'">'
         +'<div style="font-size:10px;'+lblStyle+'text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
@@ -10587,7 +10605,6 @@ const EN_FR = {
   "Trained": "Fait",
   "Missed": "Manqué",
   "Upcoming": "À venir",
-  "Self-planned": "Planifié",
   "TRAINING BALANCE": "ÉQUILIBRE D'ENTRAÎNEMENT",
   "Training balance": "Équilibre d'entraînement",
   "Over your last 30 days": "Sur tes 30 derniers jours",
