@@ -1285,7 +1285,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="bell" onclick="go('fiche_referent_public')" title="Your coach"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg></div>
         <div class="bell" onclick="openNotifs()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z /><path d=M9.5,18.5a2.5,2.5,0,0,0,5,0 /></svg><span class="bell-dot"></span></div>
-        <div class="hav" onclick="go('profil_centre')" style="cursor:pointer;border-radius:50%;overflow:hidden;padding:0;background:transparent;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
+        <div class="hav" onclick="go('profil_centre')" style="cursor:pointer;border-radius:50%;overflow:hidden;padding:0;background:transparent;"><img id="homeCentreAvatarImg" src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
     </div>
     <div id="centrePendingBanner" style="display:none;margin:6px 20px 4px;border-radius:16px;padding:14px 16px;align-items:center;gap:12px;"></div>
@@ -1650,7 +1650,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div><div class="hw">Hello</div><div class="hname"><span id="homeUserName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marc</span><span id="homeCheckinBadge" style="display:none;margin-left:8px;font-size:18px;vertical-align:middle;"></span></div><div style="font-size:12px;color:var(--gray);margin-top:4px;" id="homeDateLabel"></div></div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="bell" onclick="openNotifs()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z /><path d=M9.5,18.5a2.5,2.5,0,0,0,5,0 /></svg><span class="bell-dot"></span></div>
-        <div class="hav" onclick="go('profil')" style="cursor:pointer;border-radius:50%;overflow:hidden;padding:0;background:transparent;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
+        <div class="hav" onclick="go('profil')" style="cursor:pointer;border-radius:50%;overflow:hidden;padding:0;background:transparent;"><img id="homeAvatarImg" src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
     </div>
 
@@ -1748,11 +1748,45 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="margin:16px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">or</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
     <div style="display:flex;gap:10px;">
       <button class="social-btn" style="background:var(--bg2);border:1px solid var(--border);color:var(--white);" onclick="finishSignupDecouverte()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple</button>
-      <button class="social-btn" style="background:var(--bg2);border:1px solid var(--border);color:var(--white);" onclick="finishSignupDecouverte()"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
+      <button class="social-btn" style="background:var(--bg2);border:1px solid var(--border);color:var(--white);" onclick="openGoogleMock()"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
     </div>
     <div class="spacer"></div>
     <div style="text-align:center;font-size:11px;color:var(--gray);line-height:1.5;">By continuing you accept our Terms<br>and Privacy Policy</div>
     <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- ÉCRAN google_signin_mock — reprend les codes visuels du sélecteur de compte Google (non fonctionnel, même convention que les autres boutons sociaux de l'app) -->
+<div class="screen" id="google_signin_mock" style="background:#fff;">
+  <style>
+    #google_signin_mock{color:#202124;font-family:Roboto,'Inter',system-ui,sans-serif;}
+    #google_signin_mock .gmock-back{width:40px;height:40px;border-radius:50%;background:transparent;border:none;color:#5f6368;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    #google_signin_mock .gmock-back:active{background:#f1f3f4;}
+    #google_signin_mock .gmock-row{display:flex;align-items:center;gap:16px;padding:12px 24px;cursor:pointer;border-radius:8px;}
+    #google_signin_mock .gmock-row:active{background:#f1f3f4;}
+  </style>
+  <div style="display:flex;align-items:center;padding:16px 12px;">
+    <button class="gmock-back" onclick="back()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+  </div>
+  <div class="scroll" style="display:flex;flex-direction:column;align-items:center;padding:8px 24px 24px;">
+    <svg width="40" height="40" viewBox="0 0 24 24" style="margin-bottom:20px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    <h2 style="margin:0 0 8px;font-size:24px;font-weight:400;color:#202124;">Choose an account</h2>
+    <p style="margin:0 0 24px;font-size:16px;color:#202124;">to continue to <b>kinmio</b></p>
+    <div style="width:100%;max-width:420px;border:1px solid #dadce0;border-radius:8px;overflow:hidden;">
+      <div class="gmock-row" onclick="selectGoogleMockAccount()">
+        <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;"><img src="benjamin.webp" style="width:100%;height:100%;object-fit:cover;"></div>
+        <div style="min-width:0;">
+          <div style="font-size:14px;font-weight:500;color:#202124;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Benjamin Rajjou</div>
+          <div style="font-size:14px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">benjamin.rajjou@gmail.com</div>
+        </div>
+      </div>
+      <div style="height:1px;background:#e8eaed;margin:0 24px;"></div>
+      <div class="gmock-row" onclick="toast('Demo — one account only')">
+        <div style="width:40px;height:40px;border-radius:50%;background:#f1f3f4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+        <div style="font-size:14px;color:#202124;">Use another account</div>
+      </div>
+    </div>
+    <p style="max-width:420px;margin:24px 0 0;font-size:12px;line-height:1.5;color:#5f6368;">To continue, Google will share your name, email address and profile picture with kinmio.</p>
   </div>
 </div>
 
@@ -5027,6 +5061,7 @@ function initApresOnboarding() {
 // Profil utilisateur
 let userFirstName = "";
 let userEmail = "";
+let userAvatarSrc = "";   // '' = photo générique par défaut (Marc.jpg) ; sinon photo réelle du compte connecté
 let userNiveau = 3;
 let userSeuil = 60;
 let userDureeDefaut = 25;
@@ -5215,11 +5250,11 @@ function go(id){
   if(id==='dashboard_referent'){ setTimeout(()=>setRefView(refView||'accueil'), 30); setTimeout(()=>{ const e=document.getElementById('homeRefDateLabel'); if(e) e.textContent=todayDateLabel(); }, 20); }
   if(id==='dashboard_directeur') setTimeout(()=>setDirView(dirView||'global'), 30);
   if(id==='dashboard_admin') setTimeout(()=>{ renderAdmin(); setAdminView(adminView||'metriques'); }, 30);
-  if(id==='profil') setTimeout(()=>{ paintAvatar('profilAvatarImg','marc','Marc D.','M','var(--orange)'); renderSubBlock(); renderRoleSwitcher('roleSwitcherProfil'); }, 20);
+  if(id==='profil') setTimeout(()=>{ paintAvatar('profilAvatarImg','marc','Marc D.','M','var(--orange)'); applyUserAvatarTo('profilAvatarImg'); renderSubBlock(); renderRoleSwitcher('roleSwitcherProfil'); }, 20);
   if(id==='mon_profil_entrainement') setTimeout(renderTrainingProfile, 20);
   if(id==='mon_equipement') setTimeout(renderEquipmentScreen, 20);
   if(id==='progression'){ setTimeout(()=>renderProgPeriod(progActivePeriod), 20); setTimeout(()=>{ renderProgSafetyBlock('progSafetyBlock'); syncProgHeader(); }, 20); }
-  if(id==='profil_centre') setTimeout(()=>{ paintAvatar('profilCentreAvatarImg','marc','Marc D.','M','var(--teal)'); renderRoleSwitcher('roleSwitcherProfilCentre'); }, 20);
+  if(id==='profil_centre') setTimeout(()=>{ paintAvatar('profilCentreAvatarImg','marc','Marc D.','M','var(--teal)'); applyUserAvatarTo('profilCentreAvatarImg'); renderRoleSwitcher('roleSwitcherProfilCentre'); }, 20);
   if(id==='profil_referent') setTimeout(()=>{ renderRoleSwitcher('roleSwitcherProfilReferent'); }, 20);
   if(id==='profil_directeur') setTimeout(()=>{ renderRoleSwitcher('roleSwitcherProfilDirecteur'); }, 20);
   if(id==='profil_admin') setTimeout(()=>{ renderRoleSwitcher('roleSwitcherProfilAdmin'); }, 20);
@@ -12430,6 +12465,24 @@ function goAfterSummary(){
 function finishSignupDecouverte(){
   showSuccessOverlay('✓','Account created',null,1200);
   setTimeout(goAfterSummary,1200);
+}
+// Sélecteur de compte Google (mock, non fonctionnel — même convention que les autres boutons sociaux de l'app)
+function openGoogleMock(){
+  go('google_signin_mock');
+}
+function selectGoogleMockAccount(){
+  userFirstName = 'Benjamin';
+  userEmail = 'benjamin.rajjou@gmail.com';
+  userAvatarSrc = 'benjamin.webp';
+  ['homeAvatarImg','homeCentreAvatarImg','profilAvatarImg','profilCentreAvatarImg'].forEach(applyUserAvatarTo);
+  finishSignupDecouverte();
+}
+// Applique la photo du compte connecté (userAvatarSrc) à un avatar donné par son id — no-op si aucune photo custom
+function applyUserAvatarTo(elId){
+  if(!userAvatarSrc) return;
+  const el=document.getElementById(elId); if(!el) return;
+  const img = el.tagName==='IMG' ? el : el.querySelector('img');
+  if(img) img.src = userAvatarSrc;
 }
 
 // ============================================================
