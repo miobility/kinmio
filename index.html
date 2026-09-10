@@ -883,7 +883,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="splash-overlay"></div>
   <div style="position:relative;z-index:3;padding:52px 20px 0;flex-shrink:0;"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button></div>
   <div style="position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:flex-start;padding:24px 28px 0;">
-    <h1 style="margin-bottom:12px;text-shadow:0 1px 6px rgba(0,0,0,.5);" id="t_ob_intro_title">Let's build your profile together</h1>
+    <h1 style="margin-bottom:12px;text-shadow:0 1px 6px rgba(0,0,0,.5);" id="t_ob_intro_title">Let's build your training profile together</h1>
     <p style="font-size:15px;color:rgba(255,255,255,.82);line-height:1.5;text-shadow:0 1px 4px rgba(0,0,0,.5);" id="t_ob_intro_sub">A few questions so every session fits you.</p>
   </div>
   <div style="position:relative;z-index:2;padding:0 28px calc(24px + env(safe-area-inset-bottom));">
@@ -897,6 +897,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 5</div>
+    <!-- Barre de progression réintroduite (cf discussion) — retirée une 1re fois car elle atteignait
+         100% avec encore 4 écrans à faire (calcul indépendant, pas fiable). Cette fois : une largeur
+         fixe par écran, calquée directement sur le même "Question N of 5" déjà affiché juste au-dessus
+         — jamais désynchronisée puisque c'est littéralement le même chiffre, pas un second calcul. -->
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:20%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Which position(s) do you train in?</h2>
@@ -933,10 +938,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 5</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:40%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Do you have an area to protect?</h2>
-    <p class="sub gap20">Optional — your exercises will adapt.</p>
+    <p class="sub gap20">Your exercises will adapt.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;" id="zone_opts">
       <div class="ob-opt multi sel" onclick="toggleZone(this)" data-val="none"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-all"/></svg></div><div style="flex:1"><div class="ob-label">No specific area</div></div><div class="ob-check">✓</div></div>
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="epaule"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-shoulder"/></svg></div><div style="flex:1"><div class="ob-label">Shoulder(s)</div></div><div class="ob-check"></div></div>
@@ -955,6 +961,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 5</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:60%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">When do you train?</h2>
@@ -986,6 +993,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 5</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:80%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">How long do you like to train?</h2>
@@ -1007,6 +1015,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 of 5</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:100%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">How long do you want to commit, to start?</h2>
@@ -7459,6 +7468,10 @@ function objectifCatchUpLabel(pace, remaining){
     : remaining+' session'+(remaining>1?'s':'')+' to catch up';
 }
 function objectifPace(actual, target, daysElapsed, daysTotal){
+  // "Objectif atteint" — état à part, pas juste "dans les temps" (cf discussion "si on a fait nos X
+  // séances sur X, comment l'outil propose de continuer ?") : atteindre la cible mérite sa propre
+  // reconnaissance, pas la même couleur neutre qu'être simplement en avance sur le prorata.
+  if(target>0 && actual>=target) return {color:'var(--teal)', label:'Goal reached'};
   if(daysElapsed<=0 || target<=0) return {color:'var(--gray)', label:'On track'};
   const expected = target*(daysElapsed/daysTotal);
   const ratio = expected>0 ? actual/expected : 1;
@@ -7495,34 +7508,57 @@ function openObjectifPaceInfo(scope){
   const target=week.objectif*duree;
   const now=new Date();
   const dayIdx=(now.getDay()+6)%7;
-  let title, body;
+  // Compte de rattrapage = jours cibles − jours faits − jours DÉJÀ PLANIFIÉS cette semaine (cf
+  // discussion "on clique sur vendredi, il ne reste plus qu'une") — planifier un jour doit décrémenter
+  // tout de suite, pas seulement une fois la séance réellement faite : sinon le chiffre ne bouge jamais
+  // quand on choisit un jour, ce qui contredit "ça incrémente ou décrémente" demandé.
+  const weekStrip=computeWeekStrip();
+  const plannedThisWeek=weekStrip.filter(d=>d.statut==='planned').length;
+  const remaining=Math.max(0, week.objectif-week.fait-plannedThisWeek);
+  let title, body, pace;
   if(scope==='week'){
-    const pace=objectifPace(week.minutes, target, dayIdx+1, 7);
+    pace=objectifPace(week.minutes, target, dayIdx+1, 7);
     title=trDyn(pace.label);
-    body = currentLang==='fr'
-      ? `${week.minutes} / ${target} min, ${dayIdx+1}/7 jours écoulés cette semaine.`
-      : `${week.minutes} / ${target} min, ${dayIdx+1}/7 days into the week.`;
+    // Objectif atteint : la question change ("qu'est-ce qu'on te propose maintenant ?", pas "voici où
+    // tu en es") — cf discussion "si on a fait nos X séances sur X, comment l'outil propose de continuer ?"
+    if(pace.label==='Goal reached'){
+      body = currentLang==='fr' ? 'Envie d\'une séance bonus ?' : 'Feeling like a bonus session?';
+    } else if(remaining>0){
+      // Pas de répétition du chiffre déjà visible sur la carte Home (cf discussion "on n'a pas besoin
+      // de répéter le retard, on le voit déjà sur la fenêtre d'avant") — remplacé par le compte concret
+      // de séances à positionner, qui elle est une info NOUVELLE (pas déjà affichée sur la carte).
+      // Pas de point final — reprend tel quel le même texte que le label de la carte (déjà couvert par
+      // les motifs de traduction existants), pas la peine d'un 2e motif pour une variante à un caractère.
+      body = currentLang==='fr'
+        ? `${remaining} séance${remaining>1?'s':''} à rattraper`
+        : `${remaining} session${remaining>1?'s':''} to catch up`;
+    } else {
+      body = currentLang==='fr'
+        ? `${week.minutes} / ${target} min, ${dayIdx+1}/7 jours écoulés cette semaine.`
+        : `${week.minutes} / ${target} min, ${dayIdx+1}/7 days into the week.`;
+    }
   } else {
     const monday=new Date(now.getFullYear(), now.getMonth(), now.getDate()-dayIdx); monday.setHours(0,0,0,0);
     const block4Start=new Date(monday); block4Start.setDate(monday.getDate()-21);
     const hist4=userSessionHistory.filter(h=>h.date>=block4Start.getTime());
     const min4=hist4.reduce((s,h)=>s+(h.duree||0),0);
     const target4=target*4;
-    const pace=objectifPace(min4, target4, 21+dayIdx+1, 28);
+    pace=objectifPace(min4, target4, 21+dayIdx+1, 28);
     title=trDyn(pace.label);
     body = currentLang==='fr'
       ? `${min4} / ${target4} min, ${21+dayIdx+1}/28 jours écoulés dans le cycle.`
       : `${min4} / ${target4} min, ${21+dayIdx+1}/28 days into the cycle.`;
+    if(pace.label==='Goal reached') body += currentLang==='fr' ? ' Envie d\'une séance bonus ?' : ' Feeling like a bonus session?';
   }
   // Jours tapables pour se replanifier soi-même (chantier calendrier/auto-assignation, cf discussion
   // "il faudrait voir le call to action, le bouton qui fait que tu les replanifies") — seulement quand
   // il reste des séances à rattraper CETTE semaine, et seulement les jours encore ouverts (jamais un
-  // jour déjà fait/manqué — un jour manqué est du passé, pas un créneau qu'on peut choisir).
+  // jour déjà fait/manqué/planifié — un jour manqué est du passé, un jour déjà planifié n'a plus besoin
+  // d'être reproposé).
   let dayChips='';
-  if(scope==='week'){
-    const remaining=Math.max(0, week.objectif-week.fait);
+  if(scope==='week' && pace.label!=='Goal reached'){
     if(remaining>0){
-      const openDays=computeWeekStrip().filter(d=>d.statut==='libre'||d.statut==='prevu');
+      const openDays=weekStrip.filter(d=>d.statut==='libre'||d.statut==='prevu');
       if(openDays.length){
         dayChips='<div style="font-size:12px;color:var(--gray);margin-top:16px;margin-bottom:8px;">'+trDyn('Plan a catch-up day:')+'</div>'
           +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'+openDays.map(d=>
@@ -7531,11 +7567,23 @@ function openObjectifPaceInfo(scope){
       }
     }
   }
+  // Cycle en retard : pas de sélecteur de jour ici (28 jours, trop pour une petite modale) — renvoie
+  // vers le calendrier Progress, qui couvre déjà tout le mois (cf discussion "sur le retard côté cycle,
+  // comment rattraper ? comment ça se passe ?").
+  const calendarLink = (scope==='cycle' && pace.color!=='var(--teal)')
+    // setProgTab() différé après le setup par défaut de go('progression') (index.html, hook
+    // id==='progression' : setTimeout(renderProgPeriod, 20)) — sinon celui-ci écrase l'onglet Calendrier
+    // qu'on vient de sélectionner, 20ms plus tard, et on retombe sur l'onglet période par défaut. Bug
+    // trouvé en testant le bouton, pas supposé.
+    ? '<button class="btn-ghost" style="width:100%;margin-top:10px;color:var(--brand-fixed);font-weight:700;" onclick="closeModal();go(\'progression\');setTimeout(()=>setProgTab(document.getElementById(\'progTab4\'),\'records\'),40);">'+trDyn('Plan it on my calendar')+'</button>'
+    : '';
   const sess=getSessionDuJour();
+  const sessBtnLabel = pace.label==='Goal reached' ? trDyn('Do a bonus session') : trDyn('View my session');
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
     +dayChips
-    +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+trDyn('View my session')+'</button>'
+    +calendarLink
+    +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+sessBtnLabel+'</button>'
     +'<button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
 }
 // Légende de la frise, retirée de l'affichage permanent (cf renderHomeObjectifRing) — reprise ici telle
@@ -7661,6 +7709,7 @@ const CHECKIN_OPTS=[['epuise','😩'],['fatigue','😴'],['neutre','😐'],['bie
 function checkinEmoji(val){ return (CHECKIN_OPTS.find(o=>o[0]===val)||CHECKIN_OPTS[2])[1]; }
 function renderCheckinPrompt(prefix){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
+  b.style.marginBottom='';
   b.innerHTML=CHECKIN_TITLE
     +'<div class="checkin-row">'+CHECKIN_OPTS.map(o=>'<div class="checkin-opt" onclick="selCheckinHome(this,\''+o[0]+'\',\''+prefix+'\')">'+o[1]+'</div>').join('')+'</div>';
   sweepTranslate(b, currentLang);
@@ -7754,6 +7803,11 @@ let todaySessionAdjust=null;   // {exCount, duree, level} une fois un check-in �
 // prévisualisation), pendant que les 3 autres montraient un aperçu + un bouton Confirmer. Repéré en
 // relisant le code : `if(!p.changed) confirmCheckinHome(...)` court-circuitait la fenêtre. Retiré —
 // "Rien à changer" est maintenant juste un texte d'aperçu comme un autre, avec le même bouton Confirmer.
+// "Fermer" (✕), pas "Modifier" (cf discussion "là ce n'est pas modifié, c'est fermé") — avant la
+// validation, rien n'a encore été appliqué, donc rien à "modifier" : le contrôle ferme l'aperçu et
+// revient au choix, il ne change pas une décision déjà prise. Un ✕ discret plutôt qu'un mot, plus
+// simple à lire — "Modifier" reste réservé à l'état confirmé (renderCheckinDone), où il y a
+// réellement quelque chose à changer.
 function renderCheckinPreview(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
   const parts=checkinDeltaParts(val).map(formatCheckinDeltaSpan).join(' · ');
@@ -7763,7 +7817,7 @@ function renderCheckinPreview(prefix,val){
     +'<div style="display:flex;align-items:center;gap:12px;">'
     +'<span style="font-size:26px;flex-shrink:0;">'+checkinEmoji(val)+'</span>'
     +'<span style="flex:1;"></span>'
-    +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span>'
+    +'<span style="font-size:16px;font-weight:700;color:var(--gray);cursor:pointer;flex-shrink:0;padding:2px 4px;" onclick="resetCheckinHome(\''+prefix+'\')">✕</span>'
     +'</div>'
     +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+body+'</div>'
     +'<button class="btn btn-brand-fixed" style="margin-top:10px;padding:11px;font-size:13px;" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
@@ -7774,23 +7828,16 @@ function renderCheckinPreview(prefix,val){
 // la réponse n'aboutissait qu'à un accusé "emoji + Changer" sans lien visible avec quoi que ce soit.
 // Reprend les mêmes deltas que la prévisualisation (cf discussion "dire uniquement ce qui bouge") au
 // lieu d'un label générique "intensité plus facile/relevée" qui ne disait pas combien.
+// Toute la zone disparaît une fois validé (cf discussion "il faut que cette zone disparaisse et que
+// l'émoji retenu aille au niveau de Marc en haut") — avant, une carte restait affichée en place
+// (emoji + Modifier + phrase), refaisant doublon avec le badge qui vient de monter dans l'en-tête.
+// Seul le badge reste comme indicateur ; le taper (updateHeaderCheckinBadge → resetCheckinHome)
+// rouvre le choix ici. margin-bottom repris sur le conteneur lui-même (22px, comme .checkin-row
+// avant) pour que l'espacement avec Objectif juste en dessous ne bouge pas une fois la zone vidée.
 function renderCheckinDone(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
-  const parts = todaySessionAdjust ? checkinDeltaParts(val).map(formatCheckinDeltaSpan).join(' · ') : '';
-  // Espace séparé, jamais collé au texte traduit (cf bug trouvé en le testant : sweepTranslate .trim()
-  // le nœud texte avant de chercher la clé — une clé de dictionnaire avec un espace final ne matche
-  // plus rien une fois le nœud rogné, le préfixe restait bloqué dans la langue du premier rendu).
-  const body = parts ? trDyn('Today’s session adjusted:')+' '+parts : trDyn('No change needed — today’s session stays as planned.');
-  b.innerHTML=CHECKIN_TITLE
-    +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
-    +'<div style="display:flex;align-items:center;gap:12px;">'
-    +'<span style="font-size:26px;flex-shrink:0;">'+checkinEmoji(val)+'</span>'
-    +'<span style="flex:1;"></span>'
-    +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span>'
-    +'</div>'
-    +'<div style="font-size:12.5px;color:'+(todaySessionAdjust?'var(--brand-fixed)':'var(--gray)')+';margin-top:10px;line-height:1.4;">'+body+'</div>'
-    +'</div>';
-  sweepTranslate(b, currentLang);
+  b.innerHTML='';
+  b.style.marginBottom='22px';
 }
 function selCheckinHome(el,val,prefix){
   todayCheckin=val;
@@ -7826,10 +7873,18 @@ function confirmCheckinHome(prefix){
   updateHeaderCheckinBadge(prefix,val);
   refreshHomeSeanceZones();
 }
+// Pastille avec fond (cf discussion "comment montrer qu'on peut le mettre à jour ?") — avant, l'émoji
+// flottait nu à côté du prénom, rien ne disait que c'était tapable. Même traitement visuel que le
+// libellé "aujourd'hui" de la frise (fond clair translucide, coins arrondis) — un langage de "ceci est
+// un élément interactif" déjà établi ailleurs dans l'app, pas une nouvelle convention à apprendre.
 function updateHeaderCheckinBadge(prefix,val){
   const el=document.getElementById(prefix+'CheckinBadge'); if(!el) return;
   el.textContent=checkinEmoji(val);
-  el.style.display='inline';
+  el.style.display='inline-flex';
+  el.style.alignItems='center';
+  el.style.background='rgba(255,255,255,.12)';
+  el.style.borderRadius='10px';
+  el.style.padding='2px 7px';
   el.style.cursor='pointer';
   el.onclick=function(){ resetCheckinHome(prefix); };
 }
@@ -7913,8 +7968,12 @@ function assignPlannedDay(dateTimestamp, source){
   checkPlannedNotifToday();
   refreshHomeSeanceZones();
   if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
-  closeModal();
   toast(trDyn('Session planned'));
+  // Rattrapage : la modale reste ouverte et se re-rend avec les jours restants (cf discussion "pouvoir
+  // sélectionner autant de séances à rattraper que nécessaire") — avant, elle se fermait après un seul
+  // choix, obligeant à rouvrir l'alerte pour chaque jour manqué. openObjectifPaceInfo recalcule
+  // "remaining" à chaque appel, donc les puces déjà choisies disparaissent naturellement.
+  if(source==='catchup') openObjectifPaceInfo('week'); else closeModal();
 }
 function unassignPlannedDay(dateTimestamp){
   userPlannedSessions = userPlannedSessions.filter(p=>p.date!==dateTimestamp);
@@ -7974,8 +8033,13 @@ function renderWeekStripHtml(strip){
         : 'color:'+(d.statut==='libre'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
       // Un jour "fait" ouvre la vraie séance faite ce jour-là, pas toujours le même Programme générique
       // (audit Home, sept. 2026 — vérifié en testant : cliquer lundi ou mercredi ne montrait jamais
-      // rien de spécifique). Les autres statuts (rien à montrer pour ce jour précis) gardent Programme.
-      const dayClick = (d.statut==='fait' && d.sessionId) ? "openSessionDetail('"+d.sessionId+"')" : "go('programme')";
+      // rien de spécifique). "Aujourd'hui", pas encore fait, ouvre directement la vraie séance du jour
+      // (cf discussion) — pas de raison de renvoyer vers Programme pour un jour où une séance précise
+      // est déjà proposée sur la carte juste en dessous. Les autres jours (rien de précis à montrer)
+      // gardent Programme.
+      const dayClick = (d.statut==='fait' && d.sessionId) ? "openSessionDetail('"+d.sessionId+"')"
+        : d.today ? "openSessionDetail(getSessionDuJour().id)"
+        : "go('programme')";
       return '<div style="text-align:center;cursor:pointer;" onclick="'+dayClick+'">'
         +'<div style="font-size:10px;'+lblStyle+'text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
         +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'">'+dotContent+'</div>'
@@ -9875,7 +9939,10 @@ const EN_FR = {
   "I already have an account": "J'ai déjà un compte",
   "Cancel": "Annuler",
   // ob_intro
-  "Let's build your profile together": "Créons ton profil ensemble",
+  // "d'entraînement" ajouté (cf discussion) — aligné sur le nom déjà établi de l'écran post-onboarding
+  // équivalent ("Mon profil d'entraînement", cf TP_FIELDS/mon_profil_entrainement), plutôt qu'un
+  // "profil" générique qui ne dit pas de quoi il s'agit.
+  "Let's build your training profile together": "Créons ton profil d'entraînement ensemble",
   "How long do you want to commit, to start?": "Tu veux t'engager combien de temps, pour commencer ?",
   "Pick a horizon — we'll check back in with you then.": "Choisis un horizon — on refera le point avec toi à ce moment-là.",
   "of guided HIIT —": "de HIIT guidé —",
@@ -9962,7 +10029,10 @@ const EN_FR = {
   "Intense": "Intense",
   // ob6
   "Do you have an area to protect?": "As-tu une zone à ménager ?",
-  "Optional — your exercises will adapt.": "Facultatif — tes exercices s'adaptent en conséquence.",
+  // "Optional" retiré (cf discussion "as-tu une zone : ne pas dire facultatif") — la question reste
+  // sans réponse obligatoire de toute façon (bouton "No specific area" pré-sélectionné), pas besoin de
+  // le dire, ça sonnait comme si la question elle-même comptait moins que les autres.
+  "Your exercises will adapt.": "Tes exercices s'adaptent en conséquence.",
   "No specific area": "Aucune zone particulière",
   "Shoulder(s)": "Épaule(s)",
   "Back / lower back": "Dos / lombaires",
@@ -10889,6 +10959,9 @@ const EN_FR = {
   "Session planned": "Séance planifiée",
   "Remove": "Retirer",
   "Plan a session here": "Planifier une séance ici",
+  "Plan it on my calendar": "Voir mon calendrier",
+  "Do a bonus session": "Faire une séance bonus",
+  "Goal reached": "Objectif atteint",
   "Plan a catch-up day:": "Choisis un jour de rattrapage :",
   "You planned a session for today — let’s go!": "Tu as planifié une séance aujourd'hui — vas-y !",
   "Score Kinmio · today": "Score Kinmio · aujourd'hui",
