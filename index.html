@@ -4810,6 +4810,13 @@ let sessionActuelle = null;
 // non, cf discussion) : sert uniquement à couper les rappels et donner un état visuel assumé plutôt
 // que de laisser croire à un abandon.
 function refreshHomeSeanceZones(){
+  // Anneau Objectif + frise AUSSI rafraîchis ici (bug trouvé en testant le vrai parcours, pas supposé :
+  // assignPlannedDay/unassignPlannedDay n'appelaient que renderHomeSeance, jamais renderHomeObjectifRing
+  // — la frise restait visuellement figée après avoir planifié un jour tant qu'on ne quittait/revenait
+  // pas sur Home). Mêmes arguments que le vrai rendu initial de Home (go() → renderHomeV2), pour rester
+  // cohérent avec ce que la frise affiche à l'ouverture normale de l'écran.
+  if(document.getElementById('homeObjectifZone')) renderHomeObjectifRing('home', userProfile);
+  if(document.getElementById('homeCentreObjectifZone')) renderHomeObjectifRing('homeCentre', userProfileCentre);
   if(document.getElementById('homeSeanceZone')) renderHomeSeance('home', homeData);
   if(document.getElementById('homeCentreSeanceZone')) renderHomeSeance('homeCentre', homeDataCentre);
 }
@@ -7569,7 +7576,7 @@ function openObjectifPaceInfo(scope){
   const weekStrip=computeWeekStrip();
   const plannedThisWeek=weekStrip.filter(d=>d.statut==='planned').length;
   const remaining=Math.max(0, week.objectif-week.fait-plannedThisWeek);
-  let title, body, pace;
+  let title, body, pace, allPlanned=false;
   if(scope==='week'){
     pace=objectifPace(week.minutes, target, dayIdx+1, 7);
     title=trDyn(pace.label);
@@ -7593,6 +7600,7 @@ function openObjectifPaceInfo(scope){
       // le compte tombe à 0 GRÂCE à de la planification — s'il tombe à 0 parce que tout est déjà
       // réellement fait, la phrase générique reste la bonne réponse.
       body = currentLang==='fr' ? 'Tous tes jours sont planifiés !' : 'All your days are planned!';
+      allPlanned=true;
     } else {
       body = currentLang==='fr'
         ? `${week.minutes} / ${target} min, ${dayIdx+1}/7 jours écoulés cette semaine.`
@@ -7642,12 +7650,17 @@ function openObjectifPaceInfo(scope){
     : '';
   const sess=getSessionDuJour();
   const sessBtnLabel = pace.label==='Goal reached' ? trDyn('Do a bonus session') : trDyn('View my session');
+  // Pas de bouton "Voir ma séance" une fois tous les jours planifiés (cf discussion "je ne pense pas
+  // qu'il y ait besoin de voir ma séance, ce n'est pas l'endroit") — cet écran confirme une action de
+  // planification, il n'a plus besoin de proposer une action différente juste en dessous ; "Compris"
+  // suffit à le refermer.
+  const sessBtn = allPlanned ? '' : '<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+sessBtnLabel+'</button>';
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
     +dayChips
     +calendarLink
-    +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+sessBtnLabel+'</button>'
-    +'<button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
+    +sessBtn
+    +'<button class="btn-ghost" style="width:100%;margin-top:'+(allPlanned?'18px':'8px')+';color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
 }
 // Légende de la frise, retirée de l'affichage permanent (cf renderHomeObjectifRing) — reprise ici telle
 // quelle dans un showInfoSheet, un peu agrandie pour se lire en modale plutôt qu'en ligne compacte.
