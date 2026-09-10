@@ -7513,11 +7513,17 @@ function renderProgSafetyBlock(elId){
 // jours restants est déjà "Prévu" (pas encore raté), le compte total est ce qui doit s'afficher.
 // Construit directement dans la langue courante (pas de trDyn mot à mot) — même raison que
 // formatCheckinDeltaSpan : un pluriel dynamique ne matche jamais un motif figé sans ce choix.
-function objectifCatchUpLabel(pace, remaining){
-  if(pace.color==='var(--teal)' || remaining<=0) return null;
-  return currentLang==='fr'
+function objectifCatchUpLabel(pace, remaining, planned){
+  if(pace.color==='var(--teal)') return null;
+  if(remaining>0) return currentLang==='fr'
     ? remaining+' séance'+(remaining>1?'s':'')+' à rattraper'
     : remaining+' session'+(remaining>1?'s':'')+' to catch up';
+  // Compte à 0 GRÂCE à de la planification (pas parce que tout est déjà réellement fait) — mérite son
+  // propre statut plutôt que de retomber sur le label de rythme brut (ex. "En retard"), qui contredirait
+  // le fait que la semaine est déjà entièrement couverte (cf discussion "on devrait mettre un autre
+  // statut... puisque désormais elles sont planifiées").
+  if(planned>0) return trDyn('Days planned');
+  return null;
 }
 // Longueur du "cycle" alignée sur l'engagement choisi à l'onboarding (ob_commit, 1/2/4/8 semaines) —
 // remplace l'ancien cycle toujours fixé à 4 semaines calendaires quel que soit ce choix (cf discussion
@@ -7576,7 +7582,7 @@ function openObjectifPaceInfo(scope){
   const weekStrip=computeWeekStrip();
   const plannedThisWeek=weekStrip.filter(d=>d.statut==='planned').length;
   const remaining=Math.max(0, week.objectif-week.fait-plannedThisWeek);
-  let title, body, pace, allPlanned=false;
+  let title, body, pace, catchUpFlow=false;
   if(scope==='week'){
     pace=objectifPace(week.minutes, target, dayIdx+1, 7);
     title=trDyn(pace.label);
@@ -7593,6 +7599,7 @@ function openObjectifPaceInfo(scope){
       body = currentLang==='fr'
         ? `${remaining} séance${remaining>1?'s':''} à rattraper`
         : `${remaining} session${remaining>1?'s':''} to catch up`;
+      catchUpFlow=true;
     } else if(plannedThisWeek>0){
       // Vient de finir de planifier ses jours de rattrapage (cf discussion "on appuie et c'est bon, il
       // faut une info 'tous tes jours sont planifiés'") — pas la phrase générique en minutes/jours
@@ -7600,7 +7607,7 @@ function openObjectifPaceInfo(scope){
       // le compte tombe à 0 GRÂCE à de la planification — s'il tombe à 0 parce que tout est déjà
       // réellement fait, la phrase générique reste la bonne réponse.
       body = currentLang==='fr' ? 'Tous tes jours sont planifiés !' : 'All your days are planned!';
-      allPlanned=true;
+      catchUpFlow=true;
     } else {
       body = currentLang==='fr'
         ? `${week.minutes} / ${target} min, ${dayIdx+1}/7 jours écoulés cette semaine.`
@@ -7650,17 +7657,17 @@ function openObjectifPaceInfo(scope){
     : '';
   const sess=getSessionDuJour();
   const sessBtnLabel = pace.label==='Goal reached' ? trDyn('Do a bonus session') : trDyn('View my session');
-  // Pas de bouton "Voir ma séance" une fois tous les jours planifiés (cf discussion "je ne pense pas
-  // qu'il y ait besoin de voir ma séance, ce n'est pas l'endroit") — cet écran confirme une action de
-  // planification, il n'a plus besoin de proposer une action différente juste en dessous ; "Compris"
-  // suffit à le refermer.
-  const sessBtn = allPlanned ? '' : '<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+sessBtnLabel+'</button>';
+  // Pas de bouton "Voir ma séance" dans tout le parcours de rattrapage (cf discussion "il n'y a pas
+  // besoin de voir ma séance, ce n'est pas l'endroit") — ni pendant qu'on choisit les jours (l'action
+  // ici est de taper une puce, pas de démarrer une séance), ni une fois tout planifié. Réservé aux
+  // autres cas (objectif atteint, cycle) où proposer une séance a du sens.
+  const sessBtn = catchUpFlow ? '' : '<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+sessBtnLabel+'</button>';
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
     +dayChips
     +calendarLink
     +sessBtn
-    +'<button class="btn-ghost" style="width:100%;margin-top:'+(allPlanned?'18px':'8px')+';color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
+    +'<button class="btn-ghost" style="width:100%;margin-top:'+(catchUpFlow?'18px':'8px')+';color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
 }
 // Légende de la frise, retirée de l'affichage permanent (cf renderHomeObjectifRing) — reprise ici telle
 // quelle dans un showInfoSheet, un peu agrandie pour se lire en modale plutôt qu'en ligne compacte.
@@ -7713,10 +7720,17 @@ function renderHomeObjectifRing(prefix, profile){
   // à sa droite, exactement le même gabarit — avant, la semaine avait un anneau et le cycle une simple
   // barre, deux objets visuels différents pour la même idée ("où j'en suis sur une période").
   const r4=22, c4=2*Math.PI*r4, offset4=c4*(1-pct4/100);
-  const daysRemaining = Math.max(0, week.objectif-week.fait);
-  const weekLabel = objectifCatchUpLabel(weekPace, daysRemaining) || trDyn(weekPace.label);
-  const daysRemaining4 = Math.max(0, week.objectif*cw-days4);
-  const cycleLabel = objectifCatchUpLabel(block4Pace, daysRemaining4) || trDyn(block4Pace.label);
+  // Les jours déjà planifiés comptent comme "couverts", pas seulement les jours réellement faits (bug
+  // trouvé en testant le vrai parcours : le label restait sur "X séances à rattraper" même après avoir
+  // planifié tous les jours manquants, cf discussion "on vient de les planifier, il y a encore l'alerte
+  // à rattraper"). Même logique que le calcul de la modale (openObjectifPaceInfo), dupliquée ici plutôt
+  // que partagée : les deux lisent weekStrip fraîchement recalculé, jamais une valeur mise en cache.
+  const plannedThisWeek=weekStrip.filter(d=>d.statut==='planned').length;
+  const daysRemaining = Math.max(0, week.objectif-week.fait-plannedThisWeek);
+  const weekLabel = objectifCatchUpLabel(weekPace, daysRemaining, plannedThisWeek) || trDyn(weekPace.label);
+  const plannedInCycle=userPlannedSessions.filter(p=>p.date>=block4Start.getTime() && p.date<monday.getTime()+7*HIST_DAY).length;
+  const daysRemaining4 = Math.max(0, week.objectif*cw-days4-plannedInCycle);
+  const cycleLabel = objectifCatchUpLabel(block4Pace, daysRemaining4, plannedInCycle) || trDyn(block4Pace.label);
   el.innerHTML = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('GOAL')+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
@@ -8876,7 +8890,10 @@ function renderProgCalendar(){
     if(statut==='fait') bg='background:var(--brand-fixed);color:var(--ink-on-accent);font-weight:800;';
     else if(statut==='manque') bg='border:1.5px solid var(--vigilance);color:var(--gray2);';
     else if(statut==='prevu') bg='border:1.5px solid var(--gray2);color:var(--gray2);';
-    else if(statut==='planned'){ bg='border:1.5px solid var(--gray2);color:var(--gray2);position:relative;'; dotInner='<span style="position:absolute;bottom:3px;left:50%;width:4px;height:4px;border-radius:50%;background:var(--brand-fixed);transform:translateX(-50%);"></span>'; }
+    // Même code couleur que la frise Home (anneau vert, pas de point) — le calendrier avait gardé
+    // l'ancien traitement gris+point (bug trouvé en comparant les deux écrans, pas supposé : les deux
+    // sont censés parler "le même langage", cf discussion d'origine du chantier calendrier).
+    else if(statut==='planned') bg='border:1.5px solid var(--brand-fixed);color:var(--white);';
     const ring = isToday ? 'outline:1.5px solid var(--white);outline-offset:2px;' : '';
     html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+'">'+d+dotInner+'</div>';
   }
@@ -11307,6 +11324,7 @@ const EN_FR = {
   "Done": "Terminée",
   "In progress": "En cours",
   "Planned": "Prévue",
+  "Days planned": "Planifié",
   "Monday": "Lundi", "Tuesday": "Mardi", "Wednesday": "Mercredi", "Thursday": "Jeudi", "Friday": "Vendredi", "Saturday": "Samedi", "Sunday": "Dimanche",
   "Mon": "Lun", "Tue": "Mar", "Wed": "Mer", "Thu": "Jeu", "Fri": "Ven", "Sat": "Sam", "Sun": "Dim",
   "Mon 28 Jul — Sun 3 Aug 2025": "Lun 28 juil. — Dim 3 août 2025",
