@@ -879,7 +879,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ÉCRAN 3 : Intro onboarding -->
 <div class="screen" id="ob_intro">
   <div class="splash-video-fallback"></div>
-  <video class="splash-video" autoplay muted loop playsinline><source src="onboarding2.mp4" type="video/mp4"></video>
+  <video class="splash-video" id="obIntroVideo" muted loop playsinline preload="none" data-src="onboarding2.mp4"></video>
   <div class="splash-overlay"></div>
   <div style="position:relative;z-index:3;padding:52px 20px 0;flex-shrink:0;"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button></div>
   <div style="position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:flex-start;padding:24px 28px 0;">
@@ -1051,7 +1051,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <img src="kinmio_logo_app.png" alt="kinmio" style="height:28px;width:auto;display:block;">
     </div>
     <div style="position:relative;height:230px;flex-shrink:0;border-radius:18px;overflow:hidden;background:var(--bg3);margin-bottom:20px;">
-      <video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"><source src="ob_vision.mp4" type="video/mp4"></video>
+      <video muted loop playsinline preload="none" id="obVisionVideo" data-src="ob_vision.mp4" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0) 55%,rgba(10,10,15,.55) 100%);"></div>
     </div>
     <p style="font-size:20px;font-weight:800;color:var(--brand-fixed);line-height:1.4;text-align:center;margin:0 0 24px;">The HIIT bar connected to your effort</p>
@@ -1089,7 +1089,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <h2 class="gap8">Meet your bar</h2>
     <p class="sub gap20">30 seconds to get it right — anchor, adjust, go.</p>
     <div style="position:relative;height:200px;flex-shrink:0;border-radius:18px;overflow:hidden;background:var(--bg3);margin-bottom:16px;" onclick="advanceObDemo()">
-      <video id="obDemoVideo" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"><source id="obDemoVideoSrc" src="ob_demo_step1.mp4" type="video/mp4"></video>
+      <video id="obDemoVideo" muted loop playsinline preload="none" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:20px;" id="obDemoDots"></div>
     <div style="display:flex;align-items:center;gap:12px;" id="obDemoStep"></div>
@@ -5121,6 +5121,8 @@ function go(id){
   if(id==='next_exercise') setTimeout(renderNextExercise, 60);            // texte/bouton selon dernier exercice ou non
   if(id==='fiche_referent_public') setTimeout(renderFicheReferentPublic, 20);
   if(id==='ob_intro') centreMode = false;                          // entrée onboarding B2C
+  if(id==='ob_intro') lazySplashVideo('obIntroVideo');
+  if(id==='ob_vision') lazySplashVideo('obVisionVideo');
   // genererProgramme() écrivait dans prog_title/prog2_title/prog_thumb/progJoursList/progExoList —
   // des ids qui n'existent plus depuis la refonte de l'écran Programme (nouveau modèle) : appel mort
   // qui ne faisait que corrompre currentProgram (mauvaise forme, dataset EXERCISES anglais, sans
@@ -11613,8 +11615,10 @@ function renderObDemoStep(){
   const btn=document.getElementById('obDemoNextBtn');
   if(btn) btn.textContent = trDyn(obDemoStepIdx < OB_DEMO_STEPS.length-1 ? 'Got it, next step →' : 'Got it, all set →');
   // La vidéo change avec l'étape — un vrai tuto séquentiel, pas une boucle générique identique du début à la fin.
-  const vidSrc=document.getElementById('obDemoVideoSrc'), vid=document.getElementById('obDemoVideo');
-  if(vidSrc && vid && vidSrc.getAttribute('src')!==s.video){ vidSrc.setAttribute('src', s.video); vid.load(); vid.play().catch(()=>{}); }
+  // .src direct sur <video>, pas un <source> enfant (audit chargement, sept. 2026 — cf lazySplashVideo) :
+  // manipuler <source src>+.load() ne fonctionne pas de façon fiable au tout premier chargement.
+  const vid=document.getElementById('obDemoVideo');
+  if(vid && vid.getAttribute('src')!==s.video){ vid.src=s.video; vid.load(); vid.play().catch(()=>{}); }
   preloadObDemoVideo(OB_DEMO_STEPS[obDemoStepIdx+1]);
 }
 // Précharge en tâche de fond la vidéo de l'étape suivante (fichiers lourds, non compressés) pour que
@@ -11628,6 +11632,24 @@ function preloadObDemoVideo(step){
   pre.src = step.video;
   document.body.appendChild(pre);
   pre.load();
+}
+// Déclenche le chargement d'une vidéo d'écran seulement à l'arrivée sur son écran (audit chargement,
+// sept. 2026) : onboarding2.mp4/ob_vision.mp4/ob_demo_step1.mp4 étaient en <video autoplay> codées en
+// dur, donc toutes fetchées dès le premier rendu de la page — même écrans jamais encore atteints. 4
+// grosses vidéos en concurrence dès l'ouverture pouvaient faire traîner ou échouer des requêtes plus
+// petites parties en même temps (logos compris) — vérifié en trouvant plusieurs net::ERR_ABORTED sur
+// ces sources au chargement initial. Seule la toute première vidéo réellement affichée (onboarding.mp4,
+// écran d'entrée) reste en autoplay immédiat.
+// .src direct sur la balise <video>, pas le <source> enfant : vérifié en le testant, manipuler
+// <source src> + .load() ne fonctionne pas de façon fiable pour un tout premier chargement (reste
+// bloqué en networkState NO_SOURCE) — seule une vidéo déjà chargée une fois (cas des étapes du tuto
+// barre, renderObDemoStep) tolère cette approche pour un changement ultérieur.
+function lazySplashVideo(videoId){
+  const vid=document.getElementById(videoId); if(!vid) return;
+  const dataSrc=vid.dataset.src; if(!dataSrc || vid.getAttribute('src')) return;
+  vid.src = dataSrc;
+  vid.load();
+  vid.play().catch(()=>{});
 }
 let obDemoReviewMode = false;
 // Réouverture depuis Paramètres › Mon équipement — même tuto que l'onboarding, mais ne doit pas
