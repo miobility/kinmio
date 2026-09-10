@@ -7453,7 +7453,7 @@ function objectifPace(actual, target, daysElapsed, daysTotal){
 // depuis un swatch DOM (4 valeurs figées, pas besoin d'indirection).
 function weekStripLegendHtml(){
   const item=(dotStyle,label)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;'+dotStyle+'"></span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
-  return '<div style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 2px;">'
+  return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'
     +item('background:var(--brand-fixed);','Trained')
     +item('border:1.5px solid var(--vigilance);','Missed')
     +item('border:1.5px solid var(--gray2);','Upcoming')
@@ -7473,6 +7473,9 @@ function renderHomeObjectifRing(prefix, profile){
   const weekPace=objectifPace(week.minutes, target, dayIdx+1, 7);
   // Bloc 4 semaines = les 3 semaines calendaires précédentes + la semaine en cours (pas 28 jours
   // glissants depuis maintenant) — même lundi de référence que le strip, pour rester aligné.
+  // Libellé "Cycle de 4 semaines" plutôt que "4 dernières semaines" (cf discussion) : ce n'est pas une
+  // rétrospective, c'est le cycle DANS LEQUEL la semaine du haut se trouve — la semaine en cours en est
+  // la tranche la plus récente, pas quelque chose qui s'y additionne après coup.
   const monday=new Date(now.getFullYear(), now.getMonth(), now.getDate()-dayIdx); monday.setHours(0,0,0,0);
   const block4Start=new Date(monday); block4Start.setDate(monday.getDate()-21);
   const hist4=userSessionHistory.filter(h=>h.date>=block4Start.getTime());
@@ -7506,7 +7509,7 @@ function renderHomeObjectifRing(prefix, profile){
     +weekStripLegendHtml()
     +'<div style="height:1px;background:var(--border);margin:18px 0 14px;"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
-      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('Last 4 weeks')+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('4-week cycle')+'</span>'
       +'<span style="font-size:10px;font-weight:700;color:'+block4Pace.color+';">'+trDyn(block4Pace.label)+'</span>'
     +'</div>'
     +'<div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;"><div style="height:100%;width:'+pct4+'%;background:'+block4Pace.color+';border-radius:3px;"></div></div>'
@@ -7583,6 +7586,56 @@ function previewCheckinImpact(val){
   const duree=Math.round(sess.duree*exCount/sess.exercices.length);
   return {exCount, duree, level:impact.level, changed:true};
 }
+// Jauges de base (niveau de profil, JAMAIS la surcharge déjà en place) vs jauges proposées — même
+// source pour prévisualiser le delta (checkinDeltaParts) et pour appliquer à la validation
+// (confirmCheckinHome), afin que le chiffre montré avant de valider soit exactement celui appliqué.
+function checkinJaugeMap(val){
+  const impact=CHECKIN_IMPACT[val];
+  const sess=getSessionDuJour();
+  const niveauKey=(userProfileData.niveau||'debutant').toLowerCase().replace('é','e').replace('â','a').replace('è','e');
+  const exos=[...EXERCICES,...userExercices];
+  const map={};
+  sess.exercices.forEach(exId=>{
+    const ex=exos.find(e=>e.id===exId); if(!ex) return;
+    const base=ex.params[niveauKey]||ex.params.debutant; if(!base||base.jauge===undefined) return;
+    map[exId]={base:base.jauge, jauge: !impact ? base.jauge : (impact.level==='up' ? Math.min(5, base.jauge+1) : 1)};
+  });
+  return map;
+}
+// Ne dit que ce qui bouge (cf discussion "si c'est stable, c'est stable, mais dire uniquement ce qui
+// bouge") : "en forme" ne change ni le nombre d'exercices ni la durée (exDelta:0) — les afficher quand
+// même à l'identique ("6 → 6 exercices") n'apportait rien, juste du bruit sur les 2/3 des cas.
+function checkinDeltaParts(val){
+  const impact=CHECKIN_IMPACT[val];
+  if(!impact) return [];
+  const sess=getSessionDuJour();
+  const p=previewCheckinImpact(val);
+  const parts=[];
+  if(impact.exDelta) parts.push({key:'ex', before:sess.exercices.length, after:p.exCount});
+  const durDelta=p.duree-sess.duree;
+  if(durDelta) parts.push({key:'dur', before:sess.duree, after:p.duree});
+  const map=checkinJaugeMap(val);
+  const vals=Object.values(map);
+  if(vals.length){
+    const baseAvg=Math.round(vals.reduce((a,v)=>a+v.base,0)/vals.length*10)/10;
+    const newAvg=Math.round(vals.reduce((a,v)=>a+v.jauge,0)/vals.length*10)/10;
+    if(newAvg!==baseAvg) parts.push({key:'int', before:baseAvg, after:newAvg});
+  }
+  return parts;
+}
+// Chaque variable est son propre nœud texte (balise <b> dédiée), jamais fondue dans une phrase
+// composite — sweepTranslate ne peut reverse-matcher un motif que sur un nœud texte ENTIER (cf bug
+// rencontré et corrigé une 1re fois sur cette même carte : une phrase avec des <b> au milieu se
+// fragmentait en morceaux qu'aucun motif ne matchait plus). Construit directement dans la langue
+// courante plutôt que via trDyn mot à mot, pour ne jamais dépendre d'un balayage pour le tout premier
+// affichage. Format "avant → après" plutôt qu'un delta seul (cf discussion) — toujours seulement les
+// variables qui bougent, checkinDeltaParts filtre déjà celles qui restent stables.
+function formatCheckinDeltaSpan(part){
+  const text = currentLang==='fr'
+    ? (part.key==='ex'?`Exercices ${part.before} → ${part.after}`:part.key==='dur'?`Durée ${part.before} → ${part.after} min`:`Intensité ${part.before} → ${part.after}`)
+    : (part.key==='ex'?`Exercises ${part.before} → ${part.after}`:part.key==='dur'?`Duration ${part.before} → ${part.after} min`:`Intensity ${part.before} → ${part.after}`);
+  return '<b style="color:var(--white);">'+text+'</b>';
+}
 // Moyenne des jauges des exercices de la séance du jour — affichée sur la carte séance, mise à jour
 // après validation puisque userParamsOverrides (lu par getParamsExercice) a changé.
 function avgSessionJauge(sess){
@@ -7599,14 +7652,7 @@ function renderCheckinPreview(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
   const p=previewCheckinImpact(val);
   if(!p.changed){ confirmCheckinHome(prefix); return; }
-  const sess=getSessionDuJour();
-  const levelTxt = p.level==='up' ? trDyn('higher intensity') : trDyn('easier intensity');
-  // Phrase composée en UN SEUL nœud texte, pas de <b> qui la fragmente (cf bug trouvé en le testant :
-  // sweepTranslate ne peut reverse-matcher un pattern que sur un nœud texte entier — fragmenté par des
-  // balises, chaque morceau seul ne matche plus rien et reste bloqué dans la langue du premier rendu).
-  const sentence = currentLang==='fr'
-    ? `Ta séance du jour s'ajuste : ${sess.exercices.length} → ${p.exCount} exercices, ${sess.duree} → ${p.duree} min, ${levelTxt}.`
-    : `Today’s session adjusts: ${sess.exercices.length} → ${p.exCount} exercises, ${sess.duree} → ${p.duree} min, ${levelTxt}.`;
+  const parts=checkinDeltaParts(val).map(formatCheckinDeltaSpan).join(' · ');
   b.innerHTML=CHECKIN_TITLE
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
     +'<div style="display:flex;align-items:center;gap:12px;">'
@@ -7614,18 +7660,22 @@ function renderCheckinPreview(prefix,val){
     +'<span style="flex:1;"></span>'
     +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span>'
     +'</div>'
-    +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+sentence+'</div>'
+    +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+trDyn('Today’s session adjusts:')+' '+parts+'</div>'
     +'<button class="btn btn-brand-fixed" style="margin-top:10px;padding:11px;font-size:13px;" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
     +'</div>';
   sweepTranslate(b, currentLang);
 }
 // Conséquence réelle affichée après validation (audit Home, sept. 2026 puis calculatrice) : avant,
 // la réponse n'aboutissait qu'à un accusé "emoji + Changer" sans lien visible avec quoi que ce soit.
+// Reprend les mêmes deltas que la prévisualisation (cf discussion "dire uniquement ce qui bouge") au
+// lieu d'un label générique "intensité plus facile/relevée" qui ne disait pas combien.
 function renderCheckinDone(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
-  const impact = todaySessionAdjust
-    ? trDyn('Today’s session adjusted: ')+trDyn(todaySessionAdjust.level==='up'?'higher intensity':'easier intensity')
-    : trDyn('No change needed — today’s session stays as planned.');
+  const parts = todaySessionAdjust ? checkinDeltaParts(val).map(formatCheckinDeltaSpan).join(' · ') : '';
+  // Espace séparé, jamais collé au texte traduit (cf bug trouvé en le testant : sweepTranslate .trim()
+  // le nœud texte avant de chercher la clé — une clé de dictionnaire avec un espace final ne matche
+  // plus rien une fois le nœud rogné, le préfixe restait bloqué dans la langue du premier rendu).
+  const body = parts ? trDyn('Today’s session adjusted:')+' '+parts : trDyn('No change needed — today’s session stays as planned.');
   b.innerHTML=CHECKIN_TITLE
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
     +'<div style="display:flex;align-items:center;gap:12px;">'
@@ -7633,7 +7683,7 @@ function renderCheckinDone(prefix,val){
     +'<span style="flex:1;"></span>'
     +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span>'
     +'</div>'
-    +'<div style="font-size:12.5px;color:'+(todaySessionAdjust?'var(--brand-fixed)':'var(--gray)')+';margin-top:10px;line-height:1.4;">'+impact+'</div>'
+    +'<div style="font-size:12.5px;color:'+(todaySessionAdjust?'var(--brand-fixed)':'var(--gray)')+';margin-top:10px;line-height:1.4;">'+body+'</div>'
     +'</div>';
   sweepTranslate(b, currentLang);
 }
@@ -10076,11 +10126,8 @@ const EN_FR = {
   "Firm": "Ferme",
   "Max": "Max",
   "How are you feeling?": "Comment te sens-tu ?",
-  "Today’s session adjusts: ": "Ta séance du jour s'ajuste : ",
   "Today’s session adjusts:": "Ta séance du jour s'ajuste :",
-  "Today’s session adjusted: ": "Séance ajustée : ",
-  "easier intensity": "intensité plus facile",
-  "higher intensity": "intensité relevée",
+  "Today’s session adjusted:": "Séance ajustée :",
   "Check-in": "Check-in",
   "session adjusted": "séance ajustée",
   "avg intensity": "intensité moy.",
@@ -10945,6 +10992,7 @@ const EN_FR = {
   "Best streak": "Meilleure série",
   "This week": "Cette semaine",
   "Last 4 weeks": "4 dernières semaines",
+  "4-week cycle": "Cycle de 4 semaines",
   "Last week": "Semaine dernière",
   "Avg. duration": "Durée moy.",
   "Before session": "Avant la séance",
@@ -11341,14 +11389,13 @@ const EN_FR = {
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
-  // Calculatrice check-in (renderCheckinPreview/renderCheckinDone) — phrase composée avec des valeurs
-  // dynamiques, jamais captée par un balayage statique sans pattern (cf bug déjà rencontré 2 fois sur
-  // Home cette session : dictionnaire simple = correspondance exacte du nœud texte entier, ne matche
-  // pas une phrase avec des nombres au milieu).
-  [/^Today’s session adjusts: (\d+) → (\d+) exercises, (\d+) → (\d+) min, (easier intensity|higher intensity)\.$/,
-    (m)=>`Ta séance du jour s'ajuste : ${m[1]} → ${m[2]} exercices, ${m[3]} → ${m[4]} min, ${m[5]==='easier intensity'?'intensité plus facile':'intensité relevée'}.`],
-  [/^Today’s session adjusted: (easier intensity|higher intensity)$/,
-    (m)=>`Séance ajustée : ${m[1]==='easier intensity'?'intensité plus facile':'intensité relevée'}`],
+  // Calculatrice check-in (renderCheckinPreview/renderCheckinDone, cf checkinDeltaParts) — chaque
+  // variable qui bouge est son propre nœud texte ("Exercises 6 → 4", pas une phrase composite), donc un
+  // pattern simple par variable suffit. Format "avant → après" (cf discussion, remplace un 1er essai en
+  // delta seul "+1"/"-2") — toujours seulement les variables qui bougent.
+  [/^Exercises (\d+) → (\d+)$/, (m)=>`Exercices ${m[1]} → ${m[2]}`],
+  [/^Duration (\d+) → (\d+) min$/, (m)=>`Durée ${m[1]} → ${m[2]} min`],
+  [/^Intensity ([\d.]+) → ([\d.]+)$/, (m)=>`Intensité ${m[1]} → ${m[2]}`],
   [/^(\d+) sessions? total · ([\d.]+) avg \/ member \/ week$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} au total · ${m[2]} moy. / membre / semaine`],
   [/^(\d+) sessions? · (\d+) min avg\/session$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} · ${m[2]} min moy./séance`],
   // Générique pour tous les compteurs d'étape de wizard (csi/csc/cprog + détours) — posés en JS brut
@@ -11510,12 +11557,12 @@ const EN_FR_PATTERNS = [
   [/^→ (\d+)% vs previous (week|month|year)$/, (m)=>`→ ${m[1]}% vs ${({week:'semaine',month:'mois',year:'année'})[m[2]]} précédent${m[2]==='week'||m[2]==='year'?'e':''}`],
 ];
 const FR_EN_PATTERNS = [
-  // Calculatrice check-in — sens retour, confirmé cassé en le testant (sélection puis changement de
-  // langue sans quitter l'écran laissait la phrase de la calculatrice bloquée en français).
-  [/^Ta séance du jour s'ajuste : (\d+) → (\d+) exercices, (\d+) → (\d+) min, (intensité plus facile|intensité relevée)\.$/,
-    (m)=>`Today’s session adjusts: ${m[1]} → ${m[2]} exercises, ${m[3]} → ${m[4]} min, ${m[5]==='intensité plus facile'?'easier intensity':'higher intensity'}.`],
-  [/^Séance ajustée : (intensité plus facile|intensité relevée)$/,
-    (m)=>`Today’s session adjusted: ${m[1]==='intensité plus facile'?'easier intensity':'higher intensity'}`],
+  // Calculatrice check-in — sens retour, confirmé cassé en le testant une 1re fois (une phrase composite
+  // avec des <b> au milieu se fragmentait, aucun pattern ne matchait plus rien). Reconstruite en items
+  // séparés (checkinDeltaParts/formatCheckinDeltaSpan), format "avant → après".
+  [/^Exercices (\d+) → (\d+)$/, (m)=>`Exercises ${m[1]} → ${m[2]}`],
+  [/^Durée (\d+) → (\d+) min$/, (m)=>`Duration ${m[1]} → ${m[2]} min`],
+  [/^Intensité ([\d.]+) → ([\d.]+)$/, (m)=>`Intensity ${m[1]} → ${m[2]}`],
   // Manquait côté FR→EN alors que EN_FR_PATTERNS a bien le sens forward (cf tâche #329) — un
   // retour FR→EN sur un écran wizard (csi/csc/cprog/defi/friend) laissait le compteur d'étape
   // bloqué en français, découvert en vérifiant les nouveaux compteurs defiStepLbl/friendStepLbl.
