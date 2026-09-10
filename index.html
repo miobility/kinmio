@@ -4752,6 +4752,10 @@ let userSessionHistory = [
 let userProgrammeHistory = [
   { date: Date.now()-16*HIST_DAY, nom:'Real Start', id:'PRG-01', sessionsCount:11, dureeTotal:238 }
 ];
+// Jours choisis par l'utilisateur (rattrapage ou planification libre), séparés de userSessionHistory qui
+// reste strict "fait pour de vrai" (cf discussion "calendrier + auto-assignation + notifications") — une
+// intention, pas un fait. {date: timestamp minuit du jour, source:'catchup'|'self'}.
+let userPlannedSessions = [];
 // Réglages manuels par exercice (surchargent les valeurs par défaut du niveau) : { [exId]: {duree?, reps?, series?} }
 let userParamsOverrides = {};
 
@@ -5228,6 +5232,9 @@ function go(id){
   if(id==='attente_validation') setTimeout(scheduleCentreAutoValidate, 20);
   if(id==='notifications') setTimeout(syncBell, 30);
   if(id==='home' || id==='home_centre') setTimeout(syncBell, 30);
+  // Notif "séance planifiée aujourd'hui" (chantier calendrier/auto-assignation) — vérifiée à chaque
+  // entrée sur Home, idempotente via _notified (pas de spam si on navigue plusieurs fois dans la journée).
+  if(id==='home' || id==='home_centre') checkPlannedNotifToday();
   if(id==='sante') setTimeout(updateHealthUI, 30);
   if(id==='resume') setTimeout(renderResumeHealth, 30);
   // renderNextSeance()/setResumeCoachMsg() sont maintenant appelés directement depuis
@@ -7466,13 +7473,17 @@ function objectifPace(actual, target, daysElapsed, daysTotal){
 // 4 mots, pas 5 (cf discussion "je ne parlerai pas de repos") : Fait / Manqué / Prévu / À rattraper.
 // "Vide" (jour non choisi déjà passé) n'a pas d'entrée — un point discret n'a pas besoin d'être
 // explicité, il se lit déjà comme "rien ici".
-// 3 mots (cf discussion "trop compliqué, je ferai fait/manqué/prévu") : Fait / Manqué / Prévu.
+// 3 mots (cf discussion "trop compliqué, je ferai fait/manqué/prévu") : Fait / Manqué / Prévu. +
+// "Planifié" ajouté (chantier calendrier/auto-assignation) — différent de l'ancien "Rattrapage" retiré
+// (auto-calculé, ambigu) : ici c'est un choix explicite de la personne, mérite sa propre légende.
 function weekStripLegendHtml(){
-  const item=(dotStyle,label)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;'+dotStyle+'"></span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
+  const item=(dotStyle,label,inner)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;position:relative;'+dotStyle+'">'+(inner||'')+'</span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
+  const plannedDot='<span style="position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:var(--brand-fixed);transform:translate(-50%,-50%);"></span>';
   return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'
     +item('background:var(--brand-fixed);','Trained')
     +item('border:1.5px solid var(--vigilance);','Missed')
     +item('border:1.5px solid var(--gray2);','Upcoming')
+    +item('border:1.5px solid var(--gray2);','Self-planned',plannedDot)
     +'</div>';
 }
 // Alerte de rythme rendue actionnable au tap (cf discussion "proposerais-tu une reco en cliquant sur
@@ -7503,9 +7514,27 @@ function openObjectifPaceInfo(scope){
       ? `${min4} / ${target4} min, ${21+dayIdx+1}/28 jours écoulés dans le cycle.`
       : `${min4} / ${target4} min, ${21+dayIdx+1}/28 days into the cycle.`;
   }
+  // Jours tapables pour se replanifier soi-même (chantier calendrier/auto-assignation, cf discussion
+  // "il faudrait voir le call to action, le bouton qui fait que tu les replanifies") — seulement quand
+  // il reste des séances à rattraper CETTE semaine, et seulement les jours encore ouverts (jamais un
+  // jour déjà fait/manqué — un jour manqué est du passé, pas un créneau qu'on peut choisir).
+  let dayChips='';
+  if(scope==='week'){
+    const remaining=Math.max(0, week.objectif-week.fait);
+    if(remaining>0){
+      const openDays=computeWeekStrip().filter(d=>d.statut==='libre'||d.statut==='prevu');
+      if(openDays.length){
+        dayChips='<div style="font-size:12px;color:var(--gray);margin-top:16px;margin-bottom:8px;">'+trDyn('Plan a catch-up day:')+'</div>'
+          +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'+openDays.map(d=>
+            '<span onclick="assignPlannedDay('+d.date+',\'catchup\')" style="padding:8px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg2);color:var(--white);font-size:12.5px;font-weight:700;cursor:pointer;">'+(d.today?trDyn('Today'):trDyn(d.j))+'</span>'
+          ).join('')+'</div>';
+      }
+    }
+  }
   const sess=getSessionDuJour();
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
+    +dayChips
     +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+trDyn('View my session')+'</button>'
     +'<button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
 }
@@ -7831,38 +7860,74 @@ function initHomeCheckin(prefix){
 // — remplace le strip qui existait avant et avait été retiré (raison non retrouvée dans le code ni
 // en mémoire), réintroduit à la demande explicite, cette fois branché sur du réel plutôt que sur
 // homeData.semaine (donnée simulée, jamais connectée aux vrais choix de jours).
-// États du strip (rethink sept. 2026) : 3 états nommés — Fait / Manqué / Prévu — plus un rendu neutre
-// pour les jours non choisis (cf discussion "si le user a prévu 3 jours, bien vérifier le nb total
-// entre manqué et prévu, ne pas tout encadrer") : Manqué/Prévu ne s'appliquent QU'AUX jours réellement
-// choisis (profile.jours) — un jour non choisi n'a jamais été un engagement, l'encadrer comme "Prévu"
-// gonflerait le compte visible au-delà de l'objectif réel ("1/3 jours"). Vérifié : avec 3 jours choisis,
-// le total Manqué+Prévu+Fait-sur-jour-choisi tombe exactement à 3, jamais 7.
+// États du strip (rethink sept. 2026) : 5 états nommés — Fait / Manqué / Prévu / Libre / Planifié — cf
+// discussion "si le user a prévu 3 jours, bien vérifier le nb total entre manqué et prévu, ne pas tout
+// encadrer" : Manqué/Prévu ne s'appliquent QU'AUX jours réellement choisis (profile.jours) — un jour non
+// choisi n'a jamais été un engagement, l'encadrer comme "Prévu" gonflerait le compte visible au-delà de
+// l'objectif réel ("1/3 jours"). Vérifié : avec 3 jours choisis, le total Manqué+Prévu+Fait-sur-jour-
+// choisi tombe exactement à 3, jamais 7.
+// Extraite en fonction partagée (cf discussion "la frise, c'est juste une synthèse avec les mêmes codes
+// que le calendrier") — computeWeekStrip() ET renderProgCalendar() appellent maintenant la même logique,
+// un seul endroit à faire évoluer pour que les deux parlent le même langage d'état.
+function getDayStatus(d, trainDays){
+  const now=new Date();
+  const today0=new Date(now); today0.setHours(0,0,0,0);
+  const dd=new Date(d); dd.setHours(0,0,0,0);
+  const dayName=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dd.getDay()];
+  const isTrainDay=trainDays.includes(dayName);
+  const hist=(typeof userSessionHistory!=='undefined'&&userSessionHistory)?userSessionHistory:[];
+  // Séance réelle de ce jour, pas juste la date (audit Home, sept. 2026) : cliquer un jour "fait"
+  // n'ouvrait jamais rien de spécifique avant, toujours le même go('programme') générique — vérifié
+  // en le testant. Retrouvée ici pour que le clic ouvre la vraie fiche de CETTE séance.
+  const dayHist = hist.find(h=>{ const hd=new Date(h.date); hd.setHours(0,0,0,0); return hd.getTime()===dd.getTime(); });
+  // "fait" prime sur tout le reste : un jour non choisi où la personne s'est quand même entraînée doit
+  // se lire comme fait — cohérent avec "le jour choisi structure le cadre, il n'empêche jamais de
+  // s'entraîner". "manqué"/"prévu" ne s'appliquent qu'à un jour réellement choisi ; un jour non choisi,
+  // fait ou pas, reste "libre" — un rendu neutre, jamais encadré. "planned" (cf userPlannedSessions) est
+  // un choix explicite de l'utilisateur — distinct de "prévu" (recurrent) même s'il partage l'anneau.
+  if(dayHist) return {statut:'fait', sessionId:dayHist.sessionId};
+  const planned=(typeof userPlannedSessions!=='undefined'?userPlannedSessions:[]).find(p=>p.date===dd.getTime());
+  if(planned) return {statut:'planned', sessionId:null};
+  if(!isTrainDay) return {statut:'libre', sessionId:null};
+  if(dd.getTime()<today0.getTime()) return {statut:'manque', sessionId:null};
+  return {statut:'prevu', sessionId:null};
+}
 function computeWeekStrip(){
   const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const now=new Date();
-  const today0=new Date(now); today0.setHours(0,0,0,0);
   const monday=new Date(now); monday.setDate(now.getDate()-((now.getDay()+6)%7)); monday.setHours(0,0,0,0);
   const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
-  const hist=(typeof userSessionHistory!=='undefined'&&userSessionHistory)?userSessionHistory:[];
   return dayNames.map((name,i)=>{
     const d=new Date(monday); d.setDate(monday.getDate()+i);
     const isToday=d.toDateString()===now.toDateString();
-    const isTrainDay=trainDays.includes(name);
-    // Séance réelle de ce jour, pas juste la date (audit Home, sept. 2026) : cliquer un jour "fait"
-    // n'ouvrait jamais rien de spécifique avant, toujours le même go('programme') générique — vérifié
-    // en le testant. Retrouvée ici pour que le clic ouvre la vraie fiche de CETTE séance.
-    const dayHist = hist.find(h=>{ const hd=new Date(h.date); hd.setHours(0,0,0,0); return hd.getTime()===d.getTime(); });
-    // "fait" prime sur tout le reste : un jour non choisi où la personne s'est quand même entraînée
-    // doit se lire comme fait — cohérent avec "le jour choisi structure le cadre, il n'empêche jamais
-    // de s'entraîner". "manqué"/"prévu" ne s'appliquent qu'à un jour réellement choisi ; un jour non
-    // choisi, fait ou pas, reste "libre" — un rendu neutre, jamais encadré, pas un des 3 mots affichés.
-    let statut;
-    if(dayHist) statut='fait';
-    else if(!isTrainDay) statut='libre';
-    else if(d.getTime()<today0.getTime()) statut='manque';
-    else statut='prevu';
-    return {j:name.slice(0,3), statut, today:isToday, sessionId: dayHist?dayHist.sessionId:null};
+    const {statut, sessionId}=getDayStatus(d, trainDays);
+    return {j:name.slice(0,3), statut, today:isToday, sessionId, date:d.getTime()};
   });
+}
+// Auto-assignation (chantier calendrier, cf discussion) — un seul point d'écriture pour les 2 entrées
+// (alerte de rattrapage Home, calendrier Progress), pour que la frise et le calendrier restent
+// synchronisés sans recalcul manuel : les deux lisent userPlannedSessions via getDayStatus().
+function assignPlannedDay(dateTimestamp, source){
+  userPlannedSessions = userPlannedSessions.filter(p=>p.date!==dateTimestamp);
+  userPlannedSessions.push({date:dateTimestamp, source:source});
+  checkPlannedNotifToday();
+  refreshHomeSeanceZones();
+  if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
+  closeModal();
+  toast(trDyn('Session planned'));
+}
+function unassignPlannedDay(dateTimestamp){
+  userPlannedSessions = userPlannedSessions.filter(p=>p.date!==dateTimestamp);
+  refreshHomeSeanceZones();
+  if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
+}
+// Notification (réutilise pushNotif() déjà existant, pas de nouveau moteur — pas de cron dans ce
+// prototype) : si le jour planifié tombe sur aujourd'hui, une seule notif au premier passage sur Home,
+// jamais répétée à chaque navigation (_notified).
+function checkPlannedNotifToday(){
+  const today0=new Date(); today0.setHours(0,0,0,0);
+  const due=userPlannedSessions.find(p=>p.date===today0.getTime() && !p._notified);
+  if(due){ due._notified=true; pushNotif('🔔', trDyn('You planned a session for today — let’s go!'), 'home'); }
 }
 // Si aujourd'hui n'est pas un jour choisi, cherche le prochain jour choisi dans les 7 jours à venir —
 // alimente le libellé de la carte "prochaine séance" (jour + délai) plutôt qu'un "Your next session"
@@ -7888,6 +7953,9 @@ function getNextTrainingDayInfo(){
 // gras), jamais la même couleur pour les deux questions à la fois.
 // 3 mots affichés (Fait/Manqué/Prévu), + un rendu neutre pour "libre" (jour non choisi, cf
 // computeWeekStrip) — point discret sans anneau, jamais encadré comme un vrai engagement.
+// "planned" (cf userPlannedSessions, chantier calendrier/auto-assignation) : même anneau que "prévu" +
+// un point plein vert au centre — vert (pas ambre, réservé à "manqué") car c'est un engagement pris par
+// la personne elle-même, pas une alerte.
 // Pastille "aujourd'hui" simplifiée (cf discussion "le gras décale l'alignement des bulles") : fond
 // retiré, seuls le blanc + le gras restent — mesuré avant/après, le fond n'introduisait en réalité
 // aucun décalage géométrique (labelCenter/dotCenter identiques au pixel près), mais son rectangle
@@ -7895,9 +7963,10 @@ function getNextTrainingDayInfo(){
 function renderWeekStripHtml(strip){
   return '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:0 20px 18px;">'
     +strip.map(d=>{
-      let dotStyle='';
+      let dotStyle='', dotContent='';
       if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
       else if(d.statut==='manque') dotStyle='border:2px solid var(--vigilance);';
+      else if(d.statut==='planned'){ dotStyle='border:1.5px solid var(--gray2);position:relative;'; dotContent='<span style="position:absolute;top:50%;left:50%;width:7px;height:7px;border-radius:50%;background:var(--brand-fixed);transform:translate(-50%,-50%);"></span>'; }
       else if(d.statut==='prevu') dotStyle='border:1.5px solid var(--gray2);';
       else dotStyle='background:var(--dim);transform:scale(.3);';
       const lblStyle = d.today
@@ -7909,7 +7978,7 @@ function renderWeekStripHtml(strip){
       const dayClick = (d.statut==='fait' && d.sessionId) ? "openSessionDetail('"+d.sessionId+"')" : "go('programme')";
       return '<div style="text-align:center;cursor:pointer;" onclick="'+dayClick+'">'
         +'<div style="font-size:10px;'+lblStyle+'text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
-        +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'"></div>'
+        +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'">'+dotContent+'</div>'
         +'</div>';
     }).join('')
     +'</div>';
@@ -8585,9 +8654,9 @@ function setProgTab(el,view){
   else renderProgPeriod(view);
 }
 // Calendrier mensuel (remplace l'ancien 4e onglet "Badges" — les badges vivent désormais uniquement
-// dans Défis, cf discussion). Historique + à venir : les jours passés viennent de userSessionHistory,
-// les jours à venir du jour préféré déjà choisi en onboarding (pas de vraies séances futures assignées
-// pour l'instant côté B2C direct — un référent peut en assigner, à relier dans une passe suivante).
+// dans Défis, cf discussion). Utilise getDayStatus() (cf computeWeekStrip) — mêmes 5 états que la
+// frise Home (fait/manqué/prévu/libre/planned), même code couleur, un seul calcul partagé (chantier
+// calendrier/auto-assignation : "la frise, c'est juste une synthèse avec les mêmes codes du calendrier").
 let progCalMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 function shiftProgCalendarMonth(delta){
   progCalMonth = new Date(progCalMonth.getFullYear(), progCalMonth.getMonth()+delta, 1);
@@ -8607,30 +8676,55 @@ function renderProgCalendar(){
   const firstDay=new Date(year,month,1);
   const startOffset=(firstDay.getDay()+6)%7;   // grille lundi-first, getDay() est dimanche-first
   const daysInMonth=new Date(year,month+1,0).getDate();
-  const doneDays=new Set(userSessionHistory.map(h=>{ const d=new Date(h.date); return d.getFullYear()===year && d.getMonth()===month ? d.getDate() : null; }).filter(Boolean));
+  const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
   const todayD=new Date();
   let html='';
   for(let i=0;i<startOffset;i++) html+='<div></div>';
   for(let d=1; d<=daysInMonth; d++){
-    const isDone=doneDays.has(d);
+    const dateObj=new Date(year,month,d);
+    const {statut}=getDayStatus(dateObj, trainDays);
     const isToday = todayD.getFullYear()===year && todayD.getMonth()===month && todayD.getDate()===d;
-    const bg = isDone ? 'background:var(--brand-fixed);color:var(--ink-on-accent);font-weight:800;' : 'color:var(--gray);';
+    let bg='color:var(--gray);', dotInner='';
+    if(statut==='fait') bg='background:var(--brand-fixed);color:var(--ink-on-accent);font-weight:800;';
+    else if(statut==='manque') bg='border:1.5px solid var(--vigilance);color:var(--gray2);';
+    else if(statut==='prevu') bg='border:1.5px solid var(--gray2);color:var(--gray2);';
+    else if(statut==='planned'){ bg='border:1.5px solid var(--gray2);color:var(--gray2);position:relative;'; dotInner='<span style="position:absolute;bottom:3px;left:50%;width:4px;height:4px;border-radius:50%;background:var(--brand-fixed);transform:translateX(-50%);"></span>'; }
     const ring = isToday ? 'outline:1.5px solid var(--white);outline-offset:2px;' : '';
-    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+'">'+d+'</div>';
+    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+'">'+d+dotInner+'</div>';
   }
   gridEl.innerHTML = html;
 }
+// Jour futur sans séance : propose de le planifier (cf discussion "assignation de nouvelles séances
+// faites par soi-même") — avant, uniquement "No session that day", aucune écriture possible. Un jour
+// passé sans séance reste lecture seule (rien à planifier dans le passé).
 function selectProgCalDay(year, month, day){
   const el=document.getElementById('progCalDayDetail'); if(!el) return;
   const session = userSessionHistory.find(h=>{ const d=new Date(h.date); return d.getFullYear()===year && d.getMonth()===month && d.getDate()===day; });
   const dateLbl = new Date(year, month, day).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US', {weekday:'long', day:'numeric', month:'long'});
-  if(!session){ el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div><div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div></div>'; return; }
-  el.innerHTML = '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
-    +'<div style="width:44px;height:44px;border-radius:12px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
-    +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>'
-    +'<div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
-    +'<div style="font-size:14px;font-weight:700;margin-top:2px;">'+trDyn(session.nom)+'</div>'
-    +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(session.duree+' min')+(session.exercices?' · '+trDyn(session.exercices+' exercise'+(session.exercices>1?'s':'')):'')+'</div></div></div>';
+  if(session){
+    el.innerHTML = '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
+      +'<div style="width:44px;height:44px;border-radius:12px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>'
+      +'<div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
+      +'<div style="font-size:14px;font-weight:700;margin-top:2px;">'+trDyn(session.nom)+'</div>'
+      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(session.duree+' min')+(session.exercices?' · '+trDyn(session.exercices+' exercise'+(session.exercices>1?'s':'')):'')+'</div></div></div>';
+    return;
+  }
+  const dateObj=new Date(year,month,day); dateObj.setHours(0,0,0,0);
+  const today0=new Date(); today0.setHours(0,0,0,0);
+  const isFuture = dateObj.getTime()>=today0.getTime();
+  const isPlanned = userPlannedSessions.some(p=>p.date===dateObj.getTime());
+  if(!isFuture){
+    el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div><div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div></div>';
+    return;
+  }
+  el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
+    + (isPlanned
+      ? '<div style="font-size:13px;color:var(--brand-fixed);margin-top:4px;font-weight:700;">'+trDyn('Session planned')+'</div>'
+        +'<button class="btn-ghost" style="width:100%;margin-top:10px;color:var(--gray2);padding:9px;font-size:12.5px;" onclick="unassignPlannedDay('+dateObj.getTime()+')">'+trDyn('Remove')+'</button>'
+      : '<div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div>'
+        +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:10px;padding:11px;font-size:13px;" onclick="assignPlannedDay('+dateObj.getTime()+',\'self\')">'+trDyn('Plan a session here')+'</button>')
+    +'</div>';
 }
 // Historique séance par séance de la personne actuellement chargée dans userSessionHistory — jamais
 // une navigation vers l'écran Programme partagé (qui a déjà causé une vraie fuite de données Marc/
@@ -10325,6 +10419,7 @@ const EN_FR = {
   "Trained": "Fait",
   "Missed": "Manqué",
   "Upcoming": "À venir",
+  "Self-planned": "Planifié",
   "TRAINING BALANCE": "ÉQUILIBRE D'ENTRAÎNEMENT",
   "Training balance": "Équilibre d'entraînement",
   "Over your last 30 days": "Sur tes 30 derniers jours",
@@ -10791,6 +10886,11 @@ const EN_FR = {
   "Calendar": "Calendrier",
   "Session done": "Séance faite",
   "No session that day": "Pas de séance ce jour-là",
+  "Session planned": "Séance planifiée",
+  "Remove": "Retirer",
+  "Plan a session here": "Planifier une séance ici",
+  "Plan a catch-up day:": "Choisis un jour de rattrapage :",
+  "You planned a session for today — let’s go!": "Tu as planifié une séance aujourd'hui — vas-y !",
   "Score Kinmio · today": "Score Kinmio · aujourd'hui",
   "Weekly check-in": "Bilan de la semaine",
   "pain trending down": "douleur en baisse",
