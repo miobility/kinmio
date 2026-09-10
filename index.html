@@ -7451,13 +7451,17 @@ function objectifPace(actual, target, daysElapsed, daysTotal){
 // prévu, cercle blanc=prévu") — une seule ligne compacte, pas un paragraphe (cf "peut-être il ne faut
 // pas en ajouter trop"). Mêmes 4 couleurs que renderWeekStripHtml, dupliquées ici plutôt que générées
 // depuis un swatch DOM (4 valeurs figées, pas besoin d'indirection).
+// 4 mots, pas 5 (cf discussion "je ne parlerai pas de repos") : Fait / Manqué / Prévu / À rattraper.
+// "Vide" (jour non choisi déjà passé) n'a pas d'entrée — un point discret n'a pas besoin d'être
+// explicité, il se lit déjà comme "rien ici".
 function weekStripLegendHtml(){
-  const item=(dotStyle,label)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;'+dotStyle+'"></span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
+  const item=(dotStyle,label,inner)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;position:relative;'+dotStyle+'">'+(inner||'')+'</span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
+  const catchUpDot='<span style="position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:var(--vigilance);transform:translate(-50%,-50%);"></span>';
   return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'
     +item('background:var(--brand-fixed);','Trained')
     +item('border:1.5px solid var(--vigilance);','Missed')
     +item('border:1.5px solid var(--gray2);','Upcoming')
-    +item('background:var(--dim);transform:scale(.75);','Rest')
+    +item('border:1.5px solid var(--gray2);','Catch-up',catchUpDot)
     +'</div>';
 }
 function renderHomeObjectifRing(prefix, profile){
@@ -7755,10 +7759,18 @@ function initHomeCheckin(prefix){
 // — remplace le strip qui existait avant et avait été retiré (raison non retrouvée dans le code ni
 // en mémoire), réintroduit à la demande explicite, cette fois branché sur du réel plutôt que sur
 // homeData.semaine (donnée simulée, jamais connectée aux vrais choix de jours).
-// 4 états, pas 3 (audit Home, sept. 2026) : "avenir" servait avant aussi bien aux jours futurs qu'aux
-// jours d'entraînement passés jamais faits — aucune distinction entre "pas encore atteint" et
-// "manqué". Ajout de "manque" (jour passé, jour d'entraînement, pas fait), séparé de "avenir" (jour
-// futur, pas encore atteint) — même principe que "missed" dans le calendrier de Progress.
+// États du strip (rethink sept. 2026, cf discussion "je ne parlerai pas de repos") : "Repos" retiré —
+// n'importe quel jour peut accueillir une séance ("toute séance prévue demain qui peut être faite
+// aujourd'hui est bonne à prendre"), donc un jour non choisi n'est pas interdit, juste ouvert. Les
+// jours non choisis à venir deviennent "libre" (même rendu visuel que "prévu" — rien à distinguer,
+// les deux sont simplement disponibles) ; les jours non choisis déjà passés restent un point discret
+// sans label (rien ne s'y est joué, rien à rattraper).
+// Rattrapage ajouté (cf discussion) : un jour manqué propose le prochain jour "libre" disponible,
+// jamais une contrainte "pas consécutif à une séance prévue" — testée sur une fréquence de 3
+// jours/semaine (Lun/Mer/Ven), elle ne laisserait quasiment aucun jour valide (Mar/Jeu/Sam collés à
+// un jour prévu des deux côtés), donc inapplicable dans le cas le plus courant. Autant de jours de
+// rattrapage que de jours manqués ET de créneaux libres restants ("si possible de rattraper ce qui
+// doit l'être dans la semaine, on le fait") — jamais plus qu'il n'y a de jours libres à venir.
 function computeWeekStrip(){
   const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const now=new Date();
@@ -7766,7 +7778,7 @@ function computeWeekStrip(){
   const monday=new Date(now); monday.setDate(now.getDate()-((now.getDay()+6)%7)); monday.setHours(0,0,0,0);
   const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
   const hist=(typeof userSessionHistory!=='undefined'&&userSessionHistory)?userSessionHistory:[];
-  return dayNames.map((name,i)=>{
+  const days = dayNames.map((name,i)=>{
     const d=new Date(monday); d.setDate(monday.getDate()+i);
     const isToday=d.toDateString()===now.toDateString();
     const isTrainDay=trainDays.includes(name);
@@ -7774,17 +7786,19 @@ function computeWeekStrip(){
     // n'ouvrait jamais rien de spécifique avant, toujours le même go('programme') générique — vérifié
     // en le testant. Retrouvée ici pour que le clic ouvre la vraie fiche de CETTE séance.
     const dayHist = hist.find(h=>{ const hd=new Date(h.date); hd.setHours(0,0,0,0); return hd.getTime()===d.getTime(); });
-    // "fait" prime sur "repos" (trouvé en vérifiant le strip, sept. 2026) : un jour de repos où la
-    // personne s'est quand même entraînée doit se lire comme fait, pas comme repos — cohérent avec le
-    // principe déjà posé pour l'échauffement/la séance du jour ("le jour choisi structure le cadre, il
-    // n'empêche jamais de s'entraîner").
+    // "fait" prime sur "libre"/"prévu" : un jour non choisi où la personne s'est quand même entraînée
+    // doit se lire comme fait — cohérent avec "le jour choisi structure le cadre, il n'empêche jamais
+    // de s'entraîner".
     let statut;
     if(dayHist) statut='fait';
-    else if(!isTrainDay) statut='repos';
-    else if(d.getTime()<today0.getTime()) statut='manque';
-    else statut='avenir';
+    else if(d.getTime()<today0.getTime()) statut = isTrainDay ? 'manque' : 'vide';
+    else statut = isTrainDay ? 'prevu' : 'libre';
     return {j:name.slice(0,3), statut, today:isToday, sessionId: dayHist?dayHist.sessionId:null};
   });
+  const missedCount = days.filter(d=>d.statut==='manque').length;
+  const openFuture = days.filter(d=>d.statut==='libre');   // déjà en ordre chronologique (lundi→dimanche)
+  for(let i=0;i<Math.min(missedCount, openFuture.length);i++){ openFuture[i].statut='rattrapage'; }
+  return days;
 }
 // Si aujourd'hui n'est pas un jour choisi, cherche le prochain jour choisi dans les 7 jours à venir —
 // alimente le libellé de la carte "prochaine séance" (jour + délai) plutôt qu'un "Your next session"
@@ -7806,25 +7820,27 @@ function getNextTrainingDayInfo(){
 // séance de la semaine est listée et lançable), pas juste un lien texte "voir mon programme" séparé.
 // Charte revue (audit Home, sept. 2026) : "aujourd'hui" ne se lisait qu'à un anneau de la même teinte
 // que "fait" (vert plein vs vert creux) — confondu au premier coup d'œil, confirmé en le montrant.
-// Découplé désormais : le POINT porte le statut (fait/manqué/à venir/repos), le LIBELLÉ du jour porte
-// "aujourd'hui" (fond clair + gras), jamais la même couleur pour les deux questions à la fois. Repos
-// n'a plus de point du tout (rien à signaler) ; manqué et à venir ont enfin un contraste réel au lieu
-// de deux teintes de gris-sur-noir indistinctes.
+// Découplé désormais : le POINT porte le statut, le LIBELLÉ du jour porte "aujourd'hui" (fond clair +
+// gras), jamais la même couleur pour les deux questions à la fois.
+// "Prévu"/"Libre" partagent le même rendu (anneau gris clair) — un jour choisi pas encore atteint et
+// un jour simplement ouvert disent la même chose : disponible, rien d'autre à signaler. "Rattrapage"
+// reprend ce même anneau + un point ambre au centre — même couleur que "Manqué" (l'ambre = signal qui
+// demande une action, passée ou à venir), pas une 5e teinte inventée pour un seul état. "Vide" (jour
+// non choisi déjà passé) garde le point discret d'avant (rien ne s'y est joué, rien à rattraper).
 function renderWeekStripHtml(strip){
   return '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:0 20px 18px;">'
     +strip.map(d=>{
       let dotStyle='', dotContent='';
       if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
       else if(d.statut==='manque') dotStyle='border:2px solid var(--vigilance);';
-      else if(d.statut==='avenir') dotStyle='border:1.5px solid var(--gray2);';
-      // Repos : une 4e forme, pas un caractere. Le tiret typographique etait le seul etat du
-      // bandeau a ne pas etre une pastille — il cassait la lecture de la ligne (cf audit Home).
-      // Le meme cercle, reduit a 6px et en --dim : present, mais visiblement plus discret que
-      // "a venir", ce qui est exactement ce que "rien de prevu" doit dire.
+      else if(d.statut==='rattrapage'){ dotStyle='border:1.5px solid var(--gray2);position:relative;'; dotContent='<span style="position:absolute;top:50%;left:50%;width:7px;height:7px;border-radius:50%;background:var(--vigilance);transform:translate(-50%,-50%);"></span>'; }
+      else if(d.statut==='prevu'||d.statut==='libre') dotStyle='border:1.5px solid var(--gray2);';
+      // "Vide" (jour non choisi déjà passé) : même forme discrète qu'avant "Repos" — présente, mais
+      // visiblement plus discrète, ce qui est exactement ce que "rien à signaler ici" doit dire.
       else dotStyle='background:var(--dim);transform:scale(.3);';
       const lblStyle = d.today
         ? 'color:var(--white);font-weight:800;background:rgba(255,255,255,.12);border-radius:6px;padding:2px 0;'
-        : 'color:'+(d.statut==='repos'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
+        : 'color:'+(d.statut==='vide'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
       // Un jour "fait" ouvre la vraie séance faite ce jour-là, pas toujours le même Programme générique
       // (audit Home, sept. 2026 — vérifié en testant : cliquer lundi ou mercredi ne montrait jamais
       // rien de spécifique). Les autres statuts (rien à montrer pour ce jour précis) gardent Programme.
@@ -10247,6 +10263,10 @@ const EN_FR = {
   "Trained": "Fait",
   "Missed": "Manqué",
   "Upcoming": "À venir",
+  // "Rattrapage" (nom), pas "À rattraper" (déjà pris par le label de rythme de l'anneau,
+  // objectifPace) — même valeur FR pour 2 clés EN différentes aurait cassé le retour EN→FR de l'une
+  // des deux (FR_EN ne garde qu'un seul sens par valeur, premier écrit gagne, cf buildFrEn).
+  "Catch-up": "Rattrapage",
   "TRAINING BALANCE": "ÉQUILIBRE D'ENTRAÎNEMENT",
   "Training balance": "Équilibre d'entraînement",
   "Over your last 30 days": "Sur tes 30 derniers jours",
