@@ -421,9 +421,12 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
 .kt-v{font-size:20px;font-weight:800;color:var(--white);line-height:1;font-variant-numeric:tabular-nums;font-family:var(--font-head);letter-spacing:-.3px;}
 .kt-u{font-size:10px;color:var(--gray2);font-weight:600;}
 .kt-d{font-size:10px;font-weight:700;margin-top:6px;}
+.kt-c{font-size:9.5px;color:var(--gray);margin-top:3px;line-height:1.3;}
 /* Carte de signal : les trois marqueurs simultanes de la charte — bordure gauche 3px,
    pictogramme et libelle en toutes lettres. Jamais la couleur seule. */
 .ksig{display:flex;gap:11px;align-items:flex-start;margin:0 20px 9px;background:var(--bg2);border:1px solid var(--border);border-left-width:3px;border-radius:0 16px 16px 0;padding:13px 15px;}
+.ksig-c{align-items:center;padding:9px 15px;}
+.ksig-c .ksig-v{margin-left:auto;}
 .ksig-ic{flex-shrink:0;font-size:18px;display:flex;margin-top:1px;}
 .ksig-b{flex:1;min-width:0;display:block;}
 .ksig-h{display:flex;align-items:baseline;gap:8px;}
@@ -1294,7 +1297,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <span style="font-size:13px;font-weight:700;color:var(--orange);">Join →</span>
     </div>
     <div id="homeCentreSeanceZone"></div>
-    <div style="text-align:center;margin:4px 20px 0;"><button class="btn-ghost" style="color:var(--gray);font-size:12.5px;text-decoration:underline;" onclick="go('programme')">My programme →</button></div>
 
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeCentreKpiZone"></div>
@@ -1650,7 +1652,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
     </div>
     <div id="homeSeanceZone"></div>
-    <div style="text-align:center;margin:4px 20px 0;"><button class="btn-ghost" style="color:var(--gray);font-size:12.5px;text-decoration:underline;" onclick="go('programme')">My programme →</button></div>
 
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeKpiZone"></div>
@@ -7355,7 +7356,18 @@ function buildLoadPainHtml(pad, compact){
   // exactement la meme boite qu'un volume en blanc : le signal le plus important de l'ecran ne
   // tenait qu'a la teinte d'un chiffre. La barre ACWR est conservee (elle situe la valeur sur
   // l'echelle), le gros chiffre passe a droite du libelle.
-  const sig=(tone,icon,title,value,subline,extra)=>'<div class="ksig" style="'+(pad?'':'margin-left:0;margin-right:0;')+'border-left-color:'+tone+';">'
+  // Poids inversé quand tout va bien (audit Home, sept. 2026) : "Charge stable" occupait la même
+  // carte développée (bordure, phrase, barre ACWR) qu'une vraie alerte — un signal sain ne devrait
+  // pas peser aussi lourd à l'écran qu'un signal qui demande une décision. Sain = une ligne (bordure,
+  // icône, libellé, valeur, rien d'autre) ; vigilance/critique = carte développée avec phrase + barre,
+  // inchangée. Ce qui va bien s'efface, ce qui demande une décision prend la place.
+  const sig=(tone,icon,title,value,subline,extra,healthy)=>{
+    if(healthy) return '<div class="ksig ksig-c" style="'+(pad?'':'margin-left:0;margin-right:0;')+'border-left-color:'+tone+';">'
+      +'<span class="ksig-ic" style="color:'+tone+';"><svg class="ki"><use href="#ki-'+icon+'"/></svg></span>'
+      +'<span class="ksig-t" style="color:'+tone+';">'+title+'</span>'
+      +(value?'<span class="ksig-v" style="color:'+tone+';">'+value+'</span>':'')
+      +'</div>';
+    return '<div class="ksig" style="'+(pad?'':'margin-left:0;margin-right:0;')+'border-left-color:'+tone+';">'
     +'<span class="ksig-ic" style="color:'+tone+';"><svg class="ki"><use href="#ki-'+icon+'"/></svg></span>'
     +'<span class="ksig-b">'
       +'<span class="ksig-h"><span class="ksig-t" style="color:'+tone+';">'+title+'</span>'
@@ -7363,22 +7375,25 @@ function buildLoadPainHtml(pad, compact){
       +(extra||'')
       +(subline?'<span class="ksig-s">'+subline+'</span>':'')
     +'</span></div>';
+  };
   let out='';
   if(fatigue.acwr!=null){
+    const loadHealthy = fatigue.level!=='high' && fatigue.level!=='low';
     const loadTone = fatigue.level==='high' ? 'var(--red)' : fatigue.level==='low' ? 'var(--vigilance)' : 'var(--teal)';
     const loadTitle = fatigue.level==='high' ? 'LOAD RISING FAST' : fatigue.level==='low' ? 'LOAD BELOW USUAL' : 'LOAD STEADY';
     const bar='<span style="display:block;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 15%,var(--vigilance) 15%,var(--vigilance) 40%,var(--teal) 40%,var(--teal) 65%,var(--vigilance) 65%,var(--vigilance) 90%,var(--red) 90%,var(--red) 100%);margin-top:9px;position:relative;width:100%;"><span style="position:absolute;top:-2px;left:'+acwrPct+'%;width:2px;height:8px;background:var(--white);"></span></span>';
     out += sig(loadTone, fatigue.level==='high'?'alert':fatigue.level==='low'?'alert':'check-circle',
-               loadTitle, fatigue.acwr.toFixed(1)+'×', loadTip, bar);
+               loadTitle, fatigue.acwr.toFixed(1)+'×', loadTip, bar, loadHealthy);
   }
   if(pain.level==null){
-    out += sig('var(--gray)','info','PAIN','', 'Not enough data yet','');
+    out += sig('var(--gray)','info','PAIN','', 'Not enough data yet','', true);
   } else {
     const lvl=Math.round(pain.level);
+    const painHealthy = lvl<=3;
     const painTone = lvl<=3 ? 'var(--teal)' : lvl<=6 ? 'var(--vigilance)' : 'var(--red)';
     const painTitle = lvl<=3 ? 'LOW PAIN' : lvl<=6 ? 'MODERATE PAIN' : 'HIGH PAIN';
     out += sig(painTone, lvl<=3?'check-circle':'alert', painTitle,
-               lvl+'/10', painComment, '');
+               lvl+'/10', painComment, '', painHealthy);
   }
 
   return out;
@@ -7401,10 +7416,18 @@ function renderHomeKpiZone(prefix, profile){
   const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
   // Trois indicateurs de suivi cote a cote : ils se comparent, donc ils tiennent sur une ligne.
   // Aucune couleur d'etat ici — le blanc est reserve au suivi pur, la couleur aux signaux.
-  const tile=(lbl,inf,val,unit,delta)=>'<div class="kt">'
+  // Titre "CETTE SEMAINE" + ligne de contexte par tuile (audit Home, sept. 2026) : en compactant les
+  // 3 blocs pleine-largeur en tuiles côte à côte, le mot "semaine" avait disparu de l'écran — plus
+  // aucun des 3 chiffres ne disait sur quelle période il portait. Contexte ajouté seulement là où il
+  // apporte une vraie info : Régularité affiche déjà son objectif inline ("1/3 days", pas de doublon
+  // à créer) ; Volume n'affichait le nombre de séances nulle part (perdu dans la compaction, restauré
+  // ici) ; Intensité n'est PAS sur la semaine calendaire comme les deux autres — le dire est nécessaire
+  // pour ne pas laisser croire l'inverse sous un titre de groupe "Cette semaine".
+  const tile=(lbl,inf,val,unit,delta,ctx)=>'<div class="kt">'
     +'<div class="kt-l">'+lbl+inf+'</div>'
     +'<div style="display:flex;align-items:baseline;gap:4px;"><span class="kt-v">'+val+'</span>'+(unit?'<span class="kt-u">'+unit+'</span>':'')+'</div>'
     +'<div class="kt-d" style="color:'+(delta?delta.c:'var(--dim)')+';">'+(delta?delta.t:'—')+'</div>'
+    +(ctx?'<div class="kt-c">'+ctx+'</div>':'')
     +'</div>';
 
   const week=getWeekDaysTrained();
@@ -7421,16 +7444,24 @@ function renderHomeKpiZone(prefix, profile){
   let trio = tile('REGULARITY', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you have trained this week versus your weekly goal. Resets every Monday, same calendar week used for Volume below.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', week.fait+'/'+week.objectif, 'days',
         daysDelta!==0 ? {c:(daysDelta>0?'var(--teal)':'var(--red)'), t:(daysDelta>0?'↑':'↓')+Math.abs(daysDelta)+'d'} : null)
     + tile('VOLUME', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained this week, and how many sessions that took. Same calendar week as Regularity above, resetting every Monday.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', week.minutes, 'min',
-        volDelta ? {c:color(volDelta), t:arrow(volDelta)+' '+volDelta.pct+'%'} : null);
+        volDelta ? {c:color(volDelta), t:arrow(volDelta)+' '+volDelta.pct+'%'} : null,
+        trDyn(week.sessions+(week.sessions===1?' session':' sessions')));
   if(pct!=null) trio += tile('INTENSITY', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', pct+'%', '',
-        intDelta ? {c:color(intDelta), t:arrow(intDelta)+' '+intDelta.pct+'pts'} : null);
+        intDelta ? {c:color(intDelta), t:arrow(intDelta)+' '+intDelta.pct+'pts'} : null,
+        trDyn('7-day rolling'));
 
   // La phrase de regularite descend sous le trio : c'est le seul message contextuel de la zone,
   // il n'a pas besoin d'une carte a lui — et il ne rentrerait pas dans une tuile compacte.
-  let out = '<div class="ktrio">'+trio+'</div>'
+  // Deux titres de groupe restaurés (audit Home, sept. 2026) : les 5 titres individuels retirés lors
+  // de la compaction en tuiles/cartes de signal emportaient le cadre temporel avec eux, pas juste du
+  // bruit visuel. Un titre par GROUPE plutôt que par carte — c'est le travail réel d'un titre de
+  // section (chapeauter plusieurs blocs), pas la répétition qu'était l'ancien "1 titre = 1 carte".
+  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('THIS WEEK')+'</div>'
+    + '<div class="ktrio">'+trio+'</div>'
     + '<div style="margin:11px 20px 20px;font-size:11.5px;line-height:1.45;color:'+regColor+';">'+regState.text+'</div>';
 
   // --- Charge + douleur : les seuls vrais signaux de securite, en cartes developpees ---
+  out += '<div class="zone-lbl">'+trDyn('LOAD & PAIN')+'</div>';
   out += buildLoadPainHtml(true);
 
   // Training balance (Cardio vs Strength) retiré — kinmio ne fait plus que du HIIT, l'axe n'a plus
@@ -7619,13 +7650,19 @@ function renderHomeSeance(prefix, data){
   const thumbStyle=video?'':"background-image:url('"+photo+"');background-size:cover;background-position:center;";
   const thumbVideo=video?'<video src="'+video+'" poster="'+photo+'" autoplay muted loop playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;"></video>':'';
   zone.innerHTML=renderWeekStripHtml(weekStrip)
-    +'<div style="margin:0 20px 8px;font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;">'+cardLbl+'</div>'
+    +'<div style="margin:0 20px 8px;font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;">'+trDyn(cardLbl)+'</div>'
     +'<div class="hero-glow">'
     +'<div class="today" onclick="openSessionDetail(\''+realSess.id+'\')">'
     +'<div class="today-thumb" style="'+thumbStyle+'">'+thumbVideo+(photo||video?'':'<svg class="ki"><use href="#ki-media"/></svg>')+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')+'</div>'
     +'<div class="today-body"><div class="today-title" style="font-size:22px;">'+realSess.nom_marketing+'</div>'
     +'<div class="today-sub">'+realSess.exercices.length+' exercises · '+realSess.duree+' min'+(priorityMuscle?' · '+priorityMuscle:'')+'</div>'
-    +cta+'</div></div></div>';
+    +cta
+    // "Mon programme →" ramené dans la carte séance, sous le CTA (audit Home, sept. 2026) : c'était le
+    // seul bloc flottant entre deux cartes sans appartenir à aucune des deux — pas d'onglet Programme
+    // dans la nav (cf plus haut), donc ce lien reste le seul accès, mais il appartient à CET objet
+    // (la séance du jour), pas à l'espace entre lui et le bloc suivant.
+    +'<div style="text-align:center;margin-top:10px;"><span style="color:var(--gray);font-size:12.5px;text-decoration:underline;cursor:pointer;" onclick="event.stopPropagation();go(\'programme\')">'+trDyn('My programme →')+'</span></div>'
+    +'</div></div></div>';
 }
 // Remplace le message coach-tip générique (KPI_CONFIG, statique) par le statut hebdo réel du
 // programme actif quand il y en a un — plus actionnable que les messages canned, et ça remplace
@@ -9924,6 +9961,9 @@ const EN_FR = {
   "90 days": "90 jours",
   "training days": "jours d'entraînement",
   "REGULARITY": "RÉGULARITÉ",
+  "THIS WEEK": "CETTE SEMAINE",
+  "LOAD & PAIN": "CHARGE & DOULEUR",
+  "7-day rolling": "7 jours glissants",
   "LOAD RISING FAST": "CHARGE EN FORTE HAUSSE",
   "LOAD BELOW USUAL": "CHARGE SOUS L'HABITUEL",
   "LOAD STEADY": "CHARGE STABLE",
@@ -11105,6 +11145,11 @@ const EN_FR_PATTERNS = [
   [/^(\d+) min\/week$/, (m)=>`${m[1]} min/semaine`],
   // Carte Coach hebdo (Home, renderHomeCoachCard) — composée à partir de segments traduits séparément.
   [/^(\d+)\/(\d+) sessions$/, (m)=>`${m[1]}/${m[2]} séances`],
+  // Ligne de contexte "Volume" de la tuile Home (renderHomeKpiZone) — nombre de séances, sans préfixe.
+  [/^(\d+) sessions?$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''}`],
+  // Libellé de la carte séance quand aujourd'hui n'est pas un jour choisi (renderHomeSeance, cardLbl) —
+  // jamais passé par trDyn avant (audit Home, sept. 2026), donc jamais traduit malgré le balayage.
+  [/^Next planned: (.+) · in (\d+) days?$/, (m)=>`Prochaine prévue : ${EN_FR[m[1]]||m[1]} · dans ${m[2]} jour${Number(m[2])>1?'s':''}`],
   [/^(\d+)% time in zone on $/, (m)=>`${m[1]}% de temps dans la zone sur `],
   [/^I suggest moving up to level (\d+)\.$/, (m)=>`Je te propose de passer au niveau ${m[1]}.`],
   // Historique Coach IA (openCoachHistoryModal, coachHistoryRow) — même principe, nombre variable.
