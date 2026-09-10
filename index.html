@@ -417,7 +417,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);}
    dire laquelle regarder. */
 .ktrio{display:flex;gap:8px;padding:0 20px;}
 .ktrio .kt{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 12px 13px;}
-.kt-l{font-size:9.5px;font-weight:700;color:var(--gray);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;}
+.kt-l{font-size:9.5px;font-weight:700;color:var(--gray);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:2px 0;}
 .kt-v{font-size:20px;font-weight:800;color:var(--white);line-height:1;font-variant-numeric:tabular-nums;font-family:var(--font-head);letter-spacing:-.3px;}
 .kt-u{font-size:10px;color:var(--gray2);font-weight:600;}
 .kt-d{font-size:10px;font-weight:700;margin-top:6px;}
@@ -1272,7 +1272,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll">
     <!-- ZONE 1 — Header -->
     <div class="home-top gap4">
-      <div><div class="hw">Hello</div><div class="hname" id="homeCentreUserName">Marc</div><div style="display:inline-block;margin-top:6px;background:rgba(var(--teal-rgb),.15);border:1px solid rgba(var(--teal-rgb),.3);border-radius:10px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--teal);" id="homeCentreBadge"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=4.5 y=3.5 width=11 height=17 rx=1.5 /><path d=M9,7h2 /><path d=M9,11h2 /><path d=M9,15h2 /><path d=M15.5,10.5h4v10h-4 /></svg> KERPAPE</div><div style="font-size:12px;color:var(--gray);margin-top:6px;" id="homeCentreDateLabel"></div></div>
+      <div><div class="hw">Hello</div><div class="hname"><span id="homeCentreUserName">Marc</span><span id="homeCentreCheckinBadge" style="display:none;margin-left:8px;font-size:18px;vertical-align:middle;"></span></div><div style="display:inline-block;margin-top:6px;background:rgba(var(--teal-rgb),.15);border:1px solid rgba(var(--teal-rgb),.3);border-radius:10px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--teal);" id="homeCentreBadge"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=4.5 y=3.5 width=11 height=17 rx=1.5 /><path d=M9,7h2 /><path d=M9,11h2 /><path d=M9,15h2 /><path d=M15.5,10.5h4v10h-4 /></svg> KERPAPE</div><div style="font-size:12px;color:var(--gray);margin-top:6px;" id="homeCentreDateLabel"></div></div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="bell" onclick="go('fiche_referent_public')" title="Your coach"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg></div>
         <div class="bell" onclick="openNotifs()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z /><path d=M9.5,18.5a2.5,2.5,0,0,0,5,0 /></svg><span class="bell-dot"></span></div>
@@ -1281,16 +1281,20 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div id="centrePendingBanner" style="display:none;margin:6px 20px 4px;border-radius:16px;padding:14px 16px;align-items:center;gap:12px;"></div>
 
-    <!-- ZONE 2 — TODAY : check-in humeur (avant la séance, dont il peut ajuster le niveau) + séance du jour -->
+    <!-- ZONE 2 — TODAY : check-in humeur (avant la séance) — passe en premier (cf #home) -->
     <div id="homeCentreCheckinBlock" style="margin-top:16px;">
       <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
       <div class="checkin-row">
+        <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','homeCentre')">😩</div>
         <div class="checkin-opt" onclick="selCheckinHome(this,'fatigue','homeCentre')">😴</div>
         <div class="checkin-opt" onclick="selCheckinHome(this,'neutre','homeCentre')">😐</div>
         <div class="checkin-opt" onclick="selCheckinHome(this,'bien','homeCentre')">😊</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'forme','homeCentre')">💪</div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'forme','homeCentre')">🤩</div>
       </div>
     </div>
+
+    <!-- ZONE 1bis — OBJECTIF (cf #homeObjectifZone) -->
+    <div id="homeCentreObjectifZone"></div>
     <div id="homeCentreCollectiveBanner" style="display:none;margin:0 20px 10px;background:rgba(var(--orange-rgb),.12);border:1px solid rgba(var(--orange-rgb),.3);border-radius:14px;padding:12px 14px;align-items:center;gap:10px;cursor:pointer;" onclick="go('session')">
       <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);flex-shrink:0;"></span>
       <div style="flex:1;font-size:13px;font-weight:700;color:var(--white);">Session in progress</div>
@@ -1634,26 +1638,32 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="scroll">
     <!-- ZONE 1 — Header -->
     <div class="home-top gap4">
-      <div><div class="hw">Hello</div><div class="hname"><span id="homeUserName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marc</span></div><div style="font-size:12px;color:var(--gray);margin-top:4px;" id="homeDateLabel"></div></div>
+      <div><div class="hw">Hello</div><div class="hname"><span id="homeUserName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marc</span><span id="homeCheckinBadge" style="display:none;margin-left:8px;font-size:18px;vertical-align:middle;"></span></div><div style="font-size:12px;color:var(--gray);margin-top:4px;" id="homeDateLabel"></div></div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="bell" onclick="openNotifs()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z /><path d=M9.5,18.5a2.5,2.5,0,0,0,5,0 /></svg><span class="bell-dot"></span></div>
         <div class="hav" onclick="go('profil')" style="cursor:pointer;border-radius:50%;overflow:hidden;padding:0;background:transparent;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
     </div>
 
-    <!-- ZONE 2 — TODAY : check-in humeur (avant la séance, dont il peut ajuster le niveau) + séance du jour -->
+    <!-- ZONE 2 — TODAY : check-in humeur (avant la séance, dont il peut ajuster le niveau) — passe
+         en premier (cf discussion) : l'app écoute avant d'afficher un statut. -->
     <div id="homeCheckinBlock" style="margin-top:16px;">
       <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
       <div class="checkin-row">
+        <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','home')">😩</div>
         <div class="checkin-opt" onclick="selCheckinHome(this,'fatigue','home')">😴</div>
         <div class="checkin-opt" onclick="selCheckinHome(this,'neutre','home')">😐</div>
         <div class="checkin-opt" onclick="selCheckinHome(this,'bien','home')">😊</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'forme','home')">💪</div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'forme','home')">🤩</div>
       </div>
     </div>
+
+    <!-- ZONE 1bis — OBJECTIF : anneau de volume hebdo (jours × durée vs minutes réellement faites),
+         cf discussion "l'objectif c'est un objectif de volume, pas juste des jours" -->
+    <div id="homeObjectifZone"></div>
     <div id="homeSeanceZone"></div>
 
-    <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
+    <!-- ZONE 3 — Charge + Douleur, en sections distinctes -->
     <div id="homeKpiZone"></div>
 
     <!-- ZONE 4 — Explorer -->
@@ -7306,7 +7316,7 @@ function computeEffortScorePct(sessions, windowDays, history){
 // prenait trop de place au-dessus des vrais onglets 7/30/90j (cf discussion) : compact=true les remet
 // côte à côte sur une seule ligne, comme au tout début, mais avec les textes/règles de couleur actuels
 // (flèche seule sur Pain, pas de delta chiffré).
-function buildLoadPainHtml(pad, compact){
+function buildLoadPainHtml(pad, compact, only){
   const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const fatigue=getFatigueSignal();
   const pain=getPainSignal();
@@ -7363,39 +7373,47 @@ function buildLoadPainHtml(pad, compact){
   // pas peser aussi lourd à l'écran qu'un signal qui demande une décision. Sain = une ligne (bordure,
   // icône, libellé, valeur, rien d'autre) ; vigilance/critique = carte développée avec phrase + barre,
   // inchangée. Ce qui va bien s'efface, ce qui demande une décision prend la place.
-  const sig=(tone,icon,title,value,subline,extra,healthy)=>{
+  // ⓘ restauré (audit Home, sept. 2026) : présent dans loadInfo/painInfo depuis toujours, mais jamais
+  // câblé dans sig() lors de la refonte en cartes de signal — vérifié en le montrant, confirmé dans le
+  // code (les 2 variables n'étaient utilisées que dans la branche "compact", pas ici). Sans lui, Charge
+  // et Douleur étaient les 2 seuls chiffres de toute la page sans explication accessible.
+  const sig=(tone,icon,title,value,subline,extra,healthy,info)=>{
     if(healthy) return '<div class="ksig ksig-c" style="'+(pad?'':'margin-left:0;margin-right:0;')+'border-left-color:'+tone+';">'
       +'<span class="ksig-ic" style="color:'+tone+';"><svg class="ki"><use href="#ki-'+icon+'"/></svg></span>'
       +'<span class="ksig-t" style="color:'+tone+';">'+title+'</span>'
       +(value?'<span class="ksig-v" style="color:'+tone+';">'+value+'</span>':'')
+      +(info||'')
       +'</div>';
     return '<div class="ksig" style="'+(pad?'':'margin-left:0;margin-right:0;')+'border-left-color:'+tone+';">'
     +'<span class="ksig-ic" style="color:'+tone+';"><svg class="ki"><use href="#ki-'+icon+'"/></svg></span>'
     +'<span class="ksig-b">'
       +'<span class="ksig-h"><span class="ksig-t" style="color:'+tone+';">'+title+'</span>'
-      +(value?'<span class="ksig-v" style="color:'+tone+';">'+value+'</span>':'')+'</span>'
+      +(value?'<span class="ksig-v" style="color:'+tone+';">'+value+'</span>':'')+(info||'')+'</span>'
       +(extra||'')
       +(subline?'<span class="ksig-s">'+subline+'</span>':'')
     +'</span></div>';
   };
   let out='';
-  if(fatigue.acwr!=null){
-    const loadHealthy = fatigue.level!=='high' && fatigue.level!=='low';
+  if(only!=='pain' && fatigue.acwr!=null){
     const loadTone = fatigue.level==='high' ? 'var(--red)' : fatigue.level==='low' ? 'var(--vigilance)' : 'var(--teal)';
     const loadTitle = fatigue.level==='high' ? 'LOAD RISING FAST' : fatigue.level==='low' ? 'LOAD BELOW USUAL' : 'LOAD STEADY';
     const bar='<span style="display:block;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 15%,var(--vigilance) 15%,var(--vigilance) 40%,var(--teal) 40%,var(--teal) 65%,var(--vigilance) 65%,var(--vigilance) 90%,var(--red) 90%,var(--red) 100%);margin-top:9px;position:relative;width:100%;"><span style="position:absolute;top:-2px;left:'+acwrPct+'%;width:2px;height:8px;background:var(--white);"></span></span>';
+    // Charge garde toujours sa barre-échelle visible, même stable (cf discussion : "on avait la ligne
+    // avant" — sans elle, un 1.0x sain ne montre pas OÙ il se situe sur l'échelle 0.8-1.3x). Seule
+    // Douleur suit encore la règle "sain = une ligne" (poids inversé, cf audit Home) : l'exception est
+    // scopée à Charge, pas une annulation générale de ce principe.
     out += sig(loadTone, fatigue.level==='high'?'alert':fatigue.level==='low'?'alert':'check-circle',
-               loadTitle, fatigue.acwr.toFixed(1)+'×', loadTip, bar, loadHealthy);
+               loadTitle, fatigue.acwr.toFixed(1)+'×', loadTip, bar, false, loadInfo);
   }
-  if(pain.level==null){
-    out += sig('var(--gray)','info','PAIN','', 'Not enough data yet','', true);
-  } else {
+  if(only!=='load' && pain.level==null){
+    out += sig('var(--gray)','info','PAIN','', 'Not enough data yet','', true, painInfo);
+  } else if(only!=='load'){
     const lvl=Math.round(pain.level);
     const painHealthy = lvl<=3;
     const painTone = lvl<=3 ? 'var(--teal)' : lvl<=6 ? 'var(--vigilance)' : 'var(--red)';
     const painTitle = lvl<=3 ? 'LOW PAIN' : lvl<=6 ? 'MODERATE PAIN' : 'HIGH PAIN';
     out += sig(painTone, lvl<=3?'check-circle':'alert', painTitle,
-               lvl+'/10', painComment, '', painHealthy);
+               lvl+'/10', painComment, '', painHealthy, painInfo);
   }
 
   return out;
@@ -7405,82 +7423,143 @@ function renderProgSafetyBlock(elId){
   el.innerHTML = buildLoadPainHtml(false, true);
   sweepTranslate(el, currentLang);
 }
-// ===== HOME KPI ZONE — 6 blocs nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) =====
-// Un seul conteneur (prefix+'KpiZone'), rendu par une seule fonction — remplace l'ancien éclatement
-// coach-tip + Real effort + ACWR/Pain + donut, sur 4 divs séparées. Règle de couleur : blanc = suivi
-// pur (Regularity/Volume/Intensity/Training balance), couleur par seuil réservée aux vrais signaux de
-// sécurité (Load/ACWR, Pain) — cf discussion. Deltas : jours pour Regularity, % relatif pour Volume,
-// points pour Intensity (déjà un %), aucun pour Load (déjà un ratio), flèche de tendance pour Pain.
+// ===== OBJECTIF — anneau de volume hebdo + tenue sur 4 semaines (rethink Home, sept. 2026) =====
+// Remplace le trio Regularity/Volume/Intensity : l'engagement pris en onboarding ("N days/week" +
+// durée de séance préférée, profile.duree) est d'abord un objectif de VOLUME (jours × minutes), pas
+// juste un décompte de jours. La régularité (jours) devient le sous-texte de l'anneau plutôt qu'une
+// tuile à égalité — elle raconte la même histoire que le volume.
+// Fenêtres ALIGNÉES (cf discussion "il faut que cette semaine et les 4 semaines soient alignés, pas
+// juste deux fenêtres glissantes différentes") : le bloc 4 semaines n'est plus 28 jours glissants
+// depuis maintenant, mais les 4 semaines calendaires (lundi→dimanche) qui SE TERMINENT par la semaine
+// en cours — la semaine du haut est donc littéralement la tranche la plus récente du bloc du bas.
+// Couleur au prorata (cf discussion "si j'ai commencé il y a une semaine et je suis en avance, c'est
+// vert, même s'il reste du travail") : la couleur ne dit pas "objectif atteint ou non" (on n'est
+// presque jamais à 100% avant dimanche soir) mais "es-tu dans les temps VU CE QU'IL RESTE DE LA
+// PÉRIODE" — vert si le volume réel est ≥ ce qui serait attendu au prorata du temps déjà écoulé dans
+// la période, ambre si en retard mais rattrapable, rouge si largement décroché. Le message "Encore N
+// jours pour atteindre ton objectif" est retiré (n'ajoutait rien à "1/3 jours" déjà affiché) — la
+// couleur + un label court font le travail, "de la data froide mais bien ordonnancée".
+function objectifPace(actual, target, daysElapsed, daysTotal){
+  if(daysElapsed<=0 || target<=0) return {color:'var(--gray)', label:'On track'};
+  const expected = target*(daysElapsed/daysTotal);
+  const ratio = expected>0 ? actual/expected : 1;
+  if(ratio>=0.9) return {color:'var(--teal)', label:'On track'};
+  if(ratio>=0.5) return {color:'var(--vigilance)', label:'Catching up'};
+  return {color:'var(--red)', label:'Falling behind'};
+}
+// Légende de la frise (cf discussion : "une petite explication, vert=fait, orange=raté, point=rien de
+// prévu, cercle blanc=prévu") — une seule ligne compacte, pas un paragraphe (cf "peut-être il ne faut
+// pas en ajouter trop"). Mêmes 4 couleurs que renderWeekStripHtml, dupliquées ici plutôt que générées
+// depuis un swatch DOM (4 valeurs figées, pas besoin d'indirection).
+function weekStripLegendHtml(){
+  const item=(dotStyle,label)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;'+dotStyle+'"></span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
+  return '<div style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 2px;">'
+    +item('background:var(--brand-fixed);','Trained')
+    +item('border:1.5px solid var(--vigilance);','Missed')
+    +item('border:1.5px solid var(--gray2);','Upcoming')
+    +item('background:var(--dim);transform:scale(.75);','Rest')
+    +'</div>';
+}
+function renderHomeObjectifRing(prefix, profile){
+  const el=document.getElementById(prefix+'ObjectifZone'); if(!el) return;
+  const week=getWeekDaysTrained();
+  const duree=profile.duree||30;
+  const target=week.objectif*duree;
+  const pct = target ? Math.min(100, Math.round(week.minutes/target*100)) : 0;
+  const r=30, c=2*Math.PI*r;
+  const offset=c*(1-pct/100);
+  const now=new Date();
+  const dayIdx=(now.getDay()+6)%7; // 0=lundi ... 6=dimanche
+  const weekPace=objectifPace(week.minutes, target, dayIdx+1, 7);
+  // Bloc 4 semaines = les 3 semaines calendaires précédentes + la semaine en cours (pas 28 jours
+  // glissants depuis maintenant) — même lundi de référence que le strip, pour rester aligné.
+  const monday=new Date(now.getFullYear(), now.getMonth(), now.getDate()-dayIdx); monday.setHours(0,0,0,0);
+  const block4Start=new Date(monday); block4Start.setDate(monday.getDate()-21);
+  const hist4=userSessionHistory.filter(h=>h.date>=block4Start.getTime());
+  const min4=hist4.reduce((s,h)=>s+(h.duree||0),0);
+  const days4=new Set(hist4.map(h=>Math.floor(h.date/HIST_DAY))).size;
+  const target4=target*4;
+  const pct4 = target4 ? Math.min(100, Math.round(min4/target4*100)) : 0;
+  const block4Pace=objectifPace(min4, target4, 21+dayIdx+1, 28);
+  // Titres "CETTE SEMAINE"/"4 DERNIÈRES SEMAINES" alignés (cf discussion "cette semaine est à droite
+  // du cercle, 4 dernières semaines est tout à gauche, ça ne va pas") : les deux sont maintenant des
+  // lignes pleine largeur AU-DESSUS de leur contenu (anneau ou barre), jamais à côté d'un élément qui
+  // décale son point de départ.
+  // Frise incorporée ici (cf discussion "est-ce qu'on l'incorpore dans les objectifs ?") : elle EST le
+  // détail jour par jour de ce que l'anneau résume en un chiffre — les séparer aurait raconté la même
+  // semaine deux fois, à deux endroits différents de l'écran.
+  const weekStrip=computeWeekStrip();
+  el.innerHTML = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('GOAL')+'</div>'
+    +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;">'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('This week')+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:'+weekPace.color+';">'+trDyn(weekPace.label)+'</span>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:16px;margin-top:12px;">'
+    +'<svg width="52" height="52" viewBox="0 0 68 68" style="flex-shrink:0;transform:rotate(-90deg);">'
+      +'<circle cx="34" cy="34" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="7"/>'
+      +'<circle cx="34" cy="34" r="'+r+'" fill="none" stroke="'+weekPace.color+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" style="transition:stroke-dashoffset .6s ease;"/>'
+    +'</svg>'
+    +'<div style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;"><span style="font-size:19px;font-weight:800;color:var(--white);">'+week.minutes+'</span><span style="font-size:12px;font-weight:600;color:var(--gray2);">/ '+target+' min · '+week.fait+'/'+week.objectif+' '+trDyn('days')+'</span></div>'
+    +'</div>'
+    +'<div style="margin-top:16px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
+    +weekStripLegendHtml()
+    +'<div style="height:1px;background:var(--border);margin:18px 0 14px;"></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('Last 4 weeks')+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:'+block4Pace.color+';">'+trDyn(block4Pace.label)+'</span>'
+    +'</div>'
+    +'<div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;"><div style="height:100%;width:'+pct4+'%;background:'+block4Pace.color+';border-radius:3px;"></div></div>'
+    +'<div style="font-size:10.5px;color:var(--gray2);margin-top:6px;">'+min4+' / '+target4+' min · '+days4+'/'+(week.objectif*4)+' '+trDyn('days')+'</div>'
+    +'</div>';
+  sweepTranslate(el, currentLang);
+}
+// ===== HOME KPI ZONE — Charge + Douleur + Intensité, en sections distinctes (rethink Home, sept. 2026) =====
+// Regularity/Volume montés dans l'anneau Objectif ci-dessus. Intensité, retirée puis redemandée sur
+// Home (cf discussion "il manque intensité") : revient ici en section neutre à part — ni tuile de
+// suivi blanche (l'ancien ktrio a disparu avec Regularity/Volume) ni signal de sécurité coloré par
+// seuil (ce n'est pas une alerte) — un tt-lbl gris + une valeur, cohérent avec le fait que ça reste
+// une comparaison à soi-même, pas un engagement de la semaine. Charge et Douleur avaient été regroupés
+// sous un même titre "LOAD & PAIN" ; séparés à la demande explicite — deux jobs différents, pas la
+// même fenêtre temporelle en réalité (ACWR = 7j/28j, douleur = dernières séances).
 function renderHomeKpiZone(prefix, profile){
   const el=document.getElementById(prefix+'KpiZone'); if(!el) return;
-  const arrow=d=>d.dir==='up'?'↑':d.dir==='down'?'↓':'→';
-  const color=d=>d.dir==='up'?'var(--teal)':d.dir==='down'?'var(--vigilance)':'var(--gray)';
-  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
-  // Trois indicateurs de suivi cote a cote : ils se comparent, donc ils tiennent sur une ligne.
-  // Aucune couleur d'etat ici — le blanc est reserve au suivi pur, la couleur aux signaux.
-  // Titre "CETTE SEMAINE" + ligne de contexte par tuile (audit Home, sept. 2026) : en compactant les
-  // 3 blocs pleine-largeur en tuiles côte à côte, le mot "semaine" avait disparu de l'écran — plus
-  // aucun des 3 chiffres ne disait sur quelle période il portait. Contexte ajouté seulement là où il
-  // apporte une vraie info : Régularité affiche déjà son objectif inline ("1/3 days", pas de doublon
-  // à créer) ; Volume n'affichait le nombre de séances nulle part (perdu dans la compaction, restauré
-  // ici) ; Intensité n'est PAS sur la semaine calendaire comme les deux autres — le dire est nécessaire
-  // pour ne pas laisser croire l'inverse sous un titre de groupe "Cette semaine".
-  const tile=(lbl,inf,val,unit,delta,ctx)=>'<div class="kt">'
-    +'<div class="kt-l">'+lbl+inf+'</div>'
-    +'<div style="display:flex;align-items:baseline;gap:4px;"><span class="kt-v">'+val+'</span>'+(unit?'<span class="kt-u">'+unit+'</span>':'')+'</div>'
-    +'<div class="kt-d" style="color:'+(delta?delta.c:'var(--dim)')+';">'+(delta?delta.t:'—')+'</div>'
-    +(ctx?'<div class="kt-c">'+ctx+'</div>':'')
-    +'</div>';
+  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('LOAD')+'</div>';
+  out += buildLoadPainHtml(true, false, 'load');
+  out += '<div class="zone-lbl">'+trDyn('PAIN')+'</div>';
+  out += buildLoadPainHtml(true, false, 'pain');
 
-  const week=getWeekDaysTrained();
-  const prevWeek=getPreviousWeekStats();
-  const daysDelta=week.fait-prevWeek.fait;
-  const regState=getRegularityState(profile);
-  const regColor = regState.key==='douleur_hausse' ? 'var(--red)' : (regState.key==='objectif_semaine_atteint'||regState.key==='bon_streak'||regState.key==='programme_complete') ? 'var(--teal)' : 'var(--gray)';
-  const volDelta = prevWeek.minutes>0 ? pctDelta(week.minutes, prevWeek.minutes) : null;
   const sessions=getSessionsInPeriod('semaine'), prevSessions=getPreviousPeriodSessions('semaine');
   const pct=computeEffortScorePct(sessions);
-  const pctPrev = pct==null ? null : computeEffortScorePct(prevSessions);
-  const intDelta = (pct==null||!pctPrev) ? null : ptsDelta(pct, pctPrev||0);
-
-  let trio = tile('REGULARITY', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you have trained this week versus your weekly goal. Resets every Monday, same calendar week used for Volume below.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', week.fait+'/'+week.objectif, 'days',
-        daysDelta!==0 ? {c:(daysDelta>0?'var(--teal)':'var(--red)'), t:(daysDelta>0?'↑':'↓')+Math.abs(daysDelta)+'d'} : null)
-    + tile('VOLUME', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained this week, and how many sessions that took. Same calendar week as Regularity above, resetting every Monday.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', week.minutes, 'min',
-        volDelta ? {c:color(volDelta), t:arrow(volDelta)+' '+volDelta.pct+'%'} : null,
-        trDyn(week.sessions+(week.sessions===1?' session':' sessions')));
-  if(pct!=null) trio += tile('INTENSITY', '<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>', pct+'%', '',
-        intDelta ? {c:color(intDelta), t:arrow(intDelta)+' '+intDelta.pct+'pts'} : null,
-        trDyn('7-day rolling'));
-
-  // La phrase de regularite descend sous le trio : c'est le seul message contextuel de la zone,
-  // il n'a pas besoin d'une carte a lui — et il ne rentrerait pas dans une tuile compacte.
-  // Deux titres de groupe restaurés (audit Home, sept. 2026) : les 5 titres individuels retirés lors
-  // de la compaction en tuiles/cartes de signal emportaient le cadre temporel avec eux, pas juste du
-  // bruit visuel. Un titre par GROUPE plutôt que par carte — c'est le travail réel d'un titre de
-  // section (chapeauter plusieurs blocs), pas la répétition qu'était l'ancien "1 titre = 1 carte".
-  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('THIS WEEK')+'</div>'
-    + '<div class="ktrio">'+trio+'</div>'
-    + '<div style="margin:11px 20px 20px;font-size:11.5px;line-height:1.45;color:'+regColor+';">'+regState.text+'</div>';
-
-  // --- Charge + douleur : les seuls vrais signaux de securite, en cartes developpees ---
-  out += '<div class="zone-lbl">'+trDyn('LOAD & PAIN')+'</div>';
-  out += buildLoadPainHtml(true);
-
-  // Training balance (Cardio vs Strength) retiré — kinmio ne fait plus que du HIIT, l'axe n'a plus
-  // de sens (suppression de toute notion d'objectif dans la plateforme).
+  if(pct!=null){
+    const pctPrev=computeEffortScorePct(prevSessions);
+    const intDelta = pctPrev==null ? null : ptsDelta(pct, pctPrev);
+    const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
+    const intInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+    out += '<div class="zone-lbl">'+trDyn('INTENSITY')+'</div>'
+      +'<div class="ktrio" style="padding:0 20px 20px;"><div class="kt" style="flex:1;">'
+        +'<div class="kt-l">'+trDyn('7-day rolling')+intInfo+'</div>'
+        +'<div style="display:flex;align-items:baseline;gap:4px;"><span class="kt-v">'+pct+'%</span></div>'
+        +'<div class="kt-d" style="color:'+(intDelta?(intDelta.dir==='up'?'var(--teal)':intDelta.dir==='down'?'var(--vigilance)':'var(--gray)'):'var(--dim)')+';">'+(intDelta?(intDelta.dir==='up'?'↑':intDelta.dir==='down'?'↓':'→')+' '+intDelta.pct+'pts':'—')+'</div>'
+      +'</div></div>';
+  }
 
   el.innerHTML = out;
   sweepTranslate(el, currentLang);
 }
 let checkInDone=false, checkInDoneCentre=false;
-const CHECKIN_OPTS=[['fatigue','😴'],['neutre','😐'],['bien','😊'],['forme','💪']];
+// Passage à 5 crans (cf chantier "nettoyage emoji", décidé ailleurs, appliqué ici pour la home) : ajout
+// d'un cran par le bas ("épuisé"), sans renumérotation des 3 du milieu — le 💪 disparaît, remplacé par
+// 🤩 en haut de l'échelle "forme" pour ne pas garder une icône qui évoquait plutôt l'effort.
+const CHECKIN_OPTS=[['epuise','😩'],['fatigue','😴'],['neutre','😐'],['bien','😊'],['forme','🤩']];
 // Emoji affiché tel quel après sélection (cf discussion "garder l'emoji sélectionné de base") — plus de
 // traduction vers une icône météo différente, qui ajoutait une indirection sans bénéfice.
-function checkinEmoji(val){ return (CHECKIN_OPTS.find(o=>o[0]===val)||CHECKIN_OPTS[1])[1]; }
+function checkinEmoji(val){ return (CHECKIN_OPTS.find(o=>o[0]===val)||CHECKIN_OPTS[2])[1]; }
 function renderCheckinPrompt(prefix){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
   b.innerHTML=CHECKIN_TITLE
     +'<div class="checkin-row">'+CHECKIN_OPTS.map(o=>'<div class="checkin-opt" onclick="selCheckinHome(this,\''+o[0]+'\',\''+prefix+'\')">'+o[1]+'</div>').join('')+'</div>';
+  sweepTranslate(b, currentLang);
 }
 // Plus de petite phrase météo ici — le check-in du jour est désormais visible (icône seule) dans le
 // bloc Load/Pain de Progress, y compris côté référent (cf discussion) ; la répéter ici en plus, avec
@@ -7488,14 +7567,64 @@ function renderCheckinPrompt(prefix){
 // Titre de section conservé même une fois répondu (cf discussion : "on perd le titre, on devrait le
 // garder") — repris tel quel dans les deux états au lieu de disparaître avec le bloc de sélection.
 const CHECKIN_TITLE='<div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>';
-// Conséquence réelle affichée après le check-in (audit Home, sept. 2026) : avant, la réponse
-// n'aboutissait qu'à un accusé "emoji + Changer", sans lien visible avec quoi que ce soit — le vrai
-// ajustement (recommendedIntensityLevel) n'arrivait qu'en silence à l'entrée en séance, plus tard.
+// ===== Calculatrice check-in → séance (cf discussion "il faut savoir sur quelle variable ça joue") =====
+// 3 leviers réels seulement — exercices, durée (recalculée au prorata, "fait le plus simple" plutôt que
+// changer le moteur de séance) et intensité (jauge par exercice, même mécanisme que
+// recommendedIntensityLevel()/applyIntensityRecommendation() déjà en place pour l'entrée en séance
+// live — cette calculatrice écrit dans userParamsOverrides directement, donc l'ajustement décidé ici
+// sur Home est bien celui qui sera actif si la séance démarre ensuite, pas un 2e calcul séparé).
+// Neutre/Bien : aucun levier touché, volontairement — la grille ne réagit qu'aux extrêmes.
+const CHECKIN_IMPACT = { epuise:{exDelta:-2, level:1}, fatigue:{exDelta:-2, level:1}, neutre:null, bien:null, forme:{exDelta:0, level:'up'} };
+function previewCheckinImpact(val){
+  const impact=CHECKIN_IMPACT[val];
+  const sess=getSessionDuJour();
+  if(!impact) return {exCount:sess.exercices.length, duree:sess.duree, level:null, changed:false};
+  const exCount=Math.max(1, sess.exercices.length+(impact.exDelta||0));
+  const duree=Math.round(sess.duree*exCount/sess.exercices.length);
+  return {exCount, duree, level:impact.level, changed:true};
+}
+// Moyenne des jauges des exercices de la séance du jour — affichée sur la carte séance, mise à jour
+// après validation puisque userParamsOverrides (lu par getParamsExercice) a changé.
+function avgSessionJauge(sess){
+  const exos=[...EXERCICES,...userExercices];
+  const vals=[];
+  sess.exercices.forEach(id=>{ const ex=exos.find(e=>e.id===id); if(!ex) return; const p=getParamsExercice(ex); if(p.jauge!==undefined) vals.push(p.jauge); });
+  return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10 : null;
+}
+let todaySessionAdjust=null;   // {exCount, duree, level} une fois un check-in à impact validé
+// Étape de prévisualisation (cf discussion "avant qu'il aille se ranger, avec la validation") : un
+// check-in à impact ne se valide plus tout seul — la personne voit le avant/après puis confirme.
+// Neutre/Bien n'ont pas d'impact : on saute directement à l'état "fait", comme avant.
+function renderCheckinPreview(prefix,val){
+  const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
+  const p=previewCheckinImpact(val);
+  if(!p.changed){ confirmCheckinHome(prefix); return; }
+  const sess=getSessionDuJour();
+  const levelTxt = p.level==='up' ? trDyn('higher intensity') : trDyn('easier intensity');
+  // Phrase composée en UN SEUL nœud texte, pas de <b> qui la fragmente (cf bug trouvé en le testant :
+  // sweepTranslate ne peut reverse-matcher un pattern que sur un nœud texte entier — fragmenté par des
+  // balises, chaque morceau seul ne matche plus rien et reste bloqué dans la langue du premier rendu).
+  const sentence = currentLang==='fr'
+    ? `Ta séance du jour s'ajuste : ${sess.exercices.length} → ${p.exCount} exercices, ${sess.duree} → ${p.duree} min, ${levelTxt}.`
+    : `Today’s session adjusts: ${sess.exercices.length} → ${p.exCount} exercises, ${sess.duree} → ${p.duree} min, ${levelTxt}.`;
+  b.innerHTML=CHECKIN_TITLE
+    +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
+    +'<div style="display:flex;align-items:center;gap:12px;">'
+    +'<span style="font-size:26px;flex-shrink:0;">'+checkinEmoji(val)+'</span>'
+    +'<span style="flex:1;"></span>'
+    +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span>'
+    +'</div>'
+    +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+sentence+'</div>'
+    +'<button class="btn btn-brand-fixed" style="margin-top:10px;padding:11px;font-size:13px;" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
+    +'</div>';
+  sweepTranslate(b, currentLang);
+}
+// Conséquence réelle affichée après validation (audit Home, sept. 2026 puis calculatrice) : avant,
+// la réponse n'aboutissait qu'à un accusé "emoji + Changer" sans lien visible avec quoi que ce soit.
 function renderCheckinDone(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
-  const rec=recommendedIntensityLevel();
-  const impact = rec
-    ? trDyn('Today’s session adjusts: ')+(ASSISTANT_REASON_FR[rec.reason]&&currentLang==='fr' ? ASSISTANT_REASON_FR[rec.reason] : trDyn(rec.reason))
+  const impact = todaySessionAdjust
+    ? trDyn('Today’s session adjusted: ')+trDyn(todaySessionAdjust.level==='up'?'higher intensity':'easier intensity')
     : trDyn('No change needed — today’s session stays as planned.');
   b.innerHTML=CHECKIN_TITLE
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
@@ -7504,21 +7633,72 @@ function renderCheckinDone(prefix,val){
     +'<span style="flex:1;"></span>'
     +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span>'
     +'</div>'
-    +'<div style="font-size:12.5px;color:'+(rec?'var(--brand-fixed)':'var(--gray)')+';margin-top:10px;line-height:1.4;">'+impact+'</div>'
+    +'<div style="font-size:12.5px;color:'+(todaySessionAdjust?'var(--brand-fixed)':'var(--gray)')+';margin-top:10px;line-height:1.4;">'+impact+'</div>'
     +'</div>';
+  sweepTranslate(b, currentLang);
 }
 function selCheckinHome(el,val,prefix){
   todayCheckin=val;
+  renderCheckinPreview(prefix,val);
+}
+// Applique réellement l'ajustement (jauge par exercice, même source que le moteur de séance live) puis
+// fait "monter" l'émoji dans l'en-tête (cf discussion "sinon c'est la data qui ne sert à rien") et
+// rafraîchit la carte séance pour qu'elle affiche les nouveaux chiffres tout de suite.
+function confirmCheckinHome(prefix){
+  const val=todayCheckin;
+  const impact=CHECKIN_IMPACT[val];
+  const sess=getSessionDuJour();
+  if(impact){
+    const p=previewCheckinImpact(val);
+    todaySessionAdjust={exCount:p.exCount, duree:p.duree, level:impact.level};
+    // Base = le jauge par défaut du niveau de profil, jamais la valeur déjà surchargée — sinon
+    // sélectionner "en forme" deux check-ins de suite ferait grimper la jauge à chaque fois au lieu
+    // de toujours viser "un cran au-dessus de la base", et "changer d'avis" ne repartirait pas propre.
+    const niveauKey=(userProfileData.niveau||'debutant').toLowerCase().replace('é','e').replace('â','a').replace('è','e');
+    const exos=[...EXERCICES,...userExercices];
+    sess.exercices.forEach(exId=>{
+      const ex=exos.find(e=>e.id===exId); if(!ex) return;
+      const base=ex.params[niveauKey]||ex.params.debutant; if(!base||base.jauge===undefined) return;
+      const jauge = impact.level==='up' ? Math.min(5, base.jauge+1) : 1;
+      userParamsOverrides[exId]={...userParamsOverrides[exId], jauge};
+    });
+  } else {
+    todaySessionAdjust=null;
+  }
   if(prefix==='homeCentre') checkInDoneCentre=true; else checkInDone=true;
+  logCoachHistory({type:'checkin', message: trDyn('Check-in')+' '+checkinEmoji(val)+(todaySessionAdjust?' — '+trDyn('session adjusted'):'')});
   renderCheckinDone(prefix,val);
+  updateHeaderCheckinBadge(prefix,val);
+  refreshHomeSeanceZones();
+}
+function updateHeaderCheckinBadge(prefix,val){
+  const el=document.getElementById(prefix+'CheckinBadge'); if(!el) return;
+  el.textContent=checkinEmoji(val);
+  el.style.display='inline';
+  el.style.cursor='pointer';
+  el.onclick=function(){ resetCheckinHome(prefix); };
 }
 function resetCheckinHome(prefix){
   if(prefix==='homeCentre') checkInDoneCentre=false; else checkInDone=false;
+  // Annule aussi la jauge appliquée par un précédent check-in confirmé (pas seulement l'affichage) —
+  // sinon "Modifier" remettait la carte séance à ses chiffres de base tout en laissant l'intensité
+  // moyenne coincée sur l'ancien ajustement, incohérent tant qu'un nouveau choix n'était pas validé.
+  if(todaySessionAdjust){
+    getSessionDuJour().exercices.forEach(exId=>{
+      if(!userParamsOverrides[exId]) return;
+      const {jauge, ...rest}=userParamsOverrides[exId];
+      if(Object.keys(rest).length) userParamsOverrides[exId]=rest; else delete userParamsOverrides[exId];
+    });
+  }
+  todaySessionAdjust=null;
+  const badge=document.getElementById(prefix+'CheckinBadge'); if(badge){ badge.style.display='none'; badge.textContent=''; }
   renderCheckinPrompt(prefix);
+  refreshHomeSeanceZones();
 }
 function initHomeCheckin(prefix){
   const done = prefix==='homeCentre' ? checkInDoneCentre : checkInDone;
-  if(done) renderCheckinDone(prefix, todayCheckin); else renderCheckinPrompt(prefix);
+  if(done){ renderCheckinDone(prefix, todayCheckin); updateHeaderCheckinBadge(prefix, todayCheckin); }
+  else renderCheckinPrompt(prefix);
 }
 // Semaine réelle (lundi→dimanche) calculée depuis les jours choisis par la personne (profile.jours,
 // ou la suggestion par défaut si rien n'est encore choisi) + l'historique réel des séances (userSessionHistory)
@@ -7536,17 +7716,24 @@ function computeWeekStrip(){
   const monday=new Date(now); monday.setDate(now.getDate()-((now.getDay()+6)%7)); monday.setHours(0,0,0,0);
   const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
   const hist=(typeof userSessionHistory!=='undefined'&&userSessionHistory)?userSessionHistory:[];
-  const histDates=new Set(hist.map(h=>{ const d=new Date(h.date); d.setHours(0,0,0,0); return d.getTime(); }));
   return dayNames.map((name,i)=>{
     const d=new Date(monday); d.setDate(monday.getDate()+i);
     const isToday=d.toDateString()===now.toDateString();
     const isTrainDay=trainDays.includes(name);
+    // Séance réelle de ce jour, pas juste la date (audit Home, sept. 2026) : cliquer un jour "fait"
+    // n'ouvrait jamais rien de spécifique avant, toujours le même go('programme') générique — vérifié
+    // en le testant. Retrouvée ici pour que le clic ouvre la vraie fiche de CETTE séance.
+    const dayHist = hist.find(h=>{ const hd=new Date(h.date); hd.setHours(0,0,0,0); return hd.getTime()===d.getTime(); });
+    // "fait" prime sur "repos" (trouvé en vérifiant le strip, sept. 2026) : un jour de repos où la
+    // personne s'est quand même entraînée doit se lire comme fait, pas comme repos — cohérent avec le
+    // principe déjà posé pour l'échauffement/la séance du jour ("le jour choisi structure le cadre, il
+    // n'empêche jamais de s'entraîner").
     let statut;
-    if(!isTrainDay) statut='repos';
-    else if(histDates.has(d.getTime())) statut='fait';
+    if(dayHist) statut='fait';
+    else if(!isTrainDay) statut='repos';
     else if(d.getTime()<today0.getTime()) statut='manque';
     else statut='avenir';
-    return {j:name.slice(0,3), statut, today:isToday};
+    return {j:name.slice(0,3), statut, today:isToday, sessionId: dayHist?dayHist.sessionId:null};
   });
 }
 // Si aujourd'hui n'est pas un jour choisi, cherche le prochain jour choisi dans les 7 jours à venir —
@@ -7588,7 +7775,11 @@ function renderWeekStripHtml(strip){
       const lblStyle = d.today
         ? 'color:var(--white);font-weight:800;background:rgba(255,255,255,.12);border-radius:6px;padding:2px 0;'
         : 'color:'+(d.statut==='repos'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
-      return '<div style="text-align:center;cursor:pointer;" onclick="go(\'programme\')">'
+      // Un jour "fait" ouvre la vraie séance faite ce jour-là, pas toujours le même Programme générique
+      // (audit Home, sept. 2026 — vérifié en testant : cliquer lundi ou mercredi ne montrait jamais
+      // rien de spécifique). Les autres statuts (rien à montrer pour ce jour précis) gardent Programme.
+      const dayClick = (d.statut==='fait' && d.sessionId) ? "openSessionDetail('"+d.sessionId+"')" : "go('programme')";
+      return '<div style="text-align:center;cursor:pointer;" onclick="'+dayClick+'">'
         +'<div style="font-size:10px;'+lblStyle+'text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
         +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'">'+dotContent+'</div>'
         +'</div>';
@@ -7621,13 +7812,12 @@ function renderHomeSeance(prefix, data){
   const zoneCounts={};
   sessExos.forEach(e=>(e.zones||[]).forEach(z=>{ zoneCounts[z]=(zoneCounts[z]||0)+1; }));
   const priorityMuscle = Object.entries(zoneCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
-  // Libellé dynamique : "Your next session" si aujourd'hui est un jour choisi, sinon le jour + délai
-  // du prochain jour choisi — mais PUREMENT informatif. Le jour choisi structure le cadre (rappels,
-  // strip), il ne doit jamais empêcher de s'entraîner : la carte reste cliquable et propose une vraie
-  // séance tous les jours, jour de repos ou pas — "on s'en fout de la récupération, si tu veux la faire
-  // aujourd'hui tu la fais". Le CTA n'est donc plus jamais remplacé par un simple lien "voir mon programme".
-  const nextDay=getNextTrainingDayInfo();
-  const cardLbl = nextDay ? ('Next planned: '+nextDay.name+' · in '+nextDay.inDays+' day'+(nextDay.inDays>1?'s':'')) : 'Your next session';
+  // Libellé fixe "Your next session" (rethink Home, sept. 2026) — avant, affichait le jour choisi +
+  // un délai ("Next planned: Friday · in 1 day") quand ce n'était pas pour aujourd'hui. Retiré à la
+  // demande explicite : le jour choisi est une préférence de cadre (rappels, frise), pas un rendez-vous
+  // — annoncer un délai fait croire à une contrainte qu'on n'impose pas. "Si tu veux la faire
+  // aujourd'hui, tu la fais aujourd'hui" : la carte reste la même quel que soit le jour.
+  const cardLbl = 'Next session';
   // "Fait aujourd'hui" — remplace la carte Score Kinmio séparée (retirée, sept. 2026 : jugée redondante
   // avec le point du strip pour la question "as-tu fait ta séance", cf discussion). Le bouton change
   // vraiment d'état une fois fait plutôt que de rester identique — avant, "View session →" ne changeait
@@ -7651,19 +7841,21 @@ function renderHomeSeance(prefix, data){
   const video=sessionVideoFor(realSess);
   const thumbStyle=video?'':"background-image:url('"+photo+"');background-size:cover;background-position:center;";
   const thumbVideo=video?'<video src="'+video+'" poster="'+photo+'" autoplay muted loop playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;"></video>':'';
-  zone.innerHTML=renderWeekStripHtml(weekStrip)
-    +'<div style="margin:0 20px 8px;font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;">'+trDyn(cardLbl)+'</div>'
+  zone.innerHTML='<div style="margin:0 20px 8px;font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;">'+trDyn(cardLbl)+'</div>'
     +'<div class="hero-glow">'
     +'<div class="today" onclick="openSessionDetail(\''+realSess.id+'\')">'
     +'<div class="today-thumb" style="'+thumbStyle+'">'+thumbVideo+(photo||video?'':'<svg class="ki"><use href="#ki-media"/></svg>')+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')+'</div>'
     +'<div class="today-body"><div class="today-title" style="font-size:22px;">'+realSess.nom_marketing+'</div>'
-    +'<div class="today-sub">'+realSess.exercices.length+' exercises · '+realSess.duree+' min'+(priorityMuscle?' · '+priorityMuscle:'')+'</div>'
+    // Nombre d'exercices/durée reflètent l'ajustement du check-in une fois validé (cf calculatrice,
+    // confirmCheckinHome) — même séance, juste recalculée ; intensité moyenne = moyenne des jauges
+    // réellement appliquées (userParamsOverrides), donc change aussi si le check-in l'a modifiée.
+    +'<div class="today-sub">'+(todaySessionAdjust?todaySessionAdjust.exCount:realSess.exercices.length)+' exercises · '+(todaySessionAdjust?todaySessionAdjust.duree:realSess.duree)+' min'+(priorityMuscle?' · '+priorityMuscle:'')+(avgSessionJauge(realSess)!=null?' · '+trDyn('avg intensity')+' '+avgSessionJauge(realSess):'')+'</div>'
     +cta
     // "Mon programme →" ramené dans la carte séance, sous le CTA (audit Home, sept. 2026) : c'était le
     // seul bloc flottant entre deux cartes sans appartenir à aucune des deux — pas d'onglet Programme
     // dans la nav (cf plus haut), donc ce lien reste le seul accès, mais il appartient à CET objet
     // (la séance du jour), pas à l'espace entre lui et le bloc suivant.
-    +'<div style="text-align:center;margin-top:10px;"><span style="color:var(--gray);font-size:12.5px;text-decoration:underline;cursor:pointer;" onclick="event.stopPropagation();go(\'programme\')">'+trDyn('My programme →')+'</span></div>'
+    +'<button class="btn btn-ghost" style="margin-top:4px;padding:12px;font-size:13.5px;font-weight:700;color:var(--gray2);" onclick="event.stopPropagation();go(\'programme\')">'+trDyn('My programme →')+'</button>'
     +'</div></div></div>';
 }
 // Remplace le message coach-tip générique (KPI_CONFIG, statique) par le statut hebdo réel du
@@ -7704,6 +7896,7 @@ function renderHomeExplore(prefix){
   sweepTranslate(el, currentLang);
 }
 function renderHomeV2(prefix, data, profile){
+  renderHomeObjectifRing(prefix, profile);
   renderHomeKpiZone(prefix, profile);
   initHomeCheckin(prefix);
   renderHomeSeance(prefix, data);
@@ -9756,6 +9949,7 @@ const EN_FR = {
   "Good energy today — nice work.": "Belle énergie aujourd'hui — bien joué.",
   "Great energy — let's make the most of it 💪": "Super énergie — profitons-en 💪",
   "Your next session": "Ta prochaine séance",
+  "Next session": "Prochaine séance",
   "Done today": "Faite aujourd'hui",
   "See all": "Voir tout",
   "Session in progress": "Séance en cours",
@@ -9883,6 +10077,13 @@ const EN_FR = {
   "Max": "Max",
   "How are you feeling?": "Comment te sens-tu ?",
   "Today’s session adjusts: ": "Ta séance du jour s'ajuste : ",
+  "Today’s session adjusts:": "Ta séance du jour s'ajuste :",
+  "Today’s session adjusted: ": "Séance ajustée : ",
+  "easier intensity": "intensité plus facile",
+  "higher intensity": "intensité relevée",
+  "Check-in": "Check-in",
+  "session adjusted": "séance ajustée",
+  "avg intensity": "intensité moy.",
   "No change needed — today’s session stays as planned.": "Rien à changer — ta séance du jour reste comme prévu.",
   "😐 Okay": "😐 Correct",
   "😣 Tired": "😣 Fatigué",
@@ -9992,6 +10193,13 @@ const EN_FR = {
   "Total minutes trained over the last 30 days, and how many sessions/exercises that took.": "Total de minutes d'entraînement sur les 30 derniers jours, et le nombre de séances/exercices que ça a pris.",
   "Total minutes trained over the last 90 days, and how many sessions/exercises that took.": "Total de minutes d'entraînement sur les 90 derniers jours, et le nombre de séances/exercices que ça a pris.",
   "LOAD": "CHARGE",
+  "GOAL": "OBJECTIF",
+  "On track": "Dans les temps",
+  "Catching up": "À rattraper",
+  "Falling behind": "En retard",
+  "Trained": "Fait",
+  "Missed": "Manqué",
+  "Upcoming": "À venir",
   "TRAINING BALANCE": "ÉQUILIBRE D'ENTRAÎNEMENT",
   "Training balance": "Équilibre d'entraînement",
   "Over your last 30 days": "Sur tes 30 derniers jours",
@@ -10736,6 +10944,7 @@ const EN_FR = {
   "This month": "Ce mois-ci",
   "Best streak": "Meilleure série",
   "This week": "Cette semaine",
+  "Last 4 weeks": "4 dernières semaines",
   "Last week": "Semaine dernière",
   "Avg. duration": "Durée moy.",
   "Before session": "Avant la séance",
@@ -11132,6 +11341,14 @@ const EN_FR = {
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
+  // Calculatrice check-in (renderCheckinPreview/renderCheckinDone) — phrase composée avec des valeurs
+  // dynamiques, jamais captée par un balayage statique sans pattern (cf bug déjà rencontré 2 fois sur
+  // Home cette session : dictionnaire simple = correspondance exacte du nœud texte entier, ne matche
+  // pas une phrase avec des nombres au milieu).
+  [/^Today’s session adjusts: (\d+) → (\d+) exercises, (\d+) → (\d+) min, (easier intensity|higher intensity)\.$/,
+    (m)=>`Ta séance du jour s'ajuste : ${m[1]} → ${m[2]} exercices, ${m[3]} → ${m[4]} min, ${m[5]==='easier intensity'?'intensité plus facile':'intensité relevée'}.`],
+  [/^Today’s session adjusted: (easier intensity|higher intensity)$/,
+    (m)=>`Séance ajustée : ${m[1]==='easier intensity'?'intensité plus facile':'intensité relevée'}`],
   [/^(\d+) sessions? total · ([\d.]+) avg \/ member \/ week$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} au total · ${m[2]} moy. / membre / semaine`],
   [/^(\d+) sessions? · (\d+) min avg\/session$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} · ${m[2]} min moy./séance`],
   // Générique pour tous les compteurs d'étape de wizard (csi/csc/cprog + détours) — posés en JS brut
@@ -11293,15 +11510,28 @@ const EN_FR_PATTERNS = [
   [/^→ (\d+)% vs previous (week|month|year)$/, (m)=>`→ ${m[1]}% vs ${({week:'semaine',month:'mois',year:'année'})[m[2]]} précédent${m[2]==='week'||m[2]==='year'?'e':''}`],
 ];
 const FR_EN_PATTERNS = [
+  // Calculatrice check-in — sens retour, confirmé cassé en le testant (sélection puis changement de
+  // langue sans quitter l'écran laissait la phrase de la calculatrice bloquée en français).
+  [/^Ta séance du jour s'ajuste : (\d+) → (\d+) exercices, (\d+) → (\d+) min, (intensité plus facile|intensité relevée)\.$/,
+    (m)=>`Today’s session adjusts: ${m[1]} → ${m[2]} exercises, ${m[3]} → ${m[4]} min, ${m[5]==='intensité plus facile'?'easier intensity':'higher intensity'}.`],
+  [/^Séance ajustée : (intensité plus facile|intensité relevée)$/,
+    (m)=>`Today’s session adjusted: ${m[1]==='intensité plus facile'?'easier intensity':'higher intensity'}`],
   // Manquait côté FR→EN alors que EN_FR_PATTERNS a bien le sens forward (cf tâche #329) — un
   // retour FR→EN sur un écran wizard (csi/csc/cprog/defi/friend) laissait le compteur d'étape
   // bloqué en français, découvert en vérifiant les nouveaux compteurs defiStepLbl/friendStepLbl.
   [/^Étape (\d+) sur (\d+)$/, (m)=>`Step ${m[1]} of ${m[2]}`],
+  // Libellé de la carte séance (renderHomeSeance, cardLbl) — même problème que ci-dessus : sens forward
+  // seul (EN_FR_PATTERNS) suffit pour un premier rendu FR, mais bloque en français sans re-rendu si on
+  // repasse en anglais depuis un écran déjà affiché.
+  [/^Prochaine prévue : (.+) · dans (\d+) jours?$/, (m)=>`Next planned: ${FR_EN[m[1]]||m[1]} · in ${m[2]} day${Number(m[2])>1?'s':''}`],
   [/^(\d+) référents? · moy\. ([\d.]+) membres\/référent$/, (m)=>`${m[1]} coach${Number(m[1])>1?'es':''} · avg ${m[2]} members/coach`],
   [/^(\d+) séances? au total · ([\d.]+) moy\. \/ membre \/ semaine$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} total · ${m[2]} avg / member / week`],
   [/^(\d+) séances? · (\d+) min moy\.\/séance$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} · ${m[2]} min avg/session`],
   [/^(.+) · moy (\d+(?:\.\d+)?)\/4$/, (m)=>`${m[1]} · avg ${m[2]}/4`],
   [/^(\d+) séances? ›$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} ›`],
+  // Ligne de contexte "Volume" de la tuile Home (renderHomeKpiZone) — manquait le sens retour, trouvé
+  // en vérifiant un changement de langue sans re-rendu (sweepTranslate seul, écran déjà affiché).
+  [/^(\d+) séances?$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''}`],
   [/^\+(\d+) de plus · voir le top (\d+) ›$/, (m)=>`+${m[1]} more · see all top ${m[2]} ›`],
   [/^(\d+) jours d'affilée\. Continue comme ça\.$/, (m)=>`${m[1]}-day streak. Keep it up.`],
   [/^(\d+)\/(\d+) jours d'entraînement$/, (m)=>`${m[1]}/${m[2]} training days`],
