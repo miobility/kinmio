@@ -7454,15 +7454,53 @@ function objectifPace(actual, target, daysElapsed, daysTotal){
 // 4 mots, pas 5 (cf discussion "je ne parlerai pas de repos") : Fait / Manqué / Prévu / À rattraper.
 // "Vide" (jour non choisi déjà passé) n'a pas d'entrée — un point discret n'a pas besoin d'être
 // explicité, il se lit déjà comme "rien ici".
+// 3 mots (cf discussion "trop compliqué, je ferai fait/manqué/prévu") : Fait / Manqué / Prévu.
 function weekStripLegendHtml(){
-  const item=(dotStyle,label,inner)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;position:relative;'+dotStyle+'">'+(inner||'')+'</span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
-  const catchUpDot='<span style="position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:var(--vigilance);transform:translate(-50%,-50%);"></span>';
+  const item=(dotStyle,label)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;'+dotStyle+'"></span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
   return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'
     +item('background:var(--brand-fixed);','Trained')
     +item('border:1.5px solid var(--vigilance);','Missed')
     +item('border:1.5px solid var(--gray2);','Upcoming')
-    +item('border:1.5px solid var(--gray2);','Catch-up',catchUpDot)
     +'</div>';
+}
+// Alerte de rythme rendue actionnable au tap (cf discussion "proposerais-tu une reco en cliquant sur
+// l'alerte ?") — réutilise le patron showModal existant (même famille que showInfoSheet) plutôt qu'un
+// nouveau mécanisme : explique le chiffre derrière le label, puis un vrai bouton vers la séance du jour.
+function openObjectifPaceInfo(scope){
+  const week=getWeekDaysTrained();
+  const duree=profile.duree||30;
+  const target=week.objectif*duree;
+  const now=new Date();
+  const dayIdx=(now.getDay()+6)%7;
+  let title, body;
+  if(scope==='week'){
+    const pace=objectifPace(week.minutes, target, dayIdx+1, 7);
+    title=trDyn(pace.label);
+    body = currentLang==='fr'
+      ? `${week.minutes} / ${target} min, ${dayIdx+1}/7 jours écoulés cette semaine.`
+      : `${week.minutes} / ${target} min, ${dayIdx+1}/7 days into the week.`;
+  } else {
+    const monday=new Date(now.getFullYear(), now.getMonth(), now.getDate()-dayIdx); monday.setHours(0,0,0,0);
+    const block4Start=new Date(monday); block4Start.setDate(monday.getDate()-21);
+    const hist4=userSessionHistory.filter(h=>h.date>=block4Start.getTime());
+    const min4=hist4.reduce((s,h)=>s+(h.duree||0),0);
+    const target4=target*4;
+    const pace=objectifPace(min4, target4, 21+dayIdx+1, 28);
+    title=trDyn(pace.label);
+    body = currentLang==='fr'
+      ? `${min4} / ${target4} min, ${21+dayIdx+1}/28 jours écoulés dans le cycle.`
+      : `${min4} / ${target4} min, ${21+dayIdx+1}/28 days into the cycle.`;
+  }
+  const sess=getSessionDuJour();
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
+    +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
+    +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+trDyn('View my session')+'</button>'
+    +'<button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
+}
+// Légende de la frise, retirée de l'affichage permanent (cf renderHomeObjectifRing) — reprise ici telle
+// quelle dans un showInfoSheet, un peu agrandie pour se lire en modale plutôt qu'en ligne compacte.
+function openWeekStripInfo(){
+  showInfoSheet(trDyn('This week'), weekStripLegendHtml().replace(/font-size:9\.5px/g,'font-size:13px').replace('margin:10px 0 2px','margin:0'));
 }
 function renderHomeObjectifRing(prefix, profile){
   const el=document.getElementById(prefix+'ObjectifZone'); if(!el) return;
@@ -7496,25 +7534,31 @@ function renderHomeObjectifRing(prefix, profile){
   // détail jour par jour de ce que l'anneau résume en un chiffre — les séparer aurait raconté la même
   // semaine deux fois, à deux endroits différents de l'écran.
   const weekStrip=computeWeekStrip();
+  // ⓘ remplace la légende permanente (cf discussion "comment optimiserais-tu ce bloc") : même patron
+  // que Régularité/Volume/Charge/Douleur ailleurs sur Home — 3 couleurs déjà cohérentes dans toute
+  // l'app, la légende texte devient un rappel au tap plutôt qu'un bloc affiché en permanence.
+  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
+  const stripInfo='<span class="info-i" onclick="event.stopPropagation();openWeekStripInfo()" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+  // "1/3 jours" retiré du chiffre principal (cf discussion) : la frise juste en dessous montre déjà
+  // combien de jours sont faits — le répéter en texte était le doublon que ce chantier essaie de retirer.
   el.innerHTML = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('GOAL')+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('This week')+'</span>'
-      +'<span style="font-size:10px;font-weight:700;color:'+weekPace.color+';">'+trDyn(weekPace.label)+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('This week')+stripInfo+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:'+weekPace.color+';cursor:pointer;" onclick="openObjectifPaceInfo(\'week\')">'+trDyn(weekPace.label)+'</span>'
     +'</div>'
     +'<div style="display:flex;align-items:center;gap:16px;margin-top:12px;">'
     +'<svg width="52" height="52" viewBox="0 0 68 68" style="flex-shrink:0;transform:rotate(-90deg);">'
       +'<circle cx="34" cy="34" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="7"/>'
       +'<circle cx="34" cy="34" r="'+r+'" fill="none" stroke="'+weekPace.color+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" style="transition:stroke-dashoffset .6s ease;"/>'
     +'</svg>'
-    +'<div style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;"><span style="font-size:19px;font-weight:800;color:var(--white);">'+week.minutes+'</span><span style="font-size:12px;font-weight:600;color:var(--gray2);">/ '+target+' min · '+week.fait+'/'+week.objectif+' '+trDyn('days')+'</span></div>'
+    +'<div style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;"><span style="font-size:19px;font-weight:800;color:var(--white);">'+week.minutes+'</span><span style="font-size:12px;font-weight:600;color:var(--gray2);">/ '+target+' min</span></div>'
     +'</div>'
     +'<div style="margin-top:16px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
-    +weekStripLegendHtml()
-    +'<div style="height:1px;background:var(--border);margin:18px 0 14px;"></div>'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
-      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('4-week cycle')+'</span>'
-      +'<span style="font-size:10px;font-weight:700;color:'+block4Pace.color+';">'+trDyn(block4Pace.label)+'</span>'
+    +'<div style="height:1px;background:var(--border);margin:16px 0 12px;"></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">'
+      +'<span style="font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('4-week cycle')+'</span>'
+      +'<span style="font-size:9.5px;font-weight:700;color:'+block4Pace.color+';cursor:pointer;opacity:.85;" onclick="openObjectifPaceInfo(\'cycle\')">'+trDyn(block4Pace.label)+'</span>'
     +'</div>'
     +'<div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;"><div style="height:100%;width:'+pct4+'%;background:'+block4Pace.color+';border-radius:3px;"></div></div>'
     +'<div style="font-size:10.5px;color:var(--gray2);margin-top:6px;">'+min4+' / '+target4+' min · '+days4+'/'+(week.objectif*4)+' '+trDyn('days')+'</div>'
@@ -7759,18 +7803,12 @@ function initHomeCheckin(prefix){
 // — remplace le strip qui existait avant et avait été retiré (raison non retrouvée dans le code ni
 // en mémoire), réintroduit à la demande explicite, cette fois branché sur du réel plutôt que sur
 // homeData.semaine (donnée simulée, jamais connectée aux vrais choix de jours).
-// États du strip (rethink sept. 2026, cf discussion "je ne parlerai pas de repos") : "Repos" retiré —
-// n'importe quel jour peut accueillir une séance ("toute séance prévue demain qui peut être faite
-// aujourd'hui est bonne à prendre"), donc un jour non choisi n'est pas interdit, juste ouvert. Les
-// jours non choisis à venir deviennent "libre" (même rendu visuel que "prévu" — rien à distinguer,
-// les deux sont simplement disponibles) ; les jours non choisis déjà passés restent un point discret
-// sans label (rien ne s'y est joué, rien à rattraper).
-// Rattrapage ajouté (cf discussion) : un jour manqué propose le prochain jour "libre" disponible,
-// jamais une contrainte "pas consécutif à une séance prévue" — testée sur une fréquence de 3
-// jours/semaine (Lun/Mer/Ven), elle ne laisserait quasiment aucun jour valide (Mar/Jeu/Sam collés à
-// un jour prévu des deux côtés), donc inapplicable dans le cas le plus courant. Autant de jours de
-// rattrapage que de jours manqués ET de créneaux libres restants ("si possible de rattraper ce qui
-// doit l'être dans la semaine, on le fait") — jamais plus qu'il n'y a de jours libres à venir.
+// États du strip (rethink sept. 2026) : 3 états nommés — Fait / Manqué / Prévu — plus un rendu neutre
+// pour les jours non choisis (cf discussion "si le user a prévu 3 jours, bien vérifier le nb total
+// entre manqué et prévu, ne pas tout encadrer") : Manqué/Prévu ne s'appliquent QU'AUX jours réellement
+// choisis (profile.jours) — un jour non choisi n'a jamais été un engagement, l'encadrer comme "Prévu"
+// gonflerait le compte visible au-delà de l'objectif réel ("1/3 jours"). Vérifié : avec 3 jours choisis,
+// le total Manqué+Prévu+Fait-sur-jour-choisi tombe exactement à 3, jamais 7.
 function computeWeekStrip(){
   const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const now=new Date();
@@ -7778,7 +7816,7 @@ function computeWeekStrip(){
   const monday=new Date(now); monday.setDate(now.getDate()-((now.getDay()+6)%7)); monday.setHours(0,0,0,0);
   const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
   const hist=(typeof userSessionHistory!=='undefined'&&userSessionHistory)?userSessionHistory:[];
-  const days = dayNames.map((name,i)=>{
+  return dayNames.map((name,i)=>{
     const d=new Date(monday); d.setDate(monday.getDate()+i);
     const isToday=d.toDateString()===now.toDateString();
     const isTrainDay=trainDays.includes(name);
@@ -7786,19 +7824,17 @@ function computeWeekStrip(){
     // n'ouvrait jamais rien de spécifique avant, toujours le même go('programme') générique — vérifié
     // en le testant. Retrouvée ici pour que le clic ouvre la vraie fiche de CETTE séance.
     const dayHist = hist.find(h=>{ const hd=new Date(h.date); hd.setHours(0,0,0,0); return hd.getTime()===d.getTime(); });
-    // "fait" prime sur "libre"/"prévu" : un jour non choisi où la personne s'est quand même entraînée
+    // "fait" prime sur tout le reste : un jour non choisi où la personne s'est quand même entraînée
     // doit se lire comme fait — cohérent avec "le jour choisi structure le cadre, il n'empêche jamais
-    // de s'entraîner".
+    // de s'entraîner". "manqué"/"prévu" ne s'appliquent qu'à un jour réellement choisi ; un jour non
+    // choisi, fait ou pas, reste "libre" — un rendu neutre, jamais encadré, pas un des 3 mots affichés.
     let statut;
     if(dayHist) statut='fait';
-    else if(d.getTime()<today0.getTime()) statut = isTrainDay ? 'manque' : 'vide';
-    else statut = isTrainDay ? 'prevu' : 'libre';
+    else if(!isTrainDay) statut='libre';
+    else if(d.getTime()<today0.getTime()) statut='manque';
+    else statut='prevu';
     return {j:name.slice(0,3), statut, today:isToday, sessionId: dayHist?dayHist.sessionId:null};
   });
-  const missedCount = days.filter(d=>d.statut==='manque').length;
-  const openFuture = days.filter(d=>d.statut==='libre');   // déjà en ordre chronologique (lundi→dimanche)
-  for(let i=0;i<Math.min(missedCount, openFuture.length);i++){ openFuture[i].statut='rattrapage'; }
-  return days;
 }
 // Si aujourd'hui n'est pas un jour choisi, cherche le prochain jour choisi dans les 7 jours à venir —
 // alimente le libellé de la carte "prochaine séance" (jour + délai) plutôt qu'un "Your next session"
@@ -7822,32 +7858,30 @@ function getNextTrainingDayInfo(){
 // que "fait" (vert plein vs vert creux) — confondu au premier coup d'œil, confirmé en le montrant.
 // Découplé désormais : le POINT porte le statut, le LIBELLÉ du jour porte "aujourd'hui" (fond clair +
 // gras), jamais la même couleur pour les deux questions à la fois.
-// "Prévu"/"Libre" partagent le même rendu (anneau gris clair) — un jour choisi pas encore atteint et
-// un jour simplement ouvert disent la même chose : disponible, rien d'autre à signaler. "Rattrapage"
-// reprend ce même anneau + un point ambre au centre — même couleur que "Manqué" (l'ambre = signal qui
-// demande une action, passée ou à venir), pas une 5e teinte inventée pour un seul état. "Vide" (jour
-// non choisi déjà passé) garde le point discret d'avant (rien ne s'y est joué, rien à rattraper).
+// 3 mots affichés (Fait/Manqué/Prévu), + un rendu neutre pour "libre" (jour non choisi, cf
+// computeWeekStrip) — point discret sans anneau, jamais encadré comme un vrai engagement.
+// Pastille "aujourd'hui" simplifiée (cf discussion "le gras décale l'alignement des bulles") : fond
+// retiré, seuls le blanc + le gras restent — mesuré avant/après, le fond n'introduisait en réalité
+// aucun décalage géométrique (labelCenter/dotCenter identiques au pixel près), mais son rectangle
+// arrondi ajoutait un poids visuel qui perturbait la lecture de la ligne ; le retirer règle les deux.
 function renderWeekStripHtml(strip){
   return '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:0 20px 18px;">'
     +strip.map(d=>{
-      let dotStyle='', dotContent='';
+      let dotStyle='';
       if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
       else if(d.statut==='manque') dotStyle='border:2px solid var(--vigilance);';
-      else if(d.statut==='rattrapage'){ dotStyle='border:1.5px solid var(--gray2);position:relative;'; dotContent='<span style="position:absolute;top:50%;left:50%;width:7px;height:7px;border-radius:50%;background:var(--vigilance);transform:translate(-50%,-50%);"></span>'; }
-      else if(d.statut==='prevu'||d.statut==='libre') dotStyle='border:1.5px solid var(--gray2);';
-      // "Vide" (jour non choisi déjà passé) : même forme discrète qu'avant "Repos" — présente, mais
-      // visiblement plus discrète, ce qui est exactement ce que "rien à signaler ici" doit dire.
+      else if(d.statut==='prevu') dotStyle='border:1.5px solid var(--gray2);';
       else dotStyle='background:var(--dim);transform:scale(.3);';
       const lblStyle = d.today
-        ? 'color:var(--white);font-weight:800;background:rgba(255,255,255,.12);border-radius:6px;padding:2px 0;'
-        : 'color:'+(d.statut==='vide'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
+        ? 'color:var(--white);font-weight:800;'
+        : 'color:'+(d.statut==='libre'?'var(--gray)':'var(--gray2)')+';font-weight:700;';
       // Un jour "fait" ouvre la vraie séance faite ce jour-là, pas toujours le même Programme générique
       // (audit Home, sept. 2026 — vérifié en testant : cliquer lundi ou mercredi ne montrait jamais
       // rien de spécifique). Les autres statuts (rien à montrer pour ce jour précis) gardent Programme.
       const dayClick = (d.statut==='fait' && d.sessionId) ? "openSessionDetail('"+d.sessionId+"')" : "go('programme')";
       return '<div style="text-align:center;cursor:pointer;" onclick="'+dayClick+'">'
         +'<div style="font-size:10px;'+lblStyle+'text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
-        +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'">'+dotContent+'</div>'
+        +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'"></div>'
         +'</div>';
     }).join('')
     +'</div>';
@@ -10263,10 +10297,6 @@ const EN_FR = {
   "Trained": "Fait",
   "Missed": "Manqué",
   "Upcoming": "À venir",
-  // "Rattrapage" (nom), pas "À rattraper" (déjà pris par le label de rythme de l'anneau,
-  // objectifPace) — même valeur FR pour 2 clés EN différentes aurait cassé le retour EN→FR de l'une
-  // des deux (FR_EN ne garde qu'un seul sens par valeur, premier écrit gagne, cf buildFrEn).
-  "Catch-up": "Rattrapage",
   "TRAINING BALANCE": "ÉQUILIBRE D'ENTRAÎNEMENT",
   "Training balance": "Équilibre d'entraînement",
   "Over your last 30 days": "Sur tes 30 derniers jours",
@@ -11256,6 +11286,7 @@ const EN_FR = {
   "Resume programme →": "Reprendre le programme →",
   "Paused today": "En pause depuis aujourd'hui",
   "View session →": "Voir la séance →",
+  "View my session": "Voir ma séance",
   "Not enough data yet": "Pas encore assez de données",
   "Filters": "Filtres",
   "No exercise matches these filters.": "Aucun exercice ne correspond à ces filtres.",
