@@ -7439,6 +7439,18 @@ function renderProgSafetyBlock(elId){
 // la période, ambre si en retard mais rattrapable, rouge si largement décroché. Le message "Encore N
 // jours pour atteindre ton objectif" est retiré (n'ajoutait rien à "1/3 jours" déjà affiché) — la
 // couleur + un label court font le travail, "de la data froide mais bien ordonnancée".
+// Label de rythme rendu concret (cf discussion "je ne mettrai pas juste 'à rattraper', je mettrai
+// 'X séances à rattraper'") : quand on n'est pas dans les temps, le nombre réel de séances qu'il reste
+// à faire pour tenir l'objectif du jour-compte remplace le mot générique — même si une partie de ces
+// jours restants est déjà "Prévu" (pas encore raté), le compte total est ce qui doit s'afficher.
+// Construit directement dans la langue courante (pas de trDyn mot à mot) — même raison que
+// formatCheckinDeltaSpan : un pluriel dynamique ne matche jamais un motif figé sans ce choix.
+function objectifCatchUpLabel(pace, remaining){
+  if(pace.color==='var(--teal)' || remaining<=0) return null;
+  return currentLang==='fr'
+    ? remaining+' séance'+(remaining>1?'s':'')+' à rattraper'
+    : remaining+' session'+(remaining>1?'s':'')+' to catch up';
+}
 function objectifPace(actual, target, daysElapsed, daysTotal){
   if(daysElapsed<=0 || target<=0) return {color:'var(--gray)', label:'On track'};
   const expected = target*(daysElapsed/daysTotal);
@@ -7539,13 +7551,20 @@ function renderHomeObjectifRing(prefix, profile){
   // l'app, la légende texte devient un rappel au tap plutôt qu'un bloc affiché en permanence.
   const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const stripInfo='<span class="info-i" onclick="event.stopPropagation();openWeekStripInfo()" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
-  // "1/3 jours" retiré du chiffre principal (cf discussion) : la frise juste en dessous montre déjà
-  // combien de jours sont faits — le répéter en texte était le doublon que ce chantier essaie de retirer.
+  // Design uniforme entre les deux blocs (cf discussion "je ne distinguerai pas le design, je ferai un
+  // truc uniforme entre cette semaine et le cycle") : les deux sont maintenant un anneau + un chiffre
+  // à sa droite, exactement le même gabarit — avant, la semaine avait un anneau et le cycle une simple
+  // barre, deux objets visuels différents pour la même idée ("où j'en suis sur une période").
+  const r4=22, c4=2*Math.PI*r4, offset4=c4*(1-pct4/100);
+  const daysRemaining = Math.max(0, week.objectif-week.fait);
+  const weekLabel = objectifCatchUpLabel(weekPace, daysRemaining) || trDyn(weekPace.label);
+  const daysRemaining4 = Math.max(0, week.objectif*4-days4);
+  const cycleLabel = objectifCatchUpLabel(block4Pace, daysRemaining4) || trDyn(block4Pace.label);
   el.innerHTML = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('GOAL')+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
       +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('This week')+stripInfo+'</span>'
-      +'<span style="font-size:10px;font-weight:700;color:'+weekPace.color+';cursor:pointer;" onclick="openObjectifPaceInfo(\'week\')">'+trDyn(weekPace.label)+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:'+weekPace.color+';cursor:pointer;text-align:right;" onclick="openObjectifPaceInfo(\'week\')">'+weekLabel+'</span>'
     +'</div>'
     +'<div style="display:flex;align-items:center;gap:16px;margin-top:12px;">'
     +'<svg width="52" height="52" viewBox="0 0 68 68" style="flex-shrink:0;transform:rotate(-90deg);">'
@@ -7555,13 +7574,18 @@ function renderHomeObjectifRing(prefix, profile){
     +'<div style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;"><span style="font-size:19px;font-weight:800;color:var(--white);">'+week.minutes+'</span><span style="font-size:12px;font-weight:600;color:var(--gray2);">/ '+target+' min</span></div>'
     +'</div>'
     +'<div style="margin-top:16px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
-    +'<div style="height:1px;background:var(--border);margin:16px 0 12px;"></div>'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">'
-      +'<span style="font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('4-week cycle')+'</span>'
-      +'<span style="font-size:9.5px;font-weight:700;color:'+block4Pace.color+';cursor:pointer;opacity:.85;" onclick="openObjectifPaceInfo(\'cycle\')">'+trDyn(block4Pace.label)+'</span>'
+    +'<div style="height:1px;background:var(--border);margin:18px 0 14px;"></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;">'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('4-week cycle')+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:'+block4Pace.color+';cursor:pointer;text-align:right;" onclick="openObjectifPaceInfo(\'cycle\')">'+cycleLabel+'</span>'
     +'</div>'
-    +'<div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;"><div style="height:100%;width:'+pct4+'%;background:'+block4Pace.color+';border-radius:3px;"></div></div>'
-    +'<div style="font-size:10.5px;color:var(--gray2);margin-top:6px;">'+min4+' / '+target4+' min · '+days4+'/'+(week.objectif*4)+' '+trDyn('days')+'</div>'
+    +'<div style="display:flex;align-items:center;gap:16px;margin-top:12px;">'
+    +'<svg width="44" height="44" viewBox="0 0 52 52" style="flex-shrink:0;transform:rotate(-90deg);">'
+      +'<circle cx="26" cy="26" r="'+r4+'" fill="none" stroke="var(--border)" stroke-width="6"/>'
+      +'<circle cx="26" cy="26" r="'+r4+'" fill="none" stroke="'+block4Pace.color+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+c4.toFixed(1)+'" stroke-dashoffset="'+offset4.toFixed(1)+'" style="transition:stroke-dashoffset .6s ease;"/>'
+    +'</svg>'
+    +'<div style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;"><span style="font-size:16px;font-weight:800;color:var(--white);">'+min4+'</span><span style="font-size:11px;font-weight:600;color:var(--gray2);">/ '+target4+' min · '+days4+'/'+(week.objectif*4)+' '+trDyn('days')+'</span></div>'
+    +'</div>'
     +'</div>';
   sweepTranslate(el, currentLang);
 }
@@ -7696,11 +7720,15 @@ let todaySessionAdjust=null;   // {exCount, duree, level} une fois un check-in �
 // Étape de prévisualisation (cf discussion "avant qu'il aille se ranger, avec la validation") : un
 // check-in à impact ne se valide plus tout seul — la personne voit le avant/après puis confirme.
 // Neutre/Bien n'ont pas d'impact : on saute directement à l'état "fait", comme avant.
+// Même fenêtre pour les 5 émojis, sans exception (cf discussion "ce n'est pas les mêmes fenêtres qui
+// s'allument") — Neutre/Bien sautaient avant directement à l'état confirmé (aucun impact → aucune
+// prévisualisation), pendant que les 3 autres montraient un aperçu + un bouton Confirmer. Repéré en
+// relisant le code : `if(!p.changed) confirmCheckinHome(...)` court-circuitait la fenêtre. Retiré —
+// "Rien à changer" est maintenant juste un texte d'aperçu comme un autre, avec le même bouton Confirmer.
 function renderCheckinPreview(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
-  const p=previewCheckinImpact(val);
-  if(!p.changed){ confirmCheckinHome(prefix); return; }
   const parts=checkinDeltaParts(val).map(formatCheckinDeltaSpan).join(' · ');
+  const body = parts ? trDyn('Today’s session adjusts:')+' '+parts : trDyn('No change needed — today’s session stays as planned.');
   b.innerHTML=CHECKIN_TITLE
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
     +'<div style="display:flex;align-items:center;gap:12px;">'
@@ -7708,7 +7736,7 @@ function renderCheckinPreview(prefix,val){
     +'<span style="flex:1;"></span>'
     +'<span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="resetCheckinHome(\''+prefix+'\')">'+trDyn('Change')+'</span>'
     +'</div>'
-    +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+trDyn('Today’s session adjusts:')+' '+parts+'</div>'
+    +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+body+'</div>'
     +'<button class="btn btn-brand-fixed" style="margin-top:10px;padding:11px;font-size:13px;" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
     +'</div>';
   sweepTranslate(b, currentLang);
@@ -11440,6 +11468,9 @@ const EN_FR = {
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
+  // Label de rythme Objectif (objectifCatchUpLabel) — pluriel dynamique, testé cassé au changement de
+  // langue sans re-rendu (même classe de bug que la calculatrice check-in).
+  [/^(\d+) sessions? to catch up$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} à rattraper`],
   // Calculatrice check-in (renderCheckinPreview/renderCheckinDone, cf checkinDeltaParts) — chaque
   // variable qui bouge est son propre nœud texte ("Exercises 6 → 4", pas une phrase composite), donc un
   // pattern simple par variable suffit. Format "avant → après" (cf discussion, remplace un 1er essai en
@@ -11608,6 +11639,8 @@ const EN_FR_PATTERNS = [
   [/^→ (\d+)% vs previous (week|month|year)$/, (m)=>`→ ${m[1]}% vs ${({week:'semaine',month:'mois',year:'année'})[m[2]]} précédent${m[2]==='week'||m[2]==='year'?'e':''}`],
 ];
 const FR_EN_PATTERNS = [
+  // Label de rythme Objectif — sens retour, même bug que ci-dessus.
+  [/^(\d+) séances? à rattraper$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} to catch up`],
   // Calculatrice check-in — sens retour, confirmé cassé en le testant une 1re fois (une phrase composite
   // avec des <b> au milieu se fragmentait, aucun pattern ne matchait plus rien). Reconstruite en items
   // séparés (checkinDeltaParts/formatCheckinDeltaSpan), format "avant → après".
