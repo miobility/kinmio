@@ -7393,10 +7393,20 @@ function buildLoadPainHtml(pad, compact, only){
     // emoji seul sans repère temporel est ambigu (cf retour utilisateur) — on ajoute juste "Today",
     // pas la phrase complète, pour rester cohérent avec la sobriété demandée.
     const moodDone = currentRole==='user_centre' ? checkInDoneCentre : checkInDone;
+    // Nom de l'état + flèche de tendance ajoutés (cf discussion "les émojis suffisent-ils ? peut-être un
+    // petit texte" + "on stocke cette data, avec une petite flèche, comme Douleur") — même gabarit que
+    // la carte Douleur juste à côté (hero + flèche colorée), la flèche restant réservée à Progress,
+    // jamais au badge Home (cf discussion "je ne la verrais pas sur la page d'accueil").
+    const mood=getMoodSignal();
+    const moodArrow = mood.trend==='up' ? '↑' : mood.trend==='down' ? '↓' : mood.trend==='stable' ? '→' : '';
+    const moodArrowColor = mood.trend==='up' ? 'var(--teal)' : mood.trend==='down' ? 'var(--red)' : 'var(--gray)';
     const moodCard = !moodDone ? '' : '<div class="scard" style="flex:1;display:flex;flex-direction:column;">'
-      +'<div style="'+lbl+'">Mood</div>'
-      +'<div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:32px;">'+checkinEmoji(todayCheckin)+'</div>'
-      +(currentRole==='referent' && curPatient ? '<div style="'+subC+'text-align:center;">Today</div>' : '')
+      +'<div style="'+lbl+'">'+trDyn("Today\'s form")+'</div>'
+      +'<div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">'
+        +'<span style="font-size:30px;">'+checkinEmoji(todayCheckin)+'</span>'
+        +(moodArrow ? '<span style="font-size:13px;font-weight:700;color:'+moodArrowColor+';">'+moodArrow+'</span>' : '')
+      +'</div>'
+      +'<div style="'+subC+'text-align:center;">'+checkinLabel(todayCheckin)+(currentRole==='referent' && curPatient ? ' · '+trDyn('Today') : '')+'</div>'
       +'</div>';
     const loadCard = fatigue.acwr==null ? '' : '<div class="scard" style="flex:1;">'
       +'<div style="'+lbl+'">Load'+loadInfo+'</div>'
@@ -7502,6 +7512,16 @@ function objectifCatchUpLabel(pace, remaining){
     ? remaining+' séance'+(remaining>1?'s':'')+' à rattraper'
     : remaining+' session'+(remaining>1?'s':'')+' to catch up';
 }
+// Longueur du "cycle" alignée sur l'engagement choisi à l'onboarding (ob_commit, 1/2/4/8 semaines) —
+// remplace l'ancien cycle toujours fixé à 4 semaines calendaires quel que soit ce choix (cf discussion
+// "cycle de 4 semaines, ça pourrait être cycle de 2, de 1 ou de 8, il faut qu'on s'assure de ça").
+function cycleWeeks(){ return Math.max(1, obProjectionWeeks||4); }
+// Construit directement dans la langue courante (pas de trDyn mot à mot) — même raison que
+// objectifCatchUpLabel : un nombre variable ne matche jamais un motif de dictionnaire figé.
+function cycleTitle(){
+  const n=cycleWeeks();
+  return currentLang==='fr' ? `Cycle de ${n} semaine${n>1?'s':''}` : `${n}-week cycle`;
+}
 function objectifPace(actual, target, daysElapsed, daysTotal){
   // "Objectif atteint" — état à part, pas juste "dans les temps" (cf discussion "si on a fait nos X
   // séances sur X, comment l'outil propose de continuer ?") : atteindre la cible mérite sa propre
@@ -7574,15 +7594,17 @@ function openObjectifPaceInfo(scope){
     }
   } else {
     const monday=new Date(now.getFullYear(), now.getMonth(), now.getDate()-dayIdx); monday.setHours(0,0,0,0);
-    const block4Start=new Date(monday); block4Start.setDate(monday.getDate()-21);
+    const cw=cycleWeeks();
+    const block4Start=new Date(monday); block4Start.setDate(monday.getDate()-(cw-1)*7);
     const hist4=userSessionHistory.filter(h=>h.date>=block4Start.getTime());
     const min4=hist4.reduce((s,h)=>s+(h.duree||0),0);
-    const target4=target*4;
-    pace=objectifPace(min4, target4, 21+dayIdx+1, 28);
+    const target4=target*cw;
+    const daysIntoCycle=(cw-1)*7+dayIdx+1, daysInCycle=cw*7;
+    pace=objectifPace(min4, target4, daysIntoCycle, daysInCycle);
     title=trDyn(pace.label);
     body = currentLang==='fr'
-      ? `${min4} / ${target4} min, ${21+dayIdx+1}/28 jours écoulés dans le cycle.`
-      : `${min4} / ${target4} min, ${21+dayIdx+1}/28 days into the cycle.`;
+      ? `${min4} / ${target4} min, ${daysIntoCycle}/${daysInCycle} jours écoulés dans le cycle.`
+      : `${min4} / ${target4} min, ${daysIntoCycle}/${daysInCycle} days into the cycle.`;
     if(pace.label==='Goal reached') body += currentLang==='fr' ? ' Envie d\'une séance bonus ?' : ' Feeling like a bonus session?';
   }
   // Jours tapables pour se replanifier soi-même (chantier calendrier/auto-assignation, cf discussion
@@ -7637,19 +7659,23 @@ function renderHomeObjectifRing(prefix, profile){
   const now=new Date();
   const dayIdx=(now.getDay()+6)%7; // 0=lundi ... 6=dimanche
   const weekPace=objectifPace(week.minutes, target, dayIdx+1, 7);
-  // Bloc 4 semaines = les 3 semaines calendaires précédentes + la semaine en cours (pas 28 jours
-  // glissants depuis maintenant) — même lundi de référence que le strip, pour rester aligné.
-  // Libellé "Cycle de 4 semaines" plutôt que "4 dernières semaines" (cf discussion) : ce n'est pas une
+  // Bloc cycle = les (N-1) semaines calendaires précédentes + la semaine en cours (pas N×7 jours
+  // glissants depuis maintenant) — même lundi de référence que le strip, pour rester aligné. N = la
+  // durée d'engagement choisie à l'onboarding (cycleWeeks/obProjectionWeeks, 1/2/4/8 semaines) — plus
+  // un bloc toujours fixé à 4 semaines quel que soit ce choix (cf discussion "cycle de 4 semaines, ça
+  // pourrait être cycle de 2, de 1 ou de 8").
+  // Libellé "Cycle de N semaines" plutôt que "N dernières semaines" (cf discussion) : ce n'est pas une
   // rétrospective, c'est le cycle DANS LEQUEL la semaine du haut se trouve — la semaine en cours en est
   // la tranche la plus récente, pas quelque chose qui s'y additionne après coup.
   const monday=new Date(now.getFullYear(), now.getMonth(), now.getDate()-dayIdx); monday.setHours(0,0,0,0);
-  const block4Start=new Date(monday); block4Start.setDate(monday.getDate()-21);
+  const cw=cycleWeeks();
+  const block4Start=new Date(monday); block4Start.setDate(monday.getDate()-(cw-1)*7);
   const hist4=userSessionHistory.filter(h=>h.date>=block4Start.getTime());
   const min4=hist4.reduce((s,h)=>s+(h.duree||0),0);
   const days4=new Set(hist4.map(h=>Math.floor(h.date/HIST_DAY))).size;
-  const target4=target*4;
+  const target4=target*cw;
   const pct4 = target4 ? Math.min(100, Math.round(min4/target4*100)) : 0;
-  const block4Pace=objectifPace(min4, target4, 21+dayIdx+1, 28);
+  const block4Pace=objectifPace(min4, target4, (cw-1)*7+dayIdx+1, cw*7);
   // Titres "CETTE SEMAINE"/"4 DERNIÈRES SEMAINES" alignés (cf discussion "cette semaine est à droite
   // du cercle, 4 dernières semaines est tout à gauche, ça ne va pas") : les deux sont maintenant des
   // lignes pleine largeur AU-DESSUS de leur contenu (anneau ou barre), jamais à côté d'un élément qui
@@ -7670,7 +7696,7 @@ function renderHomeObjectifRing(prefix, profile){
   const r4=22, c4=2*Math.PI*r4, offset4=c4*(1-pct4/100);
   const daysRemaining = Math.max(0, week.objectif-week.fait);
   const weekLabel = objectifCatchUpLabel(weekPace, daysRemaining) || trDyn(weekPace.label);
-  const daysRemaining4 = Math.max(0, week.objectif*4-days4);
+  const daysRemaining4 = Math.max(0, week.objectif*cw-days4);
   const cycleLabel = objectifCatchUpLabel(block4Pace, daysRemaining4) || trDyn(block4Pace.label);
   el.innerHTML = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('GOAL')+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
@@ -7688,7 +7714,7 @@ function renderHomeObjectifRing(prefix, profile){
     +'<div style="margin-top:16px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
     +'<div style="height:1px;background:var(--border);margin:18px 0 14px;"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('4-week cycle')+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+'</span>'
       +'<span style="font-size:10px;font-weight:700;color:'+block4Pace.color+';cursor:pointer;text-align:right;" onclick="openObjectifPaceInfo(\'cycle\')">'+cycleLabel+'</span>'
     +'</div>'
     +'<div style="display:flex;align-items:center;gap:16px;margin-top:12px;">'
@@ -7696,7 +7722,7 @@ function renderHomeObjectifRing(prefix, profile){
       +'<circle cx="26" cy="26" r="'+r4+'" fill="none" stroke="var(--border)" stroke-width="6"/>'
       +'<circle cx="26" cy="26" r="'+r4+'" fill="none" stroke="'+block4Pace.color+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+c4.toFixed(1)+'" stroke-dashoffset="'+offset4.toFixed(1)+'" style="transition:stroke-dashoffset .6s ease;"/>'
     +'</svg>'
-    +'<div style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;"><span style="font-size:16px;font-weight:800;color:var(--white);">'+min4+'</span><span style="font-size:11px;font-weight:600;color:var(--gray2);">/ '+target4+' min · '+days4+'/'+(week.objectif*4)+' '+trDyn('days')+'</span></div>'
+    +'<div style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;"><span style="font-size:16px;font-weight:800;color:var(--white);">'+min4+'</span><span style="font-size:11px;font-weight:600;color:var(--gray2);">/ '+target4+' min · '+days4+'/'+(week.objectif*cw)+' '+trDyn('days')+'</span></div>'
     +'</div>'
     +'</div>';
   sweepTranslate(el, currentLang);
@@ -7742,6 +7768,37 @@ const CHECKIN_OPTS=[['epuise','😩'],['fatigue','😴'],['neutre','😐'],['bie
 // Emoji affiché tel quel après sélection (cf discussion "garder l'emoji sélectionné de base") — plus de
 // traduction vers une icône météo différente, qui ajoutait une indirection sans bénéfice.
 function checkinEmoji(val){ return (CHECKIN_OPTS.find(o=>o[0]===val)||CHECKIN_OPTS[2])[1]; }
+// Nom de l'état, en plus de l'emoji seul (cf discussion "est-ce que les émojis suffisent ? peut-être
+// leur mettre un petit texte") — ajouté à l'aperçu (déjà de la place à côté de l'emoji) et à la carte
+// Progress, jamais sous les 5 boutons du sélecteur lui-même (ça doit rester un geste rapide, pas 5
+// boutons à lire).
+const CHECKIN_LABELS={epuise:'Exhausted', fatigue:'Tired', neutre:'Neutral', bien:'Good', forme:'Great'};
+function checkinLabel(val){ return trDyn(CHECKIN_LABELS[val]||CHECKIN_LABELS.neutre); }
+// Historique du "Forme du jour" (cf discussion "on stocke aussi cette data pour voir comment ça évolue
+// dans le temps") — array séparé de userSessionHistory : c'est un check-in quotidien, indépendant du
+// fait qu'une séance ait lieu ce jour-là. Dédoublonné par jour, unshift() pour rester cohérent avec
+// userSessionHistory (index 0 = le plus récent, cf getPainSignal).
+let userCheckinHistory = [];
+const CHECKIN_ORDINAL={epuise:1, fatigue:2, neutre:3, bien:4, forme:5};
+function recordCheckinHistory(val){
+  const today0=new Date(); today0.setHours(0,0,0,0);
+  const ts=today0.getTime();
+  userCheckinHistory = userCheckinHistory.filter(c=>c.date!==ts);
+  userCheckinHistory.unshift({date:ts, val});
+}
+// Même construction que getPainSignal (jusqu'à 3 check-ins en arrière) mais le sens de la flèche est
+// direct ici : 'up' = la personne se sent mieux — contrairement à la douleur, où "hausse" est le
+// mauvais signe. Échelle à seulement 5 crans (contre 0-10 pour la douleur) : un écart d'1 cran est déjà
+// significatif, pas besoin du seuil de 2 points utilisé pour filtrer le bruit sur une échelle plus fine.
+function getMoodSignal(){
+  if(!userCheckinHistory.length) return {val:null, trend:'none'};
+  const recent=userCheckinHistory.slice(0,3);
+  const val=recent[0].val;
+  if(recent.length<2) return {val, trend:'none'};
+  const delta=CHECKIN_ORDINAL[recent[0].val]-CHECKIN_ORDINAL[recent[recent.length-1].val];
+  const trend = delta>=1 ? 'up' : delta<=-1 ? 'down' : 'stable';
+  return {val, trend};
+}
 function renderCheckinPrompt(prefix){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
   b.style.marginBottom='';
@@ -7851,7 +7908,7 @@ function renderCheckinPreview(prefix,val){
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
     +'<div style="display:flex;align-items:center;gap:12px;">'
     +'<span style="font-size:26px;flex-shrink:0;">'+checkinEmoji(val)+'</span>'
-    +'<span style="flex:1;"></span>'
+    +'<span style="flex:1;font-size:14px;font-weight:700;color:var(--white);">'+checkinLabel(val)+'</span>'
     +'<span style="font-size:16px;font-weight:700;color:var(--gray);cursor:pointer;flex-shrink:0;padding:2px 4px;" onclick="resetCheckinHome(\''+prefix+'\')">✕</span>'
     +'</div>'
     +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+body+'</div>'
@@ -7903,6 +7960,7 @@ function confirmCheckinHome(prefix){
     todaySessionAdjust=null;
   }
   if(prefix==='homeCentre') checkInDoneCentre=true; else checkInDone=true;
+  recordCheckinHistory(val);
   logCoachHistory({type:'checkin', message: trDyn('Check-in')+' '+checkinEmoji(val)+(todaySessionAdjust?' — '+trDyn('session adjusted'):'')});
   renderCheckinDone(prefix,val);
   updateHeaderCheckinBadge(prefix,val);
@@ -10336,7 +10394,12 @@ const EN_FR = {
   "Sessions": "Séances",
   "Weeks": "Semaines",
   "Pain": "Douleur",
-  "Mood": "Humeur",
+  "Today's form": "Forme du jour",
+  "Exhausted": "Épuisé",
+  "Tired": "Fatigué",
+  "Neutral": "Neutre",
+  "Good": "Bien",
+  "Great": "En forme",
   "Your programme belongs to you.": "Ton programme t'appartient.",
   "Keep going at home with your kinmio bar. History and programme stay intact.": "Continue à la maison avec ta barre kinmio. Historique et programme restent intacts.",
   "CENTRE USER OFFER": "OFFRE UTILISATEUR CENTRE",
@@ -11278,7 +11341,6 @@ const EN_FR = {
   "Best streak": "Meilleure série",
   "This week": "Cette semaine",
   "Last 4 weeks": "4 dernières semaines",
-  "4-week cycle": "Cycle de 4 semaines",
   "Last week": "Semaine dernière",
   "Avg. duration": "Durée moy.",
   "Before session": "Avant la séance",
@@ -18485,6 +18547,11 @@ function editTrainingField(key){
 }
 function tpPick(key,opt){
   profile[key]=(key==='freq'||key==='duree')?parseInt(opt):opt;
+  // Jours et fréquence doivent rester le même chiffre partout (cf discussion "s'assurer que la mise à
+  // jour du nombre de jours se propage partout") — sans ça la frise continuait d'afficher l'ancien jeu
+  // de jours après un changement de fréquence ici. Même mapping que l'onboarding (FREQ_DAYS_EN), pour
+  // arriver au même résultat par défaut qu'un premier choix de fréquence.
+  if(key==='freq') profile.jours = (FREQ_DAYS_EN[profile.freq] || FREQ_DAYS_EN[3]).slice();
   closeModal(); renderTrainingProfile();
   // Resynchronise userProfileData — sans ça les filtres "Pour toi" (bibliothèque/sessions/programmes)
   // continuaient de filtrer sur les réponses d'onboarding d'origine après une édition ici. Rafraîchit
@@ -18498,7 +18565,15 @@ function tpPick(key,opt){
 function tpToggleMulti(key,opt){
   if(!Array.isArray(profile[key])) profile[key]=[];
   const i=profile[key].indexOf(opt);
-  if(i>=0) profile[key].splice(i,1); else profile[key].push(opt);
+  if(i>=0){
+    if(key==='jours' && profile[key].length<=1) return;   // toujours garder au moins 1 jour, même règle que l'onboarding (toggleObDay)
+    profile[key].splice(i,1);
+  } else {
+    profile[key].push(opt);
+  }
+  // Sens inverse du fix ci-dessus (tpPick) : cocher/décocher un jour ici doit aussi mettre à jour la
+  // fréquence affichée, sinon c'est elle qui reste sur l'ancien chiffre après un changement de jours.
+  if(key==='jours') profile.freq = profile.jours.length;
   editTrainingField(key);
   syncUserProfileDataFromOnboarding();
   sessionActuelle = getSessionDuJour();
