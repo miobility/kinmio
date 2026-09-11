@@ -1832,6 +1832,21 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
 </div>
 
+<!-- Retour au calme — symétrique de l'échauffement ci-dessus (chantier séance : "toujours affiché,
+     skippable", même contrat, pas conditionné par le champ retour_calme de la séance, cf discussion). -->
+<div class="screen" id="session_cooldown">
+  <div class="topnav"><div class="topnav-title">Cool-down</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb">
+    <h2 class="gap8">Nice work — take a minute</h2>
+    <p class="sub gap24">A few gentle moves to bring your heart rate down — skip anytime.</p>
+    <div id="cooldownList" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);display:flex;flex-direction:column;gap:10px;">
+    <button class="btn btn-brand-fixed" onclick="finishCooldown()">Done →</button>
+    <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;align-self:center;" onclick="skipCooldown()">Skip cool-down</button>
+  </div>
+</div>
+
 <div class="screen" id="session">
   <div id="sessWithRefBadge" style="display:none;text-align:center;padding:8px 16px;background:rgba(var(--teal-rgb),.12);color:var(--teal);font-size:12px;font-weight:700;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Session with Martin Dupont</div>
   <div class="sess-top">
@@ -2306,7 +2321,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray);"><span>None</span><span class="pain-val" id="nextExoPainVal">0 / 10</span><span>Intense</span></div>
       </div>
       <div class="sess-ctrls">
-        <button class="sess-prev" id="nextExoSkip" onclick="go('feedback')">Finish</button>
+        <button class="sess-prev" id="nextExoSkip" onclick="goEndOfSession()">Finish</button>
         <button class="sess-next" id="nextExoBtn" onclick="finishRest()">Skip rest →</button>
       </div>
     </div>
@@ -5231,6 +5246,7 @@ function go(id){
   if(id==='ob_vision') preloadObDemoVideo(OB_DEMO_STEPS[0]);
   if(id==='defis') setTimeout(function(){ renderProgBadges('defisBadgesSection'); renderDefiVolumeChallenge(); }, 20);
   if(id==='session_warmup') setTimeout(renderWarmupList, 20);
+  if(id==='session_cooldown') setTimeout(renderCooldownList, 20);
   if(id==='ob_consent'){
     const el=document.getElementById('obConsentCoachShare'); if(el) el.style.display = centreMode ? 'flex' : 'none';
     // Le bouton annonce la vraie prochaine étape : créer son compte (parcours découverte, pas encore de
@@ -9691,7 +9707,7 @@ function toggleRepDetect(){
 // ===== Compteur d'exercices de la séance (pilote next_exercise / dernier exercice) =====
 let sessCurrent=1, sessTotal=7;
 function finishRest(){
-  if(sessCurrent>=sessTotal){ go('feedback'); }
+  if(sessCurrent>=sessTotal){ goEndOfSession(); }
   else { sessCurrent++; go('session'); }
 }
 const RPE_OPTS = [{v:1,e:'😌'},{v:2,e:'🙂'},{v:3,e:'😅'},{v:4,e:'😓'},{v:5,e:'🥵'}];
@@ -12353,6 +12369,22 @@ const EN_FR = {
   "Mid fixation point": "Point fixation milieu",
   "Under the feet, then high point": "Sous les pieds puis point haut",
   "Under the thighs, then mid point": "Sous les cuisses puis point milieu",
+  // Retour au calme (chantier séance)
+  "Cool-down": "Retour au calme",
+  "Nice work — take a minute": "Bien joué — prends une minute",
+  "A few gentle moves to bring your heart rate down — skip anytime.": "Quelques mouvements doux pour faire redescendre ton rythme cardiaque — passe quand tu veux.",
+  "Deep breathing": "Respiration profonde",
+  "Slow breaths in through the nose, out through the mouth.": "Inspire lentement par le nez, expire par la bouche.",
+  "Shoulder stretch": "Étirement des épaules",
+  "Pull one arm across your chest, hold, then switch sides.": "Ramène un bras devant ta poitrine, tiens la position, puis change de côté.",
+  "Standing back stretch": "Étirement du dos debout",
+  "Round your back gently, then arch, controlled.": "Arrondis doucement le dos, puis cambre, contrôlé.",
+  "Quad stretch": "Étirement du quadriceps",
+  "Hold one ankle behind you, then switch sides.": "Attrape une cheville derrière toi, tiens la position, puis change de côté.",
+  "Calf stretch": "Étirement du mollet",
+  "Step one foot back, press the heel down, then switch sides.": "Recule un pied, presse le talon vers le sol, puis change de côté.",
+  "Done →": "Terminé →",
+  "Skip cool-down": "Passer le retour au calme",
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
@@ -15862,6 +15894,35 @@ function renderWarmupList(){
 }
 function continueToSession(){ go('session'); }
 function skipWarmup(){ go('session'); }
+// Retour au calme — symétrique de l'échauffement ci-dessus : toujours affiché après le dernier
+// exercice, skippable, même filtre par zones à éviter. Chantier séance (échauffement/retour au calme).
+const COOLDOWN_MOVES=[
+  {id:'cd_breath', zone:null, nom:'Deep breathing', dur:30, instr:'Slow breaths in through the nose, out through the mouth.'},
+  {id:'cd_shoulder', zone:'Épaules', nom:'Shoulder stretch', dur:20, instr:'Pull one arm across your chest, hold, then switch sides.'},
+  {id:'cd_back', zone:'Dos', nom:'Standing back stretch', dur:20, instr:'Round your back gently, then arch, controlled.'},
+  {id:'cd_quad', zone:'Genoux', nom:'Quad stretch', dur:20, instr:'Hold one ankle behind you, then switch sides.'},
+  {id:'cd_calf', zone:null, nom:'Calf stretch', dur:20, instr:'Step one foot back, press the heel down, then switch sides.'}
+];
+function getCooldownMoves(){
+  const avoid=userProfileData.zones_eviter||[];
+  const list=COOLDOWN_MOVES.filter(m=>!m.zone || !avoid.includes(m.zone));
+  return list.length ? list : COOLDOWN_MOVES.filter(m=>!m.zone);
+}
+function renderCooldownList(){
+  const el=document.getElementById('cooldownList'); if(!el) return;
+  const moves=getCooldownMoves();
+  el.innerHTML=moves.map(m=>
+    '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
+    +'<div style="width:38px;height:38px;border-radius:11px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;color:var(--brand-fixed);">'+m.dur+'s</div>'
+    +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);">'+trDyn(m.nom)+'</div>'
+    +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(m.instr)+'</div></div></div>'
+  ).join('');
+}
+function finishCooldown(){ go('feedback'); }
+function skipCooldown(){ go('feedback'); }
+// Point de sortie unique de la séance live (dernier exercice fini, via "Finish" ou finishRest) —
+// toujours le retour au calme avant le feedback, jamais un accès direct qui le contournerait.
+function goEndOfSession(){ go('session_cooldown'); }
 // Démarrer UN SEUL exercice depuis sa fiche (pas une séance) : la fiche expose déjà
 // tous les réglages (reps/durée/repos/intensité) — direct sur l'écran live, le décompte
 // vocal 3-2-1 existant tient lieu de "avant".
