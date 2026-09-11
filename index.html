@@ -8542,12 +8542,16 @@ function renderHomeSeance(prefix, data){
   const realSess = getSessionDuJour();
   const exos=[...EXERCICES,...userExercices];
   const sessExos = realSess.exercices.map(exId=>exos.find(e=>e.id===exId)).filter(Boolean);
-  // Muscle prioritaire = la zone la plus représentée parmi les exercices de la séance (pas juste la
-  // 1ère rencontrée) — un vrai "où porte l'essentiel de cette séance", pas un ordre arbitraire.
-  // Liste complète des zones réservée à session_detail, pas répétée ici (cf discussion).
+  // Muscle prioritaire = la zone la plus représentée parmi les exercices de la séance — affiché
+  // seulement si elle domine vraiment (majorité réelle, pas juste "la plus fréquente sur 5") ET que la
+  // séance n'est pas portée par l'intensité (cardio) : une séance shadow-boxing qui touche les épaules
+  // en secondaire n'est pas "une séance d'épaules" (retour utilisateur). Liste complète des zones
+  // réservée à session_detail, pas répétée ici (cf discussion).
   const zoneCounts={};
   sessExos.forEach(e=>(e.zones||[]).forEach(z=>{ zoneCounts[z]=(zoneCounts[z]||0)+1; }));
-  const priorityMuscle = Object.entries(zoneCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
+  const isCardioDominant = sessExos.length>0 && sessExos.filter(e=>e.mode==='INTENSITE').length > sessExos.length/2;
+  const topZone = Object.entries(zoneCounts).sort((a,b)=>b[1]-a[1])[0];
+  const priorityMuscle = (!isCardioDominant && topZone && topZone[1] > sessExos.length/2) ? topZone[0] : '';
   // Libellé fixe "Your next session" (rethink Home, sept. 2026) — avant, affichait le jour choisi +
   // un délai ("Next planned: Friday · in 1 day") quand ce n'était pas pour aujourd'hui. Retiré à la
   // demande explicite : le jour choisi est une préférence de cadre (rappels, frise), pas un rendez-vous
@@ -8585,11 +8589,9 @@ function renderHomeSeance(prefix, data){
   zone.innerHTML='<div class="zone-lbl" style="margin-top:0;">'+trDyn(cardLbl)+'</div>'
     +'<div class="hero-glow">'
     +'<div class="today" onclick="openSessionDetail(\''+realSess.id+'\')">'
+    // Plus de tag équipement/tags sur la vignette (retour utilisateur : "on s'en fout, ce n'est pas un
+    // tag important") — seul le badge Coach reste, lui porte une vraie info (prescrit par un référent).
     +'<div class="today-thumb" style="'+thumbStyle+'">'+(photo?'':'<svg class="ki"><use href="#ki-media"/></svg>')+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')
-      // Même étiquette que la fiche séance (sessionBadgeLabel, tags réels) — avant, deux fonctions
-      // différentes calculaient chacune leur propre tag (équipement agrégé ici, tags[0] sur la fiche),
-      // jamais synchronisées : "Barre seule" ici, "Sans élastique" un clic plus loin (retour utilisateur).
-      +'<div class="today-dur" style="top:auto;bottom:12px;right:12px;font-weight:700;">'+sessionBadgeLabel(realSess)+'</div>'
     +'</div>'
     // Chevron à côté du titre : c'est lui qui porte "cette carte s'ouvre", maintenant que le bouton ne
     // recopie plus le tap du parent. .today-title est en nowrap/ellipsis, d'où la ligne flex autour.
