@@ -19391,9 +19391,12 @@ function openAssistantQuestionSheet(){
   const rows = list.length ? list.map(q=>
     '<button class="btn btn-outline" style="width:100%;text-align:left;margin-bottom:8px;padding:13px 16px;font-size:14px;" onclick="closeModal();assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')">'+q.q+'</button>'
   ).join('') : '<div style="text-align:center;color:var(--gray);font-size:13.5px;padding:20px 0;">'+trDyn('Nothing in this category yet.')+'</div>';
+  // Défilement vertical dans la feuille elle-même si la liste s'allonge un jour (plus de questions
+  // par thème) — jamais horizontal, jamais au prix du fil derrière (retour utilisateur, validé : "on
+  // pourrait en proposer plusieurs qu'on scrolle de haut en bas, ça c'est bien").
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:14px;">'+trDyn('Ask a question')+'</div>'
-    +rows
-    +'<button class="btn-ghost" style="margin-top:6px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
+    +'<div style="max-height:56vh;overflow-y:auto;margin:0 -4px;padding:0 4px;">'+rows+'</div>'
+    +'<button class="btn-ghost" style="margin-top:14px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
 }
 // Vocal (retour utilisateur : "teste le vocal aussi") — reconnaissance vocale du navigateur, puis
 // correspondance par mots-clés avec les questions connues : il n'y a pas de vraie IA branchée derrière
