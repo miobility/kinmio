@@ -2673,6 +2673,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="flex:1;font-size:14px;font-weight:700;color:var(--white);" id="ex_seance">—</div>
     </div>
     <div class="ex-sec" id="exParamsSection" style="display:none;"></div>
+    <!-- Historique de CET exercice (audit historique, sept. 2026). exerciseZoneHistory stockait déjà
+         date/niveau/% dans la zone séance par séance, et getExerciseProgressionVerdict en tirait déjà
+         un verdict — affiché uniquement dans le récap post-séance et la carte hebdo du Coach IA,
+         jamais ici, c'est-à-dire au seul endroit où l'on va pour savoir où l'on en est sur celui-ci.
+         Même schéma que recommendedIntensityLevel() : un moteur qui décidait en silence. -->
+    <div class="ex-sec" id="exHistorySection" style="display:none;"></div>
     <div class="ex-sec" id="exDescSec"><div class="ex-sec-t">Technical description</div><p class="ex-sec-b" id="ex_desc">—</p></div>
     <div class="ex-sec" id="exConseilSec"><div class="ex-sec-t">Tip</div><p class="ex-sec-b" id="ex_conseil">—</p></div>
     <div class="coach-tip" id="exDetailCoachTip" style="margin-bottom:16px;"></div>
@@ -8525,7 +8531,13 @@ function renderWeekStripHtml(strip){
       // séances assignées par date : "la séance de vendredi" EST la même séance que celle d'aujourd'hui
       // tant qu'elle n'est pas faite, pas la peine de renvoyer vers Programme pour la retrouver. Les
       // jours manqués/libres (rien de précis à montrer) gardent Programme.
-      const dayClick = (d.statut==='fait' && d.sessionId) ? "openSessionDetail('"+d.sessionId+"')"
+      // Un jour FAIT ouvre son enregistrement, pas la fiche de la seance (audit historique, sept. 2026).
+      // openSessionDetail montrait la seance TELLE QU'ELLE EST AUJOURD'HUI : si un niveau a change
+      // depuis, on voyait un reglage qu'on n'a jamais fait ce jour-la, et ni les reps, ni la duree
+      // reelle, ni la douleur declaree. Le calendrier ouvrait deja le vrai enregistrement au meme
+      // geste — deux resultats pour un seul geste, et c'est celui de l'accueil qui etait faux.
+      // Les jours a venir gardent la fiche : la, c'est bien ce qu'on veut voir.
+      const dayClick = (d.statut==='fait' && d.date) ? "openCalSessionRecap("+d.date+")"
         : (d.today || d.statut==='prevu' || d.statut==='planned') ? "openSessionDetail(getSessionDuJour().id)"
         : "go('programme')";
       return '<div style="text-align:center;cursor:pointer;padding:4px 0;" onclick="'+dayClick+'">'
@@ -11259,6 +11271,8 @@ const EN_FR = {
   "LOAD": "CHARGE",
   "GOAL": "OBJECTIF",
   "Expected": "Attendu",
+  "Your history": "Ton historique",
+  "in the zone": "dans la zone",
   "Signals": "Signaux",
   "Ask out loud": "Poser la question à voix haute",
   "Hi! Ask me anything about your training — I answer from your real data.": "Salut ! Pose-moi une question sur ton entraînement — je réponds à partir de tes vraies données.",
@@ -14097,6 +14111,7 @@ function openExerciceNouveau(id, fromSession){
   const noteBlock=document.getElementById('exCoachNoteBlock'), noteTxt=document.getElementById('exCoachNoteTxt');
   if(noteBlock){ noteBlock.style.display = ex.coachNote ? 'flex' : 'none'; if(noteTxt) noteTxt.textContent = ex.coachNote||''; }
   renderExParams(ex);
+  renderExHistory(ex);   // meme cycle de vie que les reglages : la fiche s'ouvre, les deux se remplissent
   go('exercice_detail');
 }
 function editExerciseCoachNote(){
@@ -14150,6 +14165,44 @@ function exParamStepperRow(field, val){
     +'<span style="font-size:13.5px;font-weight:700;color:var(--white);min-width:78px;text-align:center;">'+exParamDisplayVal(field,val)+'</span>'
     +'<button onclick="adjustExParam(\''+field.key+'\','+field.step+','+field.min+','+field.max+')" style="width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--border);color:var(--white);font-size:18px;line-height:1;cursor:pointer;">+</button>'
     +'</div></div>';
+}
+// Aucune donnée nouvelle à collecter : tout est déjà là, il ne manquait que l'affichage.
+function renderExHistory(ex){
+  const wrap=document.getElementById('exHistorySection'); if(!wrap) return;
+  const hist=(exerciseZoneHistory[ex.id]||[]).slice(-3).reverse();   // push() : dernier = le plus récent
+  const verdict=getExerciseProgressionVerdict(ex.id);
+  // Pas d'historique visible = pas de verdict affiche. getExerciseProgressionVerdict sait conclure sur
+  // un exercice de renforcement sans exerciseZoneHistory (il passe par calculerMetriquesExercice), ce
+  // qui donnait "Aucune seance sur cet exercice" suivi de "Pret a passer au niveau superieur" — un
+  // verdict sans preuve, c'est-a-dire exactement le probleme que ce bloc existe pour corriger.
+  // Le renforcement aura son bloc quand il aura sa trace seance par seance (reps/niveau).
+  if(!hist.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
+  wrap.style.display='block';
+  const dateLbl=d=>new Date(d).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
+  const rows = hist.map((h,i)=>'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;'+(i<hist.length-1?'border-bottom:1px solid var(--border);':'')+'">'
+      +'<span style="font-size:12.5px;color:var(--gray);">'+dateLbl(h.date)+'</span>'
+      +'<span style="font-size:12.5px;color:var(--gray2);">'+trDyn('Level')+' '+h.jauge+' · <b style="color:var(--white);font-weight:700;font-family:var(--font-head);">'+h.pctZone+'%</b> '+trDyn('in the zone')+'</span>'
+    +'</div>').join('');
+  // Le verdict garde le vocabulaire et le code couleur des Signaux de l'accueil : vert = on peut
+  // avancer, orange = on lève le pied, gris = rien à décider. Et un pictogramme seulement quand
+  // l'état appelle une décision — même règle que partout ailleurs.
+  const VMETA={
+    levelup:{lbl:'Ready to level up', tone:'var(--brand-fixed)', picto:'ki-up'},
+    stay:{lbl:'Consolidating at this level', tone:'var(--gray2)', picto:null},
+    regress:{lbl:'Easing off for now', tone:'var(--vigilance)', picto:'ki-alert'}
+  };
+  let vBlock='';
+  if(verdict && VMETA[verdict.verdict]){
+    const v=VMETA[verdict.verdict];
+    vBlock='<div style="margin-top:14px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid '+v.tone+';border-radius:0 12px 12px 0;padding:12px 14px;">'
+      +'<div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:'+v.tone+';">'
+        +(v.picto?'<svg class="ki" style="width:14px;height:14px;"><use href="#'+v.picto+'"/></svg>':'')+trDyn(v.lbl)+'</div>'
+      +'<div style="font-size:12px;color:var(--gray);margin-top:4px;line-height:1.45;">'+trDyn(verdict.reason)+'</div>'
+      +(verdict.verdict==='levelup'?'<button class="btn btn-outline" style="margin-top:11px;padding:11px;font-size:13px;border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="applyExerciseLevelUp(\''+ex.id+'\')">'+trDyn('Level up this exercise →')+'</button>':'')
+    +'</div>';
+  }
+  wrap.innerHTML = '<div class="ex-sec-t" style="padding:0 0 4px;">'+trDyn('Your history')+'</div>' + rows + vBlock;
+  sweepTranslate(wrap, currentLang);
 }
 function renderExParams(ex){
   const wrap=document.getElementById('exParamsSection'); if(!wrap) return;
@@ -16145,6 +16198,7 @@ function openExercise(id){
   const altBtn=document.getElementById('exAltBtn'); if(altBtn) altBtn.style.display='';
   const exclWrap=document.getElementById('exExclWrap'); if(exclWrap) exclWrap.style.display='';
   const paramsSec=document.getElementById('exParamsSection'); if(paramsSec) paramsSec.style.display='none';
+  const histSec=document.getElementById('exHistorySection'); if(histSec) histSec.style.display='none';
   const addBtn=document.getElementById('exAddToSessionBtn'); if(addBtn) addBtn.style.display='none';
   window._curEx=ex.id;
   window._curExSource='ancien';
