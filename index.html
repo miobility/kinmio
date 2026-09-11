@@ -2663,6 +2663,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <button class="btn btn-orange" onclick="startExerciseFromFiche()">Start this exercise →</button>
     <button class="btn btn-outline" id="exAltBtn" style="margin-top:10px;" onclick="showAlternatives()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> See alternatives</button>
     <button class="btn btn-outline" id="exAddToSessionBtn" style="margin-top:10px;display:none;" onclick="openAddToSessionModal(window._curEx)">+ Add to a session</button>
+    <button class="btn btn-outline" id="exReplaceBtn" style="margin-top:10px;display:none;" onclick="openSdExoAlternatives(window._curEx)"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> Replace this exercise</button>
     <div style="text-align:center;margin-top:14px;" id="exExclWrap"><span style="color:var(--gray);font-size:13px;cursor:pointer;" onclick="confirmExcludeExercise()">Don't suggest this exercise again</span></div>
     <div style="height:24px;"></div>
   </div>
@@ -12329,6 +12330,7 @@ const EN_FR = {
   "Mixed session": "Séance mixte",
   "💪 Strength reps": "💪 Reps renforcement",
   "Replace this exercise →": "Remplacer cet exercice →",
+  "Replace this exercise": "Remplacer cet exercice",
   "Same muscle group": "Même groupe musculaire",
   "Mixed": "Mixte",
   "Mode": "Mode",
@@ -13877,8 +13879,13 @@ function openExerciceHero(id, cardEl){
     ghost.remove();
   }, 400);
 }
-function openExerciceNouveau(id){
+// fromSession (bool) : tap depuis la liste d'une séance (session_detail) — garde window._curSessId
+// comme contexte pour "Remplacer" (openSdExoAlternatives) ; false/omis partout ailleurs (bibliothèque,
+// favoris, historique...) où il n'y a pas de séance précise à modifier. Fiche unifiée vidéo + réglages
+// + remplacement (chantier séance) : un seul écran au lieu de la modale séparée sur session_detail.
+function openExerciceNouveau(id, fromSession){
   const ex=[...EXERCICES,...userExercices].find(e=>e.id===id); if(!ex) return;
+  window._exFromSession = !!fromSession;
   const set=(elid,val)=>{const e=document.getElementById(elid); if(e) e.textContent=val;};
   const il=document.getElementById('ex_illus');
   if(il){
@@ -13909,6 +13916,7 @@ function openExerciceNouveau(id){
   const coachTip=document.getElementById('exDetailCoachTip'); if(coachTip){ coachTip.style.display='none'; coachTip.innerHTML=''; }
   const paramsSec=document.getElementById('exParamsSection'); if(paramsSec) paramsSec.style.display='block';
   const addBtn=document.getElementById('exAddToSessionBtn'); if(addBtn) addBtn.style.display = currentRole==='referent' ? 'none' : 'block';
+  const replaceBtn=document.getElementById('exReplaceBtn'); if(replaceBtn) replaceBtn.style.display = window._exFromSession ? 'block' : 'none';
   window._curEx=ex.id;
   window._curExSource='nouveau';
   const delBtn=document.getElementById('exDeleteBtn'); if(delBtn) delBtn.style.display = EXERCICES.some(e=>e.id===id) ? 'none' : 'block';
@@ -14798,7 +14806,7 @@ function renderSessionDetail(){
       const posLabel=(ex.positions||[]).map(p=>trDyn(POS_LABELS[p]||p)).join('/');
       const posIcon=SD_POS_ICON[(ex.positions||[])[0]]||SD_ICON_STAND;
       const meta=[posLabel ? (posIcon+' '+posLabel) : '', sdExoSummary(ex)].filter(Boolean).join(' · ');
-      return '<div class="exo-prev-row" onclick="openSdExoParamsModal(\''+exId+'\')">'
+      return '<div class="exo-prev-row" onclick="openExerciceNouveau(\''+exId+'\',true)">'
         +'<div class="exo-prev-num">'+(i+1)+'</div>'
         +'<div class="exo-prev-img" style="background-image:url(\''+exoPhotoFor(ex)+'\');"></div>'
         +'<div class="exo-prev-body"><div class="exo-prev-name">'+ex.nom+'</div><div class="exo-prev-meta">'+meta+'</div></div>'
@@ -14812,41 +14820,11 @@ function renderSessionDetail(){
   // testant le remplacement d'exercice (audit séance, priorité 1).
   sweepTranslate(document.getElementById('session_detail'), currentLang);
 }
-function openSdExoParamsModal(exId){
-  const ex=[...EXERCICES,...userExercices].find(e=>e.id===exId); if(!ex) return;
-  window._sdCurExo = exId;
-  const p = getParamsExercice(ex);
-  const rows = EX_PARAM_FIELDS.map(f => sdExParamStepperRow(f, p[f.key])).join('');
-  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ex.nom+'</div>'
-    +'<div style="font-size:13px;color:var(--gray);margin-bottom:4px;">Settings apply everywhere you do this exercise.</div>'
-    +'<div style="margin-bottom:14px;"><span style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;" onclick="closeModal();openExerciceNouveau(\''+exId+'\')">See exercise details (incl. video) →</span></div>'
-    +'<div style="margin-bottom:14px;"><span style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;" onclick="closeModal();openSdExoAlternatives(\''+exId+'\')">Replace this exercise →</span></div>'
-    +rows
-    +'<button class="btn-ghost" style="margin-top:12px;width:100%;color:var(--gray2);" onclick="closeModal()">Close</button>');
-}
-function sdExParamStepperRow(field, val){
-  if(val===undefined){
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);opacity:.4;">'
-      +'<span style="font-size:14px;color:var(--gray);font-weight:600;">'+field.label+'</span>'
-      +'<span style="font-size:13px;color:var(--gray);">—</span>'
-      +'</div>';
-  }
-  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">'
-    +'<span style="font-size:14px;color:var(--white);font-weight:600;">'+field.label+'</span>'
-    +'<div style="display:flex;align-items:center;gap:14px;">'
-    +'<button onclick="adjustSdExoParam(\''+field.key+'\',-'+field.step+','+field.min+','+field.max+')" style="width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--border);color:var(--white);font-size:18px;line-height:1;cursor:pointer;">−</button>'
-    +'<span style="font-size:13.5px;font-weight:700;color:var(--white);min-width:78px;text-align:center;">'+exParamDisplayVal(field,val)+'</span>'
-    +'<button onclick="adjustSdExoParam(\''+field.key+'\','+field.step+','+field.min+','+field.max+')" style="width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--border);color:var(--white);font-size:18px;line-height:1;cursor:pointer;">+</button>'
-    +'</div></div>';
-}
-function adjustSdExoParam(field, delta, min, max){
-  const id=window._sdCurExo; const ex=[...EXERCICES,...userExercices].find(e=>e.id===id); if(!ex) return;
-  const current = getParamsExercice(ex);
-  const val = Math.max(min, Math.min(max, (current[field]||0) + delta));
-  userParamsOverrides[id] = {...userParamsOverrides[id], [field]: val};
-  openSdExoParamsModal(id);
-  renderSessionDetail();
-}
+// openSdExoParamsModal/sdExParamStepperRow/adjustSdExoParam supprimés (chantier "fiche exercice
+// unifiée") : c'était une copie exacte de exParamStepperRow/adjustExParam/renderExParams, dans une
+// modale séparée, pour le même userParamsOverrides — deux surfaces pour la même chose. Le tap sur un
+// exercice depuis la séance va maintenant directement sur exercice_detail (openExerciceNouveau), qui
+// a déjà vidéo + réglages ; Remplacer y est ajouté ci-dessous.
 function removeExoFromSession(exId){
   const before=window._curSessId;
   const id=forkSessionForEdit();
@@ -14903,7 +14881,10 @@ function chooseSdAlternative(newExId){
   s.exercices[idx]=newExId;
   closeModal();
   toast('✓ Exercise replaced');
-  renderSessionDetail();
+  renderSessionDetail();   // met à jour la liste en arrière-plan, pour quand on y reviendra
+  // Reste sur la fiche exercice, mais celle du remplaçant — plus cohérent que de fermer sur la liste
+  // (chantier "fiche exercice unifiée") : on voit tout de suite ce qui a pris la place de l'ancien.
+  openExerciceNouveau(newExId, true);
 }
 // L'ajout d'exercice(s) passe désormais par l'écran creer_session_nouveau en mode "add"
 // (mêmes filtres/vignettes/tags que la création) plutôt qu'une modale plate — voir openAddExoRich().
