@@ -7708,7 +7708,11 @@ function renderHomeObjectifRing(prefix, profile){
   // demande une décision, et accent quand l'état est neutre (sinon la couleur d'état prime).
   const paceLabel=(state,label,scope)=>{
     const alert = (state.color==='var(--red)'||state.color==='var(--vigilance)');
-    const col = (state.color==='var(--gray)') ? 'var(--brand-fixed)' : state.color;
+    // Le libellé garde TOUJOURS la couleur de son état : le forcer en accent quand l'état est neutre
+    // faisait apparaître un libellé vert au-dessus d'une barre grise, alors que les deux sortent du
+    // même objectifDayState. C'est le chevron qui porte « c'est tapable », pas la couleur — la couleur
+    // reste réservée à l'état, comme partout ailleurs dans l'app.
+    const col = state.color;
     return '<span role="button" tabindex="0" style="font-size:10px;font-weight:700;color:'+col+';cursor:pointer;text-align:right;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;" '
       +'onclick="openObjectifPaceInfo(\''+scope+'\')">'
       +(alert?'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-alert"/></svg>':'')
