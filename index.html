@@ -3656,18 +3656,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">AI Coach</div><div class="topnav-r"></div></div>
   <div id="coachIaWeeklyCard" style="flex-shrink:0;margin:14px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;"></div>
   <!-- Filtre par thème (réflexion Coach IA, 11/09) : filtre la MÊME liste chronologique, ne la
-       réorganise pas en sections séparées — un seul fil, une lentille optionnelle dessus. -->
-  <div style="position:relative;flex-shrink:0;">
-    <div id="assistantThemeFilters" style="padding:10px 20px 0;display:flex;gap:8px;overflow-x:auto;"></div>
-    <div style="position:absolute;top:0;right:0;bottom:0;width:32px;pointer-events:none;background:linear-gradient(to right, transparent, var(--bg) 85%);"></div>
-  </div>
+       réorganise pas en sections séparées — un seul fil, une lentille optionnelle dessus.
+       flex-wrap plutôt que défilement horizontal (retour utilisateur : "il ne faut pas qu'on
+       puisse scroller de gauche à droite") — tout reste visible d'un coup, quitte à prendre une
+       deuxième ligne. -->
+  <div id="assistantThemeFilters" style="padding:10px 20px 0;flex-shrink:0;display:flex;flex-wrap:wrap;gap:8px;"></div>
   <div class="scroll px pt pb" id="assistantThread" style="display:flex;flex-direction:column;gap:12px;"></div>
-  <div style="position:relative;flex-shrink:0;">
-    <div id="assistantChips" style="padding:10px 20px 4px;display:flex;gap:8px;overflow-x:auto;"></div>
-    <!-- Dégradé de fin de rangée (retour utilisateur : les puces se coupaient net sur le bord de
-         l'écran, sans indice qu'on peut en voir plus). -->
-    <div style="position:absolute;top:0;right:0;bottom:4px;width:32px;pointer-events:none;background:linear-gradient(to right, transparent, var(--bg) 85%);"></div>
-  </div>
+  <div id="assistantChips" style="padding:10px 20px 4px;flex-shrink:0;display:flex;flex-wrap:wrap;gap:8px;"></div>
   <div style="padding:8px 20px 20px;flex-shrink:0;display:flex;gap:8px;align-items:center;">
     <input type="text" id="assistantInput" placeholder="Try a suggestion above…" readonly style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:14px;color:var(--gray);font-family:inherit;outline:none;">
     <button style="width:44px;height:44px;border-radius:14px;background:var(--bg3);border:none;color:var(--gray);font-size:18px;cursor:pointer;flex-shrink:0;">→</button>
@@ -8763,6 +8758,9 @@ function dismissCoachWeekly(){
   const p=getCoachWeeklyProposal();
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
   if(p){ logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:p.exName, level:p.level+1, accepted:false}); appendCoachThreadEntry(coachHistory[0]); }
+  // Retour utilisateur : "Valider" avait son toast, "Pas encore" n'en avait aucun — les deux boutons
+  // faisaient disparaître la carte de la même façon, donc se ressentaient comme identiques.
+  toast("Noted — I'll suggest it again another time");
   renderCoachIaWeeklyCard();
   updateCoachIaBadge();
 }
@@ -12492,6 +12490,7 @@ const EN_FR = {
   "Planning": "Planification",
   "Nothing in this category yet.": "Rien dans cette catégorie pour l'instant.",
   "You're up to date — nothing to confirm right now, I'll let you know if something comes up.": "Tu es à jour — rien à valider pour l'instant, je te préviens si besoin.",
+  "Try a suggestion above…": "Essaie une suggestion ci-dessus…",
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
@@ -19316,13 +19315,15 @@ function assistantBubble(text, fromUser){
     +'<span style="width:26px;height:26px;border-radius:50%;background:rgba(var(--brand-fixed-rgb),.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">'+aiSparkleIcon(13,'var(--brand-fixed)')+'</span>'
     +bubble+'</div>';
 }
+// Thème par question (réflexion Coach IA, 11/09) : le filtre au-dessus du fil sert aussi à ça — sous
+// "Alertes" par exemple, seule la question sur l'ACWR reste proposée, pas les 6 en vrac à chaque fois.
 const ASSISTANT_QUESTIONS=[
-  {id:'seances', q:"Combien de séances cette semaine ?"},
-  {id:'acwr', q:"Je m'entraîne trop fort en ce moment ?"},
-  {id:'prochaine', q:"C'est quoi ma prochaine séance ?"},
-  {id:'effort', q:"Comment évolue mon effort ?"},
-  {id:'score', q:"C'est quoi mon score aujourd'hui ?"},
-  {id:'objectif', q:"Pourquoi cet objectif aujourd'hui ?"}
+  {id:'seances', theme:'suivi', q:"Combien de séances cette semaine ?"},
+  {id:'acwr', theme:'alerte', q:"Je m'entraîne trop fort en ce moment ?"},
+  {id:'prochaine', theme:'planification', q:"C'est quoi ma prochaine séance ?"},
+  {id:'effort', theme:'suivi', q:"Comment évolue mon effort ?"},
+  {id:'score', theme:'suivi', q:"C'est quoi mon score aujourd'hui ?"},
+  {id:'objectif', theme:'ajustement', q:"Pourquoi cet objectif aujourd'hui ?"}
 ];
 // Raisons de recommendedIntensityLevel() traduites — cette fonction reste en anglais en interne
 // (signal technique, jamais montré tel quel ailleurs), donc pas de trDyn ici, juste ce mapping local.
@@ -19382,7 +19383,8 @@ function assistantAsk(id, label){
 }
 function renderAssistantChips(){
   const c=document.getElementById('assistantChips'); if(!c) return;
-  c.innerHTML=ASSISTANT_QUESTIONS.map(q=>'<button class="lib-chip" style="white-space:nowrap;flex-shrink:0;" onclick="assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')">'+q.q+'</button>').join('');
+  const list=ASSISTANT_QUESTIONS.filter(q=>!coachThreadFilter || q.theme===coachThreadFilter);
+  c.innerHTML=list.map(q=>'<button class="lib-chip" onclick="assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')">'+q.q+'</button>').join('');
 }
 // Texte + date d'une entrée coachHistory, formatés pour vivre DANS une bulle du fil (chantier Coach
 // IA — le fil est la mémoire, plus de modale historique séparée). La date reste visible sous le texte
@@ -19456,6 +19458,7 @@ function renderCoachThread(){
   }
   t.innerHTML=html;
   renderCoachThemeFilters();
+  renderAssistantChips();   // les questions suggérées suivent le même filtre que le fil
   t.scrollTop=t.scrollHeight;
 }
 // Ajoute une entrée coachHistory au fil déjà à l'écran, sans tout reconstruire — utilisé quand une
@@ -19472,8 +19475,10 @@ function appendCoachThreadEntry(h){
 function initAssistantIa(){
   renderCoachIaWeeklyCard();
   coachThreadFilter=null;
-  renderCoachThread();
-  renderAssistantChips();
+  renderCoachThread();   // appelle aussi renderAssistantChips()
+  // sweepTranslate ne touche jamais les attributs placeholder (seulement le texte visible) — resté en
+  // anglais malgré le balayage, jamais remarqué avant parce que jamais lu de près (retour utilisateur).
+  const input=document.getElementById('assistantInput'); if(input) input.placeholder=trDyn('Try a suggestion above…');
 }
 // ===== MON PROFIL D'ENTRAÎNEMENT (réponses onboarding éditables au tap) =====
 const TP_FIELDS=[
