@@ -2031,7 +2031,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="p-tabs" id="progPTabs" style="flex-shrink:0;">
     <div class="p-tab active" onclick="setProgrammeTab(this,'mon')">Current</div>
     <div class="p-tab" onclick="setProgrammeTab(this,'programmes')">Programmes</div>
-    <div class="p-tab" onclick="setProgrammeTab(this,'historique')">History</div>
   </div>
   <div id="progMonView" class="scroll">
       <div class="prog-hero">
@@ -2112,17 +2111,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <button class="fab" style="bottom:92px;" onclick="go('creer_programme_nouveau')" title="Create a programme">+</button>
   </div>
-  <div id="progHistoriqueView" style="display:none;flex-direction:column;flex:1;min-height:0;">
-    <div style="flex-shrink:0;">
-      <div class="px pt" style="padding-bottom:10px;">
-        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;" onclick="openHistFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="histFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-      </div>
-    </div>
-    <div class="scroll" id="progHistoriqueScroll">
-      <div class="px pb"><div id="progHistoriqueList"></div></div>
-      <div style="height:24px;"></div>
-    </div>
-  </div>
   <div class="bnav">
     <button class="bnav-item" onclick="go('home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
     <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Library</span></button>
@@ -2181,10 +2169,19 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="p-tab active" onclick="setProgTab(this,'semaine')">7 days</div>
     <div class="p-tab" onclick="setProgTab(this,'mois')">30 days</div>
     <div class="p-tab" onclick="setProgTab(this,'annee')">90 days</div>
-    <div class="p-tab" id="progTab4" onclick="setProgTab(this,'records')">Calendar</div>
+    <div class="p-tab" id="progTab4" onclick="setProgTab(this,'historique')">History</div>
   </div>
   <div class="scroll">
     <div id="progPeriodView" class="px"></div>
+    <div id="progHistSubNav" class="px" style="display:none;padding-bottom:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div class="p-tabs" style="margin:0;max-width:150px;">
+          <div class="p-tab active" id="progHistSubList" onclick="setProgHistSubView('liste')">List</div>
+          <div class="p-tab" id="progHistSubCal" onclick="setProgHistSubView('mois')">Month</div>
+        </div>
+        <button id="progHistFilterBtn" style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openHistFilterModal()"><svg class="ki"><use href="#ki-sliders"/></svg> Filters<span id="histFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+      </div>
+    </div>
     <div id="progRecordsView" class="px" style="display:none;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
         <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
@@ -2201,7 +2198,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
     </div>
     <div id="progHistoryView" class="px" style="display:none;">
-      <div id="progHistoryList" style="margin-top:14px;"></div>
+      <div id="progHistoryList" style="margin-top:0;"></div>
     </div>
     <div style="height:84px;"></div>
   </div>
@@ -5696,24 +5693,11 @@ function syncProgHeader(){
   const t=document.getElementById('progTitle');
   const viaCoach = currentRole==='referent' && curPatient;
   if(t) t.textContent = viaCoach ? curPatient.nom : 'Progress';
-  // Depuis l'espace référent, le 4e onglet devient "Historique" — l'historique séance par séance est
-  // ce qui est réellement utile à un coach. Côté B2C/centre qui consulte sa propre fiche, c'est
-  // "Calendar" (sept. 2026 : remplace "Badges", qui vit désormais uniquement dans l'onglet Défis).
+  // Historique et calendrier fusionnés dans le même onglet "Historique" pour les deux rôles (cf
+  // setProgTab) — plus de relabellisation par rôle. On rafraîchit juste le contenu si cet onglet
+  // était déjà actif (ex. le coach passe d'un patient à l'autre sans repasser par un autre onglet).
   const tab4=document.getElementById('progTab4');
-  if(tab4){
-    if(viaCoach){ tab4.textContent='History'; tab4.setAttribute('onclick',"setProgTab(this,'historique')"); }
-    else { tab4.textContent='Calendar'; tab4.setAttribute('onclick',"setProgTab(this,'records')"); }
-    // Si l'onglet 4 était actif (ou si son contenu affiché ne correspond plus au bon contexte), on
-    // retombe sur le 1er onglet plutôt que de laisser un mauvais panneau affiché/actif.
-    if(tab4.classList.contains('active')){
-      const firstTab=document.querySelector('#progression .p-tabs .p-tab');
-      if(firstTab) setProgTab(firstTab,'semaine');
-    } else {
-      const recEl=document.getElementById('progRecordsView'), histEl=document.getElementById('progHistoryView');
-      if(recEl && recEl.style.display==='block' && viaCoach) setProgTab(tab4,'historique');
-      if(histEl && histEl.style.display==='block' && !viaCoach) setProgTab(tab4,'records');
-    }
-  }
+  if(tab4 && tab4.classList.contains('active')) renderProgHistTab();
   renderProgPatientInfo();
   renderProgCoachActions();
   renderProgBnav(viaCoach);
@@ -9251,21 +9235,46 @@ function renderProgPeriod(periodKey){
   }, 20);
   sweepTranslate(el, currentLang);
 }
+// Historique et calendrier fusionnés (11 sept. 2026) : un seul onglet "Historique", même pour le
+// coach (qui gardait avant un 4e onglet séparé, cf discussion "le calendrier et l'historique sont
+// la même donnée sous deux formes"). progHistSubView choisit laquelle des deux vues s'affiche.
+let progHistSubView='liste';
 function setProgTab(el,view){
   el.closest('.p-tabs').querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  const isRecords = view==='records', isHistory = view==='historique';
-  const periodEl=document.getElementById('progPeriodView'), recEl=document.getElementById('progRecordsView'), histEl=document.getElementById('progHistoryView');
-  if(periodEl) periodEl.style.display = (isRecords||isHistory) ? 'none' : 'block';
-  if(recEl) recEl.style.display = isRecords ? 'block' : 'none';
-  if(histEl) histEl.style.display = isHistory ? 'block' : 'none';
-  // Charge & Douleur retirées de l'onglet Calendrier (cf audit : ~170px avant d'arriver au mois, alors
-  // que la carte appartient aux onglets 7/30/90j) — reste affichée pour les trois autres.
+  const isHistory = view==='historique';
+  const periodEl=document.getElementById('progPeriodView'), subNav=document.getElementById('progHistSubNav');
+  if(periodEl) periodEl.style.display = isHistory ? 'none' : 'block';
+  if(subNav) subNav.style.display = isHistory ? 'block' : 'none';
+  if(isHistory) renderProgHistTab();
+  else {
+    const recEl=document.getElementById('progRecordsView'), histEl=document.getElementById('progHistoryView');
+    if(recEl) recEl.style.display='none';
+    if(histEl) histEl.style.display='none';
+    renderProgPeriod(view);
+  }
+  // Charge & Douleur retirées de la vue Mois (cf audit : ~170px avant d'arriver au mois, alors que
+  // la carte appartient aux onglets 7/30/90j) — reste affichée pour la Liste et les trois autres.
   const safetyEl=document.getElementById('progSafetyBlock');
-  if(safetyEl) safetyEl.style.display = isRecords ? 'none' : '';
-  if(isRecords) renderProgRecords();
-  else if(isHistory) renderPatientHistoryList();
-  else renderProgPeriod(view);
+  if(safetyEl) safetyEl.style.display = (isHistory && progHistSubView==='mois') ? 'none' : '';
+}
+// Bascule Liste/Mois à l'intérieur de l'onglet Historique — même donnée (userSessionHistory), deux
+// affichages (cf discussion "pas deux fonctionnalités, un affichage à deux réglages").
+function setProgHistSubView(v){
+  progHistSubView=v;
+  const listT=document.getElementById('progHistSubList'), calT=document.getElementById('progHistSubCal');
+  if(listT) listT.classList.toggle('active', v==='liste');
+  if(calT) calT.classList.toggle('active', v==='mois');
+  const filterBtn=document.getElementById('progHistFilterBtn'); if(filterBtn) filterBtn.style.display = v==='liste' ? 'inline-flex' : 'none';
+  const safetyEl=document.getElementById('progSafetyBlock'); if(safetyEl) safetyEl.style.display = v==='mois' ? 'none' : '';
+  renderProgHistTab();
+}
+function renderProgHistTab(){
+  const recEl=document.getElementById('progRecordsView'), histEl=document.getElementById('progHistoryView');
+  const isListe = progHistSubView==='liste';
+  if(recEl) recEl.style.display = isListe ? 'none' : 'block';
+  if(histEl) histEl.style.display = isListe ? 'block' : 'none';
+  if(isListe) renderProgHistoryList(); else renderProgRecords();
 }
 // Calendrier mensuel (remplace l'ancien 4e onglet "Badges" — les badges vivent désormais uniquement
 // dans Défis, cf discussion). Utilise getDayStatus() (cf computeWeekStrip) — mêmes 5 états que la
@@ -9389,7 +9398,7 @@ function cancelCalPick(){
 }
 // Retrouve la séance par sa date plutôt que de sérialiser l'objet dans l'attribut onclick (aurait cassé
 // l'attribut : JSON.stringify produit des guillemets doubles, le même délimiteur que l'attribut HTML).
-// Même patron que openPatientHistoryRecap(i), qui relit window._patientHistItems par index.
+// Même patron que openHistItem(i), qui relit window._histRenderedItems par index.
 function openCalSessionRecap(dateTimestamp){
   const h=userSessionHistory.find(s=>{ const d=new Date(s.date); d.setHours(0,0,0,0); return d.getTime()===dateTimestamp; });
   if(h) renderHistoryRecapModal(h);
@@ -9489,57 +9498,12 @@ function selectProgCalDay(year, month, day){
         +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:10px;padding:11px;font-size:13px;" onclick="assignPlannedDay('+dateObj.getTime()+',\'self\')">'+trDyn('Plan a session here')+'</button>')
     +'</div>';
 }
-// Historique séance par séance de la personne actuellement chargée dans userSessionHistory — jamais
-// une navigation vers l'écran Programme partagé (qui a déjà causé une vraie fuite de données Marc/
-// patient simulé, cf discussion), donc toujours cohérent avec la fiche affichée.
-// Repère de plausibilité (retour utilisateur — "comment se prémunir de la triche") : jamais un verdict,
-// juste de quoi orienter le regard du référent — comme il le fait déjà avec la douleur auto-déclarée.
-const REP_SOURCE_LABEL={motion:'Auto-detected', manual:'Self-reported', simulated:'Estimated', mixed:'Mixed', none:null};
-function renderPatientHistoryList(){
-  const el=document.getElementById('progHistoryList'); if(!el) return;
-  const abandoned=userSessionAttempts.filter(a=>a.status==='abandoned').sort((a,b)=>b.date-a.date).slice(0,10);
-  if(!userSessionHistory.length && !abandoned.length){ el.innerHTML='<div class="lib-empty">No history yet.</div>'; return; }
-  const items=[...userSessionHistory].sort((a,b)=>b.date-a.date);
-  const effortMap={facile:'Easy',modere:'Moderate',intense:'Intense',maximum:'Maximum'};
-  const dateLbl=d=>new Date(d).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
-  // Même étiquette que l'Accueil/la fiche séance (sessionBadgeLabel, tags réels) — avant, chaque carte
-  // affichait le mot "Session" en dur, sans distinction (audit calendrier/historique). Repli sur
-  // "Session" seulement si la séance catalogue n'existe plus (ex. exercice seul, sessionId absent).
-  const allSess=[...SESSIONS,...userSessions];
-  el.innerHTML=items.map((h,i)=>{
-    const effortLbl=effortMap[h.effort]||h.effort||'—';
-    // Signal de plausibilité léger : terminée en moins de la moitié du temps prévu.
-    const fast = h.dureeAttendue && h.duree < h.dureeAttendue*0.5;
-    const srcLbl = REP_SOURCE_LABEL[h.repSource];
-    const flag = fast ? '<div style="font-size:11px;color:var(--vigilance);margin-top:4px;">'+trDyn('⚠ Done in '+h.duree+' min · '+h.dureeAttendue+' min prescribed')+'</div>' : '';
-    const sess=h.sessionId ? allSess.find(s=>s.id===h.sessionId) : null;
-    const badgeLbl=sess ? trDyn(sessionBadgeLabel(sess)) : trDyn('Session');
-    return '<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openPatientHistoryRecap('+i+')">'
-      +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-      +'<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--teal);color:var(--teal);padding:2px 8px;font-size:10px;">'+badgeLbl+'</span>'
-      +'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl(h.date)+'</div>'
-      +'</div>'
-      +'<div style="font-size:14px;font-weight:700;color:var(--white);margin-top:4px;">'+trDyn(h.nom)+'</div>'
-      +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'+trDyn(h.exercices+' exercise'+(h.exercices>1?'s':''))+' · '+trDyn(h.duree+' min')+(h.reps?' · '+trDyn(h.reps+' reps'):'')+'</div>'
-      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(effortLbl)+(h.douleur!==undefined?' · '+trDyn('Pain')+' '+h.douleur+'/10':'')+(srcLbl?' · '+trDyn(srcLbl):'')+'</div>'
-      +flag
-      +'</div>';
-  }).join('')
-  + (abandoned.length ? (
-      '<div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;">'+trDyn('Abandoned attempts')+'</div>'
-      + abandoned.map(a=>
-          '<div class="card-sm" style="margin:0 0 8px;opacity:.65;">'
-          +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-          +'<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--gray);color:var(--gray);padding:2px 8px;font-size:10px;">'+trDyn('Abandoned')+'</span>'
-          +'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl(a.date)+'</div>'
-          +'</div>'
-          +'<div style="font-size:13px;font-weight:700;color:var(--gray2);margin-top:4px;">'+trDyn(a.nom)+'</div>'
-          +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(a.exercicesDone+' of '+a.exercicesTotal+' exercises')+' · '+trDyn(a.dureeReelle+' min')+'</div>'
-          +'</div>'
-        ).join('')
-    ) : '');
-  window._patientHistItems = items;
-}
+// Historique unifié (self ET coach) : voir renderProgHistoryList() plus bas, qui a fusionné cette
+// fonction avec l'ancien renderProgHistorique() — même liste, même donnée (userSessionHistory/
+// userProgrammeHistory/userSessionAttempts de la personne actuellement chargée), avec juste quelques
+// champs en plus quand currentRole==='referent' (repère de plausibilité, source des reps). Toujours
+// rendue depuis l'écran Progress, jamais l'écran Programme partagé — ce qui évitait la fuite Marc/
+// patient simulé reste vrai (cf discussion).
 // Favoris/Top exos/Évolution/Maîtrise vivent désormais dans chaque onglet période (renderProgPeriod) —
 // tout ce qui est comparable sur 7/30/90j y reste, cf discussion. Ce 4e onglet ("Badges") ne garde que
 // les badges + les notes perso, qui ne sont pas des métriques de période. L'ancienne section "Your
@@ -9547,7 +9511,11 @@ function renderPatientHistoryList(){
 // séances) — retirée plutôt que déplacée.
 function renderProgRecords(){
   renderProgCalendar();
-  renderPersonalNotes();
+  // Les notes perso sont un objet global, pas rattaché à un patient — jamais montrées côté coach
+  // (même logique que la fuite Marc/patient déjà évitée sur cet écran, cf renderPatientHistoryList).
+  const viaCoach = currentRole==='referent' && curPatient;
+  if(viaCoach){ const sec=document.getElementById('progNotesSection'); if(sec) sec.style.display='none'; }
+  else renderPersonalNotes();
 }
 function renderTopExercises(){
   const favSec=document.getElementById('progFavoritesSection'), favEl=document.getElementById('progFavoritesList');
@@ -12523,8 +12491,8 @@ const EN_FR = {
   "Auto-detected": "Détecté automatiquement",
   "Self-reported": "Auto-déclaré",
   "Estimated": "Estimé",
-  "Abandoned attempts": "Tentatives abandonnées",
-  "Abandoned": "Abandonnée",
+  "Interrupted": "Interrompue",
+  "List": "Liste",
   // Thèmes Coach IA (réflexion fonctionnelle, 11/09)
   "Adjustment": "Ajustement",
   "Follow-up": "Suivi",
@@ -14406,8 +14374,8 @@ function programmePhotoFor(p){ return p.photo || THEME_PHOTOS[objectifDisplayKey
 function setProgrammeTab(el, view){
   el.closest('.p-tabs').querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  const views={mon:'progMonView', programmes:'progProgrammesView', historique:'progHistoriqueView'};
-  const displayType={mon:'block', programmes:'flex', historique:'flex'};
+  const views={mon:'progMonView', programmes:'progProgrammesView'};
+  const displayType={mon:'block', programmes:'flex'};
   Object.keys(views).forEach(v=>{ const e=document.getElementById(views[v]); if(e) e.style.display=(v===view)?displayType[v]:'none'; });
   const sessView=document.getElementById('progSessionsView'); if(sessView) sessView.style.display='none';
   const pTabs=document.getElementById('progPTabs'); if(pTabs) pTabs.style.display='';
@@ -14419,11 +14387,10 @@ function setProgrammeTab(el, view){
   // programme" semblait envoyer au mauvais endroit, alors que c'était juste un scroll non réinitialisé).
   // Chaque vue a désormais son propre conteneur .scroll (barre de filtres fixe au-dessus) — on cible
   // celui de la vue qui vient de s'afficher, plus le seul .scroll partagé d'avant la restructuration.
-  const scrollIds={mon:'progMonView', programmes:'progProgrammesScroll', historique:'progHistoriqueScroll'};
+  const scrollIds={mon:'progMonView', programmes:'progProgrammesScroll'};
   const scrollEl=document.getElementById(scrollIds[view]); if(scrollEl) scrollEl.scrollTop=0;
   if(view==='mon') renderProgMonView();
   else if(view==='programmes') renderProgProgrammesView();
-  else if(view==='historique') renderProgHistorique();
 }
 function showProgMonView(){
   const monTab=document.querySelector('#programme .p-tabs .p-tab:first-child');
@@ -14438,7 +14405,6 @@ function showProgSessionsStandalone(){
   const searchBtn=document.getElementById('progSearchBtn'); if(searchBtn) searchBtn.style.display = sessionPickMode ? 'none' : 'block';
   const mon=document.getElementById('progMonView'); if(mon) mon.style.display='none';
   const progs=document.getElementById('progProgrammesView'); if(progs) progs.style.display='none';
-  const hist=document.getElementById('progHistoriqueView'); if(hist) hist.style.display='none';
   const sess=document.getElementById('progSessionsView'); if(sess) sess.style.display='flex';
   const t=document.getElementById('programmeTopTitle');
   // En plein détour "choisir une séance" (creation_session_individuelle OU collective), le titre reste
@@ -15867,17 +15833,23 @@ function renderProgProgrammesView(){
   el.innerHTML = html;
   sweepTranslate(el, currentLang);
 }
-// Historique global (programmes + séances + exercices confondus) — voir userSessionHistory/
-// userProgrammeHistory. Une entrée "séance" à 1 seul exercice correspond à un exercice fait seul
-// (exoIds[0]), pas de log distinct pour les exercices : ça évite une 3e source de vérité qui
-// dupliquerait l'info. Le type (session/exercice) est dérivé de exercices===1, pas stocké séparément.
+// Historique global (programmes + séances + exercices + tentatives interrompues confondus) — voir
+// userSessionHistory/userProgrammeHistory/userSessionAttempts. Une entrée "séance" à 1 seul exercice
+// correspond à un exercice fait seul (exoIds[0]), pas de log distinct pour les exercices : ça évite
+// une 3e source de vérité qui dupliquerait l'info. Le type (session/exercice) est dérivé de
+// exercices===1, pas stocké séparément.
 const EFFORT_LABELS_HIST = {facile:'Easy', modere:'Moderate', intense:'Intense', maximum:'Maximum'};
+// Repère de plausibilité + source des reps : jamais un verdict (retour utilisateur — "comment se
+// prémunir de la triche"), juste de quoi orienter le regard du référent, comme il le fait déjà avec
+// la douleur auto-déclarée. Réservé au coach dans renderProgHistoryList (currentRole==='referent') —
+// montré à la personne elle-même, ça se lit comme une accusation plutôt qu'un signal.
+const REP_SOURCE_LABEL={motion:'Auto-detected', manual:'Self-reported', simulated:'Estimated', mixed:'Mixed', none:null};
 let histFilter = 'all';
-const HIST_FILTER_OPTIONS = [{val:'all',label:'All'},{val:'session',label:'Sessions'},{val:'exercice',label:'Exercises'},{val:'programme',label:'Programmes'}];
+const HIST_FILTER_OPTIONS = [{val:'all',label:'All'},{val:'session',label:'Sessions'},{val:'exercice',label:'Exercises'},{val:'programme',label:'Programmes'},{val:'attempt',label:'Interrupted'}];
 function setHistFilter(val){
   histFilter = val;
   updateHistFilterBadge();
-  renderProgHistorique();
+  renderProgHistoryList();
 }
 function updateHistFilterBadge(){
   const badge=document.getElementById('histFilterBadge'); if(!badge) return;
@@ -15898,60 +15870,86 @@ function openHistFilterModal(){
   html+='<button class="btn-ghost" style="margin-top:14px;width:100%;color:var(--gray2);" onclick="closeModal()">Close</button>';
   showModal(html);
 }
-function histKind(h){ return h.kind==='programme' ? 'programme' : (h.exercices<=1 ? 'exercice' : 'session'); }
-function renderProgHistorique(){
+function histKind(h){ return h.kind==='programme' ? 'programme' : h.kind==='attempt' ? 'attempt' : (h.exercices<=1 ? 'exercice' : 'session'); }
+// Tag de nature en gris, jamais en couleur : --teal et --orange valent tous les deux #26C57B (charte
+// graphique, une seule couleur "c'est kinmio") — la couleur avait l'air de distinguer Séance/Exercice
+// alors qu'elle ne distinguait rien (cf audit historique/calendrier). Une tentative interrompue est un
+// fait, pas une alerte — rien à décider dessus — donc même traitement gris, jamais ambre/rouge.
+const KIND_TAG={session:{lbl:'Session'}, exercice:{lbl:'Exercise'}, programme:{lbl:'Programme'}, attempt:{lbl:'Interrupted'}};
+// Historique + calendrier fusionnés (11 sept. 2026, cf discussion "pas deux fonctionnalités, un
+// affichage à deux réglages") : une seule fonction pour self ET coach — avant, deux fonctions
+// séparées (renderProgHistorique / renderPatientHistoryList) pouvaient diverger silencieusement.
+// Rendue depuis l'écran Progress uniquement ; côté coach, userSessionHistory/userSessionAttempts
+// pointent déjà vers les données du patient chargé (cf openPatientProgress), donc pas de fuite.
+// Les tentatives abandonnées entrent dans le fil chronologique comme les autres entrées (pas dans une
+// section à part) : une séance interrompue a eu lieu à une date, elle se range à cette date.
+function renderProgHistoryList(){
   updateHistFilterBadge();
-  const el=document.getElementById('progHistoriqueList'); if(!el) return;
-  if(!userSessionHistory.length && !userProgrammeHistory.length){
-    el.innerHTML='<div class="lib-empty">No history yet.<br>Complete a session to see it here.</div>';
-    return;
-  }
+  const el=document.getElementById('progHistoryList'); if(!el) return;
+  const viaCoach = currentRole==='referent' && curPatient;
+  const abandoned = userSessionAttempts.filter(a=>a.status==='abandoned').map(a=>({...a, kind:'attempt'}));
   let items=[
     ...userSessionHistory.map(h=>({...h, kind:'session'})),
-    ...userProgrammeHistory.map(h=>({...h, kind:'programme'}))
+    ...userProgrammeHistory.map(h=>({...h, kind:'programme'})),
+    ...abandoned
   ].sort((a,b)=>b.date-a.date);
-  if(histFilter!=='all') items=items.filter(h=>histKind(h)===histFilter);
   if(!items.length){
-    el.innerHTML='<div class="lib-empty">Nothing here yet.</div>';
+    el.innerHTML='<div class="lib-empty">'+trDyn('No history yet.')+'<br>'+trDyn('Complete a session to see it here.')+'</div>';
+    window._histRenderedItems=[];
     return;
   }
-  const KIND_TAG={session:{lbl:'Session',c:'var(--teal)'}, exercice:{lbl:'Exercise',c:'var(--orange)'}, programme:{lbl:'Programme',c:'var(--gray2)'}};
+  if(histFilter!=='all') items=items.filter(h=>histKind(h)===histFilter);
+  if(!items.length){
+    el.innerHTML='<div class="lib-empty">'+trDyn('Nothing here yet.')+'</div>';
+    window._histRenderedItems=[];
+    return;
+  }
+  const allSess=[...SESSIONS,...userSessions];
+  let lastMonthKey=null;
   el.innerHTML=items.map((h,i)=>{
-    const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
+    const d=new Date(h.date);
+    const monthKey=d.getFullYear()+'-'+d.getMonth();
+    const monthLbl=d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{month:'long',year:'numeric'});
+    const sep = monthKey!==lastMonthKey ? '<div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;">'+monthLbl+'</div>' : '';
+    lastMonthKey=monthKey;
+    const dateLbl=d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
     const kind=histKind(h);
-    const tag=KIND_TAG[kind];
-    if(h.kind==='programme'){
-      return '<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openHistoryRecap('+i+')">'
-        +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-        +'<span class="tag" style="background:rgba(0,0,0,0);border:1px solid '+tag.c+';color:'+tag.c+';padding:2px 8px;font-size:10px;">'+tag.lbl+'</span>'
-        +'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl+'</div>'
-        +'</div>'
-        +'<div style="font-size:14px;font-weight:700;color:var(--white);margin-top:4px;">'+h.nom+'</div>'
+    const tagHtml='<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--gray2);color:var(--gray2);padding:2px 8px;font-size:10px;">'+trDyn(KIND_TAG[kind].lbl)+'</span>';
+    const head='<div style="display:flex;align-items:center;justify-content:space-between;">'+tagHtml+'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl+'</div></div>'
+      +'<div style="font-size:14px;font-weight:700;color:var(--white);margin-top:4px;">'+trDyn(h.nom)+'</div>';
+    if(kind==='programme'){
+      return sep+'<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openHistItem('+i+')">'+head+'</div>';
+    }
+    if(kind==='attempt'){
+      // Un fait, pas un verdict : "Interrompue" plutôt que "Abandonnée" — même information, sans le mot-jugement.
+      const doneOf = currentLang==='fr' ? (h.exercicesDone+' sur '+h.exercicesTotal+' exercices') : (h.exercicesDone+' of '+h.exercicesTotal+' exercises');
+      return sep+'<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openHistItem('+i+')">'+head
+        +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'+doneOf+' · '+trDyn(h.dureeReelle+' min')+'</div>'
         +'</div>';
     }
     const effortLbl=EFFORT_LABELS_HIST[h.effort]||h.effort||'—';
-    return '<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openHistoryRecap('+i+')">'
-      +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-      +'<span class="tag" style="background:rgba(0,0,0,0);border:1px solid '+tag.c+';color:'+tag.c+';padding:2px 8px;font-size:10px;">'+tag.lbl+'</span>'
-      +'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl+'</div>'
-      +'</div>'
-      +'<div style="font-size:14px;font-weight:700;color:var(--white);margin-top:4px;">'+h.nom+'</div>'
-      +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'+h.exercices+(h.exercices>1?' exercises':' exercise')+' · '+h.duree+' min'+(h.reps?' · '+h.reps+' reps':'')+'</div>'
-      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+effortLbl+(h.douleur!==undefined?' · Pain '+h.douleur+'/10':'')+'</div>'
+    // Même étiquette que l'Accueil/la fiche séance/le calendrier (sessionBadgeLabel, tags réels) — en
+    // sous-titre, pas dans le tag coloré (qui porte désormais la nature de l'entrée, cf KIND_TAG).
+    const sess=h.sessionId ? allSess.find(s=>s.id===h.sessionId) : null;
+    const badgeLbl=sess ? trDyn(sessionBadgeLabel(sess)) : null;
+    const fast = viaCoach && h.dureeAttendue && h.duree < h.dureeAttendue*0.5;
+    const srcLbl = viaCoach ? REP_SOURCE_LABEL[h.repSource] : null;
+    const flag = fast ? '<div style="font-size:11px;color:var(--vigilance);margin-top:4px;">'+(currentLang==='fr' ? '⚠ Fait en '+h.duree+' min · '+h.dureeAttendue+' min prévus' : '⚠ Done in '+h.duree+' min · '+h.dureeAttendue+' min planned')+'</div>' : '';
+    return sep+'<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openHistItem('+i+')">'+head
+      +(badgeLbl?'<div style="font-size:11px;color:var(--gray2);margin-top:1px;">'+badgeLbl+'</div>':'')
+      +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'+trDyn(h.exercices+' exercise'+(h.exercices>1?'s':''))+' · '+trDyn(h.duree+' min')+(h.reps?' · '+trDyn(h.reps+' reps'):'')+'</div>'
+      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(effortLbl)+(h.douleur!==undefined?' · '+trDyn('Pain')+' '+h.douleur+'/10':'')+(srcLbl?' · '+trDyn(srcLbl):'')+'</div>'
+      +flag
       +'</div>';
   }).join('');
-  window._histRenderedItems = items;   // pour openHistoryRecap(i), évite de refaire le tri/filtre au clic
+  window._histRenderedItems = items;   // pour openHistItem(i), évite de refaire le tri/filtre au clic
   sweepTranslate(el, currentLang);
 }
 // Récap au clic — même visuel que l'écran resume (post-séance), mais alimenté par les valeurs
 // FIGÉES de l'historique (pas de recalcul live) puisque currentProgram n'existe plus à ce moment.
-// Réutilisée à la fois en self-view (programme > Historique) et côté coach (progression > Historique).
-function openHistoryRecap(i){
+// Une seule fonction pour self ET coach depuis la fusion (cf renderProgHistoryList).
+function openHistItem(i){
   const h=(window._histRenderedItems||[])[i]; if(!h) return;
-  renderHistoryRecapModal(h);
-}
-function openPatientHistoryRecap(i){
-  const h=(window._patientHistItems||[])[i]; if(!h) return;
   renderHistoryRecapModal(h);
 }
 function renderHistoryRecapModal(h){
@@ -15966,6 +15964,21 @@ function renderHistoryRecapModal(h){
       +'<div class="rstat"><div class="rstat-v">'+(h.dureeTotal||0)+'</div><div class="rstat-l">Total min</div></div>'
       +'</div>'
       +'<button class="btn-ghost" style="margin-top:12px;width:100%;color:var(--gray2);" onclick="closeModal()">Close</button>');
+    return;
+  }
+  if(h.kind==='attempt'){
+    // Un fait, pas une célébration ni une alerte : pictogramme neutre en gris (pas d'emoji 🎉/🏁 — ceux-là
+    // marquent une réussite, cf famille "célébration" du nettoyage emoji, pas de sens ici).
+    const sessLink = h.sessionId && [...SESSIONS,...userSessions].some(s=>s.id===h.sessionId);
+    showModal('<div style="text-align:center;padding:6px 0 4px;"><div style="width:56px;height:56px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;margin:0 auto;"><svg class="ki" style="width:24px;height:24px;color:var(--gray2);"><use href="#ki-stop"/></svg></div>'
+      +'<h3 style="margin:10px 0 2px;color:var(--white);">'+trDyn(h.nom)+'</h3>'
+      +'<p class="sub" style="margin-bottom:16px;">'+trDyn('Interrupted')+' · '+dateLbl+'</p></div>'
+      +'<div class="resume-stats" style="padding:0 0 4px;">'
+      +'<div class="rstat"><div class="rstat-v">'+h.dureeReelle+'</div><div class="rstat-l">'+trDyn('Minutes')+'</div></div>'
+      +'<div class="rstat"><div class="rstat-v">'+h.exercicesDone+'/'+h.exercicesTotal+'</div><div class="rstat-l">'+trDyn('Exercises')+'</div></div>'
+      +'</div>'
+      +(sessLink ? '<button class="btn btn-outline" style="margin-top:10px;width:100%;" onclick="closeModal();openSessionDetail(\''+h.sessionId+'\')">'+trDyn('See session')+' →</button>' : '')
+      +'<button class="btn-ghost" style="margin-top:8px;width:100%;color:var(--gray2);" onclick="closeModal()">Close</button>');
     return;
   }
   const isSolo = h.exercices<=1;
