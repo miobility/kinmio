@@ -5054,8 +5054,14 @@ function getSessionDuJour() {
   // prescrite par le référent passe devant les recommandations génériques (le concept "coach" n'existe
   // pas en B2C pur, cf. règle établie sur les chips/filtres référent) ; sinon première session compatible.
   const compatibles = getSessionsCompatibles();
-  const coachPick = currentRole==='user_centre' ? compatibles.find(s => s.referent) : null;
-  return coachPick || compatibles[0] || SESSIONS.find(s => s.id === "SES-19");
+  // Écarte ce qui a déjà été fait aujourd'hui : sans programme il n'y a pas de séquence à avancer,
+  // mais la carte "Prochaine séance" ne doit pas re-proposer indéfiniment celle qu'on vient de finir
+  // (retour utilisateur). Repli sur la liste complète seulement si tout a déjà été fait aujourd'hui.
+  const today0=new Date(); today0.setHours(0,0,0,0);
+  const doneTodayIds = new Set(userSessionHistory.filter(h=>h.date>=today0.getTime() && h.sessionId).map(h=>h.sessionId));
+  const notDoneToday = s => !doneTodayIds.has(s.id);
+  const coachPick = currentRole==='user_centre' ? (compatibles.find(s => s.referent && notDoneToday(s)) || compatibles.find(s => s.referent)) : null;
+  return coachPick || compatibles.find(notDoneToday) || compatibles[0] || SESSIONS.find(s => s.id === "SES-19");
 }
 
 // ─── PARAMS PAR NIVEAU (avec surcharge manuelle éventuelle) ──
@@ -8516,15 +8522,6 @@ function renderWeekStripHtml(strip){
 // Équipement réellement nécessaire pour une séance — l'info n'est pas portée par la séance, seulement
 // par chaque exercice, donc on agrège. "Aucun" est écarté : l'absence d'équipement n'a rien à signaler.
 // Même règle que les chips de session_detail, pour que la carte et la fiche ne puissent pas diverger.
-function sessionEquipementLabel(sess){
-  const exos=[...EXERCICES,...userExercices];
-  const eq=[...new Set(sess.exercices.map(id=>exos.find(e=>e.id===id)).filter(Boolean).map(e=>e.equipement))].filter(e=>e && e!=='Aucun');
-  // Difference assumee avec les chips de la fiche, qui taisent l'absence d'equipement : la, on est deja
-  // engage et la liste sert a rassembler le materiel. Ici la question est "est-ce que je peux m'y mettre
-  // maintenant, ou est-ce qu'il faut aller chercher quelque chose ?" — et "rien" y repond aussi bien
-  // que "la barre". Un silence, lui, ne repond pas.
-  return eq.length ? eq.map(e=>trDyn(e)).join(' · ') : trDyn('no equipment');
-}
 function renderHomeSeance(prefix, data){
   const zone=document.getElementById(prefix+'SeanceZone'); if(!zone) return;
   if(programmeActif && programmeActif.pausedAt){
@@ -8557,39 +8554,20 @@ function renderHomeSeance(prefix, data){
   // — annoncer un délai fait croire à une contrainte qu'on n'impose pas. "Si tu veux la faire
   // aujourd'hui, tu la fais aujourd'hui" : la carte reste la même quel que soit le jour.
   const cardLbl = 'Next session';
-  // "Fait aujourd'hui" — remplace la carte Score Kinmio séparée (retirée, sept. 2026 : jugée redondante
-  // avec le point du strip pour la question "as-tu fait ta séance", cf discussion). Le bouton change
-  // vraiment d'état une fois fait plutôt que de rester identique — avant, "View session →" ne changeait
-  // jamais, même après la séance. Le % ne s'affiche que si la séance a été commencée sans être finie
-  // (comparé à l'objectif du jour, même calcul que l'ancienne carte, juste plus discret).
-  const todayEntry = weekStrip.find(d=>d.today);
-  const doneToday = todayEntry && todayEntry.statut==='fait';
-  // "Voir la séance →" appelait EXACTEMENT la même fonction que la carte qui le contient
-  // (openSessionDetail) — un bouton de 48 px qui recopiait la zone tapable de son propre parent, alors
-  // que les vignettes "Recommandé pour toi" juste en dessous se passent de bouton sans que personne
-  // s'interroge. Il faisait pourtant un second métier : une fois la séance faite, il devenait un
-  // statut déguisé en bouton. Les deux métiers sont séparés (audit home, sept. 2026) : le statut monte
-  // en pastille sur la vignette, et le bouton ne garde qu'un rôle — celui que la carte ne peut pas
-  // jouer : démarrer. Avant, le bouton le plus voyant de la home menait à une deuxième page où se
-  // trouvait le vrai bouton : il promettait une action et livrait une navigation. Rien n'est perdu au
-  // passage : demarrerSessionNouveau ouvre l'échauffement, un écran de préparation avec retour
-  // possible, pas la séance en cours — et la carte reste tapable pour qui veut la liste d'exercices.
-  let cta='', doneBadge='';
-  if(doneToday){
-    const target=computeObjectifDuJourScore(), current=computeScoreAujourdhui();
-    const pct = target ? Math.min(100, Math.round(current/target*100)) : 100;
-    doneBadge='<div class="today-dur" style="left:14px;right:auto;background:rgba(var(--brand-fixed-rgb),.92);color:var(--ink-on-accent);display:inline-flex;align-items:center;gap:5px;"><svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg>'+trDyn('Done today')+(pct<100?' · '+pct+'%':'')+'</div>';
-  } else {
-    // Le bouton repasse par la fiche séance et ne démarre plus directement. Correction d'une décision
-    // qui était la mienne et qui était mauvaise : la fiche est le SEUL endroit qui agrège l'équipement
-    // de tous les exercices ("sache AVANT de démarrer de quoi tu as besoin") et qui liste les
-    // mouvements. Sauter cet écran faisait arriver sur l'échauffement sans savoir à quoi ressemble la
-    // séance ni ce qu'il faut aller chercher — abrupt, et contraire à ce que fait tout le métier.
-    // Oui, ce bouton mène donc au même endroit que le tap sur la carte. Ce n'était pas ça le défaut :
-    // dupliquer une zone tapable est banal et c'est ce qui donne à la home une action primaire
-    // explicite. Le défaut, c'était un bouton qui promettait un départ et livrait une navigation.
-    cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">View my session →</button>';
-  }
+  // Plus de badge "Fait aujourd'hui X%" ici (retiré, audit home — retour utilisateur) : avec un
+  // programme actif, getSessionDuJour() avance déjà à la vraie prochaine séance dès que celle du jour
+  // est loggée (getProgrammeProgress compte userSessionHistory, pas une date) — le badge continuait
+  // pourtant de s'afficher SUR cette nouvelle séance pas encore faite, en comparant son objectif à la
+  // séance précédente réellement complétée : deux séances différentes divisées l'une par l'autre,
+  // d'où des "0%" en vert absurdes. Le statut "fait" a déjà sa place, correcte, sur le point du jour
+  // dans la frise — pas besoin de le répéter ici sur une carte qui, par construction, ne représente
+  // jamais une séance déjà faite : "Prochaine séance" pointe toujours vers ce qui reste à faire.
+  // Le bouton repasse par la fiche séance et ne démarre plus directement. Correction d'une décision
+  // qui était la mienne et qui était mauvaise : la fiche est le SEUL endroit qui agrège l'équipement
+  // de tous les exercices ("sache AVANT de démarrer de quoi tu as besoin") et qui liste les
+  // mouvements. Sauter cet écran faisait arriver sur l'échauffement sans savoir à quoi ressemble la
+  // séance ni ce qu'il faut aller chercher — abrupt, et contraire à ce que fait tout le métier.
+  const cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">View my session →</button>';
   const badgeId=prefix+'SeanceBdg';
   // Photo de la VRAIE séance affichée (même logique que partout ailleurs, sessionPhotoFor) — avant,
   // la photo venait de l'objectif du profil, pas de la séance réellement montrée, donc pouvait ne
@@ -8607,8 +8585,11 @@ function renderHomeSeance(prefix, data){
   zone.innerHTML='<div class="zone-lbl" style="margin-top:0;">'+trDyn(cardLbl)+'</div>'
     +'<div class="hero-glow">'
     +'<div class="today" onclick="openSessionDetail(\''+realSess.id+'\')">'
-    +'<div class="today-thumb" style="'+thumbStyle+'">'+(photo?'':'<svg class="ki"><use href="#ki-media"/></svg>')+doneBadge+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')
-      +'<div class="today-dur" style="top:auto;bottom:12px;right:12px;font-weight:700;">'+sessionEquipementLabel(realSess)+'</div>'
+    +'<div class="today-thumb" style="'+thumbStyle+'">'+(photo?'':'<svg class="ki"><use href="#ki-media"/></svg>')+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')
+      // Même étiquette que la fiche séance (sessionBadgeLabel, tags réels) — avant, deux fonctions
+      // différentes calculaient chacune leur propre tag (équipement agrégé ici, tags[0] sur la fiche),
+      // jamais synchronisées : "Barre seule" ici, "Sans élastique" un clic plus loin (retour utilisateur).
+      +'<div class="today-dur" style="top:auto;bottom:12px;right:12px;font-weight:700;">'+sessionBadgeLabel(realSess)+'</div>'
     +'</div>'
     // Chevron à côté du titre : c'est lui qui porte "cette carte s'ouvre", maintenant que le bouton ne
     // recopie plus le tap du parent. .today-title est en nowrap/ellipsis, d'où la ligne flex autour.
