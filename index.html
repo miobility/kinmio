@@ -19319,9 +19319,13 @@ function assistantBubble(text, fromUser){
 }
 // Thème par question (réflexion Coach IA, 11/09) : le filtre au-dessus du fil sert aussi à ça — sous
 // "Alertes" par exemple, seule la question sur l'ACWR reste proposée, pas les 6 en vrac à chaque fois.
+// Au moins une question par thème (retour utilisateur) — "alerte" n'avait que l'ACWR, la douleur est
+// un deuxième vrai signal d'alerte déjà calculé ailleurs (getPainSignal, même source que la carte
+// Douleur de Progression), pas une question inventée pour combler une case vide.
 const ASSISTANT_QUESTIONS=[
   {id:'seances', theme:'suivi', q:"Combien de séances cette semaine ?"},
   {id:'acwr', theme:'alerte', q:"Je m'entraîne trop fort en ce moment ?"},
+  {id:'douleur', theme:'alerte', q:"Comment évolue ma douleur ?"},
   {id:'prochaine', theme:'planification', q:"C'est quoi ma prochaine séance ?"},
   {id:'effort', theme:'suivi', q:"Comment évolue mon effort ?"},
   {id:'score', theme:'suivi', q:"C'est quoi mon score aujourd'hui ?"},
@@ -19375,13 +19379,24 @@ function assistantComputeAnswer(id){
     const rec=recommendedIntensityLevel();
     return rec ? base+' En ce moment, '+(ASSISTANT_REASON_FR[rec.reason]||rec.reason)+', donc le niveau proposé en tient compte.' : base;
   }
+  if(id==='douleur'){
+    const p=getPainSignal();
+    if(p.level==null) return "Pas encore assez d'historique pour te répondre.";
+    const txt = p.trend==='hausse' ? "Elle est en hausse sur tes dernières séances — ça vaut le coup d'y prêter attention."
+      : p.trend==='baisse' ? 'Elle est en baisse sur tes dernières séances, plutôt bon signe.'
+      : 'Elle reste stable sur tes dernières séances.';
+    return 'Ta douleur la plus récente est à '+p.level+'/10. '+txt;
+  }
   return '';
 }
+// Une question posée vit maintenant dans coachHistory comme le reste (retour utilisateur : "est-ce
+// que ça va se synchroniser dans le bon onglet ?") — avant, la question+réponse étaient juste collées
+// sur le fil affiché, invisibles dès qu'on changeait de filtre ou qu'on rouvrait l'écran puisque
+// renderCoachThread() reconstruit tout depuis coachHistory, pas depuis ce qui est déjà à l'écran.
 function assistantAsk(id, label){
-  const t=document.getElementById('assistantThread'); if(!t) return;
-  t.insertAdjacentHTML('beforeend', assistantBubble(label, true));
-  t.insertAdjacentHTML('beforeend', assistantBubble(assistantComputeAnswer(id), false));
-  t.scrollTop=t.scrollHeight;
+  const q=ASSISTANT_QUESTIONS.find(x=>x.id===id);
+  logCoachHistory({type:'qa', theme:q?q.theme:null, question:label, message:assistantComputeAnswer(id)});
+  appendCoachThreadEntry(coachHistory[0]);
 }
 // Les questions ne vivent plus en permanence à l'écran (retour utilisateur, testé sur téléphone :
 // 6 lignes de puces écrasaient le fil, qui est le vrai contenu de cet écran) — un seul bouton ouvre
@@ -19471,6 +19486,13 @@ function coachHistoryText(h){
 function coachHistoryBubble(h){
   return coachThemeEyebrow(h.theme)+coachHistoryText(h);
 }
+// Rendu complet d'une entrée coachHistory dans le fil — une question posée (type 'qa') redevient sa
+// paire de bulles (la question à droite, la réponse à gauche), tout le reste garde sa bulle unique.
+// Centralisé ici pour que renderCoachThread() et appendCoachThreadEntry() ne divergent jamais.
+function coachHistoryEntryHtml(h){
+  if(h.type==='qa') return assistantBubble(h.question, true)+assistantBubble(coachThemeEyebrow(h.theme)+h.message, false);
+  return assistantBubble(coachHistoryBubble(h), false);
+}
 function coachDateSeparator(dateLbl){
   return '<div data-date-sep="'+dateLbl+'" style="text-align:center;font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin:4px 0;">'+dateLbl+'</div>';
 }
@@ -19509,10 +19531,10 @@ function renderCoachThread(){
   history.forEach(h=>{
     const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
     if(dateLbl!==lastDateLbl){ html+=coachDateSeparator(dateLbl); lastDateLbl=dateLbl; }
-    html+=assistantBubble(coachHistoryBubble(h), false);
+    html+=coachHistoryEntryHtml(h);
   });
   if(coachThreadFilter && !history.length){
-    html+='<div style="text-align:center;color:var(--gray);font-size:13.5px;padding:30px 0;">'+trDyn('Nothing in this category yet.')+'</div>';
+    html+='<div data-empty-state style="text-align:center;color:var(--gray);font-size:13.5px;padding:30px 0;">'+trDyn('Nothing in this category yet.')+'</div>';
   }
   t.innerHTML=html;
   renderCoachThemeFilters();
@@ -19524,9 +19546,10 @@ function renderCoachThread(){
 function appendCoachThreadEntry(h){
   if(coachThreadFilter && h.theme!==coachThreadFilter) return;   // pas dans la vue filtrée actuelle
   const t=document.getElementById('assistantThread'); if(!t) return;
+  const empty=t.querySelector('[data-empty-state]'); if(empty) empty.remove();   // on vient d'y ajouter du contenu
   const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
   if(lastThreadDateSep(t)!==dateLbl) t.insertAdjacentHTML('beforeend', coachDateSeparator(dateLbl));
-  t.insertAdjacentHTML('beforeend', assistantBubble(coachHistoryBubble(h), false));
+  t.insertAdjacentHTML('beforeend', coachHistoryEntryHtml(h));
   t.scrollTop=t.scrollHeight;
 }
 function initAssistantIa(){
