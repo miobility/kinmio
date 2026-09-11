@@ -1319,15 +1319,16 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
     </div>
 
-    <!-- ZONE 1bis — OBJECTIF (cf #homeObjectifZone) -->
+    <!-- Même ordre que #home : séance avant objectif (cf commentaire là-bas). La bannière "séance en
+         cours" reste collée au-dessus de la carte séance, c'est d'elle qu'elle parle. -->
     <div id="homeCentreSignalAdjustZone"></div>
-    <div id="homeCentreObjectifZone"></div>
     <div id="homeCentreCollectiveBanner" style="display:none;margin:0 20px 10px;background:rgba(var(--orange-rgb),.12);border:1px solid rgba(var(--orange-rgb),.3);border-radius:14px;padding:12px 14px;align-items:center;gap:10px;cursor:pointer;" onclick="go('session')">
       <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);flex-shrink:0;"></span>
       <div style="flex:1;font-size:13px;font-weight:700;color:var(--white);">Session in progress</div>
       <span style="font-size:13px;font-weight:700;color:var(--orange);">Join →</span>
     </div>
     <div id="homeCentreSeanceZone"></div>
+    <div id="homeCentreObjectifZone"></div>
 
     <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
     <div id="homeCentreKpiZone"></div>
@@ -1685,11 +1686,17 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
     </div>
 
-    <!-- ZONE 1bis — OBJECTIF : anneau de volume hebdo (jours × durée vs minutes réellement faites),
-         cf discussion "l'objectif c'est un objectif de volume, pas juste des jours" -->
+    <!-- Séance AVANT Objectif (audit home, sept. 2026). Décidé sur une mesure, pas sur un goût : en
+         375 px de large — iPhone SE/mini, tout ce qui est sous 6,1" — la fenêtre de scroll tombe à
+         591 px, et l'unique appel à l'action de la home finissait à y=711, donc jamais vu sans
+         scroller, même après avoir allégé Objectif. Dans cet ordre il tombe à y≈432. L'ordre reste
+         narratif : comment tu te sens (check-in) → ce qui ajuste ta séance (carte signal) → ta séance
+         → où tu en es. Ce qui fait la différence de kinmio n'est pas la POSITION d'Objectif, c'est que
+         la séance soit ajustée par les signaux — et ça, c'est la carte d'ajustement qui le dit, au
+         dessus des deux. -->
     <div id="homeSignalAdjustZone"></div>
-    <div id="homeObjectifZone"></div>
     <div id="homeSeanceZone"></div>
+    <div id="homeObjectifZone"></div>
 
     <!-- ZONE 3 — Charge + Douleur, en sections distinctes -->
     <div id="homeKpiZone"></div>
@@ -7843,7 +7850,7 @@ function renderHomeObjectifRing(prefix, profile){
   const cycleAlert = (cycleState.kind==='behind' || cycleState.kind==='catching_up');
   const cycleOpen = cycleAlert || !!cycleFoldOpen[prefix];
   const cycleCount='<span style="font-size:11px;font-weight:600;color:var(--gray2);letter-spacing:0;text-transform:none;"> · '+days4+' / '+objectif4+' '+trDyn('days')+'</span>';
-  el.innerHTML = '<div class="zone-lbl" style="margin-top:0;display:flex;align-items:center;justify-content:space-between;">'+trDyn('GOAL')+progLink+'</div>'
+  el.innerHTML = '<div class="zone-lbl" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;">'+trDyn('GOAL')+progLink+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
       +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('This week')+stripInfo+'</span>'
@@ -7973,7 +7980,7 @@ function renderHomeKpiZone(prefix, profile){
   // margin-top:0 sur EFFORT collait le titre sous la carte seance — 0 px d'ecart, si bien qu'il se
   // lisait comme sa legende et non comme le titre de la section suivante. Les cinq ecarts de la page
   // valaient 16 / 20 / 20 / 0 / 22 ; ils valent 20 partout (audit home, sept. 2026).
-  let out = '<div class="zone-lbl" style="margin-top:20px;">'+trDyn('EFFORT')+'</div>'
+  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('EFFORT')+'</div>'
     +'<div class="kgrid" style="margin-bottom:18px;">'+volumeCell+intensityCell+'</div>'
     +'<div class="zone-lbl" style="margin-top:20px;">'+trDyn('SIGNALS')+'</div>'
     +'<div class="kgrid" style="padding-bottom:20px;">'+loadCell+painCell+'</div>';
