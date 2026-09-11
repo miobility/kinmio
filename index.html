@@ -7584,7 +7584,8 @@ function weekStripLegendHtml(){
   let out='';
   if(has('fait'))   out+=item('background:var(--brand-fixed);','Trained');
   if(has('manque')) out+=item('border:1.5px solid var(--vigilance);','Missed');
-  if(strip ? (has('prevu')||has('planned')) : true) out+=item('border:1.5px solid var(--brand-fixed);','Days planned');
+  if(has('prevu'))  out+=item('border:1.5px solid var(--brand-fixed);','Usual day');
+  if(has('planned')) out+=item('border:1.5px solid var(--brand-fixed);display:inline-flex;align-items:center;justify-content:center;','Catch-up added','<span style="width:4px;height:4px;border-radius:50%;background:var(--brand-fixed);display:block;"></span>');
   if(has('libre'))  out+=item('background:var(--dim);transform:scale(.6);','Nothing planned');
   return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'+out+'</div>';
 }
@@ -8189,13 +8190,14 @@ function renderWeekStripHtml(strip){
       let dotStyle='', dotContent='';
       if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
       else if(d.statut==='manque') dotStyle='border:2px solid var(--vigilance);';
-      // "prévu" (jour habituel, pas encore agi) et "planifié" (choix explicite) fusionnés visuellement
-      // (cf discussion "fusionnons Planifié avec à venir, tes dates préférentielles sont les Planifié
-      // dans ton cycle") — un seul statut affiché : anneau vert. Progression à 3 états : anneau gris
-      // (jour non choisi) → anneau vert (planifié, habituel ou ajouté) → rond plein vert (fait). La
-      // distinction interne prevu/planned reste (cf getDayStatus, sert au calcul de rattrapage), seul le
-      // rendu et le mot affiché fusionnent.
-      else if(d.statut==='planned' || d.statut==='prevu') dotStyle='border:1.5px solid var(--brand-fixed);';
+      // "prévu" (jour habituel) et "planifié" (rattrapage que la personne vient d'ajouter) avaient été
+      // fusionnés visuellement en un seul anneau vert. Re-séparés : quand on tape un jour dans le
+      // sélecteur de rattrapage, ce jour passait d'un point atténué à un anneau STRICTEMENT identique à
+      // celui d'un jour habituel — rien ne disait que c'était notre action qui venait de le créer. Le
+      // rattrapage ajouté garde donc l'anneau mais reçoit un cœur plein. La règle se lit sans légende :
+      // plus c'est rempli, plus c'est engagé — rien de prévu → jour habituel → rattrapage ajouté → fait.
+      else if(d.statut==='planned') { dotStyle='border:1.5px solid var(--brand-fixed);display:flex;align-items:center;justify-content:center;'; dotContent='<span style="width:8px;height:8px;border-radius:50%;background:var(--brand-fixed);display:block;"></span>'; }
+      else if(d.statut==='prevu') dotStyle='border:1.5px solid var(--brand-fixed);';
       else dotStyle='background:var(--dim);transform:scale(.3);';
       const lblStyle = d.today
         ? 'color:var(--white);font-weight:800;'
@@ -8922,9 +8924,12 @@ function renderProgCalendar(){
     let bg='color:var(--gray);', dotInner='';
     if(statut==='fait') bg='background:var(--brand-fixed);color:var(--ink-on-accent);font-weight:800;';
     else if(statut==='manque') bg='border:1.5px solid var(--vigilance);color:var(--gray2);';
-    // "prévu"/"planifié" fusionnés (cf discussion "fusionnons Planifié avec à venir") — même anneau vert
-    // que la frise Home, les deux écrans doivent parler le même langage.
-    else if(statut==='prevu' || statut==='planned') bg='border:1.5px solid var(--brand-fixed);color:var(--white);';
+    // Même règle que la frise Home ("l'anneau n'est pas vide quand c'est un rattrapage ajouté"), mais
+    // la marque change de forme parce qu'ici le centre est occupé par le numéro du jour : au lieu d'un
+    // cœur, un fond émeraude atténué. Les deux écrans disent la même chose avec le moyen dont ils
+    // disposent.
+    else if(statut==='planned') bg='border:1.5px solid var(--brand-fixed);background:rgba(var(--brand-fixed-rgb),.22);color:var(--white);font-weight:700;';
+    else if(statut==='prevu') bg='border:1.5px solid var(--brand-fixed);color:var(--white);';
     const ring = isToday ? 'outline:1.5px solid var(--white);outline-offset:2px;' : '';
     html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+'">'+d+dotInner+'</div>';
   }
@@ -11204,6 +11209,8 @@ const EN_FR = {
   "Do a bonus session": "Faire une séance bonus",
   "Goal reached": "Objectif atteint",
   "Nothing planned": "Rien de prévu",
+  "Usual day": "Jour habituel",
+  "Catch-up added": "Rattrapage ajouté",
   "Cycle": "Cycle",
   "The bar fills with the days you have trained since the cycle started. The white marker shows where you would be if you kept exactly to your goal — ahead of it means you are in advance.": "La barre se remplit avec les jours que tu as faits depuis le début du cycle. Le repère blanc montre où tu serais en tenant exactement ton objectif — être devant, c'est être en avance.",
   "Plan a catch-up day:": "Choisis un jour de rattrapage :",
