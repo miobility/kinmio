@@ -7633,7 +7633,7 @@ function openObjectifPaceInfo(scope){
       if(openDays.length){
         extraCtx='<div style="font-size:12px;color:var(--gray);margin-top:16px;margin-bottom:8px;">'+trDyn('Plan a catch-up day:')+'</div>'
           +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'+openDays.map(d=>
-            '<span onclick="assignPlannedDay('+d.date+',\'catchup\')" style="padding:8px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg2);color:var(--white);font-size:12.5px;font-weight:700;cursor:pointer;">'+(d.today?trDyn('Today'):trDyn(d.j))+'</span>'
+            '<span onclick="assignPlannedDay('+d.date+',\'catchup\')" style="padding:8px 14px;border-radius:12px;font-size:12.5px;font-weight:700;cursor:pointer;'+(d.today?'background:var(--brand-fixed);color:var(--ink-on-accent);border:1.5px solid var(--brand-fixed);':'border:1.5px solid var(--border);background:var(--bg2);color:var(--white);')+'">'+(d.today?trDyn('Today'):trDyn(d.j))+'</span>'
           ).join('')+'</div>';
       }
     }
@@ -7679,6 +7679,14 @@ function openObjectifPaceInfo(scope){
 // quelle dans un showInfoSheet, un peu agrandie pour se lire en modale plutôt qu'en ligne compacte.
 // Titre "Légende", pas "Cette semaine" (cf discussion : le titre décrivait l'écran d'où on vient, pas ce
 // que la fenêtre montre réellement).
+// La semaine court du lundi au dimanche et se remet à zéro le lundi — nulle part écrit avant. Et un
+// jour compte comme "fait" même s'il tombe hors des jours habituels : la règle est dans getDayStatus
+// ("fait prime sur tout le reste") mais n'avait jamais été dite à la personne.
+function openThisWeekInfo(){
+  showInfoSheet(trDyn('This week'), trDyn('Runs Monday to Sunday and resets every Monday. A day counts as done as soon as you have trained, even outside your usual training days.'));
+}
+// Conservée : la légende reste accessible depuis le calendrier de Progression, qui n'affiche pas la
+// sienne sous la grille.
 function openWeekStripInfo(){
   showInfoSheet(trDyn('Legend'), weekStripLegendHtml().replace(/font-size:9\.5px/g,'font-size:13px').replace('margin:10px 0 2px','margin:0'));
 }
@@ -7702,7 +7710,7 @@ function renderHomeObjectifRing(prefix, profile){
   const weekState=objectifDayState(week.fait, plannedThisWeek, manqueThisWeek, week.objectif);
   const weekLabel=objectifCardLabel(weekState);
   const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
-  const stripInfo='<span class="info-i" onclick="event.stopPropagation();openWeekStripInfo()" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+  const stripInfo='<span class="info-i" onclick="event.stopPropagation();openThisWeekInfo()" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
   // Libellé d'état : c'était un texte gris sans aucune affordance, alors que c'est la SEULE porte
   // vers l'explication du rythme — `cursor:pointer` n'existe pas au doigt (cf audit du bloc). Il
   // devient une zone tapable explicite : chevron systématique, pictogramme d'alerte quand l'état
@@ -7974,8 +7982,22 @@ let todaySessionAdjust=null;   // {exCount, duree, level} une fois un check-in �
 // réellement quelque chose à changer.
 function renderCheckinPreview(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
-  const parts=checkinDeltaParts(val).map(formatCheckinDeltaSpan).join(' · ');
-  const body = parts ? trDyn('Today’s session adjusts:')+' '+parts : trDyn('No change needed — today’s session stays as planned.');
+  // Avant : "Ta séance du jour s'ajuste : Exercices 6 → 4 · Durée 30 → 20 min · Intensité 2 → 1" —
+  // trois transformations d'affilée, qui se lisent comme un diff. On dit d'abord CE QUE DEVIENT la
+  // séance en une phrase, et on garde les écarts en dessous pour qui veut vérifier.
+  const raw=checkinDeltaParts(val);
+  const parts=raw.map(formatCheckinDeltaSpan).join(' · ');
+  let body;
+  if(!parts){ body = trDyn('No change needed — today’s session stays as planned.'); }
+  else {
+    const sess=getSessionDuJour(), pv=previewCheckinImpact(val);
+    const lighter = (pv.duree||sess.duree) < sess.duree || pv.exCount < sess.exercices.length;
+    const head = currentLang==='fr'
+      ? (lighter?'Séance allégée':'Séance renforcée')+' : '+pv.exCount+' exercices, '+pv.duree+' min'
+      : (lighter?'Lighter session':'Stronger session')+': '+pv.exCount+' exercises, '+pv.duree+' min';
+    body = '<span style="color:var(--white);font-weight:700;">'+head+'</span>'
+      +'<span style="display:block;font-size:11px;color:var(--gray);margin-top:5px;">'+parts+'</span>';
+  }
   b.innerHTML=CHECKIN_TITLE
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
     +'<div style="display:flex;align-items:center;gap:12px;">'
@@ -7984,7 +8006,9 @@ function renderCheckinPreview(prefix,val){
     +'<span style="font-size:16px;font-weight:700;color:var(--gray);cursor:pointer;flex-shrink:0;padding:2px 4px;" onclick="resetCheckinHome(\''+prefix+'\')">✕</span>'
     +'</div>'
     +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+body+'</div>'
-    +'<button class="btn btn-brand-fixed" style="margin-top:10px;padding:11px;font-size:13px;" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
+    // Contour et non plein : valider une humeur ne doit pas peser autant que "Voir la séance", qui est
+    // l'action principale de l'écran — deux boutons pleins en émeraude se disputaient l'attention.
+    +'<button class="btn btn-outline" style="margin-top:10px;padding:11px;font-size:13px;border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
     +'</div>';
   sweepTranslate(b, currentLang);
 }
@@ -8291,6 +8315,11 @@ function renderHomeSeance(prefix, data){
     // (la séance du jour), pas à l'espace entre lui et le bloc suivant.
     +'<button class="btn btn-ghost" style="margin-top:4px;padding:12px;font-size:13.5px;font-weight:700;color:var(--gray2);" onclick="event.stopPropagation();go(\'programme\')">'+trDyn('My programme →')+'</button>'
     +'</div></div></div>';
+  // Le rendu produit des chaînes sources anglaises : sans balayage, tout re-rendu postérieur au
+  // sweep global (check-in confirmé, rattrapage planifié, changement de langue) laissait la carte
+  // de séance en anglais alors que le reste de l'écran était traduit. Bug préexistant, vu en
+  // testant le sélecteur de rattrapage.
+  sweepTranslate(zone, currentLang);
 }
 // Remplace le message coach-tip générique (KPI_CONFIG, statique) par le statut hebdo réel du
 // programme actif quand il y en a un — plus actionnable que les messages canned, et ça remplace
@@ -11210,6 +11239,7 @@ const EN_FR = {
   "Goal reached": "Objectif atteint",
   "Nothing planned": "Rien de prévu",
   "Usual day": "Jour habituel",
+  "Runs Monday to Sunday and resets every Monday. A day counts as done as soon as you have trained, even outside your usual training days.": "Va du lundi au dimanche et se remet à zéro chaque lundi. Un jour compte comme fait dès que tu t'es entraîné, même en dehors de tes jours habituels.",
   "Catch-up added": "Rattrapage ajouté",
   "Cycle": "Cycle",
   "The bar fills with the days you have trained since the cycle started. The white marker shows where you would be if you kept exactly to your goal — ahead of it means you are in advance.": "La barre se remplit avec les jours que tu as faits depuis le début du cycle. Le repère blanc montre où tu serais en tenant exactement ton objectif — être devant, c'est être en avance.",
