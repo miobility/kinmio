@@ -7492,39 +7492,49 @@ function renderProgSafetyBlock(elId){
   el.innerHTML = buildLoadPainHtml(false, true);
   sweepTranslate(el, currentLang);
 }
-// ===== OBJECTIF — anneau de volume hebdo + tenue sur 4 semaines (rethink Home, sept. 2026) =====
-// Remplace le trio Regularity/Volume/Intensity : l'engagement pris en onboarding ("N days/week" +
-// durée de séance préférée, profile.duree) est d'abord un objectif de VOLUME (jours × minutes), pas
-// juste un décompte de jours. La régularité (jours) devient le sous-texte de l'anneau plutôt qu'une
-// tuile à égalité — elle raconte la même histoire que le volume.
-// Fenêtres ALIGNÉES (cf discussion "il faut que cette semaine et les 4 semaines soient alignés, pas
-// juste deux fenêtres glissantes différentes") : le bloc 4 semaines n'est plus 28 jours glissants
-// depuis maintenant, mais les 4 semaines calendaires (lundi→dimanche) qui SE TERMINENT par la semaine
-// en cours — la semaine du haut est donc littéralement la tranche la plus récente du bloc du bas.
-// Couleur au prorata (cf discussion "si j'ai commencé il y a une semaine et je suis en avance, c'est
-// vert, même s'il reste du travail") : la couleur ne dit pas "objectif atteint ou non" (on n'est
-// presque jamais à 100% avant dimanche soir) mais "es-tu dans les temps VU CE QU'IL RESTE DE LA
-// PÉRIODE" — vert si le volume réel est ≥ ce qui serait attendu au prorata du temps déjà écoulé dans
-// la période, ambre si en retard mais rattrapable, rouge si largement décroché. Le message "Encore N
-// jours pour atteindre ton objectif" est retiré (n'ajoutait rien à "1/3 jours" déjà affiché) — la
-// couleur + un label court font le travail, "de la data froide mais bien ordonnancée".
-// Label de rythme rendu concret (cf discussion "je ne mettrai pas juste 'à rattraper', je mettrai
-// 'X séances à rattraper'") : quand on n'est pas dans les temps, le nombre réel de séances qu'il reste
-// à faire pour tenir l'objectif du jour-compte remplace le mot générique — même si une partie de ces
-// jours restants est déjà "Prévu" (pas encore raté), le compte total est ce qui doit s'afficher.
-// Construit directement dans la langue courante (pas de trDyn mot à mot) — même raison que
-// formatCheckinDeltaSpan : un pluriel dynamique ne matche jamais un motif figé sans ce choix.
-function objectifCatchUpLabel(pace, remaining, planned){
-  if(pace.color==='var(--teal)') return null;
-  if(remaining>0) return currentLang==='fr'
-    ? remaining+' séance'+(remaining>1?'s':'')+' à rattraper'
-    : remaining+' session'+(remaining>1?'s':'')+' to catch up';
-  // Compte à 0 GRÂCE à de la planification (pas parce que tout est déjà réellement fait) — mérite son
-  // propre statut plutôt que de retomber sur le label de rythme brut (ex. "En retard"), qui contredirait
-  // le fait que la semaine est déjà entièrement couverte (cf discussion "on devrait mettre un autre
-  // statut... puisque désormais elles sont planifiées").
-  if(planned>0) return trDyn('Days planned');
-  return null;
+// ===== OBJECTIF — statut jours pour "cette semaine" et le cycle (audit sept. 2026) =====
+// Avant : deux systèmes de statut cohabitaient sans être synchronisés — un calcul en JOURS (couverts vs
+// objectif) pour la couleur/le texte de la carte, et un calcul en MINUTES (objectifPace, ratio au
+// prorata) pour l'anneau et le cycle. Ils pouvaient se contredire sur la même carte (ex. "Planifié" en
+// rouge, cf bug vécu) — audité et tranché : les JOURS font seuls autorité pour ce bloc. Les minutes
+// restent visibles, mais plus bas sur Home à côté d'Intensité (renderHomeKpiZone), jamais comme juge de
+// couleur ici (cf discussion "le volume de minutes, on le retrouvera avec l'intensité").
+// Second bug corrigé au passage (cf discussion "si j'ai pas de séance manquée, je peux pas avoir de
+// séance à rattraper") : l'ancien calcul comptait tout jour pas encore couvert, y compris un jour à
+// venir pas encore dû — ça pouvait afficher "3 séances à rattraper" un lundi matin, avant que quoi que
+// ce soit ait pu être raté. Le mot "à rattraper" (rouge/orange, alarmant) est maintenant réservé aux cas
+// où un vrai jour "Manqué" existe ; sinon état neutre (gris), même si la période n'est pas finie.
+function getTrainDays(){ return (Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]); }
+// Compte les jours "Manqué" entre deux dates (utilisé pour le cycle, qui n'a pas de weekStrip tout fait
+// comme la semaine — un simple passage jour par jour, jamais plus de 8×7=56 itérations).
+function countManqueInWindow(start, end, trainDays){
+  let count=0;
+  for(let t=start.getTime(); t<end.getTime(); t+=HIST_DAY){
+    if(getDayStatus(new Date(t), trainDays).statut==='manque') count++;
+  }
+  return count;
+}
+// Classification unique, réutilisée par la carte (label court) ET la modale (texte long) — jamais deux
+// formules qui pourraient diverger (cf bug déjà rencontré sur ce même bloc). "covered" = jours faits +
+// jours explicitement planifiés.
+function objectifDayState(fait, planned, manqueCount, objectif){
+  const covered=fait+planned, remaining=Math.max(0, objectif-covered);
+  if(objectif>0 && fait>objectif) return {kind:'exceeded', color:'var(--brand-fixed)', remaining};
+  if(covered>=objectif) return {kind:'covered', color:'var(--gray2)', remaining};
+  if(manqueCount<=0) return {kind:'inprogress', color:'var(--gray)', remaining};
+  return {kind: covered<=0?'behind':'catching_up', color: covered<=0?'var(--red)':'var(--vigilance)', remaining};
+}
+// Texte court pour la carte — un mot/chiffre par état, jamais de phrase (même contrainte qu'avant).
+function objectifCardLabel(state){
+  if(state.kind==='exceeded') return trDyn('Goal reached');
+  if(state.kind==='covered') return trDyn('Days planned');
+  const r=state.remaining;
+  if(state.kind==='inprogress') return currentLang==='fr'
+    ? `${r} jour${r>1?'s':''} restant${r>1?'s':''}`
+    : `${r} day${r>1?'s':''} left`;
+  return currentLang==='fr'
+    ? `${r} jour${r>1?'s':''} à rattraper`
+    : `${r} day${r>1?'s':''} to catch up`;
 }
 // Longueur du "cycle" alignée sur l'engagement choisi à l'onboarding (ob_commit, 1/2/4/8 semaines) —
 // remplace l'ancien cycle toujours fixé à 4 semaines calendaires quel que soit ce choix (cf discussion
@@ -7554,29 +7564,6 @@ function cycleWindow(now){
   const daysIntoCycle=Math.floor((now.getTime()-cycleStart.getTime())/HIST_DAY)+1;
   return {cycleStart, daysIntoCycle, daysInCycle:cw*7, cw};
 }
-function objectifPace(actual, target, daysElapsed, daysTotal){
-  // "Objectif atteint" — état à part, pas juste "dans les temps" (cf discussion "si on a fait nos X
-  // séances sur X, comment l'outil propose de continuer ?") : atteindre la cible mérite sa propre
-  // reconnaissance, pas la même couleur neutre qu'être simplement en avance sur le prorata.
-  if(target>0 && actual>=target) return {color:'var(--teal)', label:'Goal reached'};
-  if(daysElapsed<=0 || target<=0) return {color:'var(--gray)', label:'On track'};
-  const expected = target*(daysElapsed/daysTotal);
-  const ratio = expected>0 ? actual/expected : 1;
-  if(ratio>=0.9) return {color:'var(--teal)', label:'On track'};
-  if(ratio>=0.5) return {color:'var(--vigilance)', label:'Catching up'};
-  return {color:'var(--red)', label:'Falling behind'};
-}
-// Couleur de l'alerte "Cette semaine", basée sur les JOURS couverts (faits + planifiés) plutôt que sur
-// le ratio de minutes (cf discussion "rouge : 100% à rattraper, orange : pas 100%, vert : tout est
-// planifié") — la couleur doit suivre la même métrique que le texte affiché à côté ("X séances à
-// rattraper" / "Planifié"), sinon les deux se contredisent (bug vécu : "Planifié" pouvait s'afficher en
-// rouge). "Goal reached" (objectif dépassé en minutes réelles) reste un cas à part, vérifié avant d'appeler
-// cette fonction, jamais recalculé ici.
-function weekCoverageColor(remaining, objectif){
-  if(remaining<=0) return 'var(--teal)';
-  if(remaining>=objectif) return 'var(--red)';
-  return 'var(--vigilance)';
-}
 // Légende de la frise (cf discussion : "une petite explication, vert=fait, orange=raté, point=rien de
 // prévu, cercle blanc=prévu") — une seule ligne compacte, pas un paragraphe (cf "peut-être il ne faut
 // pas en ajouter trop"). Mêmes 4 couleurs que renderWeekStripHtml, dupliquées ici plutôt que générées
@@ -7589,92 +7576,84 @@ function weekCoverageColor(remaining, objectif){
 // sont toutes "Planifié"), un jour non choisi reste implicite (même logique que "Vide", jamais explicité).
 function weekStripLegendHtml(){
   const item=(dotStyle,label,inner)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;position:relative;'+dotStyle+'">'+(inner||'')+'</span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
-  return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'
-    +item('background:var(--brand-fixed);','Trained')
-    +item('border:1.5px solid var(--vigilance);','Missed')
-    +item('border:1.5px solid var(--brand-fixed);','Days planned')
-    +'</div>';
+  // N'affiche que les états réellement présents dans la semaine affichée (strip optionnel) : une
+  // légende qui explique un état qu'on ne voit pas est du bruit, et l'omission du 4e état ("rien de
+  // prévu", le plus fréquent) était le vrai manque — cf audit du bloc Objectif.
+  const strip = Array.isArray(arguments[0]) ? arguments[0] : null;
+  const has = st => !strip || strip.some(d=>d.statut===st);
+  let out='';
+  if(has('fait'))   out+=item('background:var(--brand-fixed);','Trained');
+  if(has('manque')) out+=item('border:1.5px solid var(--vigilance);','Missed');
+  if(strip ? (has('prevu')||has('planned')) : true) out+=item('border:1.5px solid var(--brand-fixed);','Days planned');
+  if(has('libre'))  out+=item('background:var(--dim);transform:scale(.6);','Nothing planned');
+  return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'+out+'</div>';
 }
 // Alerte de rythme rendue actionnable au tap (cf discussion "proposerais-tu une reco en cliquant sur
 // l'alerte ?") — réutilise le patron showModal existant (même famille que showInfoSheet) plutôt qu'un
 // nouveau mécanisme : explique le chiffre derrière le label, puis un vrai bouton vers la séance du jour.
+// Titre = même mot pour les deux échelles (semaine/cycle), un par état — réutilise les clés de
+// dictionnaire déjà traduites (aucun nouveau texte : seule la CONDITION qui déclenche chacune a changé,
+// jours plutôt que minutes, cf audit).
+function objectifStateTitle(kind){
+  return trDyn({exceeded:'Goal reached', covered:'Days planned', inprogress:'On track', behind:'Falling behind', catching_up:'Catching up'}[kind]);
+}
 function openObjectifPaceInfo(scope){
   const week=getWeekDaysTrained();
-  const duree=profile.duree||30;
-  const target=week.objectif*duree;
   const now=new Date();
-  const dayIdx=(now.getDay()+6)%7;
-  // Compte de rattrapage = jours cibles − jours faits − jours DÉJÀ PLANIFIÉS cette semaine (cf
-  // discussion "on clique sur vendredi, il ne reste plus qu'une") — planifier un jour doit décrémenter
-  // tout de suite, pas seulement une fois la séance réellement faite : sinon le chiffre ne bouge jamais
-  // quand on choisit un jour, ce qui contredit "ça incrémente ou décrémente" demandé.
-  const weekStrip=computeWeekStrip();
-  const plannedThisWeek=weekStrip.filter(d=>d.statut==='planned').length;
-  const remaining=Math.max(0, week.objectif-week.fait-plannedThisWeek);
-  let title, body, pace, catchUpFlow=false;
+  const trainDays=getTrainDays();
+  let state, body, extraCtx='';
   if(scope==='week'){
-    pace=objectifPace(week.minutes, target, dayIdx+1, 7);
-    title=trDyn(pace.label);
-    // Objectif atteint : la question change ("qu'est-ce qu'on te propose maintenant ?", pas "voici où
-    // tu en es") — cf discussion "si on a fait nos X séances sur X, comment l'outil propose de continuer ?"
-    if(pace.label==='Goal reached'){
-      body = currentLang==='fr' ? 'Envie d\'une séance bonus ?' : 'Feeling like a bonus session?';
-    } else if(remaining>0){
-      // Pas de répétition du chiffre déjà visible sur la carte Home (cf discussion "on n'a pas besoin
-      // de répéter le retard, on le voit déjà sur la fenêtre d'avant") — remplacé par le compte concret
-      // de séances à positionner, qui elle est une info NOUVELLE (pas déjà affichée sur la carte).
-      // Pas de point final — reprend tel quel le même texte que le label de la carte (déjà couvert par
-      // les motifs de traduction existants), pas la peine d'un 2e motif pour une variante à un caractère.
-      body = currentLang==='fr'
-        ? `${remaining} séance${remaining>1?'s':''} à rattraper`
-        : `${remaining} session${remaining>1?'s':''} to catch up`;
-      catchUpFlow=true;
-    } else if(plannedThisWeek>0){
-      // Vient de finir de planifier ses jours de rattrapage (cf discussion "on appuie et c'est bon, il
-      // faut une info 'tous tes jours sont planifiés'") — pas la phrase générique en minutes/jours
-      // ci-dessous, qui n'a aucun sens juste après avoir fini de cocher des jours. Réservée au cas où
-      // le compte tombe à 0 GRÂCE à de la planification — s'il tombe à 0 parce que tout est déjà
-      // réellement fait, la phrase générique reste la bonne réponse.
-      body = currentLang==='fr' ? 'Tous tes jours sont planifiés !' : 'All your days are planned!';
-      catchUpFlow=true;
-    } else {
-      body = currentLang==='fr'
-        ? `${week.minutes} / ${target} min, ${dayIdx+1}/7 jours écoulés cette semaine.`
-        : `${week.minutes} / ${target} min, ${dayIdx+1}/7 days into the week.`;
+    const weekStrip=computeWeekStrip();
+    const planned=weekStrip.filter(d=>d.statut==='planned').length;
+    const manqueCount=weekStrip.filter(d=>d.statut==='manque').length;
+    state=objectifDayState(week.fait, planned, manqueCount, week.objectif);
+    if(state.kind==='exceeded') body = currentLang==='fr' ? 'Envie d\'une séance bonus ?' : 'Feeling like a bonus session?';
+    else if(state.kind==='covered') body = trDyn('All your days are planned!');
+    else if(state.kind==='inprogress') body = currentLang==='fr'
+      ? `${state.remaining} séance${state.remaining>1?'s':''} restante${state.remaining>1?'s':''} cette semaine.`
+      : `${state.remaining} session${state.remaining>1?'s':''} left this week.`;
+    else {
+      // Avant, le corps répétait mot pour mot le libellé qu'on venait de taper. Il nomme désormais
+      // les jours réellement manqués — la seule information que la carte ne porte pas (cf audit).
+      const missed=weekStrip.filter(d=>d.statut==='manque').map(d=>d.j);
+      const jours = missed.length
+        ? (currentLang==='fr' ? `${missed.join(', ')} ${missed.length>1?'sont passés':'est passé'}.` : `${missed.join(', ')} ${missed.length>1?'have':'has'} gone by.`)
+        : '';
+      body = (currentLang==='fr'
+        ? `Il te reste ${state.remaining} jour${state.remaining>1?'s':''} à faire cette semaine.`
+        : `${state.remaining} day${state.remaining>1?'s':''} left to do this week.`) + (jours?' '+jours:'');
     }
-  } else {
-    const {cycleStart, daysIntoCycle, daysInCycle, cw}=cycleWindow(now);
-    const hist4=userSessionHistory.filter(h=>h.date>=cycleStart.getTime());
-    const min4=hist4.reduce((s,h)=>s+(h.duree||0),0);
-    const target4=target*cw;
-    pace=objectifPace(min4, target4, daysIntoCycle, daysInCycle);
-    title=trDyn(pace.label);
-    body = currentLang==='fr'
-      ? `${min4} / ${target4} min, ${daysIntoCycle}/${daysInCycle} jours écoulés dans le cycle.`
-      : `${min4} / ${target4} min, ${daysIntoCycle}/${daysInCycle} days into the cycle.`;
-    if(pace.label==='Goal reached') body += currentLang==='fr' ? ' Envie d\'une séance bonus ?' : ' Feeling like a bonus session?';
-  }
-  // Jours tapables pour se replanifier soi-même (chantier calendrier/auto-assignation, cf discussion
-  // "il faudrait voir le call to action, le bouton qui fait que tu les replanifies") — seulement quand
-  // il reste des séances à rattraper CETTE semaine, et seulement les jours encore ouverts (jamais un
-  // jour déjà fait/manqué/planifié — un jour manqué est du passé, un jour déjà planifié n'a plus besoin
-  // d'être reproposé).
-  let dayChips='';
-  if(scope==='week' && pace.label!=='Goal reached'){
-    if(remaining>0){
-      const openDays=weekStrip.filter(d=>d.statut==='libre'||d.statut==='prevu');
+    // Jours tapables pour se replanifier soi-même — seulement s'il existe un vrai jour Manqué (cf audit
+    // "si j'ai pas de séance manquée, je peux pas avoir de séance à rattraper") : proposer de "rattraper"
+    // un jour qui n'a même pas encore eu lieu n'a pas de sens.
+    if((state.kind==='behind'||state.kind==='catching_up')){
+      const today0=new Date(); today0.setHours(0,0,0,0);
+      const openDays=weekStrip.filter(d=>(d.statut==='libre'||d.statut==='prevu') && d.date>=today0.getTime());
       if(openDays.length){
-        dayChips='<div style="font-size:12px;color:var(--gray);margin-top:16px;margin-bottom:8px;">'+trDyn('Plan a catch-up day:')+'</div>'
+        extraCtx='<div style="font-size:12px;color:var(--gray);margin-top:16px;margin-bottom:8px;">'+trDyn('Plan a catch-up day:')+'</div>'
           +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'+openDays.map(d=>
             '<span onclick="assignPlannedDay('+d.date+',\'catchup\')" style="padding:8px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg2);color:var(--white);font-size:12.5px;font-weight:700;cursor:pointer;">'+(d.today?trDyn('Today'):trDyn(d.j))+'</span>'
           ).join('')+'</div>';
       }
     }
+  } else {
+    const {cycleStart, daysIntoCycle, daysInCycle, cw}=cycleWindow(now);
+    const hist4=userSessionHistory.filter(h=>h.date>=cycleStart.getTime());
+    const days4=new Set(hist4.map(h=>Math.floor(h.date/HIST_DAY))).size;
+    const plannedInCycle=userPlannedSessions.filter(p=>p.date>=cycleStart.getTime() && p.date<cycleStart.getTime()+daysInCycle*HIST_DAY).length;
+    const manqueCount=countManqueInWindow(cycleStart, new Date(cycleStart.getTime()+daysInCycle*HIST_DAY), trainDays);
+    state=objectifDayState(days4, plannedInCycle, manqueCount, week.objectif*cw);
+    const elapsed = currentLang==='fr' ? `${daysIntoCycle}/${daysInCycle} jours écoulés dans le cycle.` : `${daysIntoCycle}/${daysInCycle} days into the cycle.`;
+    if(state.kind==='exceeded') body = elapsed+(currentLang==='fr' ? ' Envie d\'une séance bonus ?' : ' Feeling like a bonus session?');
+    else if(state.kind==='covered') body = trDyn('All your days are planned!');
+    else if(state.kind==='inprogress') body = elapsed;
+    else body = elapsed+' '+objectifCardLabel(state);
   }
-  // Cycle en retard : pas de sélecteur de jour ici (28 jours, trop pour une petite modale) — renvoie
-  // vers le calendrier Progress, qui couvre déjà tout le mois (cf discussion "sur le retard côté cycle,
-  // comment rattraper ? comment ça se passe ?").
-  const calendarLink = (scope==='cycle' && pace.color!=='var(--teal)')
+  const title=objectifStateTitle(state.kind);
+  // Cycle en retard : pas de sélecteur de jour ici (jusqu'à 8 semaines, trop pour une petite modale) —
+  // renvoie vers le calendrier Progress, qui couvre déjà tout le mois (cf discussion "sur le retard côté
+  // cycle, comment rattraper ?").
+  const calendarLink = (scope==='cycle' && state.color!=='var(--teal)')
     // setProgTab() différé après le setup par défaut de go('progression') (index.html, hook
     // id==='progression' : setTimeout(renderProgPeriod, 20)) — sinon celui-ci écrase l'onglet Calendrier
     // qu'on vient de sélectionner, 20ms plus tard, et on retombe sur l'onglet période par défaut. Bug
@@ -7682,18 +7661,18 @@ function openObjectifPaceInfo(scope){
     ? '<button class="btn-ghost" style="width:100%;margin-top:10px;color:var(--brand-fixed);font-weight:700;" onclick="closeModal();go(\'progression\');setTimeout(()=>setProgTab(document.getElementById(\'progTab4\'),\'records\'),40);">'+trDyn('Plan it on my calendar')+'</button>'
     : '';
   const sess=getSessionDuJour();
-  const sessBtnLabel = pace.label==='Goal reached' ? trDyn('Do a bonus session') : trDyn('View my session');
-  // Pas de bouton "Voir ma séance" dans tout le parcours de rattrapage (cf discussion "il n'y a pas
-  // besoin de voir ma séance, ce n'est pas l'endroit") — ni pendant qu'on choisit les jours (l'action
-  // ici est de taper une puce, pas de démarrer une séance), ni une fois tout planifié. Réservé aux
-  // autres cas (objectif atteint, cycle) où proposer une séance a du sens.
-  const sessBtn = catchUpFlow ? '' : '<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+sessBtnLabel+'</button>';
+  const sessBtnLabel = state.kind==='exceeded' ? trDyn('Do a bonus session') : trDyn('View my session');
+  // Pas de bouton "Voir ma séance" dans tout le parcours de rattrapage, ni une fois tout planifié (cf
+  // discussion "il n'y a pas besoin de voir ma séance, ce n'est pas l'endroit"), ni JAMAIS côté cycle (cf
+  // discussion "voir ma séance ne veut littéralement rien dire là" — au plus le lien calendrier).
+  const hideSessBtn = scope==='cycle' || state.kind==='behind' || state.kind==='catching_up' || state.kind==='covered';
+  const sessBtn = hideSessBtn ? '' : '<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+sessBtnLabel+'</button>';
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
-    +dayChips
+    +extraCtx
     +calendarLink
     +sessBtn
-    +'<button class="btn-ghost" style="width:100%;margin-top:'+(catchUpFlow?'18px':'8px')+';color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
+    +'<button class="btn-ghost" style="width:100%;margin-top:'+(hideSessBtn?'18px':'8px')+';color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
 }
 // Légende de la frise, retirée de l'affichage permanent (cf renderHomeObjectifRing) — reprise ici telle
 // quelle dans un showInfoSheet, un peu agrandie pour se lire en modale plutôt qu'en ligne compacte.
@@ -7702,88 +7681,82 @@ function openObjectifPaceInfo(scope){
 function openWeekStripInfo(){
   showInfoSheet(trDyn('Legend'), weekStripLegendHtml().replace(/font-size:9\.5px/g,'font-size:13px').replace('margin:10px 0 2px','margin:0'));
 }
+// Bloc Objectif — un seul vocabulaire, les JOURS, pour les deux échelles (semaine + cycle), cf audit
+// "on a la difficulté à traiter jour/séances/minutes, faut qu'on précise". Les minutes ne sont plus ici
+// du tout (déplacées dans renderHomeKpiZone, à côté d'Intensité) — ce bloc ne juge et n'affiche plus
+// que des jours. L'anneau "Cette semaine" est retiré (cf discussion "pas trop entre la frise et le
+// cercle, choisis les graphiques") : la frise EST déjà le détail jour par jour, l'anneau ne faisait que
+// répéter la même info en plus grossier — un seul graphique, pas deux. Le cycle garde sa barre (pas de
+// frise à cette échelle pour la remplacer) mais bascule aussi en jours (fill = jours faits, repère =
+// jours attendus à ce stade). L'objectif chiffré (jours) reste toujours visible en clair, semaine et
+// cycle (cf discussion "qu'on voit l'objectif quelque part").
 function renderHomeObjectifRing(prefix, profile){
   const el=document.getElementById(prefix+'ObjectifZone'); if(!el) return;
   const week=getWeekDaysTrained();
-  const duree=profile.duree||30;
-  const target=week.objectif*duree;
-  const pct = target ? Math.min(100, Math.round(week.minutes/target*100)) : 0;
-  const r=30, c=2*Math.PI*r;
-  const offset=c*(1-pct/100);
   const now=new Date();
-  const dayIdx=(now.getDay()+6)%7; // 0=lundi ... 6=dimanche
-  const weekPace=objectifPace(week.minutes, target, dayIdx+1, 7);
-  // Fenêtre du cycle ancrée sur la date de départ réelle (cf cycleWindow) — plus une fenêtre glissante
-  // qui se termine toujours "aujourd'hui" (cf discussion "à quel moment commence le calcul ? le jour
-  // d'inscription" → confirmé).
-  const {cycleStart, daysIntoCycle:daysIntoCycle4, daysInCycle:daysInCycle4, cw}=cycleWindow(now);
-  const hist4=userSessionHistory.filter(h=>h.date>=cycleStart.getTime());
-  const min4=hist4.reduce((s,h)=>s+(h.duree||0),0);
-  const days4=new Set(hist4.map(h=>Math.floor(h.date/HIST_DAY))).size;
-  const target4=target*cw;
-  const pct4 = target4 ? Math.min(100, Math.round(min4/target4*100)) : 0;
-  const block4Pace=objectifPace(min4, target4, daysIntoCycle4, daysInCycle4);
-  // Titres "CETTE SEMAINE"/"CYCLE DE N SEMAINES" alignés (cf discussion "cette semaine est à droite
-  // du cercle, 4 dernières semaines est tout à gauche, ça ne va pas") : les deux sont des lignes pleine
-  // largeur AU-DESSUS de leur contenu, jamais à côté d'un élément qui décale son point de départ.
-  // Frise incorporée ici (cf discussion "est-ce qu'on l'incorpore dans les objectifs ?") : elle EST le
-  // détail jour par jour de ce que l'anneau résume en un chiffre — les séparer aurait raconté la même
-  // semaine deux fois, à deux endroits différents de l'écran.
+  const trainDays=getTrainDays();
   const weekStrip=computeWeekStrip();
-  // ⓘ remplace la légende permanente (cf discussion "comment optimiserais-tu ce bloc") : même patron
-  // que Régularité/Volume/Charge/Douleur ailleurs sur Home — 3 couleurs déjà cohérentes dans toute
-  // l'app, la légende texte devient un rappel au tap plutôt qu'un bloc affiché en permanence.
+  const plannedThisWeek=weekStrip.filter(d=>d.statut==='planned').length;
+  const manqueThisWeek=weekStrip.filter(d=>d.statut==='manque').length;
+  const weekState=objectifDayState(week.fait, plannedThisWeek, manqueThisWeek, week.objectif);
+  const weekLabel=objectifCardLabel(weekState);
   const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const stripInfo='<span class="info-i" onclick="event.stopPropagation();openWeekStripInfo()" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
-  // Cycle en barre, pas en anneau (cf discussion "je ne veux pas le cercle ET une barre, je veux l'un ou
-  // l'autre, mais je veux explicitement voir là où on est et là où on devrait être") : une barre montre
-  // plus clairement deux repères en même temps (le remplissage réel + un trait "attendu à ce stade du
-  // cycle") qu'un anneau, qui ne porte bien qu'un seul chiffre à la fois. "Cette semaine" garde son
-  // anneau (pas concerné par la remarque, un seul repère y suffit).
-  const expectedPct4 = daysInCycle4>0 ? Math.min(100, Math.round(daysIntoCycle4/daysInCycle4*100)) : 0;
-  const expectedMin4 = Math.round(target4*expectedPct4/100);
-  // Les jours déjà planifiés comptent comme "couverts", pas seulement les jours réellement faits (bug
-  // trouvé en testant le vrai parcours : le label restait sur "X séances à rattraper" même après avoir
-  // planifié tous les jours manquants, cf discussion "on vient de les planifier, il y a encore l'alerte
-  // à rattraper"). Même logique que le calcul de la modale (openObjectifPaceInfo), dupliquée ici plutôt
-  // que partagée : les deux lisent weekStrip fraîchement recalculé, jamais une valeur mise en cache.
-  const plannedThisWeek=weekStrip.filter(d=>d.statut==='planned').length;
-  const daysRemaining = Math.max(0, week.objectif-week.fait-plannedThisWeek);
-  // Couleur suit maintenant les jours couverts, pas le ratio de minutes (cf discussion "rouge : 100% à
-  // rattraper, orange : pas 100%, vert : tout est planifié") — remplace weekPace.color pour cet affichage
-  // (ring + label), qui contredisait le texte affiché juste à côté (cf bug "Planifié" en rouge).
-  const weekColor = weekPace.label==='Goal reached' ? 'var(--teal)' : weekCoverageColor(daysRemaining, week.objectif);
-  const weekLabel = objectifCatchUpLabel(weekPace, daysRemaining, plannedThisWeek) || trDyn(weekPace.label);
-  const plannedInCycle=userPlannedSessions.filter(p=>p.date>=cycleStart.getTime() && p.date<cycleStart.getTime()+daysInCycle4*HIST_DAY).length;
-  const daysRemaining4 = Math.max(0, week.objectif*cw-days4-plannedInCycle);
-  const cycleLabel = objectifCatchUpLabel(block4Pace, daysRemaining4, plannedInCycle) || trDyn(block4Pace.label);
+  // Libellé d'état : c'était un texte gris sans aucune affordance, alors que c'est la SEULE porte
+  // vers l'explication du rythme — `cursor:pointer` n'existe pas au doigt (cf audit du bloc). Il
+  // devient une zone tapable explicite : chevron systématique, pictogramme d'alerte quand l'état
+  // demande une décision, et accent quand l'état est neutre (sinon la couleur d'état prime).
+  const paceLabel=(state,label,scope)=>{
+    const alert = (state.color==='var(--red)'||state.color==='var(--vigilance)');
+    const col = (state.color==='var(--gray)') ? 'var(--brand-fixed)' : state.color;
+    return '<span role="button" tabindex="0" style="font-size:10px;font-weight:700;color:'+col+';cursor:pointer;text-align:right;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;" '
+      +'onclick="openObjectifPaceInfo(\''+scope+'\')">'
+      +(alert?'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-alert"/></svg>':'')
+      +label
+      +'<svg class="ki" style="width:11px;height:11px;"><use href="#ki-fwd"/></svg></span>';
+  };
+  const cycleInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(trDyn(\'Cycle\'),trDyn(\'The bar fills with the days you have trained since the cycle started. The white marker shows where you would be if you kept exactly to your goal — ahead of it means you are in advance.\'))" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+  // Cycle
+  const {cycleStart, daysIntoCycle, daysInCycle, cw}=cycleWindow(now);
+  const hist4=userSessionHistory.filter(h=>h.date>=cycleStart.getTime());
+  const days4=new Set(hist4.map(h=>Math.floor(h.date/HIST_DAY))).size;
+  const objectif4=week.objectif*cw;
+  const plannedInCycle=userPlannedSessions.filter(p=>p.date>=cycleStart.getTime() && p.date<cycleStart.getTime()+daysInCycle*HIST_DAY).length;
+  const manqueInCycle=countManqueInWindow(cycleStart, new Date(cycleStart.getTime()+daysInCycle*HIST_DAY), trainDays);
+  const cycleState=objectifDayState(days4, plannedInCycle, manqueInCycle, objectif4);
+  const cycleLabel=objectifCardLabel(cycleState);
+  const barPct = objectif4>0 ? Math.min(100, Math.round(days4/objectif4*100)) : 0;
+  const expectedPct = daysInCycle>0 ? Math.min(100, Math.round(daysIntoCycle/daysInCycle*100)) : 0;
+  const expectedDays = Math.round(objectif4*expectedPct/100);
   el.innerHTML = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('GOAL')+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
       +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('This week')+stripInfo+'</span>'
-      +'<span style="font-size:10px;font-weight:700;color:'+weekColor+';cursor:pointer;text-align:right;" onclick="openObjectifPaceInfo(\'week\')">'+weekLabel+'</span>'
+      +paceLabel(weekState, weekLabel, 'week')
     +'</div>'
-    +'<div style="display:flex;align-items:center;gap:16px;margin-top:12px;">'
-    +'<svg width="52" height="52" viewBox="0 0 68 68" style="flex-shrink:0;transform:rotate(-90deg);">'
-      +'<circle cx="34" cy="34" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="7"/>'
-      +'<circle cx="34" cy="34" r="'+r+'" fill="none" stroke="'+weekColor+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" style="transition:stroke-dashoffset .6s ease;"/>'
-    +'</svg>'
-    +'<div style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;"><span style="font-size:19px;font-weight:800;color:var(--white);">'+week.minutes+'</span><span style="font-size:12px;font-weight:600;color:var(--gray2);">/ '+target+' min</span></div>'
-    +'</div>'
-    +'<div style="margin-top:16px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
-    +'<div style="height:1px;background:var(--border);margin:18px 0 14px;"></div>'
+    // Chiffre de la semaine remonté à 24px : c'est la donnée du bloc, elle était plus petite que le
+    // titre de la séance juste en dessous. Le cycle reste plus bas, ce qui crée enfin une hiérarchie
+    // entre les deux échelles (la semaine est celle qui se joue aujourd'hui).
+    +'<div style="font-size:24px;font-weight:800;color:var(--white);margin-top:7px;letter-spacing:-.4px;line-height:1;font-family:var(--font-head);">'+week.fait+'<span style="font-size:13px;font-weight:600;color:var(--gray2);letter-spacing:0;"> / '+week.objectif+' '+trDyn('days')+'</span></div>'
+    +'<div style="margin-top:12px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
+    // Légende ramenée sous la frise, limitée aux états présents : elle se lit à côté de ce qu'elle
+    // légende, au lieu d'obliger à ouvrir une fenêtre, mémoriser et refermer.
+    +weekStripLegendHtml(weekStrip)
+    +'<div style="height:1px;background:var(--border);margin:16px 0 14px;"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+'</span>'
-      +'<span style="font-size:10px;font-weight:700;color:'+block4Pace.color+';cursor:pointer;text-align:right;" onclick="openObjectifPaceInfo(\'cycle\')">'+cycleLabel+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+cycleInfo+'</span>'
+      +paceLabel(cycleState, cycleLabel, 'cycle')
     +'</div>'
     +'<div style="margin-top:12px;">'
       +'<div style="height:10px;border-radius:5px;background:var(--border);position:relative;overflow:visible;">'
-        +'<div style="position:absolute;top:0;left:0;height:100%;width:'+pct4+'%;background:'+block4Pace.color+';border-radius:5px;transition:width .6s ease;"></div>'
-        +'<div style="position:absolute;top:-2px;left:'+Math.min(97,expectedPct4)+'%;width:2px;height:14px;background:var(--white);"></div>'
+        +'<div style="position:absolute;top:0;left:0;height:100%;width:'+barPct+'%;background:'+cycleState.color+';border-radius:5px;transition:width .6s ease;"></div>'
+        +'<div style="position:absolute;top:-2px;left:'+Math.min(97,expectedPct)+'%;width:2px;height:14px;background:var(--white);"></div>'
       +'</div>'
+      // Le repère blanc n'était expliqué nulle part : on le nomme sous la barre, aligné dessous,
+      // plutôt que de laisser "Attendu N jours" en bout de ligne sans lien visuel avec le trait.
+      +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:9px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn('days')+'</span></div>'
       +'<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:8px;">'
-        +'<span style="font-size:14px;font-weight:800;color:var(--white);">'+min4+'<span style="font-size:11px;font-weight:600;color:var(--gray2);"> / '+target4+' min · '+days4+'/'+(week.objectif*cw)+' '+trDyn('days')+'</span></span>'
-        +'<span style="font-size:11px;font-weight:600;color:var(--gray2);white-space:nowrap;flex-shrink:0;margin-left:8px;">'+trDyn('Expected')+' '+expectedMin4+' min</span>'
+        +'<span style="font-size:14px;font-weight:800;color:var(--white);">'+days4+'<span style="font-size:11px;font-weight:600;color:var(--gray2);"> / '+objectif4+' '+trDyn('days')+'</span></span>'
       +'</div>'
     +'</div>'
     +'</div>';
@@ -7804,20 +7777,46 @@ function renderHomeKpiZone(prefix, profile){
   out += '<div class="zone-lbl">'+trDyn('PAIN')+'</div>';
   out += buildLoadPainHtml(true, false, 'pain');
 
+  // Volume (minutes) déplacé ici depuis le bloc Objectif (cf audit "le volume de minutes, on le
+  // retrouvera avec l'intensité") — reste visible, mais redevient une simple info, plus un juge de
+  // couleur du bloc Objectif (qui ne parle plus que jours, cf renderHomeObjectifRing). userProfileData
+  // (pas le paramètre `profile` de cette fonction, qui est userProfile/userProfileCentre — un objet
+  // décoratif sans .duree — cf syncUserProfileDataFromOnboarding, toujours à jour avec le vrai profil).
+  const week=getWeekDaysTrained();
+  const volTarget=week.objectif*(userProfileData.duree_seance||30);
+  const volPct=volTarget ? Math.min(100, Math.round(week.minutes/volTarget*100)) : 0;
+  const vr=14, vc=2*Math.PI*vr, vOffset=vc*(1-volPct/100);
+  const volInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Minutes trained this week versus your weekly target (days × preferred session length). A supporting number, not a status — see This week on the Objectif card for whether you\\\'re on track.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span>';
+  const volumeCell='<div class="kt" style="flex:1;">'
+    +'<div class="kt-l">'+trDyn('Volume')+volInfo+'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<svg width="30" height="30" viewBox="0 0 36 36" style="flex-shrink:0;transform:rotate(-90deg);">'
+        +'<circle cx="18" cy="18" r="'+vr+'" fill="none" stroke="var(--border)" stroke-width="4"/>'
+        +'<circle cx="18" cy="18" r="'+vr+'" fill="none" stroke="var(--brand-fixed)" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+vc.toFixed(1)+'" stroke-dashoffset="'+vOffset.toFixed(1)+'" style="transition:stroke-dashoffset .6s ease;"/>'
+      +'</svg>'
+      +'<div><div class="kt-v" style="font-size:16px;">'+week.minutes+'<span class="kt-u"> min</span></div><div class="kt-d" style="margin-top:2px;color:var(--gray2);">'+volPct+'%</div></div>'
+    +'</div>'
+    +'<div class="kt-c">'+trDyn('Goal')+' '+volTarget+' min</div>'
+  +'</div>';
+
   const sessions=getSessionsInPeriod('semaine'), prevSessions=getPreviousPeriodSessions('semaine');
   const pct=computeEffortScorePct(sessions);
+  let intensityCell='';
   if(pct!=null){
     const pctPrev=computeEffortScorePct(prevSessions);
     const intDelta = pctPrev==null ? null : ptsDelta(pct, pctPrev);
     const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
     const intInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
-    out += '<div class="zone-lbl">'+trDyn('INTENSITY')+'</div>'
-      +'<div class="ktrio" style="padding:0 20px 20px;"><div class="kt" style="flex:1;">'
+    intensityCell='<div class="kt" style="flex:1;">'
         +'<div class="kt-l">'+trDyn('7-day rolling')+intInfo+'</div>'
         +'<div style="display:flex;align-items:baseline;gap:4px;"><span class="kt-v">'+pct+'%</span></div>'
         +'<div class="kt-d" style="color:'+(intDelta?(intDelta.dir==='up'?'var(--teal)':intDelta.dir==='down'?'var(--vigilance)':'var(--gray)'):'var(--dim)')+';">'+(intDelta?(intDelta.dir==='up'?'↑':intDelta.dir==='down'?'↓':'→')+' '+intDelta.pct+'pts':'—')+'</div>'
-      +'</div></div>';
+      +'</div>';
   }
+  // Titre couvrant les deux tuiles (cf discussion "là où il y a l'intensité, à droite on ajoutera le
+  // volume") — une seule ligne "VOLUME & INTENSITÉ" plutôt que deux titres empilés pour une seule rangée.
+  out += '<div class="zone-lbl">'+trDyn('VOLUME & INTENSITY')+'</div>'
+    +'<div class="ktrio" style="padding:0 20px 20px;">'+volumeCell+intensityCell+'</div>';
 
   el.innerHTML = out;
   sweepTranslate(el, currentLang);
@@ -8930,44 +8929,51 @@ function renderProgCalendar(){
 // Jour futur sans séance : propose de le planifier (cf discussion "assignation de nouvelles séances
 // faites par soi-même") — avant, uniquement "No session that day", aucune écriture possible. Un jour
 // passé sans séance reste lecture seule (rien à planifier dans le passé).
-// "Déplacer" une séance planifiée (cf discussion "pouvoir déplacer des sessions planifiées, supprimer,
-// créer/positionner" — supprimer et créer/positionner existaient déjà, seul déplacer manquait). Pas de
-// drag-and-drop réel dans ce prototype : on entre en mode "sélection" (même idée que
-// startAssignDateCalendarPick côté calendrier référent), le prochain jour valide tapé complète le
-// déplacement en un geste plutôt que supprimer puis recréer à la main.
-let calMoveDate=null;
-function startMovePlannedDay(dateTimestamp){
-  calMoveDate=dateTimestamp;
+// Mode "sélection" du calendrier — couvre deux gestes qui se ressemblent : "Déplacer" une séance déjà
+// planifiée (cf discussion "pouvoir déplacer des sessions planifiées") et "Rattraper" une séance
+// manquée directement depuis le calendrier (cf audit "je peux pas planifier dans le passé, c'est pas
+// logique" — le vrai manque n'était pas de planifier DANS le passé, mais qu'un jour manqué, dans le
+// calendrier, ne proposait jamais de le rattraper). Pas de drag-and-drop réel dans ce prototype (même
+// patron que startAssignDateCalendarPick côté calendrier référent) : le prochain jour valide tapé
+// complète le geste.
+let calPickMode=null;   // null | 'move' | 'catchup'
+let calMoveDate=null;   // jour source pour 'move' (à désassigner une fois la nouvelle date choisie) ; sans objet pour 'catchup', rien à désassigner, le jour manqué reste manqué dans l'historique
+function startMovePlannedDay(dateTimestamp){ calPickMode='move'; calMoveDate=dateTimestamp; showCalPickBanner(); }
+function startCatchUpFromCalendar(){ calPickMode='catchup'; calMoveDate=null; showCalPickBanner(); }
+function showCalPickBanner(){
   const el=document.getElementById('progCalDayDetail'); if(!el) return;
+  const msg = calPickMode==='move' ? trDyn('Tap a new day to move it to') : trDyn('Tap a day to catch it up on');
   el.innerHTML = '<div class="card-sm" style="border:1.5px dashed var(--brand-fixed);">'
-    +'<div style="font-size:13px;color:var(--brand-fixed);font-weight:700;">'+trDyn('Tap a new day to move it to')+'</div>'
-    +'<button class="btn-ghost" style="width:100%;margin-top:10px;color:var(--gray2);padding:9px;font-size:12.5px;" onclick="cancelMovePlannedDay()">'+trDyn('Cancel')+'</button>'
+    +'<div style="font-size:13px;color:var(--brand-fixed);font-weight:700;">'+msg+'</div>'
+    +'<button class="btn-ghost" style="width:100%;margin-top:10px;color:var(--gray2);padding:9px;font-size:12.5px;" onclick="cancelCalPick()">'+trDyn('Cancel')+'</button>'
     +'</div>';
   sweepTranslate(el, currentLang);
 }
-function cancelMovePlannedDay(){
-  calMoveDate=null;
+function cancelCalPick(){
+  calPickMode=null; calMoveDate=null;
   renderProgCalendar();
   const el=document.getElementById('progCalDayDetail'); if(el) el.innerHTML='';
 }
 function selectProgCalDay(year, month, day){
   const el=document.getElementById('progCalDayDetail'); if(!el) return;
   const dateObj=new Date(year,month,day); dateObj.setHours(0,0,0,0);
-  // Mode déplacement actif : ce tap choisit la nouvelle date au lieu d'afficher le détail du jour. Cible
-  // invalide (jour passé, déjà occupé, ou le jour de départ lui-même) → annule proprement le mode plutôt
-  // que de laisser la personne coincée dedans sans retour clair.
-  if(calMoveDate!==null){
+  // Mode sélection actif : ce tap choisit la date cible au lieu d'afficher le détail du jour. Cible
+  // invalide (jour passé, déjà occupé, ou — pour "déplacer" seulement — le jour de départ lui-même) →
+  // annule proprement le mode plutôt que de laisser la personne coincée dedans sans retour clair.
+  if(calPickMode!==null){
     const today0=new Date(); today0.setHours(0,0,0,0);
     const isFuture = dateObj.getTime()>=today0.getTime();
     const hasSession = userSessionHistory.some(h=>{ const d=new Date(h.date); return d.getFullYear()===year && d.getMonth()===month && d.getDate()===day; });
     const alreadyPlanned = userPlannedSessions.some(p=>p.date===dateObj.getTime());
-    if(isFuture && !hasSession && !alreadyPlanned && dateObj.getTime()!==calMoveDate){
-      const src=calMoveDate; calMoveDate=null;
-      unassignPlannedDay(src);
-      assignPlannedDay(dateObj.getTime(), 'self');
+    const validTarget = isFuture && !hasSession && !alreadyPlanned && (calPickMode!=='move' || dateObj.getTime()!==calMoveDate);
+    if(validTarget){
+      const mode=calPickMode, src=calMoveDate;
+      calPickMode=null; calMoveDate=null;
+      if(mode==='move') unassignPlannedDay(src);
+      assignPlannedDay(dateObj.getTime(), mode==='move'?'self':'catchup');
       return;
     }
-    calMoveDate=null;
+    calPickMode=null; calMoveDate=null;
     renderProgCalendar();
   }
   const session = userSessionHistory.find(h=>{ const d=new Date(h.date); return d.getFullYear()===year && d.getMonth()===month && d.getDate()===day; });
@@ -8985,6 +8991,17 @@ function selectProgCalDay(year, month, day){
   const isFuture = dateObj.getTime()>=today0.getTime();
   const isPlanned = userPlannedSessions.some(p=>p.date===dateObj.getTime());
   if(!isFuture){
+    // Jour manqué (choisi, passé, pas fait) : propose de le rattraper directement d'ici, plutôt qu'un
+    // cul-de-sac "Pas de séance ce jour-là" — même mécanisme que l'alerte sur Home, déclenché depuis le
+    // calendrier (cf audit "je peux pas planifier dans le passé, c'est pas logique").
+    const statut=getDayStatus(dateObj, getTrainDays()).statut;
+    if(statut==='manque'){
+      el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
+        +'<div style="font-size:13px;color:var(--vigilance);margin-top:4px;font-weight:700;">'+trDyn('Missed')+'</div>'
+        +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:10px;padding:11px;font-size:13px;" onclick="startCatchUpFromCalendar()">'+trDyn('Catch it up →')+'</button>'
+        +'</div>';
+      return;
+    }
     el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div><div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div></div>';
     return;
   }
@@ -10651,6 +10668,7 @@ const EN_FR = {
   "Training load": "Charge d'entraînement",
   "Healthy zone: 0.8–1.3×": "Zone saine : 0.8–1.3×",
   "Real effort": "Effort réel",
+  "Volume": "Volume",
   "See more details ↓": "Voir plus de détails ↓",
   "See less ↑": "Voir moins ↑",
   "Your week starts now — first session whenever you're ready.": "Ta semaine commence maintenant — première séance quand tu veux.",
@@ -10685,6 +10703,7 @@ const EN_FR = {
   "min this week": "min cette semaine",
   "Total minutes trained this week, and how many sessions that took. Same calendar week as Regularity above, resetting every Monday.": "Total de minutes d'entraînement cette semaine, et le nombre de séances que ça a pris. Même semaine calendaire que Régularité ci-dessus, réinitialisée chaque lundi.",
   "INTENSITY": "INTENSITÉ",
+  "VOLUME & INTENSITY": "VOLUME & INTENSITÉ",
   "vs your all-time best 7-day window": "vs ta meilleure fenêtre de 7 jours jamais atteinte",
   "vs your all-time best 7 days window": "vs ta meilleure période de 7 jours jamais atteinte",
   "vs your all-time best 30 days window": "vs ta meilleure période de 30 jours jamais atteinte",
@@ -11174,10 +11193,15 @@ const EN_FR = {
   "Remove": "Retirer",
   "Move": "Déplacer",
   "Tap a new day to move it to": "Touche un nouveau jour pour y déplacer la séance",
+  "Tap a day to catch it up on": "Touche un jour pour y rattraper cette séance",
+  "Catch it up →": "Rattraper →",
   "Plan a session here": "Planifier une séance ici",
   "Plan it on my calendar": "Voir mon calendrier",
   "Do a bonus session": "Faire une séance bonus",
   "Goal reached": "Objectif atteint",
+  "Nothing planned": "Rien de prévu",
+  "Cycle": "Cycle",
+  "The bar fills with the days you have trained since the cycle started. The white marker shows where you would be if you kept exactly to your goal — ahead of it means you are in advance.": "La barre se remplit avec les jours que tu as faits depuis le début du cycle. Le repère blanc montre où tu serais en tenant exactement ton objectif — être devant, c'est être en avance.",
   "Plan a catch-up day:": "Choisis un jour de rattrapage :",
   "You planned a session for today — let’s go!": "Tu as planifié une séance aujourd'hui — vas-y !",
   "Score Kinmio · today": "Score Kinmio · aujourd'hui",
@@ -11396,6 +11420,7 @@ const EN_FR = {
   "In progress": "En cours",
   "Planned": "Prévue",
   "Days planned": "Planifié",
+  "All your days are planned!": "Tous tes jours sont planifiés !",
   "Monday": "Lundi", "Tuesday": "Mardi", "Wednesday": "Mercredi", "Thursday": "Jeudi", "Friday": "Vendredi", "Saturday": "Samedi", "Sunday": "Dimanche",
   "Mon": "Lun", "Tue": "Mar", "Wed": "Mer", "Thu": "Jeu", "Fri": "Ven", "Sat": "Sam", "Sun": "Dim",
   "Mon 28 Jul — Sun 3 Aug 2025": "Lun 28 juil. — Dim 3 août 2025",
@@ -11860,6 +11885,7 @@ const EN_FR = {
 const EN_FR_PATTERNS = [
   // Label de rythme Objectif (objectifCatchUpLabel) — pluriel dynamique, testé cassé au changement de
   // langue sans re-rendu (même classe de bug que la calculatrice check-in).
+  [/^(\d+) days? to catch up$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''} à rattraper`],
   [/^(\d+) sessions? to catch up$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} à rattraper`],
   // Calculatrice check-in (renderCheckinPreview/renderCheckinDone, cf checkinDeltaParts) — chaque
   // variable qui bouge est son propre nœud texte ("Exercises 6 → 4", pas une phrase composite), donc un
@@ -12030,6 +12056,7 @@ const EN_FR_PATTERNS = [
 ];
 const FR_EN_PATTERNS = [
   // Label de rythme Objectif — sens retour, même bug que ci-dessus.
+  [/^(\d+) jours? à rattraper$/, (m)=>`${m[1]} day${Number(m[1])>1?'s':''} to catch up`],
   [/^(\d+) séances? à rattraper$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} to catch up`],
   // Calculatrice check-in — sens retour, confirmé cassé en le testant une 1re fois (une phrase composite
   // avec des <b> au milieu se fragmentait, aucun pattern ne matchait plus rien). Reconstruite en items
@@ -12242,6 +12269,14 @@ function setLang(lang){
   currentLang = lang;
   document.documentElement.lang = lang;
   sweepTranslate(document.body, lang);
+  // Le bloc Objectif compose ses libellés à la main (cycleTitle, "N / N jours", "Attendu N jours") :
+  // sweepTranslate ne peut rien pour des chaînes assemblées au rendu, elles restaient donc dans la
+  // langue du dernier rendu. On le redessine explicitement — bug préexistant, trouvé en testant
+  // l'aller-retour FR/EN après l'audit du bloc.
+  try{
+    if(document.getElementById('homeObjectifZone')) renderHomeObjectifRing('home', userProfile);
+    if(document.getElementById('homeCentreObjectifZone')) renderHomeObjectifRing('homeCentre', userProfileCentre);
+  }catch(e){}
   const flags = {fr:'FR', en:'EN', de:'DE'};
   const flagsFull = {fr:'Français', en:'English', de:'Deutsch'};
   const btn = document.getElementById('langBtn');
