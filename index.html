@@ -2146,7 +2146,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
         <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
         <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(1)"><svg class="ki"><use href="#ki-fwd"/></svg></button>
+        <div id="progCalNextSlot" style="min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
@@ -4797,6 +4797,12 @@ let userProgrammeHistory = [
 // reste strict "fait pour de vrai" (cf discussion "calendrier + auto-assignation + notifications") — une
 // intention, pas un fait. {date: timestamp minuit du jour, source:'catchup'|'self'}.
 let userPlannedSessions = [];
+// Occurrence d'un jour habituel du programme explicitement excusée pour cette date précise (cf audit
+// calendrier "décider ce qu'un jour de programme accepte" — "Déplacer" un jour pas encore explicitement
+// planifié doit d'abord l'excuser ici, sinon getDayStatus continuerait de le compter comme prévu). Ne
+// modifie jamais profile.jours (le rythme récurrent reste inchangé) — une exception ponctuelle, pas un
+// changement de pattern.
+let userSkippedDays = [];
 // Réglages manuels par exercice (surchargent les valeurs par défaut du niveau) : { [exId]: {duree?, reps?, series?} }
 let userParamsOverrides = {};
 
@@ -8133,6 +8139,12 @@ function getDayStatus(d, trainDays){
   if(dayHist) return {statut:'fait', sessionId:dayHist.sessionId};
   const planned=(typeof userPlannedSessions!=='undefined'?userPlannedSessions:[]).find(p=>p.date===dd.getTime());
   if(planned) return {statut:'planned', sessionId:null};
+  // Occurrence excusée (cf userSkippedDays, "Déplacer" appliqué à un jour habituel pas encore planifié
+  // explicitement) : retombe sur "libre" — l'exception ne compte plus ni comme prévu ni comme manqué,
+  // exactement comme un jour jamais choisi. Vérifiée AVANT isTrainDay, sinon un jour excusé continuerait
+  // de s'afficher comme prévu/manqué.
+  const skipped=(typeof userSkippedDays!=='undefined'?userSkippedDays:[]).includes(dd.getTime());
+  if(skipped) return {statut:'libre', sessionId:null};
   if(!isTrainDay) return {statut:'libre', sessionId:null};
   if(dd.getTime()<today0.getTime()) return {statut:'manque', sessionId:null};
   return {statut:'prevu', sessionId:null};
@@ -8169,6 +8181,17 @@ function unassignPlannedDay(dateTimestamp){
   userPlannedSessions = userPlannedSessions.filter(p=>p.date!==dateTimestamp);
   refreshHomeSeanceZones();
   if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
+}
+// Libère une date pour "Déplacer" (cf audit calendrier, tâche 2 : "décider ce qu'un jour de programme
+// accepte — déplaçable ?") — un jour déjà explicitement planifié se désassigne normalement ; un jour
+// habituel du programme, lui, n'existe dans aucune liste à retirer, donc on l'excuse (userSkippedDays)
+// pour cette occurrence précise. Même geste utilisateur ("Déplacer"), deux mécaniques selon le point de
+// départ — décidé ici plutôt que de dupliquer startMovePlannedDay pour chaque cas.
+function releaseDay(dateTimestamp){
+  if(userPlannedSessions.some(p=>p.date===dateTimestamp)){ unassignPlannedDay(dateTimestamp); return; }
+  if(!userSkippedDays.includes(dateTimestamp)) userSkippedDays.push(dateTimestamp);
+  refreshHomeSeanceZones();
+  if(document.getElementById('progCalGrid')) renderProgCalendar();
 }
 // Notification (réutilise pushNotif() déjà existant, pas de nouveau moteur — pas de cron dans ce
 // prototype) : si le jour planifié tombe sur aujourd'hui, une seule notif au premier passage sur Home,
@@ -8915,6 +8938,10 @@ function setProgTab(el,view){
   if(periodEl) periodEl.style.display = (isRecords||isHistory) ? 'none' : 'block';
   if(recEl) recEl.style.display = isRecords ? 'block' : 'none';
   if(histEl) histEl.style.display = isHistory ? 'block' : 'none';
+  // Charge & Douleur retirées de l'onglet Calendrier (cf audit : ~170px avant d'arriver au mois, alors
+  // que la carte appartient aux onglets 7/30/90j) — reste affichée pour les trois autres.
+  const safetyEl=document.getElementById('progSafetyBlock');
+  if(safetyEl) safetyEl.style.display = isRecords ? 'none' : '';
   if(isRecords) renderProgRecords();
   else if(isHistory) renderPatientHistoryList();
   else renderProgPeriod(view);
@@ -8928,6 +8955,13 @@ function shiftProgCalendarMonth(delta){
   progCalMonth = new Date(progCalMonth.getFullYear(), progCalMonth.getMonth()+delta, 1);
   renderProgCalendar();
 }
+// Retour direct à aujourd'hui, à la place de la flèche droite qui ne sert qu'une fois par mois (cf
+// audit calendrier, tâche 4).
+function jumpToCurrentMonth(){
+  const now=new Date();
+  progCalMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  renderProgCalendar();
+}
 function renderProgCalendar(){
   const labelEl=document.getElementById('progCalMonthLabel');
   const wdEl=document.getElementById('progCalWeekdays');
@@ -8937,6 +8971,17 @@ function renderProgCalendar(){
   labelEl.textContent = progCalMonth.toLocaleDateString(locale, {month:'long', year:'numeric'});
   const weekdayLabels = currentLang==='fr' ? ['L','M','M','J','V','S','D'] : ['M','T','W','T','F','S','S'];
   wdEl.innerHTML = weekdayLabels.map(l=>'<div style="text-align:center;font-size:10.5px;color:var(--gray);font-weight:700;">'+l+'</div>').join('');
+  // Retour direct à aujourd'hui à la place de la flèche droite, qui ne sert qu'une fois par mois (cf
+  // audit calendrier, tâche 4) — étiquette simple quand on y est déjà, bouton cliquable sinon.
+  const nextSlot=document.getElementById('progCalNextSlot');
+  if(nextSlot){
+    const realNow=new Date();
+    const onCurrentMonth = progCalMonth.getFullYear()===realNow.getFullYear() && progCalMonth.getMonth()===realNow.getMonth();
+    nextSlot.innerHTML = onCurrentMonth
+      ? '<span style="font-size:10px;color:var(--brand-fixed);font-weight:700;">'+trDyn('Today')+'</span>'
+      : '<button class="btn-ghost" style="padding:0;font-size:10px;color:var(--brand-fixed);font-weight:700;" onclick="jumpToCurrentMonth()">'+trDyn('Today')+'</button>';
+    sweepTranslate(nextSlot, currentLang);
+  }
 
   const year=progCalMonth.getFullYear(), month=progCalMonth.getMonth();
   const firstDay=new Date(year,month,1);
@@ -8944,6 +8989,7 @@ function renderProgCalendar(){
   const daysInMonth=new Date(year,month+1,0).getDate();
   const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
   const todayD=new Date();
+  const today0=new Date(todayD.getFullYear(), todayD.getMonth(), todayD.getDate());
   let html='';
   for(let i=0;i<startOffset;i++) html+='<div></div>';
   for(let d=1; d<=daysInMonth; d++){
@@ -8957,7 +9003,10 @@ function renderProgCalendar(){
     // langage, et la distinction n'a pas d'utilité côté personne (cf commentaire de renderWeekStripHtml).
     else if(statut==='prevu' || statut==='planned') bg='border:1.5px solid var(--brand-fixed);color:var(--white);';
     const ring = isToday ? 'outline:1.5px solid var(--white);outline-offset:2px;' : '';
-    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+'">'+d+dotInner+'</div>';
+    // Le passé est acquis, il n'appelle pas d'action — atténué pour que le futur garde son poids plein
+    // (cf audit calendrier, tâche 4).
+    const fade = (dateObj.getTime()<today0.getTime()) ? 'opacity:.55;' : '';
+    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+fade+'">'+d+dotInner+'</div>';
   }
   gridEl.innerHTML = html;
   // Même légende que la frise d'accueil, par la même fonction : trois états, mêmes pastilles, mêmes
@@ -9001,6 +9050,13 @@ function cancelCalPick(){
   renderProgCalendar();
   const el=document.getElementById('progCalDayDetail'); if(el) el.innerHTML='';
 }
+// Retrouve la séance par sa date plutôt que de sérialiser l'objet dans l'attribut onclick (aurait cassé
+// l'attribut : JSON.stringify produit des guillemets doubles, le même délimiteur que l'attribut HTML).
+// Même patron que openPatientHistoryRecap(i), qui relit window._patientHistItems par index.
+function openCalSessionRecap(dateTimestamp){
+  const h=userSessionHistory.find(s=>{ const d=new Date(s.date); d.setHours(0,0,0,0); return d.getTime()===dateTimestamp; });
+  if(h) renderHistoryRecapModal(h);
+}
 function selectProgCalDay(year, month, day){
   const el=document.getElementById('progCalDayDetail'); if(!el) return;
   const dateObj=new Date(year,month,day); dateObj.setHours(0,0,0,0);
@@ -9016,7 +9072,7 @@ function selectProgCalDay(year, month, day){
     if(validTarget){
       const mode=calPickMode, src=calMoveDate;
       calPickMode=null; calMoveDate=null;
-      if(mode==='move') unassignPlannedDay(src);
+      if(mode==='move') releaseDay(src);
       assignPlannedDay(dateObj.getTime(), mode==='move'?'self':'catchup');
       return;
     }
@@ -9026,22 +9082,26 @@ function selectProgCalDay(year, month, day){
   const session = userSessionHistory.find(h=>{ const d=new Date(h.date); return d.getFullYear()===year && d.getMonth()===month && d.getDate()===day; });
   const dateLbl = new Date(year, month, day).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US', {weekday:'long', day:'numeric', month:'long'});
   if(session){
+    // "Voir le détail →" + effort ressenti (cf audit calendrier, tâche 3 : "un jour passé fait affiche
+    // le nom et la durée, et aucune action — c'est un cul-de-sac"). Réutilise renderHistoryRecapModal,
+    // la même fiche déjà utilisée depuis l'historique Progress — pas une 2e vue à maintenir.
+    const effortLbl = EFFORT_LABELS_HIST[session.effort]||session.effort;
     el.innerHTML = '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
       +'<div style="width:44px;height:44px;border-radius:12px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
       +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>'
       +'<div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
       +'<div style="font-size:14px;font-weight:700;margin-top:2px;">'+trDyn(session.nom)+'</div>'
-      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(session.duree+' min')+(session.exercices?' · '+trDyn(session.exercices+' exercise'+(session.exercices>1?'s':'')):'')+'</div></div></div>';
+      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(session.duree+' min')+(session.exercices?' · '+trDyn(session.exercices+' exercise'+(session.exercices>1?'s':'')):'')+(effortLbl?' · '+trDyn(effortLbl):'')+'</div></div></div>'
+      +'<button class="btn btn-outline" style="width:100%;margin-top:10px;padding:9px;font-size:12.5px;" onclick="openCalSessionRecap('+dateObj.getTime()+')">'+trDyn('View details →')+'</button>';
     return;
   }
   const today0=new Date(); today0.setHours(0,0,0,0);
   const isFuture = dateObj.getTime()>=today0.getTime();
-  const isPlanned = userPlannedSessions.some(p=>p.date===dateObj.getTime());
+  const statut = getDayStatus(dateObj, getTrainDays()).statut;
   if(!isFuture){
     // Jour manqué (choisi, passé, pas fait) : propose de le rattraper directement d'ici, plutôt qu'un
     // cul-de-sac "Pas de séance ce jour-là" — même mécanisme que l'alerte sur Home, déclenché depuis le
     // calendrier (cf audit "je peux pas planifier dans le passé, c'est pas logique").
-    const statut=getDayStatus(dateObj, getTrainDays()).statut;
     if(statut==='manque'){
       el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
         +'<div style="font-size:13px;color:var(--vigilance);margin-top:4px;font-weight:700;">'+trDyn('Missed')+'</div>'
@@ -9052,6 +9112,25 @@ function selectProgCalDay(year, month, day){
     el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div><div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div></div>';
     return;
   }
+  // Jour habituel du programme, pas encore explicitement planifié : la vraie séance qui s'y jouerait
+  // (getSessionDuJour(), même source que la carte "Prochaine séance" sur Home et le clic sur un jour de
+  // la frise) — plus le cul-de-sac "Pas de séance ce jour-là" qui contredisait Home au même instant (cf
+  // audit calendrier, tâche 1). "Déplacer" excuse cette occurrence (releaseDay) et applique le même mode
+  // de sélection que pour un jour déjà planifié — décidé : un jour de programme est déplaçable, comme
+  // n'importe quel autre engagement (cf audit, tâche 2).
+  if(statut==='prevu'){
+    const sess=getSessionDuJour();
+    el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
+      +'<div style="font-size:13px;color:var(--brand-fixed);margin-top:4px;font-weight:700;">'+trDyn('Programme session')+'</div>'
+      +'<div style="font-size:12px;color:var(--gray2);margin-top:2px;">'+trDyn(sess.nom)+' · '+trDyn(sess.exercices.length+' exercise'+(sess.exercices.length>1?'s':''))+' · '+trDyn(sess.duree+' min')+'</div>'
+      +'<div style="display:flex;gap:8px;margin-top:10px;">'
+        +'<button class="btn btn-brand-fixed" style="flex:1;padding:9px;font-size:12.5px;" onclick="openSessionDetail(\''+sess.id+'\')">'+trDyn('View session')+'</button>'
+        +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="startMovePlannedDay('+dateObj.getTime()+')">'+trDyn('Move')+'</button>'
+      +'</div>'
+      +'</div>';
+    return;
+  }
+  const isPlanned = statut==='planned';
   el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
     + (isPlanned
       ? '<div style="font-size:13px;color:var(--brand-fixed);margin-top:4px;font-weight:700;">'+trDyn('Session planned')+'</div>'
@@ -11237,6 +11316,9 @@ const EN_FR = {
   "Session done": "Séance faite",
   "No session that day": "Pas de séance ce jour-là",
   "Session planned": "Séance planifiée",
+  "Programme session": "Séance du programme",
+  "View session": "Voir la séance",
+  "View details →": "Voir le détail →",
   "Remove": "Retirer",
   "Move": "Déplacer",
   "Tap a new day to move it to": "Touche un nouveau jour pour y déplacer la séance",
