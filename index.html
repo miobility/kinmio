@@ -1320,6 +1320,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
 
     <!-- ZONE 1bis — OBJECTIF (cf #homeObjectifZone) -->
+    <div id="homeCentreSignalAdjustZone"></div>
     <div id="homeCentreObjectifZone"></div>
     <div id="homeCentreCollectiveBanner" style="display:none;margin:0 20px 10px;background:rgba(var(--orange-rgb),.12);border:1px solid rgba(var(--orange-rgb),.3);border-radius:14px;padding:12px 14px;align-items:center;gap:10px;cursor:pointer;" onclick="go('session')">
       <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);flex-shrink:0;"></span>
@@ -1686,6 +1687,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
     <!-- ZONE 1bis — OBJECTIF : anneau de volume hebdo (jours × durée vs minutes réellement faites),
          cf discussion "l'objectif c'est un objectif de volume, pas juste des jours" -->
+    <div id="homeSignalAdjustZone"></div>
     <div id="homeObjectifZone"></div>
     <div id="homeSeanceZone"></div>
 
@@ -4836,6 +4838,8 @@ function refreshHomeSeanceZones(){
   // — la frise restait visuellement figée après avoir planifié un jour tant qu'on ne quittait/revenait
   // pas sur Home). Mêmes arguments que le vrai rendu initial de Home (go() → renderHomeV2), pour rester
   // cohérent avec ce que la frise affiche à l'ouverture normale de l'écran.
+  if(document.getElementById('homeSignalAdjustZone')) renderSignalAdjust('home');
+  if(document.getElementById('homeCentreSignalAdjustZone')) renderSignalAdjust('homeCentre');
   if(document.getElementById('homeObjectifZone')) renderHomeObjectifRing('home', userProfile);
   if(document.getElementById('homeCentreObjectifZone')) renderHomeObjectifRing('homeCentre', userProfileCentre);
   if(document.getElementById('homeSeanceZone')) renderHomeSeance('home', homeData);
@@ -8076,6 +8080,81 @@ let todaySessionAdjust=null;   // {exCount, duree, level} une fois un check-in �
 // revient au choix, il ne change pas une décision déjà prise. Un ✕ discret plutôt qu'un mot, plus
 // simple à lire — "Modifier" reste réservé à l'état confirmé (renderCheckinDone), où il y a
 // réellement quelque chose à changer.
+// Carte d'ajustement issue d'un SIGNAL (douleur, charge, reprise apres coupure) — le pendant exact
+// de la carte de check-in, pour les raisons qui ne viennent pas de l'humeur declaree.
+// Pourquoi elle existe : recommendedIntensityLevel() tournait deja, mais en silence et seulement a
+// l'ENTREE en seance — les jauges changeaient sans que personne l'ait dit. Elle remonte donc ici,
+// entre le check-in et l'Objectif, parce qu'un signal qui doit modifier la seance se lit AVANT de la
+// lancer. Une seule carte a la fois : la cascade ne renvoie qu'une raison (pas de cumul, arbitrage
+// acte), et si cette raison est le check-in lui-meme, c'est sa propre carte qui l'affiche.
+let signalAdjustDone={};
+function signalAdjustDelta(level){
+  const sess=getSessionDuJour();
+  const niveauKey=(userProfileData.niveau||'debutant').toLowerCase().replace('é','e').replace('â','a').replace('è','e');
+  const exos=[...EXERCICES,...userExercices];
+  const base=[];
+  sess.exercices.forEach(exId=>{
+    const ex=exos.find(e=>e.id===exId); if(!ex) return;
+    const b=ex.params[niveauKey]||ex.params.debutant; if(!b||b.jauge===undefined) return;
+    base.push(b.jauge);
+  });
+  if(!base.length) return null;
+  const avg=Math.round(base.reduce((a,v)=>a+v,0)/base.length*10)/10;
+  return (avg===level) ? null : {before:avg, after:level};
+}
+function renderSignalAdjust(prefix){
+  const el=document.getElementById(prefix+'SignalAdjustZone'); if(!el) return;
+  const rec=recommendedIntensityLevel();
+  if(!rec || rec.reason==="you're feeling tired today"){ el.innerHTML=''; return; }
+  const reasonFr = (currentLang==='fr' && ASSISTANT_REASON_FR[rec.reason]) ? ASSISTANT_REASON_FR[rec.reason] : trDyn(rec.reason);
+  const pain=getPainSignal(), fatigue=getFatigueSignal();
+  // On montre le signal qui a DECIDE, pas une moyenne : c'est lui qui justifie la carte, et c'est
+  // celui que la personne retrouvera dans la tuile plus bas.
+  let tone='var(--vigilance)', title=trDyn('Session adjusted'), value='';
+  if(rec.reason==='your pain was high last time' || rec.reason==='your last session felt tough'){
+    const lvl=pain.level!=null?Math.round(pain.level):null;
+    tone=(lvl!=null && lvl>6)?'var(--red)':'var(--vigilance)';
+    title=trDyn('High pain'); value=(lvl!=null?lvl+'/10':'');
+  } else if(rec.reason==='your training load has ramped up fast recently'){
+    tone='var(--red)'; title=trDyn('Load rising fast'); value=fatigue.acwr!=null?fatigue.acwr.toFixed(1)+'×':'';
+  } else { title=trDyn('Back after a break'); }
+  if(signalAdjustDone[prefix]){
+    el.innerHTML='<div style="margin:0 20px 20px;display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid '+tone+';border-radius:0 14px 14px 0;padding:11px 13px;">'
+      +'<span style="color:var(--gray2);display:inline-flex;"><svg class="ki" style="width:14px;height:14px;"><use href="#ki-check-circle"/></svg></span>'
+      +'<span style="flex:1;font-size:11.5px;color:var(--gray2);">'+trDyn('Session adjusted')+'</span>'
+      +'</div>';
+    sweepTranslate(el, currentLang); return;
+  }
+  const d=signalAdjustDelta(rec.level);
+  el.innerHTML='<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid '+tone+';border-radius:0 16px 16px 0;padding:14px 16px;">'
+    +'<div style="display:flex;align-items:center;gap:7px;">'
+      +'<span style="color:'+tone+';display:inline-flex;"><svg class="ki" style="width:14px;height:14px;"><use href="#ki-alert"/></svg></span>'
+      +'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:'+tone+';">'+title+'</span>'
+      +(value?'<span style="margin-left:auto;font-family:var(--font-head);font-size:17px;font-weight:800;line-height:1;color:'+tone+';">'+value+'</span>':'')
+    +'</div>'
+    +'<div style="font-size:12.5px;font-weight:700;color:var(--white);margin-top:10px;line-height:1.4;">'+trDyn('Today’s session is eased off.')+'</div>'
+    +'<div style="font-size:11px;font-weight:400;color:var(--gray);margin-top:6px;line-height:1.45;">'+reasonFr.charAt(0).toUpperCase()+reasonFr.slice(1)+'.'+(d?' '+trDyn('Intensity')+' '+d.before+' → <b style="color:var(--gray2);font-weight:700;">'+d.after+'</b>':'')+'</div>'
+    +'<button class="btn btn-outline" style="margin-top:12px;padding:13px;font-size:13.5px;border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="confirmSignalAdjust(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
+    +'</div>';
+  sweepTranslate(el, currentLang);
+}
+function confirmSignalAdjust(prefix){
+  const rec=recommendedIntensityLevel(); if(!rec) return;
+  const sess=getSessionDuJour();
+  const niveauKey=(userProfileData.niveau||'debutant').toLowerCase().replace('\u00e9','e').replace('\u00e2','a').replace('\u00e8','e');
+  const exos=[...EXERCICES,...userExercices];
+  sess.exercices.forEach(exId=>{
+    const ex=exos.find(e=>e.id===exId); if(!ex) return;
+    const b=ex.params && (ex.params[niveauKey]||ex.params.debutant);
+    if(!b || b.jauge===undefined) return;
+    userParamsOverrides[exId]={...userParamsOverrides[exId], jauge: rec.level};
+  });
+  signalAdjustDone[prefix]=true;
+  logCoachHistory({type:'signal', message: trDyn('Session adjusted')});
+  renderSignalAdjust(prefix);
+  refreshHomeSeanceZones();
+  toast(trDyn('Session adjusted'));
+}
 function renderCheckinPreview(prefix,val){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
   // Avant : "Ta séance du jour s'ajuste : Exercices 6 → 4 · Durée 30 → 20 min · Intensité 2 → 1" —
@@ -11439,8 +11518,12 @@ const EN_FR = {
   "Goal reached": "Objectif atteint",
   "Nothing planned": "Rien de prévu",
   "Usual day": "Jour habituel",
-  "EFFORT": "EFFORT",
   "SIGNALS": "SIGNAUX",
+  "Session adjusted": "Séance ajustée",
+  "High pain": "Douleur élevée",
+  "Load rising fast": "Charge en forte hausse",
+  "Back after a break": "Reprise après une pause",
+  "Today’s session is eased off.": "Ta séance du jour est allégée.",
   "Intensity": "Intensité",
   "vs your record": "vs ton record",
   "rising fast": "en forte hausse",
@@ -12536,6 +12619,9 @@ function setLang(lang){
     // dernier rendu.
     if(document.getElementById('homeKpiZone')) renderHomeKpiZone('home', userProfile);
     if(document.getElementById('homeCentreKpiZone')) renderHomeKpiZone('homeCentre', userProfileCentre);
+    // Idem pour la carte d'ajustement : "Intensite 2 -> 1" est un seul noeud texte compose au rendu.
+    if(document.getElementById('homeSignalAdjustZone')) renderSignalAdjust('home');
+    if(document.getElementById('homeCentreSignalAdjustZone')) renderSignalAdjust('homeCentre');
   }catch(e){}
   const flags = {fr:'FR', en:'EN', de:'DE'};
   const flagsFull = {fr:'Français', en:'English', de:'Deutsch'};
