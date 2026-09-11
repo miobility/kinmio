@@ -472,7 +472,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .exo-prev-meta{font-size:12px;color:var(--gray);margin-top:2px;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ===== HOME V2 (refonte) ===== */
-.zone-lbl{font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;margin:22px 20px 12px;}
+.zone-lbl{font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;margin:20px 20px 12px;}
 
 /* ===== PROGRAMME ===== */
 .prog-hero{padding:24px 20px 20px;flex-shrink:0;}
@@ -1308,7 +1308,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="centrePendingBanner" style="display:none;margin:6px 20px 4px;border-radius:16px;padding:14px 16px;align-items:center;gap:12px;"></div>
 
     <!-- ZONE 2 — TODAY : check-in humeur (avant la séance) — passe en premier (cf #home) -->
-    <div id="homeCentreCheckinBlock" style="margin-top:16px;">
+    <div id="homeCentreCheckinBlock" style="margin-top:20px;">
       <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
       <div class="checkin-row">
         <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','homeCentre')">😩</div>
@@ -1674,7 +1674,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
     <!-- ZONE 2 — TODAY : check-in humeur (avant la séance, dont il peut ajuster le niveau) — passe
          en premier (cf discussion) : l'app écoute avant d'afficher un statut. -->
-    <div id="homeCheckinBlock" style="margin-top:16px;">
+    <div id="homeCheckinBlock" style="margin-top:20px;">
       <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
       <div class="checkin-row">
         <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','home')">😩</div>
@@ -1820,7 +1820,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="warmupList" style="display:flex;flex-direction:column;gap:10px;"></div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);display:flex;flex-direction:column;gap:10px;">
-    <button class="btn btn-brand-fixed" onclick="continueToSession()">Start session →</button>
+    <button class="btn btn-brand-fixed" onclick="continueToSession()">I'm warmed up →</button>
     <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;align-self:center;" onclick="skipWarmup()">Skip warm-up</button>
   </div>
 </div>
@@ -7560,13 +7560,21 @@ function objectifDayState(fait, planned, manqueCount, objectif, expected){
   return {kind: covered<=0?'behind':'catching_up', color: covered<=0?'var(--red)':'var(--vigilance)', remaining};
 }
 // Texte court pour la carte — un mot/chiffre par état, jamais de phrase (même contrainte qu'avant).
-function objectifCardLabel(state){
-  if(state.kind==='exceeded') return trDyn('Goal reached');
-  if(state.kind==='covered') return trDyn('Days planned');
+// "N jours restants" retiré (audit home, sept. 2026) : c'était la soustraction des deux chiffres
+// affichés 20 px plus bas ("2 / 3 jours"), et le MÊME texte servait deux états différents — dans le
+// rythme (vert) et en cours (gris) — que seule la couleur séparait. Le slot porte maintenant le
+// verdict, qui est la seule chose que le chiffre ne dit pas : vendredi avec 2/3 on est dans les
+// temps, dimanche avec 2/3 non. Le nombre ne reste que là où on peut en faire quelque chose.
+function objectifCardLabel(state, scope){
+  if(state.kind==='exceeded') return trDyn('Goal exceeded');
+  if(state.kind==='covered') return trDyn(scope==='cycle' ? 'Cycle covered' : 'Week covered');
+  if(state.kind==='ontrack') return trDyn('On pace');
   const r=state.remaining;
-  if(state.kind==='inprogress' || state.kind==='ontrack') return currentLang==='fr'
-    ? `${r} jour${r>1?'s':''} restant${r>1?'s':''}`
-    : `${r} day${r>1?'s':''} left`;
+  // Construit dans la langue courante (pas de trDyn mot à mot) — un nombre variable ne matche jamais
+  // un motif de dictionnaire figé, même raison que cycleTitle().
+  if(state.kind==='inprogress') return currentLang==='fr'
+    ? `${r} jour${r>1?'s':''} à caler`
+    : `${r} day${r>1?'s':''} to slot in`;
   return currentLang==='fr'
     ? `${r} jour${r>1?'s':''} à rattraper`
     : `${r} day${r>1?'s':''} to catch up`;
@@ -7750,6 +7758,14 @@ function openWeekStripInfo(){
 // frise à cette échelle pour la remplacer) mais bascule aussi en jours (fill = jours faits, repère =
 // jours attendus à ce stade). L'objectif chiffré (jours) reste toujours visible en clair, semaine et
 // cycle (cf discussion "qu'on voit l'objectif quelque part").
+// Repli du graphique du cycle (audit home, sept. 2026). Par prefixe, parce que home et home_centre
+// sont deux ecrans vivants en meme temps dans le DOM. Ferme par defaut : la ligne de titre porte deja
+// le verdict et le compte, c'est le DETAIL qui s'ouvre a la demande, jamais l'etat.
+let cycleFoldOpen={};
+function toggleCycleFold(prefix){
+  cycleFoldOpen[prefix]=!cycleFoldOpen[prefix];
+  renderHomeObjectifRing(prefix, prefix==='homeCentre'?userProfileCentre:userProfile);
+}
 function renderHomeObjectifRing(prefix, profile){
   const el=document.getElementById(prefix+'ObjectifZone'); if(!el) return;
   const week=getWeekDaysTrained();
@@ -7763,7 +7779,7 @@ function renderHomeObjectifRing(prefix, profile){
   const dayIdx=(now.getDay()+6)%7;
   const expectedWeek=Math.round(week.objectif*(dayIdx+1)/7);
   const weekState=objectifDayState(week.fait, plannedThisWeek, manqueThisWeek, week.objectif, expectedWeek);
-  const weekLabel=objectifCardLabel(weekState);
+  const weekLabel=objectifCardLabel(weekState,'week');
   const infoIcon='style="cursor:pointer;margin-left:0;padding:16px;margin:-16px -12px -16px 0;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const stripInfo='<span class="info-i" onclick="event.stopPropagation();openThisWeekInfo()" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
   // Libellé d'état : c'était un texte gris sans aucune affordance, alors que c'est la SEULE porte
@@ -7772,18 +7788,18 @@ function renderHomeObjectifRing(prefix, profile){
   // demande une décision, et accent quand l'état est neutre (sinon la couleur d'état prime).
   const paceLabel=(state,label,scope)=>{
     const alert = (state.color==='var(--red)'||state.color==='var(--vigilance)');
-    // Vert ET gris se distinguaient jusque-là par la seule couleur (même texte "X jours restants" pour
-    // les deux, cf discussion) — contraire à la charte de l'app, qui impose un marqueur qui ne dépend
-    // pas de la couleur (déjà le cas pour rouge/orange, ci-dessous). Un ✓ complète le trio pour les
-    // états positifs (dépassé/planifié/dans le rythme) ; le gris neutre reste sans icône, par contraste.
-    const ok = state.color==='var(--brand-fixed)';
+    // Le ✓ des états positifs est retiré (audit home, sept. 2026). Il avait été posé parce que vert et
+    // gris portaient le MÊME texte et ne se distinguaient que par la couleur ; maintenant que chaque
+    // état a son propre libellé ("Dans le rythme" vs "1 jour à caler"), le marqueur non-coloré exigé
+    // par la charte, c'est le texte lui-même — plus fort qu'un glyphe. Seuls les états qui demandent
+    // une décision gardent un pictogramme : l'absence de badge DEVIENT le signal "rien à signaler",
+    // et le ⚠ redevient visible parce qu'il est seul. Même règle appliquée aux tuiles Signaux.
     // Le libellé garde TOUJOURS la couleur de son état : le forcer en accent quand l'état est neutre
     // faisait apparaître un libellé vert au-dessus d'une barre grise, alors que les deux sortent du
     // même objectifDayState. C'est le chevron qui porte « c'est tapable », pas la couleur — la couleur
     // reste réservée à l'état, comme partout ailleurs dans l'app.
     const col = state.color;
-    const icon = (alert?'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-alert"/></svg>':'')
-      +(ok?'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg>':'');
+    const icon = alert?'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-alert"/></svg>':'';
     // "En cours"/"Dans le rythme" ne mènent nulle part de neuf au tap — la modale ne faisait plus que
     // répéter le chiffre déjà affiché ici (cf discussion "qu'est-ce qu'on apprend en cliquant si on
     // affiche la même chose ?"). Devient un texte de statut, pas un bouton, pour ces deux états
@@ -7808,9 +7824,26 @@ function renderHomeObjectifRing(prefix, profile){
   const expectedPct = daysInCycle>0 ? Math.min(100, Math.round(daysIntoCycle/daysInCycle*100)) : 0;
   const expectedDays = Math.round(objectif4*expectedPct/100);
   const cycleState=objectifDayState(days4, plannedInCycle, manqueInCycle, objectif4, expectedDays);
-  const cycleLabel=objectifCardLabel(cycleState);
+  const cycleLabel=objectifCardLabel(cycleState,'cycle');
   const barPct = objectif4>0 ? Math.min(100, Math.round(days4/objectif4*100)) : 0;
-  el.innerHTML = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('GOAL')+'</div>'
+  // "Mon programme" descendait de la carte seance, ou il etait une porte de sortie vers une autre
+  // section posee au milieu d'un objet qui parle d'aujourd'hui. Il appartient a Objectif : le
+  // programme est ce qui produit "3 jours par semaine", c'est la qu'on va pour changer la promesse.
+  // Et il tient dans la moitie droite vide de la ligne de titre, donc a cout nul en hauteur — la
+  // zone tapable, elle, descend a 44 px par le padding (on agrandit la zone, pas le dessin).
+  const progLink='<span role="button" tabindex="0" onclick="event.stopPropagation();go(\'programme\')" '
+    +'style="font-size:11.5px;font-weight:700;color:var(--gray2);text-transform:none;letter-spacing:0;'
+    +'cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:16px 0 16px 16px;margin:-16px 0;">'
+    +trDyn('My programme')+'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-fwd"/></svg></span>';
+  // Le cycle repond a "est-ce que je tiens l'engagement pris a l'inscription" — une question du
+  // dimanche, pas du mardi matin. On ne replie pas le cycle, on replie SON GRAPHIQUE : le verdict et
+  // le compte restent toujours sur la ligne de titre, rien de ce qui pourrait changer une decision ne
+  // disparait. Exception, selon la regle qu'on s'est donnee (on replie ce qu'une condition rend
+  // inutile MAINTENANT) : un cycle en retard reste ouvert, avec sa barre et son acces au rattrapage.
+  const cycleAlert = (cycleState.kind==='behind' || cycleState.kind==='catching_up');
+  const cycleOpen = cycleAlert || !!cycleFoldOpen[prefix];
+  const cycleCount='<span style="font-size:11px;font-weight:600;color:var(--gray2);letter-spacing:0;text-transform:none;"> · '+days4+' / '+objectif4+' '+trDyn('days')+'</span>';
+  el.innerHTML = '<div class="zone-lbl" style="margin-top:0;display:flex;align-items:center;justify-content:space-between;">'+trDyn('GOAL')+progLink+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
       +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+trDyn('This week')+stripInfo+'</span>'
@@ -7825,22 +7858,29 @@ function renderHomeObjectifRing(prefix, profile){
     // légende, au lieu d'obliger à ouvrir une fenêtre, mémoriser et refermer.
     +weekStripLegendHtml(weekStrip.map(d=>d.statut))
     +'<div style="height:1px;background:var(--border);margin:16px 0 16px;"></div>'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+cycleInfo+'</span>'
-      +paceLabel(cycleState, cycleLabel, 'cycle')
+    // Le compte du cycle remonte AU-DESSUS de sa barre, dans la ligne de titre : il était sous la
+    // barre alors que celui de la semaine est au-dessus de la frise (incohérence relevée en audit).
+    // Replié, la ligne entière est la zone tapable ; le libellé d'état redevient un simple texte pour
+    // qu'il n'y ait qu'une cible. Déplié, il retrouve son tap normal vers l'explication du rythme.
+    +'<div style="display:flex;align-items:center;justify-content:space-between;'+(cycleAlert?'':'cursor:pointer;padding:6px 0;margin:-6px 0;')+'"'
+      +(cycleAlert?'':' role="button" tabindex="0" onclick="toggleCycleFold(\''+prefix+'\')"')+'>'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+cycleCount+(cycleOpen?cycleInfo:'')+'</span>'
+      +(cycleOpen
+        ? paceLabel(cycleState, cycleLabel, 'cycle')
+        : '<span style="font-size:10px;font-weight:700;color:'+cycleState.color+';display:inline-flex;align-items:center;gap:3px;flex-shrink:0;">'+cycleLabel
+          +'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-down"/></svg></span>')
     +'</div>'
-    +'<div style="margin-top:12px;">'
-      +'<div style="height:10px;border-radius:5px;background:var(--border);position:relative;overflow:visible;">'
-        +'<div style="position:absolute;top:0;left:0;height:100%;width:'+barPct+'%;background:'+cycleState.color+';border-radius:5px;transition:width .6s ease;"></div>'
-        +'<div style="position:absolute;top:-2px;left:'+Math.min(97,expectedPct)+'%;width:2px;height:14px;background:var(--white);"></div>'
+    +(cycleOpen
+      ? '<div style="margin-top:12px;">'
+        +'<div style="height:10px;border-radius:5px;background:var(--border);position:relative;overflow:visible;">'
+          +'<div style="position:absolute;top:0;left:0;height:100%;width:'+barPct+'%;background:'+cycleState.color+';border-radius:5px;transition:width .6s ease;"></div>'
+          +'<div style="position:absolute;top:-2px;left:'+Math.min(97,expectedPct)+'%;width:2px;height:14px;background:var(--white);"></div>'
+        +'</div>'
+        // Le repère blanc n'était expliqué nulle part : on le nomme sous la barre, aligné dessous,
+        // plutôt que de laisser "Attendu N jours" en bout de ligne sans lien visuel avec le trait.
+        +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn('days')+'</span></div>'
       +'</div>'
-      // Le repère blanc n'était expliqué nulle part : on le nomme sous la barre, aligné dessous,
-      // plutôt que de laisser "Attendu N jours" en bout de ligne sans lien visuel avec le trait.
-      +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn('days')+'</span></div>'
-      +'<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:8px;">'
-        +'<span style="font-size:15px;font-weight:800;color:var(--white);font-family:var(--font-head);letter-spacing:-.2px;">'+days4+'<span style="font-size:11px;font-weight:600;color:var(--gray2);letter-spacing:0;"> / '+objectif4+' '+trDyn('days')+'</span></span>'
-      +'</div>'
-    +'</div>'
+      : '')
     +'</div>';
   sweepTranslate(el, currentLang);
 }
@@ -7898,8 +7938,14 @@ function renderHomeKpiZone(prefix, profile){
   const loadWord = fatigue.acwr==null ? trDyn('Not enough data yet') : fatigue.level==='high' ? trDyn('rising fast') : fatigue.level==='low' ? trDyn('below usual') : trDyn('steady');
   const acwrPct = fatigue.acwr==null ? 0 : Math.min(100, Math.max(0, fatigue.acwr/2*100));
   const loadCell='<div class="kt sig" style="border-left-color:'+loadTone+';">'
+    // Seuls les etats qui appellent une decision portent un pictogramme (audit home, sept. 2026). La
+    // charte interdit la couleur seule ; sur une tuile saine il y avait deja quatre marqueurs — arete,
+    // valeur coloree, ET le mot ("stable"), qui est un marqueur non-colore plus fort qu'un glyphe. La
+    // coche etait un cinquieme marqueur muet, et elle decorait l'ecran des jours ou tout va bien, si
+    // bien qu'une vraie alerte arrivait dans un decor deja decore. L'absence de badge dit "rien a
+    // signaler" ; le ⚠ redevient visible parce qu'il est seul.
     +'<div class="kt-l">'+trDyn('Load')+info('Load','How hard you have trained over the last 7 days compared with your usual pace over 28 days. Between 0.8 and 1.3 is a healthy zone — much higher means you are ramping up fast.')
-      +(fatigue.acwr==null?'':'<span style="color:'+loadTone+';display:contents;">'+pic(loadAlert?'alert':'check-circle')+'</span>')+'</div>'
+      +(loadAlert?'<span style="color:'+loadTone+';display:contents;">'+pic('alert')+'</span>':'')+'</div>'
     +(fatigue.acwr==null
       ? '<div class="kt-c" style="margin-top:0;">'+trDyn('Not enough data yet')+'</div>'
       : '<div class="kt-v" style="color:'+loadTone+';">'+fatigue.acwr.toFixed(1)+'<span class="kt-u">×</span></div>'
@@ -7917,16 +7963,19 @@ function renderHomeKpiZone(prefix, profile){
   const painWord = lvl==null ? '' : pain.trend==='hausse' ? trDyn('rising over 3 sessions') : pain.trend==='baisse' ? trDyn('easing over 3 sessions') : trDyn('stable over 3 sessions');
   const painCell='<div class="kt sig" style="border-left-color:'+painTone+';">'
     +'<div class="kt-l">'+trDyn('Pain')+info('Pain','Your most recent self-reported pain level, taken at the end of your last session. The trend compares it with up to 3 sessions ago.')
-      +(lvl==null?'':'<span style="color:'+painTone+';display:contents;">'+pic(painAlert?'alert':'check-circle')+'</span>')+'</div>'
+      +(painAlert?'<span style="color:'+painTone+';display:contents;">'+pic('alert')+'</span>':'')+'</div>'
     +(lvl==null
       ? '<div class="kt-c" style="margin-top:0;">'+trDyn('Not enough data yet')+'</div>'
       : '<div class="kt-v" style="color:'+painTone+';">'+lvl+'<span class="kt-u">/10</span></div>'
         +'<div class="kt-c" style="margin-top:9px;">'+painWord+'</div>')
   +'</div>';
 
-  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('EFFORT')+'</div>'
+  // margin-top:0 sur EFFORT collait le titre sous la carte seance — 0 px d'ecart, si bien qu'il se
+  // lisait comme sa legende et non comme le titre de la section suivante. Les cinq ecarts de la page
+  // valaient 16 / 20 / 20 / 0 / 22 ; ils valent 20 partout (audit home, sept. 2026).
+  let out = '<div class="zone-lbl" style="margin-top:20px;">'+trDyn('EFFORT')+'</div>'
     +'<div class="kgrid" style="margin-bottom:18px;">'+volumeCell+intensityCell+'</div>'
-    +'<div class="zone-lbl">'+trDyn('SIGNALS')+'</div>'
+    +'<div class="zone-lbl" style="margin-top:20px;">'+trDyn('SIGNALS')+'</div>'
     +'<div class="kgrid" style="padding-bottom:20px;">'+loadCell+painCell+'</div>';
   el.innerHTML = out;
   sweepTranslate(el, currentLang);
@@ -8474,37 +8523,54 @@ function renderHomeSeance(prefix, data){
   // (comparé à l'objectif du jour, même calcul que l'ancienne carte, juste plus discret).
   const todayEntry = weekStrip.find(d=>d.today);
   const doneToday = todayEntry && todayEntry.statut==='fait';
-  let cta;
+  // "Voir la séance →" appelait EXACTEMENT la même fonction que la carte qui le contient
+  // (openSessionDetail) — un bouton de 48 px qui recopiait la zone tapable de son propre parent, alors
+  // que les vignettes "Recommandé pour toi" juste en dessous se passent de bouton sans que personne
+  // s'interroge. Il faisait pourtant un second métier : une fois la séance faite, il devenait un
+  // statut déguisé en bouton. Les deux métiers sont séparés (audit home, sept. 2026) : le statut monte
+  // en pastille sur la vignette, et le bouton ne garde qu'un rôle — celui que la carte ne peut pas
+  // jouer : démarrer. Avant, le bouton le plus voyant de la home menait à une deuxième page où se
+  // trouvait le vrai bouton : il promettait une action et livrait une navigation. Rien n'est perdu au
+  // passage : demarrerSessionNouveau ouvre l'échauffement, un écran de préparation avec retour
+  // possible, pas la séance en cours — et la carte reste tapable pour qui veut la liste d'exercices.
+  let cta='', doneBadge='';
   if(doneToday){
     const target=computeObjectifDuJourScore(), current=computeScoreAujourdhui();
     const pct = target ? Math.min(100, Math.round(current/target*100)) : 100;
-    cta='<button class="btn btn-outline" style="padding:15px;font-size:15px;border-color:rgba(var(--brand-fixed-rgb),.45);color:var(--brand-fixed);" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')"><svg class="ki"><use href="#ki-check"/></svg>'+trDyn('Done today')+(pct<100?' · '+pct+'%':'')+'</button>';
+    doneBadge='<div class="today-dur" style="left:14px;right:auto;background:rgba(var(--brand-fixed-rgb),.92);color:var(--ink-on-accent);display:inline-flex;align-items:center;gap:5px;"><svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg>'+trDyn('Done today')+(pct<100?' · '+pct+'%':'')+'</div>';
   } else {
-    cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">View session →</button>';
+    cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();demarrerSessionNouveau(\''+realSess.id+'\')">Start session →</button>';
   }
   const badgeId=prefix+'SeanceBdg';
   // Photo de la VRAIE séance affichée (même logique que partout ailleurs, sessionPhotoFor) — avant,
   // la photo venait de l'objectif du profil, pas de la séance réellement montrée, donc pouvait ne
   // pas correspondre (ex. profil "renforcement" mais séance du jour cardio).
   const photo=sessionPhotoFor(realSess);
-  const video=sessionVideoFor(realSess);
-  const thumbStyle=video?'':"background-image:url('"+photo+"');background-size:cover;background-position:center;";
-  const thumbVideo=video?'<video src="'+video+'" poster="'+photo+'" autoplay muted loop playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;"></video>':'';
-  zone.innerHTML='<div style="margin:0 20px 8px;font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;">'+trDyn(cardLbl)+'</div>'
+  // Photo fixe, plus de vidéo en autoplay/loop (audit home, sept. 2026) : elle tournait en permanence
+  // sur l'écran ouvert dix fois par jour, ne montrait pas les exercices de la séance (image d'ambiance,
+  // pas d'information) et bougeait juste à côté du seul bouton plein de la page, avec lequel elle se
+  // disputait le regard. La vidéo garde toute sa valeur dans la fiche séance, où elle est une
+  // récompense à l'ouverture — sessionVideoFor n'est pas touchée, seul cet appel-ci ne s'en sert plus.
+  const thumbStyle="background-image:url('"+photo+"');background-size:cover;background-position:center;";
+  // Titre de section repassé sur .zone-lbl : c'était le seul des cinq à être réécrit en dur, avec
+  // 8 px sous lui au lieu de 12 — 4 px de décalage visible, et surtout un titre qui aurait dérivé seul
+  // à la prochaine modification (audit home, sept. 2026).
+  zone.innerHTML='<div class="zone-lbl" style="margin-top:0;">'+trDyn(cardLbl)+'</div>'
     +'<div class="hero-glow">'
     +'<div class="today" onclick="openSessionDetail(\''+realSess.id+'\')">'
-    +'<div class="today-thumb" style="'+thumbStyle+'">'+thumbVideo+(photo||video?'':'<svg class="ki"><use href="#ki-media"/></svg>')+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')+'</div>'
-    +'<div class="today-body"><div class="today-title" style="font-size:22px;">'+realSess.nom_marketing+'</div>'
+    +'<div class="today-thumb" style="'+thumbStyle+'">'+(photo?'':'<svg class="ki"><use href="#ki-media"/></svg>')+doneBadge+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')+'</div>'
+    // Chevron à côté du titre : c'est lui qui porte "cette carte s'ouvre", maintenant que le bouton ne
+    // recopie plus le tap du parent. .today-title est en nowrap/ellipsis, d'où la ligne flex autour.
+    +'<div class="today-body"><div style="display:flex;align-items:center;gap:6px;"><div class="today-title" style="font-size:22px;margin-bottom:0;flex:1;min-width:0;">'+realSess.nom_marketing+'</div>'
+    +'<svg class="ki" style="width:15px;height:15px;color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>'
     // Nombre d'exercices/durée reflètent l'ajustement du check-in une fois validé (cf calculatrice,
     // confirmCheckinHome) — même séance, juste recalculée ; intensité moyenne = moyenne des jauges
     // réellement appliquées (userParamsOverrides), donc change aussi si le check-in l'a modifiée.
     +'<div class="today-sub">'+(todaySessionAdjust?todaySessionAdjust.exCount:realSess.exercices.length)+' exercises · '+(todaySessionAdjust?todaySessionAdjust.duree:realSess.duree)+' min'+(priorityMuscle?' · '+priorityMuscle:'')+(avgSessionJauge(realSess)!=null?' · '+trDyn('avg intensity')+' '+avgSessionJauge(realSess):'')+'</div>'
     +cta
-    // "Mon programme →" ramené dans la carte séance, sous le CTA (audit Home, sept. 2026) : c'était le
-    // seul bloc flottant entre deux cartes sans appartenir à aucune des deux — pas d'onglet Programme
-    // dans la nav (cf plus haut), donc ce lien reste le seul accès, mais il appartient à CET objet
-    // (la séance du jour), pas à l'espace entre lui et le bloc suivant.
-    +'<button class="btn btn-ghost" style="margin-top:4px;padding:12px;font-size:13.5px;font-weight:700;color:var(--gray2);" onclick="event.stopPropagation();go(\'programme\')">'+trDyn('My programme →')+'</button>'
+    // "Mon programme →" est remonté dans la ligne de titre OBJECTIF (renderHomeObjectifRing) : il
+    // menait hors de la séance du jour depuis l'intérieur de la carte qui la décrit, alors que c'est
+    // le programme qui produit "3 jours par semaine". Là-haut il ne coûte aucune hauteur.
     +'</div></div></div>';
   // Le rendu produit des chaînes sources anglaises : sans balayage, tout re-rendu postérieur au
   // sweep global (check-in confirmé, rattrapage planifié, changement de langue) laissait la carte
@@ -11031,6 +11097,12 @@ const EN_FR = {
   "LOAD": "CHARGE",
   "GOAL": "OBJECTIF",
   "Expected": "Attendu",
+  "Goal exceeded": "Objectif dépassé",
+  "Week covered": "Semaine couverte",
+  "Cycle covered": "Cycle couvert",
+  "On pace": "Dans le rythme",
+  "My programme": "Mon programme",
+  "I'm warmed up →": "Je suis échauffé →",
   "On track": "Dans les temps",
   "Catching up": "À rattraper",
   "Falling behind": "En retard",
@@ -12622,6 +12694,11 @@ function setLang(lang){
     // Idem pour la carte d'ajustement : "Intensite 2 -> 1" est un seul noeud texte compose au rendu.
     if(document.getElementById('homeSignalAdjustZone')) renderSignalAdjust('home');
     if(document.getElementById('homeCentreSignalAdjustZone')) renderSignalAdjust('homeCentre');
+    // Et la carte seance, pour la meme raison : son sous-titre est une seule chaine assemblee au rendu
+    // ("5 exercices · 15 min · Epaules · intensite moy. 3"), donc "intensite moy." restait figee dans la
+    // langue du dernier rendu apres un changement de langue. Bug prealable, vu en testant l'aller-retour.
+    if(document.getElementById('homeSeanceZone')) renderHomeSeance('home', userProfile);
+    if(document.getElementById('homeCentreSeanceZone')) renderHomeSeance('homeCentre', userProfileCentre);
   }catch(e){}
   const flags = {fr:'FR', en:'EN', de:'DE'};
   const flagsFull = {fr:'Français', en:'English', de:'Deutsch'};
