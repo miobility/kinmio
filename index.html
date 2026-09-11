@@ -19388,8 +19388,13 @@ function assistantAsk(id, label){
 // une feuille avec la liste, déjà filtrée par le thème actif comme avant.
 function openAssistantQuestionSheet(){
   const list=ASSISTANT_QUESTIONS.filter(q=>!coachThreadFilter || q.theme===coachThreadFilter);
-  const rows = list.length ? list.map(q=>
-    '<button class="btn btn-outline" style="width:100%;text-align:left;margin-bottom:8px;padding:13px 16px;font-size:14px;" onclick="closeModal();assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')">'+q.q+'</button>'
+  // Une liste (lignes + séparateurs), pas une pile de boutons (retour utilisateur : "j'imaginais une
+  // liste de questions") — même motif que le reste de l'app pour une liste d'actions tapables.
+  const rows = list.length ? list.map((q,i)=>
+    '<div onclick="closeModal();assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 4px;'+(i<list.length-1?'border-bottom:1px solid var(--border);':'')+'cursor:pointer;">'
+    +'<span style="font-size:14.5px;color:var(--white);line-height:1.4;">'+q.q+'</span>'
+    +'<svg class="ki" style="width:14px;height:14px;color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg>'
+    +'</div>'
   ).join('') : '<div style="text-align:center;color:var(--gray);font-size:13.5px;padding:20px 0;">'+trDyn('Nothing in this category yet.')+'</div>';
   // Défilement vertical dans la feuille elle-même si la liste s'allonge un jour (plus de questions
   // par thème) — jamais horizontal, jamais au prix du fil derrière (retour utilisateur, validé : "on
