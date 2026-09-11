@@ -607,20 +607,25 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .bar-l{font-size:10px;color:var(--gray);}
 .bar-v{font-size:11px;font-weight:800;color:var(--gray2);line-height:1;}
 .bar-v.zero{color:var(--gray);opacity:.45;}
-.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 32px;}
-.badge-card{background:var(--bg2);border-radius:16px;padding:16px;text-align:center;border:1px solid var(--border);}
+/* Rangee horizontale et non plus grille de neuf (audit Defis, sept. 2026) : les badges prenaient
+   817 px des ~1100 de l'onglet, soit 74 %, pendant que le defi en cours — la seule chose avec une
+   echeance — en faisait 15 %. Un badge est un RESULTAT, pas une decision : ca se parcourt comme une
+   vitrine, ca ne s'empile pas. Meme patron que .exo-row, ascenseur masque compris. */
+.badges-grid{display:flex;gap:10px;padding:0 20px 8px;overflow-x:auto;scrollbar-width:none;}
+.badges-grid::-webkit-scrollbar{display:none;}
+.badge-card{width:104px;flex-shrink:0;background:var(--bg2);border-radius:16px;padding:14px 8px;text-align:center;border:1px solid var(--border);}
 /* Un badge verrouille etait le meme dessin en opacity:.35 — ce qui attenuait aussi son nom et sa
    condition, donc rendait illisible precisement ce qu'on a besoin de lire quand on ne l'a pas encore.
    La difference porte maintenant sur la FORME (plein contre pointille), pas sur l'intensite, et le
    texte garde son contraste. Le pointille dit d'ailleurs la bonne chose : un emplacement en attente,
    pas un objet eteint. */
 .badge-card.lock{background:transparent;}
-.badge-e{width:56px;height:56px;border-radius:17px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;background:var(--brand-fixed);color:var(--ink-on-accent);}
-.badge-e svg{width:30px;height:30px;}
+.badge-e{width:48px;height:48px;border-radius:15px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;background:var(--brand-fixed);color:var(--ink-on-accent);}
+.badge-e svg{width:26px;height:26px;}
 .badge-card.lock .badge-e{background:transparent;border:1.5px dashed var(--dim);color:var(--dim);}
 .badge-card.lock .badge-t{color:var(--gray);}
-.badge-t{font-size:13px;font-weight:700;color:var(--white);}
-.badge-d{font-size:11px;color:var(--gray);margin-top:2px;}
+.badge-t{font-size:11.5px;font-weight:700;color:var(--white);line-height:1.25;}
+.badge-d{font-size:10px;color:var(--gray);margin-top:3px;line-height:1.3;}
 
 /* ===== KINE DASHBOARD ===== */
 .kine-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 20px 14px;}
@@ -864,6 +869,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.6" r="6.5"/><path d="M12 10.2v3.4l2.3 1.6"/><path d="M9.7 3.8h4.6"/><path d="M12 3.8v3.3"/></symbol>
   <symbol id="ki-threshold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 14.6h17.2" stroke-dasharray="2.6 2.6"/><path d="M7.4 10.8 12 6.2l4.6 4.6"/><path d="M12 6.2v8"/></symbol>
   <symbol id="ki-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 17.6a7.6 7.6 0 0 1 15.2 0"/><path d="M12 17.6l3.9-4.6"/><circle cx="12" cy="17.6" r="1.15" fill="currentColor" stroke="none"/></symbol>
+  <!-- Hybride = seuil + jauge : l'arc de la jauge traverse par la ligne pointillee du seuil. Le mode
+       melange les deux, son dessin les melange aussi. Il portait un emoji au milieu de quatre
+       pictogrammes — exactement la surface mixte qu'on s'interdit. -->
+  <symbol id="ki-hybrid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 17.6a7.6 7.6 0 0 1 15.2 0"/><path d="M3.2 11.4h17.6" stroke-dasharray="2.4 2.4"/><circle cx="12" cy="17.6" r="1.5" fill="currentColor" stroke="none"/><path d="M12 17.6 15.4 14"/></symbol>
   <symbol id="ki-hold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 18.4h3.2l2.2-8.8h6.4l2.2 8.8h3.2"/></symbol>
   <symbol id="ki-duel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.4v15.2" stroke-dasharray="2.6 2.6"/><path d="M7.6 7.4 4 12l3.6 4.6"/><path d="M16.4 7.4 20 12l-3.6 4.6"/></symbol>
   <!-- Icones du parcours d'entree, versees ici depuis le markup inline (cf audit onboarding) :
@@ -9148,9 +9157,14 @@ function getRealBadges(){
 }
 function renderProgBadges(elId){
   const el=document.getElementById(elId); if(!el) return;
-  const badges=getRealBadges(), total=userSessionHistory.length;
-  const next=badges.find(b=>!b.unlocked && b.target);
-  el.innerHTML='<div class="badges-grid">'
+  const badges0=getRealBadges(), total=userSessionHistory.length;
+  const next=badges0.find(b=>!b.unlocked && b.target);
+  // Les acquis d'abord : une vitrine montre ce qu'on a. En grille l'ordre n'avait pas d'importance,
+  // en rangee defilante les premiers sont les seuls vus sans geste.
+  const badges=[...badges0].sort((a,b)=>(b.unlocked?1:0)-(a.unlocked?1:0));
+  const nbOk=badges.filter(b=>b.unlocked).length;
+  el.innerHTML='<div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 20px 10px;"><span style="font-size:11.5px;color:var(--gray2);">'+(currentLang==='fr' ? nbOk+' sur '+badges.length : nbOk+' of '+badges.length)+'</span></div>'
+    +'<div class="badges-grid">'
     +badges.map(b=>'<div class="badge-card'+(b.unlocked?'':' lock')+'"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div><div class="badge-d">'+trDyn(b.d)+'</div></div>').join('')
     +'</div>'
     +(next ? '<div style="margin-top:12px;font-size:13px;color:var(--white);display:flex;align-items:center;gap:7px;"><span style="color:var(--gray2);display:inline-flex;"><svg class="ki" style="width:15px;height:15px;"><use href="#'+next.ic+'"/></svg></span><span>'+trDyn('Next badge')+' : '+trDyn(next.t)+' — '+(next.target-total)+' '+trDyn('to go')+'</span></div>'
@@ -17410,7 +17424,7 @@ let DAILY_RECORDS={};
 const DEFI_MODES=[
   {key:'seuil', icon:'<svg class="ki"><use href="#ki-threshold"/></svg>', label:'Threshold', desc:"Fixed time, but the clock only runs while you're above the threshold — first to finish wins."},
   {key:'jauge', icon:'<svg class="ki"><use href="#ki-gauge"/></svg>', label:'Gauge', desc:'Fill a target score — every second counts, whatever your intensity.'},
-  {key:'hybride', icon:'⚡', label:'Hybrid', desc:'Fill the same target, but only seconds above the threshold count — push hard to finish early.'},
+  {key:'hybride', icon:'<svg class="ki"><use href="#ki-hybrid"/></svg>', label:'Hybrid', desc:'Fill the same target, but only seconds above the threshold count — push hard to finish early.'},
   {key:'tenue', icon:'<svg class="ki"><use href="#ki-hold"/></svg>', label:'Hold', desc:"No target, no time limit — hold above the threshold as long as you can. Turn by turn, best hold wins."},
   {key:'duel', icon:'<svg class="ki"><use href="#ki-duel"/></svg>', label:'Head-to-head', desc:"Everyone starts with the same time budget — it only ticks down for whoever is pushing hardest right now."}
 ];
@@ -17661,14 +17675,20 @@ function renderDefiModeListShared(a){
   const el=document.getElementById(a.prefix+'ModeList'); if(!el) return;
   el.innerHTML=DEFI_MODES.map(m=>{
     const on=m.key===a.mode;
-    return '<div onclick="'+a.modeFn+'(\''+m.key+'\')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;cursor:pointer;border:1.5px solid '+(on?'var(--teal)':'var(--border)')+';background:'+(on?'rgba(var(--teal-rgb),.08)':'var(--bg2)')+';">'
-      +'<div style="font-size:20px;flex-shrink:0;">'+m.icon+'</div>'
-      +'<div style="flex:1;min-width:0;font-size:14px;font-weight:700;color:var(--white);">'+m.label+'</div>'
+    return '<div onclick="'+a.modeFn+'(\''+m.key+'\')" style="display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:14px;cursor:pointer;border:1.5px solid '+(on?'var(--teal)':'var(--border)')+';background:'+(on?'rgba(var(--teal-rgb),.08)':'var(--bg2)')+';">'
+      +'<div style="font-size:20px;flex-shrink:0;margin-top:1px;">'+m.icon+'</div>'
+      // La regle de victoire descend SUR chaque option. Elle existait deja (m.desc) mais ne s'affichait
+      // que pour le mode selectionne, dans un paragraphe sous la liste : il fallait taper chaque mode
+      // pour lire sa regle, c'est-a-dire l'inverse de ce qui permet de choisir. Un choix doit dire sa
+      // consequence au moment ou on le fait.
+      +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);">'+m.label+'</div>'
+      +'<div style="font-size:11.5px;color:var(--gray);line-height:1.35;margin-top:3px;">'+trDyn(m.desc)+'</div></div>'
       +'<div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div>'
     +'</div>';
   }).join('');
   sweepTranslate(el, currentLang);
-  const desc=document.getElementById(a.prefix+'ModeDesc'); if(desc) desc.textContent=trDyn((DEFI_MODES.find(m=>m.key===a.mode)||{}).desc||'');
+  // Le paragraphe sous la liste repetait mot pour mot la ligne desormais lisible sur l'option elle-meme.
+  const desc=document.getElementById(a.prefix+'ModeDesc'); if(desc){ desc.textContent=''; desc.style.display='none'; }
   const durWrap=document.getElementById(a.prefix+'DurationWrap'); if(durWrap) durWrap.style.display = a.mode==='tenue' ? 'none' : 'block';
   const durLbl=document.getElementById(a.prefix+'DurationLbl'); if(durLbl) durLbl.textContent = trDyn(a.mode==='duel' ? 'Time budget' : 'Duration');
 }
