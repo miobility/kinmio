@@ -8951,8 +8951,19 @@ function setProgTab(el,view){
 // frise Home (fait/manqué/prévu/libre/planned), même code couleur, un seul calcul partagé (chantier
 // calendrier/auto-assignation : "la frise, c'est juste une synthèse avec les mêmes codes du calendrier").
 let progCalMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+// Jour actuellement affiché dans le panneau de détail (cf discussion "quand je clique sur une date, je
+// ne vois pas que j'ai cliqué dessus") — jusque-là seul le panneau en bas changeait, rien sur la grille
+// elle-même. null = aucun jour sélectionné (avant le premier tap, ou après changement de mois).
+let progCalSelectedDate = null;
+// Changer de mois vide la sélection — le jour affiché dans le panneau n'est plus visible sur la grille,
+// le garder "sélectionné" n'aurait plus de sens.
+function clearCalSelection(){
+  progCalSelectedDate = null;
+  const el=document.getElementById('progCalDayDetail'); if(el) el.innerHTML='';
+}
 function shiftProgCalendarMonth(delta){
   progCalMonth = new Date(progCalMonth.getFullYear(), progCalMonth.getMonth()+delta, 1);
+  clearCalSelection();
   renderProgCalendar();
 }
 // Retour direct à aujourd'hui, à la place de la flèche droite qui ne sert qu'une fois par mois (cf
@@ -8960,6 +8971,7 @@ function shiftProgCalendarMonth(delta){
 function jumpToCurrentMonth(){
   const now=new Date();
   progCalMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  clearCalSelection();
   renderProgCalendar();
 }
 function renderProgCalendar(){
@@ -9006,7 +9018,11 @@ function renderProgCalendar(){
     // Le passé est acquis, il n'appelle pas d'action — atténué pour que le futur garde son poids plein
     // (cf audit calendrier, tâche 4).
     const fade = (dateObj.getTime()<today0.getTime()) ? 'opacity:.55;' : '';
-    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+fade+'">'+d+dotInner+'</div>';
+    // Jour sélectionné (cf discussion "je ne vois pas que j'ai cliqué dessus") — box-shadow, pas outline
+    // (déjà pris par "aujourd'hui" ci-dessus) : les deux peuvent se cumuler sans se remplacer si le jour
+    // sélectionné est aussi aujourd'hui.
+    const sel = (progCalSelectedDate!==null && dateObj.getTime()===progCalSelectedDate) ? 'box-shadow:0 0 0 2px var(--white);' : '';
+    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+fade+sel+'">'+d+dotInner+'</div>';
   }
   gridEl.innerHTML = html;
   // Même légende que la frise d'accueil, par la même fonction : trois états, mêmes pastilles, mêmes
@@ -9079,6 +9095,10 @@ function selectProgCalDay(year, month, day){
     calPickMode=null; calMoveDate=null;
     renderProgCalendar();
   }
+  // Marque le jour comme sélectionné (cf discussion "je ne vois pas que j'ai cliqué dessus") — la grille
+  // se redessine pour porter ce repère visuel, en plus du panneau de détail ci-dessous.
+  progCalSelectedDate = dateObj.getTime();
+  renderProgCalendar();
   const session = userSessionHistory.find(h=>{ const d=new Date(h.date); return d.getFullYear()===year && d.getMonth()===month && d.getDate()===day; });
   const dateLbl = new Date(year, month, day).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US', {weekday:'long', day:'numeric', month:'long'});
   if(session){
