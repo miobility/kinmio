@@ -7521,11 +7521,21 @@ function countManqueInWindow(start, end, trainDays){
 // Classification unique, réutilisée par la carte (label court) ET la modale (texte long) — jamais deux
 // formules qui pourraient diverger (cf bug déjà rencontré sur ce même bloc). "covered" = jours faits +
 // jours explicitement planifiés.
-function objectifDayState(fait, planned, manqueCount, objectif){
+function objectifDayState(fait, planned, manqueCount, objectif, expected){
   const covered=fait+planned, remaining=Math.max(0, objectif-covered);
   if(objectif>0 && fait>objectif) return {kind:'exceeded', color:'var(--brand-fixed)', remaining};
-  if(covered>=objectif) return {kind:'covered', color:'var(--gray2)', remaining};
-  if(manqueCount<=0) return {kind:'inprogress', color:'var(--gray)', remaining};
+  // "covered" doit se lire comme un succès au même titre que "exceeded" (bug trouvé en relisant le code :
+  // retombait sur --gray2, un gris, alors que la carte annonce "Planifié" — texte positif, couleur neutre,
+  // contradictoires).
+  if(covered>=objectif) return {kind:'covered', color:'var(--brand-fixed)', remaining};
+  if(manqueCount<=0){
+    // Dans le rythme (ou en avance) par rapport au repère "Attendu" affiché sous la barre — vert, pas
+    // gris (cf discussion "on a fait ce qui est attendu, on est en gris, on devrait être en vert").
+    // En dessous du repère mais rien encore manqué : reste neutre, pas d'alarme prématurée (cf audit
+    // "si j'ai pas de séance manquée, je peux pas avoir de séance à rattraper").
+    if(expected!=null && covered>=expected) return {kind:'ontrack', color:'var(--brand-fixed)', remaining};
+    return {kind:'inprogress', color:'var(--gray)', remaining};
+  }
   return {kind: covered<=0?'behind':'catching_up', color: covered<=0?'var(--red)':'var(--vigilance)', remaining};
 }
 // Texte court pour la carte — un mot/chiffre par état, jamais de phrase (même contrainte qu'avant).
@@ -7533,7 +7543,7 @@ function objectifCardLabel(state){
   if(state.kind==='exceeded') return trDyn('Goal reached');
   if(state.kind==='covered') return trDyn('Days planned');
   const r=state.remaining;
-  if(state.kind==='inprogress') return currentLang==='fr'
+  if(state.kind==='inprogress' || state.kind==='ontrack') return currentLang==='fr'
     ? `${r} jour${r>1?'s':''} restant${r>1?'s':''}`
     : `${r} day${r>1?'s':''} left`;
   return currentLang==='fr'
@@ -7603,7 +7613,7 @@ function weekStripLegendHtml(){
 // dictionnaire déjà traduites (aucun nouveau texte : seule la CONDITION qui déclenche chacune a changé,
 // jours plutôt que minutes, cf audit).
 function objectifStateTitle(kind){
-  return trDyn({exceeded:'Goal reached', covered:'Days planned', inprogress:'On track', behind:'Falling behind', catching_up:'Catching up'}[kind]);
+  return trDyn({exceeded:'Goal reached', covered:'Days planned', inprogress:'On track', ontrack:'On track', behind:'Falling behind', catching_up:'Catching up'}[kind]);
 }
 function openObjectifPaceInfo(scope){
   const week=getWeekDaysTrained();
@@ -7614,10 +7624,12 @@ function openObjectifPaceInfo(scope){
     const weekStrip=computeWeekStrip();
     const planned=weekStrip.filter(d=>d.statut==='planned').length;
     const manqueCount=weekStrip.filter(d=>d.statut==='manque').length;
-    state=objectifDayState(week.fait, planned, manqueCount, week.objectif);
+    const dayIdx=(now.getDay()+6)%7;
+    const expectedWeek=Math.round(week.objectif*(dayIdx+1)/7);
+    state=objectifDayState(week.fait, planned, manqueCount, week.objectif, expectedWeek);
     if(state.kind==='exceeded') body = currentLang==='fr' ? 'Envie d\'une séance bonus ?' : 'Feeling like a bonus session?';
     else if(state.kind==='covered') body = trDyn('All your days are planned!');
-    else if(state.kind==='inprogress') body = currentLang==='fr'
+    else if(state.kind==='inprogress' || state.kind==='ontrack') body = currentLang==='fr'
       ? `${state.remaining} séance${state.remaining>1?'s':''} restante${state.remaining>1?'s':''} cette semaine.`
       : `${state.remaining} session${state.remaining>1?'s':''} left this week.`;
     else {
@@ -7650,18 +7662,22 @@ function openObjectifPaceInfo(scope){
     const days4=new Set(hist4.map(h=>Math.floor(h.date/HIST_DAY))).size;
     const plannedInCycle=userPlannedSessions.filter(p=>p.date>=cycleStart.getTime() && p.date<cycleStart.getTime()+daysInCycle*HIST_DAY).length;
     const manqueCount=countManqueInWindow(cycleStart, new Date(cycleStart.getTime()+daysInCycle*HIST_DAY), trainDays);
-    state=objectifDayState(days4, plannedInCycle, manqueCount, week.objectif*cw);
+    const expectedCycle=Math.round((week.objectif*cw)*(daysIntoCycle/daysInCycle));
+    state=objectifDayState(days4, plannedInCycle, manqueCount, week.objectif*cw, expectedCycle);
     const elapsed = currentLang==='fr' ? `${daysIntoCycle}/${daysInCycle} jours écoulés dans le cycle.` : `${daysIntoCycle}/${daysInCycle} days into the cycle.`;
     if(state.kind==='exceeded') body = elapsed+(currentLang==='fr' ? ' Envie d\'une séance bonus ?' : ' Feeling like a bonus session?');
     else if(state.kind==='covered') body = trDyn('All your days are planned!');
-    else if(state.kind==='inprogress') body = elapsed;
+    else if(state.kind==='inprogress' || state.kind==='ontrack') body = elapsed;
     else body = elapsed+' '+objectifCardLabel(state);
   }
   const title=objectifStateTitle(state.kind);
   // Cycle en retard : pas de sélecteur de jour ici (jusqu'à 8 semaines, trop pour une petite modale) —
   // renvoie vers le calendrier Progress, qui couvre déjà tout le mois (cf discussion "sur le retard côté
   // cycle, comment rattraper ?").
-  const calendarLink = (scope==='cycle' && state.color!=='var(--teal)')
+  // Comparaison sur l'état, pas la couleur (bug trouvé en relisant le code : comparait à 'var(--teal)',
+  // une couleur qu'objectifDayState ne renvoie plus depuis le passage aux jours — le lien s'affichait
+  // donc aussi pour un cycle déjà couvert/dépassé, ce qui n'a pas de sens).
+  const calendarLink = (scope==='cycle' && (state.kind==='behind'||state.kind==='catching_up'))
     // setProgTab() différé après le setup par défaut de go('progression') (index.html, hook
     // id==='progression' : setTimeout(renderProgPeriod, 20)) — sinon celui-ci écrase l'onglet Calendrier
     // qu'on vient de sélectionner, 20ms plus tard, et on retombe sur l'onglet période par défaut. Bug
@@ -7714,7 +7730,11 @@ function renderHomeObjectifRing(prefix, profile){
   const weekStrip=computeWeekStrip();
   const plannedThisWeek=weekStrip.filter(d=>d.statut==='planned').length;
   const manqueThisWeek=weekStrip.filter(d=>d.statut==='manque').length;
-  const weekState=objectifDayState(week.fait, plannedThisWeek, manqueThisWeek, week.objectif);
+  // Jours attendus à ce stade de la semaine (lundi=0) — même repère "prorata" que la barre du cycle plus
+  // bas, pour que "dans le rythme" veuille dire la même chose aux deux échelles.
+  const dayIdx=(now.getDay()+6)%7;
+  const expectedWeek=Math.round(week.objectif*(dayIdx+1)/7);
+  const weekState=objectifDayState(week.fait, plannedThisWeek, manqueThisWeek, week.objectif, expectedWeek);
   const weekLabel=objectifCardLabel(weekState);
   const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const stripInfo='<span class="info-i" onclick="event.stopPropagation();openThisWeekInfo()" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
@@ -7743,11 +7763,11 @@ function renderHomeObjectifRing(prefix, profile){
   const objectif4=week.objectif*cw;
   const plannedInCycle=userPlannedSessions.filter(p=>p.date>=cycleStart.getTime() && p.date<cycleStart.getTime()+daysInCycle*HIST_DAY).length;
   const manqueInCycle=countManqueInWindow(cycleStart, new Date(cycleStart.getTime()+daysInCycle*HIST_DAY), trainDays);
-  const cycleState=objectifDayState(days4, plannedInCycle, manqueInCycle, objectif4);
-  const cycleLabel=objectifCardLabel(cycleState);
-  const barPct = objectif4>0 ? Math.min(100, Math.round(days4/objectif4*100)) : 0;
   const expectedPct = daysInCycle>0 ? Math.min(100, Math.round(daysIntoCycle/daysInCycle*100)) : 0;
   const expectedDays = Math.round(objectif4*expectedPct/100);
+  const cycleState=objectifDayState(days4, plannedInCycle, manqueInCycle, objectif4, expectedDays);
+  const cycleLabel=objectifCardLabel(cycleState);
+  const barPct = objectif4>0 ? Math.min(100, Math.round(days4/objectif4*100)) : 0;
   el.innerHTML = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('GOAL')+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
