@@ -3667,7 +3667,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
        réorganise pas en sections séparées — un seul fil, une lentille optionnelle dessus. Icône
        seule sauf sur l'onglet actif (retour utilisateur, testé sur téléphone : le texte complet sur
        5 onglets tenait sur 2 lignes ou débordait — "dégueulasse", et ça écrasait le fil). -->
-  <div id="assistantThemeFilters" style="padding:10px 20px 12px;flex-shrink:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;"></div>
+  <div id="assistantThemeFilters" style="padding:10px 20px 12px;flex-shrink:0;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;"></div>
   <div class="scroll px pt pb" id="assistantThread" style="display:flex;flex-direction:column;gap:12px;"></div>
   <!-- Les 6 questions ne vivent plus en permanence à l'écran (retour utilisateur : elles prenaient
        6 lignes et laissaient à peine de place au fil) — un seul déclencheur compact, la liste
@@ -9253,10 +9253,11 @@ function setProgTab(el,view){
     if(histEl) histEl.style.display='none';
     renderProgPeriod(view);
   }
-  // Charge & Douleur retirées de la vue Mois (cf audit : ~170px avant d'arriver au mois, alors que
-  // la carte appartient aux onglets 7/30/90j) — reste affichée pour la Liste et les trois autres.
+  // Charge & Douleur retirées de tout l'onglet Historique, Liste comme Mois (cf audit : ~170px avant
+  // d'arriver au contenu, alors que la carte appartient aux onglets 7/30/90j) — reste affichée pour
+  // les trois autres onglets.
   const safetyEl=document.getElementById('progSafetyBlock');
-  if(safetyEl) safetyEl.style.display = (isHistory && progHistSubView==='mois') ? 'none' : '';
+  if(safetyEl) safetyEl.style.display = isHistory ? 'none' : '';
 }
 // Bascule Liste/Mois à l'intérieur de l'onglet Historique — même donnée (userSessionHistory), deux
 // affichages (cf discussion "pas deux fonctionnalités, un affichage à deux réglages").
@@ -9266,7 +9267,6 @@ function setProgHistSubView(v){
   if(listT) listT.classList.toggle('active', v==='liste');
   if(calT) calT.classList.toggle('active', v==='mois');
   const filterBtn=document.getElementById('progHistFilterBtn'); if(filterBtn) filterBtn.style.display = v==='liste' ? 'inline-flex' : 'none';
-  const safetyEl=document.getElementById('progSafetyBlock'); if(safetyEl) safetyEl.style.display = v==='mois' ? 'none' : '';
   renderProgHistTab();
 }
 function renderProgHistTab(){
