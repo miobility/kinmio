@@ -2150,9 +2150,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
-      <div style="display:flex;gap:16px;margin-top:14px;font-size:11px;color:var(--gray);">
-        <div style="display:flex;align-items:center;gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:var(--brand-fixed);"></div><span>Session done</span></div>
-      </div>
+      <div id="progCalLegend"></div>
       <div id="progCalDayDetail" style="margin-top:16px;"></div>
       <div id="progNotesSection" style="display:none;margin-top:16px;">
         <div class="pt"><h3 class="gap4">My notes</h3></div>
@@ -7576,15 +7574,20 @@ function cycleWindow(now){
 // sont toutes "Planifié"), un jour non choisi reste implicite (même logique que "Vide", jamais explicité).
 function weekStripLegendHtml(){
   const item=(dotStyle,label,inner)=>'<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;position:relative;'+dotStyle+'">'+(inner||'')+'</span><span style="font-size:9.5px;color:var(--gray);">'+trDyn(label)+'</span></span>';
-  // N'affiche que les états réellement présents dans la semaine affichée (strip optionnel) : une
-  // légende qui explique un état qu'on ne voit pas est du bruit, et l'omission du 4e état ("rien de
-  // prévu", le plus fréquent) était le vrai manque — cf audit du bloc Objectif.
-  const strip = Array.isArray(arguments[0]) ? arguments[0] : null;
-  const has = st => !strip || strip.some(d=>d.statut===st);
+  // TROIS états, et trois seulement : fait, planifié, manqué. Partagée par la frise d'accueil et le
+  // calendrier de Progression — même fonction, donc mêmes symboles et même vocabulaire aux deux
+  // endroits, par construction plutôt que par vigilance.
+  // Ce qui n'y est volontairement PAS : "rien de prévu" (quand il n'y a rien, ça se voit, le nommer
+  // n'ajoute rien) et la séparation jour habituel / rattrapage ajouté (la personne n'agit pas
+  // différemment selon le cas — seule l'arithmétique les distingue, et ce résultat est déjà porté par
+  // le libellé d'état du bloc Objectif).
+  // `present` : tableau de statuts réellement affichés, ou rien pour tout montrer.
+  const present = Array.isArray(arguments[0]) ? arguments[0] : null;
+  const has = st => !present || present.indexOf(st)>=0;
   let out='';
   if(has('fait'))   out+=item('background:var(--brand-fixed);','Trained');
-  if(has('manque')) out+=item('border:1.5px solid var(--vigilance);','Missed');
   if(has('prevu')||has('planned')) out+=item('border:1.5px solid var(--brand-fixed);','Days planned');
+  if(has('manque')) out+=item('border:1.5px solid var(--vigilance);','Missed');
   return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'+out+'</div>';
 }
 // Alerte de rythme rendue actionnable au tap (cf discussion "proposerais-tu une reco en cliquant sur
@@ -7752,7 +7755,7 @@ function renderHomeObjectifRing(prefix, profile){
     +'<div style="margin-top:12px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
     // Légende ramenée sous la frise, limitée aux états présents : elle se lit à côté de ce qu'elle
     // légende, au lieu d'obliger à ouvrir une fenêtre, mémoriser et refermer.
-    +weekStripLegendHtml(weekStrip)
+    +weekStripLegendHtml(weekStrip.map(d=>d.statut))
     +'<div style="height:1px;background:var(--border);margin:16px 0 14px;"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
       +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+cycleInfo+'</span>'
@@ -8211,7 +8214,7 @@ function renderWeekStripHtml(strip){
     +strip.map(d=>{
       let dotStyle='', dotContent='';
       if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
-      else if(d.statut==='manque') dotStyle='border:2px solid var(--vigilance);';
+      else if(d.statut==='manque') dotStyle='border:1.5px solid var(--vigilance);';
       // "prévu" (jour habituel) et "planifié" (rattrapage ajouté) partagent le même anneau, à dessein.
       // J'avais proposé de les distinguer par un cœur ; retiré après coup, c'était de la sur-ingénierie :
       // les deux veulent dire « entraîne-toi ici », la personne n'agit pas différemment selon le cas, et
@@ -8957,6 +8960,18 @@ function renderProgCalendar(){
     html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+'">'+d+dotInner+'</div>';
   }
   gridEl.innerHTML = html;
+  // Même légende que la frise d'accueil, par la même fonction : trois états, mêmes pastilles, mêmes
+  // mots. On ne liste que les statuts réellement présents dans le mois affiché.
+  const legEl=document.getElementById('progCalLegend');
+  if(legEl){
+    const present=[];
+    for(let d=1; d<=daysInMonth; d++){
+      const st=getDayStatus(new Date(year,month,d), trainDays).statut;
+      if(present.indexOf(st)<0) present.push(st);
+    }
+    legEl.innerHTML=weekStripLegendHtml(present);
+    sweepTranslate(legEl, currentLang);
+  }
 }
 // Jour futur sans séance : propose de le planifier (cf discussion "assignation de nouvelles séances
 // faites par soi-même") — avant, uniquement "No session that day", aucune écriture possible. Un jour
