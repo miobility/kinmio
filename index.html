@@ -14866,7 +14866,16 @@ function removeExoFromSession(exId){
   const id=forkSessionForEdit();
   const s=userSessions.find(x=>x.id===id); if(!s) return;
   if(s.exercices.length<=1){ toast('A session needs at least one exercise'); if(id!==before) userSessions.pop(); window._curSessId=before; return; }
-  s.exercices = s.exercices.filter(e=>e!==exId);
+  const remaining = s.exercices.filter(e=>e!==exId);
+  // Garde-fou durée (retour utilisateur, chantier "durée dynamique") : pas de suppression qui ferait
+  // passer la séance sous la durée cible du profil d'entraînement — Remplacer reste possible.
+  const guard = sessionDurationGuard(remaining);
+  if(!guard.ok && guard.reason==='min'){
+    toast('This session is already at your target length ('+guard.minReq+' min) — try replacing an exercise instead');
+    if(id!==before) userSessions.pop(); window._curSessId=before; return;
+  }
+  s.exercices = remaining;
+  s.duree = guard.mins;
   renderSessionDetail();
 }
 // Remplacer un exercice d'une séance par un équivalent (audit séance, "amont" — priorité 1 : le
@@ -14915,6 +14924,8 @@ function chooseSdAlternative(newExId){
   const idx=s.exercices.indexOf(oldExId);
   if(idx<0){ closeModal(); return; }
   s.exercices[idx]=newExId;
+  s.duree = estimateSessionMinutesRaw(s.exercices);   // chantier "durée dynamique" — pas de garde-fou
+  // ici (même mode déjà garanti par findSdAlternatives, écart de durée toujours faible), juste rester juste.
   closeModal();
   toast('✓ Exercise replaced');
   renderSessionDetail();   // met à jour la liste en arrière-plan, pour quand on y reviendra
@@ -15054,9 +15065,21 @@ function submitCsn(){
 function submitAddExoToSession(){
   const ids=Object.keys(csnSel);
   if(ids.length<1){ toast('Select at least one exercise'); return; }
+  // Garde-fou durée (chantier "durée dynamique"), vérifié avant de forker. Le plafond 1h s'applique
+  // toujours (cet écran ne fait qu'ajouter en net, la plupart du temps) ; le plancher du profil ne
+  // s'applique que si la sélection retire net des exercices déjà présents — sinon on bloquerait à tort
+  // un simple ajout qui reste sous la cible sans jamais l'aggraver.
+  const current=[...SESSIONS,...userSessions].find(x=>x.id===window._curSessId);
+  const removedSome = current && ids.length<current.exercices.length;
+  const guard = sessionDurationGuard(ids);
+  if(!guard.ok && (guard.reason==='max' || removedSome)){
+    toast(guard.reason==='max' ? 'That session would be over 1h — remove something first' : 'That session would be under your target length ('+guard.minReq+' min)');
+    return;
+  }
   const id=forkSessionForEdit();
   const s=userSessions.find(x=>x.id===id); if(!s) return;
   s.exercices = ids;
+  s.duree = guard.mins;
   window._curSessId = id;
   toast('✓ Exercises updated');
   back();
@@ -15151,6 +15174,24 @@ function estimateSessionMinutes(exoIds){
   // Cale sur 15/30/45/60 — les filtres de durée (SESS_FILTERS_DEF) comparent une valeur exacte,
   // une estimation brute (ex. 22 min) ne matcherait jamais aucune option.
   return SESSION_DUREE_OPTIONS.reduce((closest,opt)=>Math.abs(opt-rawMin)<Math.abs(closest-rawMin)?opt:closest);
+}
+// Estimation brute (non calée sur 15/30/45/60) — pour la durée réellement affichée/persistée sur une
+// séance dont on vient de modifier la composition (chantier séance, "durée recalculée dynamiquement") :
+// caler sur des paliers masquerait justement le décalage qu'on cherche à corriger.
+function estimateSessionMinutesRaw(exoIds){
+  const exos=[...EXERCICES,...userExercices];
+  const totalSec = exoIds.reduce((sum,id)=>{ const ex=exos.find(e=>e.id===id); return ex ? sum+estimateExoSeconds(ex) : sum; }, 0);
+  return exoIds.length ? Math.max(1, Math.round(totalSec/60)) : 0;
+}
+const SESSION_MAX_MIN = 60;
+// Garde-fou composition de séance : ne pas descendre sous la durée cible du profil d'entraînement
+// (userProfileData.duree_seance) ni dépasser 1h (retour utilisateur, chantier durée dynamique).
+function sessionDurationGuard(newExoIds){
+  const mins = estimateSessionMinutesRaw(newExoIds);
+  const minReq = userProfileData.duree_seance || 0;
+  if(mins > SESSION_MAX_MIN) return {ok:false, reason:'max', mins};
+  if(mins < minReq) return {ok:false, reason:'min', mins, minReq};
+  return {ok:true, mins};
 }
 function renderCsnExoList(){
   updateCsnFilterBadge();
