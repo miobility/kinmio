@@ -630,7 +630,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .lib-flabel{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
 .lib-fchips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
 .lib-fchips::-webkit-scrollbar{display:none;}
-#assistantThemeFilters::-webkit-scrollbar{display:none;}
 .lib-chip{flex-shrink:0;border:1.5px solid var(--border);background:var(--bg2);color:var(--gray2);border-radius:12px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
 .lib-chip.on{border-color:var(--orange);color:var(--orange);background:rgba(var(--orange-rgb),.08);}
 .lib-card{display:flex;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;}
@@ -3667,7 +3666,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
        réorganise pas en sections séparées — un seul fil, une lentille optionnelle dessus. Icône
        seule sauf sur l'onglet actif (retour utilisateur, testé sur téléphone : le texte complet sur
        5 onglets tenait sur 2 lignes ou débordait — "dégueulasse", et ça écrasait le fil). -->
-  <div id="assistantThemeFilters" style="padding:10px 20px 12px;flex-shrink:0;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;"></div>
+  <div id="assistantThemeFilters" style="padding:10px 20px 12px;flex-shrink:0;min-width:0;display:flex;gap:6px;"></div>
   <div class="scroll px pt pb" id="assistantThread" style="display:flex;flex-direction:column;gap:12px;"></div>
   <!-- Les 6 questions ne vivent plus en permanence à l'écran (retour utilisateur : elles prenaient
        6 lignes et laissaient à peine de place au fil) — un seul déclencheur compact, la liste
@@ -11242,6 +11241,8 @@ const EN_FR = {
   "Your history": "Ton historique",
   "in the zone": "dans la zone",
   "Signals": "Signaux",
+  "Adjusted": "Ajusté",
+  "Tracking": "Suivi",
   "Ask out loud": "Poser la question à voix haute",
   "Hi! Ask me anything about your training — I answer from your real data.": "Salut ! Pose-moi une question sur ton entraînement — je réponds à partir de tes vraies données.",
   "Mockup: not a real AI yet, just answers computed live.": "Maquette : pas encore une vraie IA, juste des réponses calculées en direct.",
@@ -12496,7 +12497,7 @@ const EN_FR = {
   // Thèmes Coach IA (réflexion fonctionnelle, 11/09)
   "Adjustment": "Ajustement",
   "Follow-up": "Suivi",
-  "Planning": "Planification",
+  "Planning": "Agenda",
   "Nothing in this category yet.": "Rien dans cette catégorie pour l'instant.",
   "You're up to date — nothing to confirm right now, I'll let you know if something comes up.": "Tu es à jour — rien à valider pour l'instant, je te préviens si besoin.",
   "Ask a question": "Poser une question",
@@ -19573,8 +19574,8 @@ function startVoiceAsk(){
 // vraiment quelque chose (cf assistantAnswerTone). Meme regle que la home : seuls les etats qui
 // appellent une decision portent un pictogramme, l'absence de badge dit "rien a signaler".
 const COACH_THEME_META = {
-  ajustement: {label:'Adjustment', icon:'ki-gauge', color:'var(--gray2)'},
-  suivi: {label:'Follow-up', icon:'ki-ob-chart', color:'var(--gray2)'},
+  ajustement: {label:'Adjusted', icon:'ki-gauge', color:'var(--gray2)'},
+  suivi: {label:'Tracking', icon:'ki-ob-chart', color:'var(--gray2)'},
   planification: {label:'Planning', icon:'ki-cal', color:'var(--gray2)'},
   alerte: {label:'Signals', icon:'ki-shield', color:'var(--gray2)'}
 };
@@ -19638,17 +19639,21 @@ function setCoachThreadFilter(theme){
 // toujours son mot, il est court et sert de position de repli claire.
 function renderCoachThemeFilters(){
   const el=document.getElementById('assistantThemeFilters'); if(!el) return;
-  // Les libellés reviennent, tout le temps. En icône seule, le nom ne vivait que dans un attribut
-  // title — donc au survol, donc jamais au doigt — et n'apparaissait qu'une fois le filtre choisi :
-  // on tapait à l'aveugle pour découvrir ce qu'on venait de sélectionner. La rangée défile plutôt que
-  // de passer à la ligne, exactement comme les chips de la Bibliothèque (.lib-fchips), ascenseur
-  // masqué compris. Et 44 px de haut, le standard tactile de l'app — c'était 31.
-  const st='min-height:44px;padding:0 13px;font-size:12.5px;flex-shrink:0;';
-  el.innerHTML = '<button class="lib-chip'+(!coachThreadFilter?' on':'')+'" style="'+st+'" onclick="setCoachThreadFilter(null)">'+trDyn('All')+'</button>'
-    + Object.keys(COACH_THEME_META).map(k=>{
-        const m=COACH_THEME_META[k], active=coachThreadFilter===k;
-        return '<button class="lib-chip'+(active?' on':'')+'" style="'+st+'" onclick="setCoachThreadFilter(\''+k+'\')"><svg class="ki" style="width:13px;height:13px;"><use href="#'+m.icon+'"/></svg>'+trDyn(m.label)+'</button>';
-      }).join('');
+  // Ce n'est pas une rangée de chips, c'est un contrôle segmenté : cinq vues exclusives d'une seule
+  // liste. Donc .p-tab, le composant que l'app utilise déjà dans Progrès et Programme — flex:1 sur
+  // chaque segment, ce qui rend le débordement STRUCTURELLEMENT impossible, quelle que soit la langue.
+  // Avant : des chips en flex-shrink:0 dans un conteneur qui défilait horizontalement, donc un dernier
+  // onglet coupé au bord droit et un geste latéral à deviner. Les icônes tombent avec le défilement
+  // (19 px par segment, et c'est le nom qui identifie un filtre, pas le pictogramme), et
+  // "Planification" devient "Agenda" — le seul libellé qui ne tenait pas dans un cinquième d'écran.
+  // 42 px de haut : un cran sous les 44 du standard, mais c'est la hauteur de .p-tab partout ailleurs
+  // dans l'app, et une rangée de segments jointifs n'a pas de zone morte entre les cibles.
+  const seg=(active,label,onclick)=>'<div class="p-tab'+(active?' active':'')
+    +'" style="padding:12px 4px;font-size:11.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" role="button" tabindex="0" onclick="'+onclick+'">'+label+'</div>';
+  el.innerHTML = seg(!coachThreadFilter, trDyn('All'), 'setCoachThreadFilter(null)')
+    + Object.keys(COACH_THEME_META).map(k=>
+        seg(coachThreadFilter===k, trDyn(COACH_THEME_META[k].label), "setCoachThreadFilter('"+k+"')")
+      ).join('');
 }
 // Le fil est la mémoire du coach (réflexion fonctionnelle, chantier Coach IA, 11/09) : les messages
 // qui vivaient enfermés dans l'historique (modale retirée) apparaissent ici, dans l'ordre
