@@ -20,6 +20,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+/* Les contrôles de formulaire n'héritent pas de font-family : sans cette règle, les 314 boutons
+   de l'app — CTA principaux compris — rendent dans la police système (Arial), pas dans celle de
+   la marque. Constaté en mesurant, jamais visible à la lecture du CSS puisque aucune règle ne
+   parlait de police sur button. */
+button,input,select,textarea{font-family:inherit;}
 :root{
 --bg:#0A0A0F;
 --bg2:#16151C;
@@ -7703,7 +7708,7 @@ function openObjectifPaceInfo(scope){
     +extraCtx
     +calendarLink
     +sessBtn
-    +'<button class="btn-ghost" style="width:100%;margin-top:'+(hideSessBtn?'18px':'8px')+';color:var(--gray2);" onclick="closeModal()">'+trDyn('Got it')+'</button>');
+    +'<button class="btn btn-outline" style="width:100%;margin-top:'+(hideSessBtn?'18px':'10px')+';" onclick="closeModal()">'+trDyn('Got it')+'</button>');
 }
 // Légende de la frise, retirée de l'affichage permanent (cf renderHomeObjectifRing) — reprise ici telle
 // quelle dans un showInfoSheet, un peu agrandie pour se lire en modale plutôt qu'en ligne compacte.
@@ -7815,9 +7820,9 @@ function renderHomeObjectifRing(prefix, profile){
       +'</div>'
       // Le repère blanc n'était expliqué nulle part : on le nomme sous la barre, aligné dessous,
       // plutôt que de laisser "Attendu N jours" en bout de ligne sans lien visuel avec le trait.
-      +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:9px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn('days')+'</span></div>'
+      +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn('days')+'</span></div>'
       +'<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:8px;">'
-        +'<span style="font-size:14px;font-weight:800;color:var(--white);">'+days4+'<span style="font-size:11px;font-weight:600;color:var(--gray2);"> / '+objectif4+' '+trDyn('days')+'</span></span>'
+        +'<span style="font-size:15px;font-weight:800;color:var(--white);font-family:var(--font-head);letter-spacing:-.2px;">'+days4+'<span style="font-size:11px;font-weight:600;color:var(--gray2);letter-spacing:0;"> / '+objectif4+' '+trDyn('days')+'</span></span>'
       +'</div>'
     +'</div>'
     +'</div>';
