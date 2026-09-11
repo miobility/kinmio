@@ -4832,6 +4832,11 @@ let userSessionHistory = [
   { date: Date.now()-9*HIST_DAY, nom:'Upper Power', sessionId:'SES-04', exoIds:['EX-E01','EX-E02','EX-E03','EX-E04','EX-E10'], exercices:5, duree:31, dureeCardio:0, dureeRenfo:31, cardioScore:0, renfoScore:140, effort:'intense', douleur:2, reps:70, exoScores:{'EX-E01':32,'EX-E02':30,'EX-E03':26,'EX-E04':26,'EX-E10':26}, zoneDuration:{dos:0,epaules:99,bras:149,jambes:0,corps_entier:0}, avecCoach:false },
   { date: Date.now()-13*HIST_DAY, nom:'Curl biceps', sessionId:null, exoIds:['EX-E01'], exercices:1, duree:6, dureeCardio:0, dureeRenfo:6, cardioScore:0, renfoScore:36, effort:'facile', douleur:0, reps:18, exoScores:{'EX-E01':36}, zoneDuration:{dos:0,epaules:0,bras:48,jambes:0,corps_entier:0}, avecCoach:false }
 ];
+// Séances live abandonnées (quitSession) — les complètes vivent dans userSessionHistory avec leurs
+// propres champs de vérifiabilité (dureeAttendue/repSource) ; celles-ci n'y vont jamais, pour ne pas
+// fausser ACWR/streaks qui comptent les jours réellement faits. Visibilité référent uniquement
+// (retour utilisateur — "comment se prémunir de la triche").
+let userSessionAttempts = [];
 let userProgrammeHistory = [
   { date: Date.now()-16*HIST_DAY, nom:'Real Start', id:'PRG-01', sessionsCount:11, dureeTotal:238 }
 ];
@@ -9449,24 +9454,46 @@ function selectProgCalDay(year, month, day){
 // Historique séance par séance de la personne actuellement chargée dans userSessionHistory — jamais
 // une navigation vers l'écran Programme partagé (qui a déjà causé une vraie fuite de données Marc/
 // patient simulé, cf discussion), donc toujours cohérent avec la fiche affichée.
+// Repère de plausibilité (retour utilisateur — "comment se prémunir de la triche") : jamais un verdict,
+// juste de quoi orienter le regard du référent — comme il le fait déjà avec la douleur auto-déclarée.
+const REP_SOURCE_LABEL={motion:'Auto-detected', manual:'Self-reported', simulated:'Estimated', mixed:'Mixed', none:null};
 function renderPatientHistoryList(){
   const el=document.getElementById('progHistoryList'); if(!el) return;
-  if(!userSessionHistory.length){ el.innerHTML='<div class="lib-empty">No history yet.</div>'; return; }
+  const abandoned=userSessionAttempts.filter(a=>a.status==='abandoned').sort((a,b)=>b.date-a.date).slice(0,10);
+  if(!userSessionHistory.length && !abandoned.length){ el.innerHTML='<div class="lib-empty">No history yet.</div>'; return; }
   const items=[...userSessionHistory].sort((a,b)=>b.date-a.date);
   const effortMap={facile:'Easy',modere:'Moderate',intense:'Intense',maximum:'Maximum'};
+  const dateLbl=d=>new Date(d).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
   el.innerHTML=items.map((h,i)=>{
-    const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
     const effortLbl=effortMap[h.effort]||h.effort||'—';
+    // Signal de plausibilité léger : terminée en moins de la moitié du temps prévu.
+    const fast = h.dureeAttendue && h.duree < h.dureeAttendue*0.5;
+    const srcLbl = REP_SOURCE_LABEL[h.repSource];
+    const flag = fast ? '<div style="font-size:11px;color:var(--vigilance);margin-top:4px;">'+trDyn('⚠ Done in '+h.duree+' min · '+h.dureeAttendue+' min prescribed')+'</div>' : '';
     return '<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openPatientHistoryRecap('+i+')">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;">'
       +'<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--teal);color:var(--teal);padding:2px 8px;font-size:10px;">'+trDyn('Session')+'</span>'
-      +'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl+'</div>'
+      +'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl(h.date)+'</div>'
       +'</div>'
       +'<div style="font-size:14px;font-weight:700;color:var(--white);margin-top:4px;">'+trDyn(h.nom)+'</div>'
       +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'+trDyn(h.exercices+' exercise'+(h.exercices>1?'s':''))+' · '+trDyn(h.duree+' min')+(h.reps?' · '+trDyn(h.reps+' reps'):'')+'</div>'
-      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(effortLbl)+(h.douleur!==undefined?' · '+trDyn('Pain')+' '+h.douleur+'/10':'')+'</div>'
+      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(effortLbl)+(h.douleur!==undefined?' · '+trDyn('Pain')+' '+h.douleur+'/10':'')+(srcLbl?' · '+trDyn(srcLbl):'')+'</div>'
+      +flag
       +'</div>';
-  }).join('');
+  }).join('')
+  + (abandoned.length ? (
+      '<div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;">'+trDyn('Abandoned attempts')+'</div>'
+      + abandoned.map(a=>
+          '<div class="card-sm" style="margin:0 0 8px;opacity:.65;">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;">'
+          +'<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--gray);color:var(--gray);padding:2px 8px;font-size:10px;">'+trDyn('Abandoned')+'</span>'
+          +'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl(a.date)+'</div>'
+          +'</div>'
+          +'<div style="font-size:13px;font-weight:700;color:var(--gray2);margin-top:4px;">'+trDyn(a.nom)+'</div>'
+          +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(a.exercicesDone+' of '+a.exercicesTotal+' exercises')+' · '+trDyn(a.dureeReelle+' min')+'</div>'
+          +'</div>'
+        ).join('')
+    ) : '');
   window._patientHistItems = items;
 }
 // Favoris/Top exos/Évolution/Maîtrise vivent désormais dans chaque onglet période (renderProgPeriod) —
@@ -9625,12 +9652,24 @@ let rc = 0;                 // répétitions comptées dans la série en cours
 let repTarget = 12;         // objectif de la série
 let repDetectOn = true;     // détection auto active
 let repDetectInt = null, motionHandler = null, usingRealMotion = false;
+// Provenance des reps sur toute la séance (retour utilisateur — vérifiabilité) : usingRealMotion se
+// réinitialise à chaque exercice/série, donc on garde ici une trace cumulée pour savoir, à la fin,
+// si les reps comptées viennent d'un vrai capteur de mouvement, d'une correction manuelle, ou des deux.
+let sessionAnyRealMotion=false, sessionAnyManualTap=false, sessionAnySimulatedAuto=false;
+function sessionRepSource(){
+  const n=(sessionAnyRealMotion?1:0)+(sessionAnyManualTap?1:0)+(sessionAnySimulatedAuto?1:0);
+  if(n>1) return 'mixed';
+  if(sessionAnyRealMotion) return 'motion';
+  if(sessionAnyManualTap) return 'manual';
+  if(sessionAnySimulatedAuto) return 'simulated';
+  return 'none';   // séance 100% intensité (jauge), pas de reps du tout
+}
 
 function renderReps(){
   const el = document.getElementById('repCount'); if(el) el.textContent = rc;
   const t = document.getElementById('repTargetLbl'); if(t) t.textContent = repTarget;
 }
-function chRep(d){ rc = Math.max(0, rc + d); renderReps(); }   // correction manuelle ±
+function chRep(d){ rc = Math.max(0, rc + d); sessionAnyManualTap=true; renderReps(); }   // correction manuelle ±
 
 function countRep(){                                            // une répétition détectée
   if(rc >= repTarget) return;
@@ -9669,13 +9708,13 @@ function updatePaceIndicator(){
 }
 function startRepDetection(){
   stopRepDetection();
-  if(!repDetectOn) return;
+  if(!repDetectOn){ sessionAnyManualTap=true; return; }   // détection coupée : tout vient de chRep()
   usingRealMotion = false;
   // Simulation (desktop / démo) : ~1 rep toutes les 2,4 s
   repDetectInt = setInterval(()=>{
     const scr = document.getElementById('session');
     if(!scr || !scr.classList.contains('active')){ stopRepDetection(); return; }
-    if(repDetectOn && !usingRealMotion) countRep();
+    if(repDetectOn && !usingRealMotion){ countRep(); sessionAnySimulatedAuto=true; }
   }, 2400);
   // Accéléromètre réel (mobile) : prend le relais dès qu'un pic d'accélération est détecté
   if(window.DeviceMotionEvent){
@@ -9683,7 +9722,7 @@ function startRepDetection(){
     motionHandler = (e)=>{
       const a = e.accelerationIncludingGravity || e.acceleration; if(!a) return;
       const mag = Math.abs(a.x||0) + Math.abs(a.y||0) + Math.abs(a.z||0);
-      if(mag - last > 11 && cd <= 0){ usingRealMotion = true; countRep(); cd = 8; }
+      if(mag - last > 11 && cd <= 0){ usingRealMotion = true; sessionAnyRealMotion = true; countRep(); cd = 8; }
       last = mag; if(cd > 0) cd--;
     };
     window.addEventListener('devicemotion', motionHandler);
@@ -10010,7 +10049,26 @@ function quitSession(){
   const trainingScreens=['session','next_exercise','feedback','resume','exercice_detail'];
   while(hist.length>1 && trainingScreens.includes(hist[hist.length-1])) hist.pop();
   if(sessTotal<=1 && exo && exo.mode){ openExerciceNouveau(exo.id); }   // exercice seul : retour sur sa fiche
-  else { go('home'); }                                                  // vraie séance : retour à l'accueil
+  else {
+    // Vérifiabilité (retour utilisateur) : contrairement à avant, un abandon laisse une trace — pas
+    // dans userSessionHistory (qui reste "fait", lu par ACWR/streaks), juste dans userSessionAttempts.
+    if(currentProgram && currentProgram.exercices && currentProgram.exercices.length){
+      const elapsedMs = sessionStartTime ? Date.now()-sessionStartTime : 0;
+      userSessionAttempts.unshift({
+        date: Date.now(),
+        nom: currentProgram.titre,
+        sessionId: sessionActuelle ? sessionActuelle.id : null,
+        status: 'abandoned',
+        exercicesDone: Math.max(0, sessCurrent-1),
+        exercicesTotal: currentProgram.exercices.length,
+        dureeReelle: Math.max(0, Math.round(elapsedMs/60000)),
+        dureeAttendue: sessionActuelle ? sessionActuelle.duree : (currentProgram.duree||0),
+        repSource: sessionRepSource(),
+        demoGatesSkipped: demoSkipGates
+      });
+    }
+    go('home');   // vraie séance : retour à l'accueil
+  }
 }
 
 // ===== Séries multiples sur un même exercice (nouveau modèle) : boucle travail → repos → travail, sur place =====
@@ -10028,6 +10086,19 @@ function updateSetLabel(){
 }
 // CTA principal : "exercice suivant" seulement s'il y en a un vrai, sinon "Terminer" (solo ou dernier de la séance).
 // En reps (AUTO_REPS/MIXTE), tant qu'il reste des séries à faire, le CTA déclenche le repos inter-séries au lieu de changer d'exercice.
+// Garde-fou vérifiabilité (retour utilisateur — enjeu centre de rééducation : "comment se prémunir de
+// quelqu'un qui triche") : on ne peut avancer que si les reps cible sont atteintes (mode reps) ou le
+// temps prescrit écoulé (mode intensité). Contournable volontairement via demoSkipGates (Prototype
+// demo) pour ne pas bloquer une démo en direct. Le repos, lui, reste toujours libre de passer — ce
+// n'est pas du travail à vérifier.
+let demoSkipGates = false;
+function repsGoalMet(){ return demoSkipGates || rc >= repTarget; }
+function cardioTimeUp(){ return demoSkipGates || cardioSecondsLeft <= 0; }
+function toggleDemoSkipGates(){
+  demoSkipGates = !demoSkipGates;
+  toast(demoSkipGates ? '✓ Demo mode: session gates disabled' : '✓ Session gates re-enabled');
+  renderDemoSection('demoHubContent');
+}
 function updateNextBtn(){
   const exo = currentProgram && currentProgram.exercices[sessCurrent-1];
   const isNouveau = !!(exo && exo.mode);
@@ -10041,16 +10112,20 @@ function updateNextBtn(){
   if(stdNextBtn){
     if(isNouveau && !isCardio && exSetCurrent<exSetTotal){
       stdNextBtn.textContent='Complete set →';
-      stdNextBtn.onclick=completeRepsSet;
+      stdNextBtn.onclick=()=>{ if(repsGoalMet()) completeRepsSet(); else toast('Finish your '+repTarget+' reps first ('+rc+'/'+repTarget+')'); };
     } else {
       stdNextBtn.textContent = hasNext ? 'Next exercise →' : 'Finish →';
-      stdNextBtn.onclick = hasNext ? ()=>go('next_exercise') : finishGo;
+      const goNext = hasNext ? ()=>go('next_exercise') : finishGo;
+      stdNextBtn.onclick = (isNouveau && !isCardio)
+        ? (()=>{ if(repsGoalMet()) goNext(); else toast('Finish your '+repTarget+' reps first ('+rc+'/'+repTarget+')'); })
+        : goNext;
     }
   }
   const gaugeNextBtn=document.getElementById('gaugeNextBtn');
   if(gaugeNextBtn){
     gaugeNextBtn.textContent = hasNext ? 'Next →' : 'Finish →';
-    gaugeNextBtn.onclick = hasNext ? ()=>go('next_exercise') : finishGo;
+    const goNextGauge = hasNext ? ()=>go('next_exercise') : finishGo;
+    gaugeNextBtn.onclick = ()=>{ if(cardioTimeUp()) goNextGauge(); else toast('Wait for the timer to finish, or enable demo mode in Prototype demo'); };
   }
 }
 function startRestPhase(){
@@ -10330,7 +10405,12 @@ function bankExerciseTypeDuration(ex, repsForExercice){
   const type = ex.type==='Cardio' ? 'Cardio' : 'Renforcement';
   sessionTypeDuration[type] = (sessionTypeDuration[type]||0) + elapsedMin;
   sessionTypeReps[type] = (sessionTypeReps[type]||0) + (repsForExercice||0);
-  const params = getParamsExercice(ex);
+  // ex vient toujours de currentProgram.exercices (le pont vers le moteur de séance live) dont .params
+  // est déjà résolu à plat (cf demarrerSessionNouveau) — pas le format brut {debutant,intermediaire,
+  // avance} qu'attend getParamsExercice(). Le rappeler ici renvoyait undefined dès qu'aucun réglage
+  // manuel n'avait été posé sur cet exercice, et faisait planter tout ce qui suit (score, reps, zone) —
+  // trouvé en testant le chantier vérifiabilité (durée/reps de la séance devenaient faux en silence).
+  const params = ex.params || getParamsExercice(ex);
   // Cardio pondéré par la jauge (allure/effort, seul champ pertinent pour un exo chronométré) ;
   // renfo pondéré par la résistance de l'élastique (jauge n'est quasi jamais défini en renfo — le
   // lire ici aurait ramené presque tous les scores renfo au même niveau, peu importe l'élastique).
@@ -10403,7 +10483,7 @@ function confirmSessionReady(){
   onSessionStart();
 }
 function onSessionStart(){
-  if(sessCurrent===1){ sessionStartTime=Date.now(); sessionTotalReps=0; sessionTypeDuration={Cardio:0, Renforcement:0}; sessionTypeReps={Cardio:0, Renforcement:0}; sessionCardioScore=0; sessionRenfoScore=0; sessionZoneDuration={}; sessionExoScores={}; applyIntensityRecommendation(); }
+  if(sessCurrent===1){ sessionStartTime=Date.now(); sessionTotalReps=0; sessionTypeDuration={Cardio:0, Renforcement:0}; sessionTypeReps={Cardio:0, Renforcement:0}; sessionCardioScore=0; sessionRenfoScore=0; sessionZoneDuration={}; sessionExoScores={}; sessionAnyRealMotion=false; sessionAnyManualTap=false; sessionAnySimulatedAuto=false; applyIntensityRecommendation(); }
   else {
     bankExerciseTypeDuration(currentProgram.exercices[sessCurrent-2], rc);   // lu avant que rc ne soit remis à 0 juste après
     sessionTotalReps += rc;
@@ -12385,6 +12465,16 @@ const EN_FR = {
   "Step one foot back, press the heel down, then switch sides.": "Recule un pied, presse le talon vers le sol, puis change de côté.",
   "Done →": "Terminé →",
   "Skip cool-down": "Passer le retour au calme",
+  // Garde-fou vérifiabilité + panneau démo (retour utilisateur — "comment se prémunir de la triche")
+  "Session integrity": "Vérifiabilité de la séance",
+  "Skip timers/rep targets in live sessions": "Passer outre minuteurs/objectifs de reps en séance",
+  "ON — advances freely, for demos": "ACTIVÉ — avance librement, pour les démos",
+  "OFF — normal verifiability gates": "DÉSACTIVÉ — garde-fous normaux",
+  "Auto-detected": "Détecté automatiquement",
+  "Self-reported": "Auto-déclaré",
+  "Estimated": "Estimé",
+  "Abandoned attempts": "Tentatives abandonnées",
+  "Abandoned": "Abandonnée",
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
@@ -18827,7 +18917,12 @@ function submitFeedback(){
       reps: sessionTotalReps,
       zoneDuration: {...sessionZoneDuration},
       exoScores: {...sessionExoScores},
-      avecCoach: !!currentProgram.avecCoach
+      avecCoach: !!currentProgram.avecCoach,
+      // Vérifiabilité (retour utilisateur — "comment se prémunir de la triche") : champs ajoutés en
+      // plus, jamais lus par ACWR/streaks/etc. qui ne connaissent que les champs ci-dessus.
+      dureeAttendue: sessionActuelle ? sessionActuelle.duree : (currentProgram.duree||0),
+      repSource: sessionRepSource(),
+      demoGatesSkipped: demoSkipGates
     });
     // Invalide le cache : sans ça, renderProgMonView() continuerait de réafficher CETTE séance comme
     // "séance du jour" indéfiniment au lieu de laisser getSessionDuJour() recalculer la prochaine.
@@ -19153,6 +19248,10 @@ function renderDemoSection(containerId){
   const O='var(--orange)', T='var(--teal)', G='var(--gray2)';
   el.innerHTML=
      '<div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.6px;margin:18px 0 2px;"><svg class="ki"><use href="#ki-sliders"/></svg>Prototype demo</div>'
+    + secTitle('Session integrity')
+    + card(
+        row('', 'Skip timers/rep targets in live sessions', demoSkipGates ? 'ON — advances freely, for demos' : 'OFF — normal verifiability gates', 'toggleDemoSkipGates()', demoSkipGates?'var(--brand-fixed)':G)
+      )
     + secTitle('B2C user')
     + card(
         row('','Full journey','Start — B2C onboarding','userParcours=\'B\';go(\'ob_intro\')',O)
