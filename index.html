@@ -8009,7 +8009,10 @@ function formatCheckinDeltaSpan(part){
   const text = currentLang==='fr'
     ? (part.key==='ex'?`Exercices ${part.before} → ${part.after}`:part.key==='dur'?`Durée ${part.before} → ${part.after} min`:`Intensité ${part.before} → ${part.after}`)
     : (part.key==='ex'?`Exercises ${part.before} → ${part.after}`:part.key==='dur'?`Duration ${part.before} → ${part.after} min`:`Intensity ${part.before} → ${part.after}`);
-  return '<b style="color:var(--white);">'+text+'</b>';
+  // Était un <b> blanc : la ligne de détail pesait donc autant que la phrase de tête juste au-dessus,
+  // et la hiérarchie voulue (résultat en premier, écarts en second) ne se lisait pas. Le fragment
+  // hérite désormais du style de son conteneur ; seules les VALEURS gardent un peu de présence.
+  return '<span>'+text.replace(/(\d+(?:\s*min)?)\s*→\s*(\d+(?:\s*min)?)/, '$1 → <b style="color:var(--gray2);font-weight:700;">$2</b>')+'</span>';
 }
 // Moyenne des jauges des exercices de la séance du jour — affichée sur la carte séance, mise à jour
 // après validation puisque userParamsOverrides (lu par getParamsExercice) a changé.
@@ -8049,7 +8052,7 @@ function renderCheckinPreview(prefix,val){
       ? (lighter?'Séance allégée':'Séance renforcée')+' : '+pv.exCount+' exercices, '+pv.duree+' min'
       : (lighter?'Lighter session':'Stronger session')+': '+pv.exCount+' exercises, '+pv.duree+' min';
     body = '<span style="color:var(--white);font-weight:700;">'+head+'</span>'
-      +'<span style="display:block;font-size:11px;color:var(--gray);margin-top:5px;">'+parts+'</span>';
+      +'<span style="display:block;font-size:11px;font-weight:400;color:var(--gray);margin-top:6px;line-height:1.45;">'+parts+'</span>';
   }
   b.innerHTML=CHECKIN_TITLE
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:16px;padding:16px 18px;border:1px solid var(--border);">'
