@@ -3656,7 +3656,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
        maintenant (chantier Coach IA, réflexion fonctionnelle du 11/09) — pas la peine d'un deuxième
        endroit pour revoir ce que le coach a déjà dit. -->
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">AI Coach</div><div class="topnav-r"></div></div>
-  <div id="coachIaWeeklyCard" style="flex-shrink:0;margin:14px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;"></div>
+  <!-- La carte "Cette semaine" n'est plus epinglee ici : elle descend DANS le fil, en dernier message
+       du coach (cf coachWeeklyHtml). Elle prenait 209 px des 844 de l'ecran, soit un quart, en haut,
+       hors du flux — alors que c'est le seul endroit ou le coach parlait sans etre dans une bulle.
+       Dans le fil elle est a sa place, au pouce, et la conversation recupere la hauteur. -->
   <!-- Filtre par thème (réflexion Coach IA, 11/09) : filtre la MÊME liste chronologique, ne la
        réorganise pas en sections séparées — un seul fil, une lentille optionnelle dessus. Icône
        seule sauf sur l'onglet actif (retour utilisateur, testé sur téléphone : le texte complet sur
@@ -8723,31 +8726,33 @@ function getCoachWeeklyProposal(){
 // Cette zone ne disparaît plus jamais complètement (retour utilisateur : un vide non expliqué se lit
 // comme "cassé", pas comme "rien à signaler") — elle affiche soit la proposition active, soit un état
 // neutre explicite.
-function renderCoachIaWeeklyCard(){
-  const el=document.getElementById('coachIaWeeklyCard'); if(!el) return;
+// Dernier message du fil : ce que le coach a a dire maintenant. Une proposition a traiter, ou la
+// confirmation qu'il n'y a rien. Ce n'est pas une entree de coachHistory (ce n'est pas encore arrive) —
+// c'est l'etat courant, donc il est reconstruit a chaque rendu et jamais archive.
+// La bulle est plus large que les autres (100 % au lieu de 88) : elle ne porte pas du texte mais une
+// decision, et deux boutons cote a cote ont besoin de la place — "Confirm level up" deborde sinon.
+function coachWeeklyHtml(){
   const p=getCoachWeeklyProposal();
+  const av='<span style="width:26px;height:26px;border-radius:50%;background:rgba(var(--brand-fixed-rgb),.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">'+aiSparkleIcon(13,'var(--brand-fixed)')+'</span>';
   if(!p){
-    el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">'
-      +'<div style="width:34px;height:34px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+aiSparkleIcon(18,'var(--gray2)')+'</div>'
-      +'<div style="font-size:13.5px;color:var(--gray2);line-height:1.4;">'+trDyn("You're up to date — nothing to confirm right now, I'll let you know if something comes up.")+'</div>'
-      +'</div>';
-    return;
+    return assistantBubble(trDyn("You're up to date — nothing to confirm right now, I'll let you know if something comes up."), false);
   }
-  el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
-    +'<div style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+aiSparkleIcon(18,'var(--brand-fixed)')+'</div>'
-    +'<div style="font-size:11px;font-weight:700;color:var(--brand-fixed);letter-spacing:.8px;text-transform:uppercase;">'+trDyn('This week')+'</div></div>'
-    +'<div style="font-size:14.5px;color:var(--white);line-height:1.55;">'
-    +trDyn(p.sessionsDone+'/'+p.sessionsGoal+' sessions')+', '+trDyn(p.painKey)+', '+trDyn(p.pctZone+'% time in zone on ')+trDyn(p.exName)+'.'
-    +'<br>'+trDyn('I suggest moving up to level '+(p.level+1)+'.')
-    +'</div>'
-    +'<div style="display:flex;gap:10px;margin-top:16px;">'
-    // .btn / .btn-outline plutot que deux boutons reecrits a la main : meme derive que "Prochaine
-    // seance" qui n'utilisait pas .zone-lbl sur la home — ca marche aujourd'hui et ca diverge a la
-    // premiere retouche du systeme.
-    +'<button class="btn" style="flex:1;padding:13px;font-size:14px;background:var(--brand-fixed);color:var(--ink-on-accent);" onclick="applyCoachLevelUp(\''+p.exId+'\')">'+trDyn('Confirm level up')+'</button>'
-    +'<button class="btn btn-outline" style="flex:1;padding:13px;font-size:14px;" onclick="dismissCoachWeekly()">'+trDyn('Not this week')+'</button>'
-    +'</div>';
+  return '<div style="align-self:stretch;display:flex;align-items:flex-start;gap:8px;">'+av
+    +'<div style="flex:1;min-width:0;background:var(--bg2);border-radius:16px 16px 16px 4px;padding:12px 14px;">'
+      +coachThemeEyebrow('ajustement')
+      +'<div style="font-size:14px;color:var(--white);line-height:1.5;">'
+        +trDyn(p.sessionsDone+'/'+p.sessionsGoal+' sessions')+', '+trDyn(p.painKey)+', '+trDyn(p.pctZone+'% time in zone on ')+trDyn(p.exName)+'.'
+        +'<br>'+trDyn('I suggest moving up to level '+(p.level+1)+'.')
+      +'</div>'
+      +'<div style="display:flex;gap:8px;margin-top:14px;">'
+        +'<button class="btn" style="flex:1;padding:12px;font-size:13.5px;background:var(--brand-fixed);color:var(--ink-on-accent);" onclick="applyCoachLevelUp(\''+p.exId+'\')">'+trDyn('Confirm level up')+'</button>'
+        +'<button class="btn btn-outline" style="flex:1;padding:12px;font-size:13.5px;" onclick="dismissCoachWeekly()">'+trDyn('Not this week')+'</button>'
+      +'</div>'
+    +'</div></div>';
 }
+// Garde le nom d'origine : quatre endroits l'appellent apres avoir change l'etat de la proposition.
+// Il n'y a plus de carte a redessiner, seulement le fil qui la contient.
+function renderCoachIaWeeklyCard(){ renderCoachThread(); }
 function applyCoachLevelUp(exId){
   const exos=[...EXERCICES,...userExercices];
   const ex=exos.find(e=>e.id===exId); if(!ex) return;
@@ -8756,15 +8761,14 @@ function applyCoachLevelUp(exId){
   userParamsOverrides[exId]={...(userParamsOverrides[exId]||{}), jauge:curLevel+1};
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
   logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:ex.nom, level:curLevel+1, accepted:true});
-  appendCoachThreadEntry(coachHistory[0]);
   toast(trDyn('Level updated ✓'));
-  renderCoachIaWeeklyCard();
+  renderCoachIaWeeklyCard();   // reconstruit le fil : l'entree y entre, et la proposition traitee en sort
   updateCoachIaBadge();
 }
 function dismissCoachWeekly(){
   const p=getCoachWeeklyProposal();
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
-  if(p){ logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:p.exName, level:p.level+1, accepted:false}); appendCoachThreadEntry(coachHistory[0]); }
+  if(p) logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:p.exName, level:p.level+1, accepted:false});
   // Retour utilisateur : "Valider" avait son toast, "Pas encore" n'en avait aucun — les deux boutons
   // faisaient disparaître la carte de la même façon, donc se ressentaient comme identiques.
   toast("Noted — I'll suggest it again another time");
@@ -12915,7 +12919,6 @@ function setLang(lang){
     // "11 sept." restait en francais dans la version anglaise — aucun de ces noeuds n'est une cle de
     // dictionnaire. Meme piege que les libellés composes au rendu, meme remede.
     if(document.getElementById('assistantThread')) renderCoachThread();
-    if(document.getElementById('coachIaWeeklyCard')) renderCoachIaWeeklyCard();
   }catch(e){}
   const flags = {fr:'FR', en:'EN', de:'DE'};
   const flagsFull = {fr:'Français', en:'English', de:'Deutsch'};
@@ -19586,7 +19589,15 @@ function renderCoachThread(){
     if(dateLbl!==lastDateLbl){ html+=coachDateSeparator(dateLbl); lastDateLbl=dateLbl; }
     html+=coachHistoryEntryHtml(h);
   });
-  if(coachThreadFilter && !history.length){
+  // La proposition de la semaine ferme le fil : c'est le message le plus recent, donc le dernier, donc
+  // celui qu'on a sous le pouce a l'ouverture (le fil s'auto-scrolle en bas). Elle ne s'affiche pas
+  // sous un filtre qui ne la concerne pas — son theme est 'ajustement', comme l'entree qu'elle
+  // produira une fois traitee. Sous le bon filtre, elle porte sa date du jour comme les autres.
+  if(!coachThreadFilter || coachThreadFilter==='ajustement'){
+    const todayLbl=new Date().toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
+    if(todayLbl!==lastDateLbl){ html+=coachDateSeparator(todayLbl); lastDateLbl=todayLbl; }
+    html+=coachWeeklyHtml();
+  } else if(!history.length){
     html+='<div data-empty-state style="text-align:center;color:var(--gray);font-size:13.5px;padding:30px 0;">'+trDyn('Nothing in this category yet.')+'</div>';
   }
   t.innerHTML=html;
@@ -19614,9 +19625,8 @@ function appendCoachThreadEntry(h){
   t.scrollTop=t.scrollHeight;
 }
 function initAssistantIa(){
-  renderCoachIaWeeklyCard();
   coachThreadFilter=null;
-  renderCoachThread();
+  renderCoachThread();   // contient la proposition de la semaine depuis qu'elle a rejoint le fil
 }
 // ===== MON PROFIL D'ENTRAÎNEMENT (réponses onboarding éditables au tap) =====
 const TP_FIELDS=[
