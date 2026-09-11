@@ -574,6 +574,12 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .eff-opt{flex:1;padding:12px 8px;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;text-align:center;cursor:pointer;transition:all .15s;}
 .eff-opt.on{border-color:var(--orange);background:rgba(var(--orange-rgb),.07);}
 .eff-e{font-size:26px;display:block;margin-bottom:5px;}
+/* La rampe de jauge : 5 points, n remplis. Le meme objet graphique que la jauge d'intensite ailleurs
+   dans l'app — une difficulte se lit sur une echelle, pas sur un visage. */
+.eff-g{display:flex;gap:3px;justify-content:center;margin-bottom:7px;color:var(--gray2);}
+.eff-g i{width:5px;height:5px;border-radius:50%;background:var(--dim);flex-shrink:0;}
+.eff-g i.f{background:currentColor;}
+.eff-opt.on .eff-g{color:var(--orange);}
 .eff-l{font-size:11px;color:var(--gray);font-weight:600;}
 .eff-opt.on .eff-l{color:var(--orange);}
 .note-input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:14px;font-size:14px;color:var(--white);font-family:inherit;resize:none;height:84px;outline:none;}
@@ -1993,10 +1999,16 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="fb-section">
       <div class="fb-title">Perceived effort?</div>
       <div class="effort-row">
-        <div class="eff-opt" data-val="facile" onclick="selEff(this)"><span class="eff-e">😐</span><span class="eff-l">Easy</span></div>
-        <div class="eff-opt on" data-val="modere" onclick="selEff(this)"><span class="eff-e">😊</span><span class="eff-l">Moderate</span></div>
-        <div class="eff-opt" data-val="intense" onclick="selEff(this)"><span class="eff-e">💪</span><span class="eff-l">Intense</span></div>
-        <div class="eff-opt" data-val="maximum" onclick="selEff(this)"><span class="eff-e">🔥</span><span class="eff-l">Maximum</span></div>
+        <!-- 5 crans, et une rampe dans le langage de la jauge plutot que des visages (decision
+             "5 crans partout") : l'echelle de FORME du matin garde ses visages dessines parce
+             qu'elle mesure un ETAT ; celle-ci mesure une DIFFICULTE, donc elle parle jauge.
+             Migration par ajout d'un cran par le bas, sans renumeroter : facile/modere/intense/
+             maximum gardent leur valeur, donc recommendedIntensityLevel() n'est pas touche. -->
+        <div class="eff-opt" data-val="tres_facile" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i></i><i></i><i></i><i></i></span><span class="eff-l">Very easy</span></div>
+        <div class="eff-opt" data-val="facile" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i class="f"></i><i></i><i></i><i></i></span><span class="eff-l">Easy</span></div>
+        <div class="eff-opt on" data-val="modere" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i></span><span class="eff-l">Moderate</span></div>
+        <div class="eff-opt" data-val="intense" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i></span><span class="eff-l">Intense</span></div>
+        <div class="eff-opt" data-val="maximum" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></span><span class="eff-l">Maximum</span></div>
       </div>
     </div>
     <div class="fb-section">
@@ -2058,7 +2070,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div id="progMonView" class="scroll">
       <div class="prog-hero">
-        <div class="prog-thumb" id="progMon_thumb">💪</div>
+        <div class="prog-thumb" id="progMon_thumb"><svg class="ki" style="width:28px;height:28px;color:var(--dim);"><use href="#ki-media"/></svg></div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
           <h2 class="gap4" id="progMon_title" style="margin:0;">—</h2>
           <div style="display:flex;gap:8px;flex-shrink:0;">
@@ -5592,7 +5604,7 @@ function generateFakePatientData(p){
   if(demoPatientDataCache[p.id]) return demoPatientDataCache[p.id];
   const rand=seededRand(hashStr(p.id));
   const exoPool=['EX-S01','EX-S02','EX-S03','EX-S04','EX-S05'];
-  const effortPool=['facile','modere','intense','maximum'];
+  const effortPool=['tres_facile','facile','modere','intense','maximum'];
   // Densité réaliste sur 365 jours, dérivée de la fréquence hebdo déclarée (onb.frequence) pondérée par
   // l'observance réelle du patient (proba de faire chaque séance prévue) — remplace l'ancien espacement
   // arbitraire de 2-6j qui ne couvrait qu'1-2 mois, insuffisant pour honorer des onglets 90j/365j (cf
@@ -8119,7 +8131,11 @@ function previewCheckinImpact(val){
   const sess=getSessionDuJour();
   if(!impact) return {exCount:sess.exercices.length, duree:sess.duree, level:null, changed:false};
   const exCount=Math.max(1, sess.exercices.length+(impact.exDelta||0));
-  const duree=Math.round(sess.duree*exCount/sess.exercices.length);
+  // Arrondi au multiple de 5 le plus proche (minimum 5) : la regle de trois donnait des durees comme
+  // "9 min" ou "13 min", qui ont l'air d'un calcul et pas d'une seance. Une duree annoncee est une
+  // promesse tenable, pas une mesure exacte — et personne ne concoit une seance de 9 minutes.
+  const brut=sess.duree*exCount/sess.exercices.length;
+  const duree=Math.max(5, Math.round(brut/5)*5);
   return {exCount, duree, level:impact.level, changed:true};
 }
 // Jauges de base (niveau de profil, JAMAIS la surcharge déjà en place) vs jauges proposées — même
@@ -11273,6 +11289,8 @@ const EN_FR = {
   "GOAL": "OBJECTIF",
   "Expected": "Attendu",
   "How it runs": "Le déroulé",
+  "Very easy": "Très facile",
+  "Personal note": "Note personnelle",
   "Resume →": "Reprendre →",
   "Discover →": "Découvrir →",
   "x/week": "×/sem.",
@@ -15918,7 +15936,7 @@ function renderProgProgrammesView(){
 // correspond à un exercice fait seul (exoIds[0]), pas de log distinct pour les exercices : ça évite
 // une 3e source de vérité qui dupliquerait l'info. Le type (session/exercice) est dérivé de
 // exercices===1, pas stocké séparément.
-const EFFORT_LABELS_HIST = {facile:'Easy', modere:'Moderate', intense:'Intense', maximum:'Maximum'};
+const EFFORT_LABELS_HIST = {tres_facile:'Very easy', facile:'Easy', modere:'Moderate', intense:'Intense', maximum:'Maximum'};
 // Repère de plausibilité + source des reps : jamais un verdict (retour utilisateur — "comment se
 // prémunir de la triche"), juste de quoi orienter le regard du référent, comme il le fait déjà avec
 // la douleur auto-déclarée. Réservé au coach dans renderProgHistoryList (currentRole==='referent') —
@@ -16036,7 +16054,7 @@ function renderHistoryRecapModal(h){
   window._curRecapEntry=h;
   const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'long',year:'numeric'});
   if(h.kind==='programme'){
-    showModal('<div style="text-align:center;padding:6px 0 4px;"><div style="font-size:44px;">🏁</div>'
+    showModal('<div style="text-align:center;padding:6px 0 4px;"><div style="color:var(--gray2);margin-bottom:2px;"><svg class="ki" style="width:30px;height:30px;"><use href="#ki-cal-check"/></svg></div>'
       +'<h3 style="margin:8px 0 2px;color:var(--white);">'+h.nom+'</h3>'
       +'<p class="sub" style="margin-bottom:16px;">Ended '+dateLbl+'</p></div>'
       +'<div class="resume-stats" style="padding:0 0 4px;">'
@@ -16073,7 +16091,7 @@ function renderHistoryRecapModal(h){
         ? '<div class="coach-tip" style="margin-top:12px;text-align:left;"><span class="ct-ic"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg></span><span>'+h.coachComment+'</span></div><span onclick="editFeedbackComment()" style="display:block;text-align:center;margin-top:6px;color:var(--orange);font-size:12px;font-weight:700;cursor:pointer;">Edit comment</span>'
         : '<span onclick="editFeedbackComment()" style="display:block;text-align:center;margin-top:12px;color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;">+ Add a comment</span>')
     : (h.coachComment ? '<div class="coach-tip" style="margin-top:12px;text-align:left;"><span class="ct-ic"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg></span><span>'+h.coachComment+'</span></div>' : '');
-  showModal('<div style="text-align:center;padding:6px 0 4px;"><div style="font-size:44px;">🎉</div>'
+  showModal('<div style="text-align:center;padding:6px 0 4px;"><div style="color:var(--brand-fixed);margin-bottom:2px;"><svg class="ki" style="width:30px;height:30px;"><use href="#ki-check-circle"/></svg></div>'
     +'<h3 style="margin:8px 0 2px;color:var(--white);">'+h.nom+'</h3>'
     +'<p class="sub" style="margin-bottom:16px;">'+dateLbl+'</p></div>'
     +'<div class="resume-stats" style="padding:0 0 4px;">'
