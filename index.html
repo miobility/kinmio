@@ -8644,12 +8644,17 @@ function exoPhotoFor(ex){
 function renderHomeExplore(prefix){
   const el=document.getElementById(prefix+'ExploreRow'); if(!el) return;
   const list = getExercicesCompatibles().slice(0,8);
+  // Mêmes tags que la fiche exercice/la bibliothèque (exoPastille : mode + zone, plus équipement en
+  // dessous) — avant, cette rangée inventait sa propre étiquette (juste la zone), différente de ce
+  // qu'on voit partout ailleurs pour ce même exercice (retour utilisateur : harmoniser avec la vignette
+  // "Prochaine séance" et, par extension, avec le reste des cartes exercice).
   el.innerHTML=list.map(ex=>{
     return '<div class="emini" onclick="openExerciceHero(\''+ex.id+'\',this)">'
     +'<div class="emini-img" style="background-image:url(\''+exoPhotoFor(ex)+'\');background-size:cover;background-position:center;"></div>'
-    +'<div class="emini-body"><div class="emini-name">'+ex.nom+'</div><div style="margin:4px 0;display:flex;flex-wrap:wrap;gap:5px;">'
-    +'<span class="tag tag-g">'+exoPrimaryZone(ex)+'</span>'
-    +'</div></div></div>';
+    +'<div class="emini-body"><div class="emini-name">'+ex.nom+'</div>'
+    +'<div style="margin:4px 0;">'+exoPastille(ex)+'</div>'
+    +'<div class="emini-meta">'+ex.equipement+'</div>'
+    +'</div></div>';
   }).join('');
   sweepTranslate(el, currentLang);
 }
