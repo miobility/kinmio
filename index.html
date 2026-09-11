@@ -422,6 +422,18 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
    dire laquelle regarder. */
 .ktrio{display:flex;gap:8px;padding:0 20px;}
 .ktrio .kt{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 12px 13px;}
+/* Grille des quatre indicateurs de Home : deux rangees de meme gabarit, un titre par rangee
+   (EFFORT puis SIGNAUX). Avant : trois titres, deux gabarits, et Charge deux fois plus haute que
+   Douleur alors que les deux disaient la meme chose. Les tuiles du bas portent une arete gauche
+   qui prend la couleur de l'etat — c'est ce qui garde les trois marqueurs de la charte (arete,
+   pictogramme, libelle) sans casser la regularite de la grille. */
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 20px;}
+.kgrid .kt{min-width:0;min-height:101px;display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 12px 13px;}
+.kgrid .kt.sig{border-left-width:3px;border-radius:0 14px 14px 0;}
+.kt-bar{height:3px;border-radius:2px;margin-top:9px;position:relative;background:linear-gradient(90deg,var(--red) 0%,var(--red) 15%,var(--vigilance) 15%,var(--vigilance) 40%,var(--teal) 40%,var(--teal) 65%,var(--vigilance) 65%,var(--vigilance) 90%,var(--red) 90%);}
+.kt-bar i{position:absolute;top:-2px;width:2px;height:7px;background:var(--white);}
+.kt-ic{margin-left:auto;display:inline-flex;align-items:center;}
+.kt-ic svg{width:13px;height:13px;}
 .kt-l{font-size:9.5px;font-weight:700;color:var(--gray);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:2px 0;}
 .kt-v{font-size:20px;font-weight:800;color:var(--white);line-height:1;font-variant-numeric:tabular-nums;font-family:var(--font-head);letter-spacing:-.3px;}
 .kt-u{font-size:10px;color:var(--gray2);font-weight:600;}
@@ -7838,30 +7850,23 @@ function renderHomeObjectifRing(prefix, profile){
 // même fenêtre temporelle en réalité (ACWR = 7j/28j, douleur = dernières séances).
 function renderHomeKpiZone(prefix, profile){
   const el=document.getElementById(prefix+'KpiZone'); if(!el) return;
-  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('LOAD')+'</div>';
-  out += buildLoadPainHtml(true, false, 'load');
-  out += '<div class="zone-lbl">'+trDyn('PAIN')+'</div>';
-  out += buildLoadPainHtml(true, false, 'pain');
+  // Quatre indicateurs, deux rangees, deux titres — EFFORT (ce que tu as produit) puis SIGNAUX (ce
+  // que ca produit sur toi). Avant : trois titres pour trois blocs d'un seul element, et deux
+  // gabarits differents pour Charge et Douleur, qui sont pourtant deux jumeaux. Les tuiles du bas
+  // gardent les trois marqueurs de la charte via leur arete gauche ; celles du haut n'en ont pas,
+  // parce qu'un volume n'est ni bon ni mauvais, c'est une mesure.
+  const infoIcon='style="cursor:pointer;margin-left:0;padding:16px;margin:-16px -12px -16px 0;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
+  const info=(title,body)=>'<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\''+title+'\',\''+body+'\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+  const pic=name=>'<span class="kt-ic"><svg class="ki"><use href="#ki-'+name+'"/></svg></span>';
 
-  // Volume (minutes) déplacé ici depuis le bloc Objectif (cf audit "le volume de minutes, on le
-  // retrouvera avec l'intensité") — reste visible, mais redevient une simple info, plus un juge de
-  // couleur du bloc Objectif (qui ne parle plus que jours, cf renderHomeObjectifRing). userProfileData
-  // (pas le paramètre `profile` de cette fonction, qui est userProfile/userProfileCentre — un objet
-  // décoratif sans .duree — cf syncUserProfileDataFromOnboarding, toujours à jour avec le vrai profil).
+  // --- rangee 1 : EFFORT ---
   const week=getWeekDaysTrained();
   const volTarget=week.objectif*(userProfileData.duree_seance||30);
   const volPct=volTarget ? Math.min(100, Math.round(week.minutes/volTarget*100)) : 0;
-  const vr=14, vc=2*Math.PI*vr, vOffset=vc*(1-volPct/100);
-  const volInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Minutes trained this week versus your weekly target (days × preferred session length). A supporting number, not a status — see This week on the Objectif card for whether you\\\'re on track.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span>';
-  const volumeCell='<div class="kt" style="flex:1;">'
-    +'<div class="kt-l">'+trDyn('Volume')+volInfo+'</div>'
-    +'<div style="display:flex;align-items:center;gap:8px;">'
-      +'<svg width="30" height="30" viewBox="0 0 36 36" style="flex-shrink:0;transform:rotate(-90deg);">'
-        +'<circle cx="18" cy="18" r="'+vr+'" fill="none" stroke="var(--border)" stroke-width="4"/>'
-        +'<circle cx="18" cy="18" r="'+vr+'" fill="none" stroke="var(--brand-fixed)" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+vc.toFixed(1)+'" stroke-dashoffset="'+vOffset.toFixed(1)+'" style="transition:stroke-dashoffset .6s ease;"/>'
-      +'</svg>'
-      +'<div><div class="kt-v" style="font-size:16px;">'+week.minutes+'<span class="kt-u"> min</span></div><div class="kt-d" style="margin-top:2px;color:var(--gray2);">'+volPct+'%</div></div>'
-    +'</div>'
+  const volumeCell='<div class="kt">'
+    +'<div class="kt-l">'+trDyn('Volume')+info('Volume','Minutes trained this week versus your weekly target — your training days multiplied by your preferred session length.')+'</div>'
+    +'<div class="kt-v">'+week.minutes+'<span class="kt-u"> min</span></div>'
+    +'<div class="kt-d" style="color:var(--gray2);">'+volPct+'%</div>'
     +'<div class="kt-c">'+trDyn('Goal')+' '+volTarget+' min</div>'
   +'</div>';
 
@@ -7870,20 +7875,55 @@ function renderHomeKpiZone(prefix, profile){
   let intensityCell='';
   if(pct!=null){
     const pctPrev=computeEffortScorePct(prevSessions);
-    const intDelta = pctPrev==null ? null : ptsDelta(pct, pctPrev);
-    const infoIcon='style="cursor:pointer;margin-left:0;padding:16px;margin:-16px -12px -16px 0;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
-    const intInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
-    intensityCell='<div class="kt" style="flex:1;">'
-        +'<div class="kt-l">'+trDyn('7-day rolling')+intInfo+'</div>'
-        +'<div style="display:flex;align-items:baseline;gap:4px;"><span class="kt-v">'+pct+'%</span></div>'
-        +'<div class="kt-d" style="color:'+(intDelta?(intDelta.dir==='up'?'var(--teal)':intDelta.dir==='down'?'var(--vigilance)':'var(--gray)'):'var(--dim)')+';">'+(intDelta?(intDelta.dir==='up'?'↑':intDelta.dir==='down'?'↓':'→')+' '+intDelta.pct+'pts':'—')+'</div>'
-      +'</div>';
+    const d = pctPrev==null ? null : ptsDelta(pct, pctPrev);
+    // Le titre dit QUOI, pas QUAND : la tuile s'appelle "Intensite", la fenetre glissante redescend
+    // dans l'infobulle (avant, le titre etait "7 jours glissants" — une periode, pas un indicateur).
+    intensityCell='<div class="kt">'
+      +'<div class="kt-l">'+trDyn('Intensity')+info('Intensity','How intense your training has been over the last 7 rolling days, compared to your own best 7-day window ever recorded. 100% means you are matching your all-time best week.')+'</div>'
+      +'<div class="kt-v">'+pct+'<span class="kt-u">%</span></div>'
+      +'<div class="kt-d" style="color:'+(d?(d.dir==='up'?'var(--teal)':d.dir==='down'?'var(--vigilance)':'var(--gray)'):'var(--dim)')+';">'+(d?(d.dir==='up'?'↑':d.dir==='down'?'↓':'→')+' '+d.pct+'pts':'—')+'</div>'
+      +'<div class="kt-c">'+trDyn('vs your record')+'</div>'
+    +'</div>';
   }
-  // Titre couvrant les deux tuiles (cf discussion "là où il y a l'intensité, à droite on ajoutera le
-  // volume") — une seule ligne "VOLUME & INTENSITÉ" plutôt que deux titres empilés pour une seule rangée.
-  out += '<div class="zone-lbl">'+trDyn('VOLUME & INTENSITY')+'</div>'
-    +'<div class="ktrio" style="padding:0 20px 20px;">'+volumeCell+intensityCell+'</div>';
 
+  // --- rangee 2 : SIGNAUX ---
+  const fatigue=getFatigueSignal();
+  const pain=getPainSignal();
+  const loadTone = fatigue.acwr==null ? 'var(--border)' : fatigue.level==='high' ? 'var(--red)' : fatigue.level==='low' ? 'var(--vigilance)' : 'var(--brand-fixed)';
+  const loadAlert = (fatigue.level==='high'||fatigue.level==='low');
+  const loadWord = fatigue.acwr==null ? trDyn('Not enough data yet') : fatigue.level==='high' ? trDyn('rising fast') : fatigue.level==='low' ? trDyn('below usual') : trDyn('steady');
+  const acwrPct = fatigue.acwr==null ? 0 : Math.min(100, Math.max(0, fatigue.acwr/2*100));
+  const loadCell='<div class="kt sig" style="border-left-color:'+loadTone+';">'
+    +'<div class="kt-l">'+trDyn('Load')+info('Load','How hard you have trained over the last 7 days compared with your usual pace over 28 days. Between 0.8 and 1.3 is a healthy zone — much higher means you are ramping up fast.')
+      +(fatigue.acwr==null?'':'<span style="color:'+loadTone+';display:contents;">'+pic(loadAlert?'alert':'check-circle')+'</span>')+'</div>'
+    +(fatigue.acwr==null
+      ? '<div class="kt-c" style="margin-top:0;">'+trDyn('Not enough data yet')+'</div>'
+      : '<div class="kt-v" style="color:'+loadTone+';">'+fatigue.acwr.toFixed(1)+'<span class="kt-u">×</span></div>'
+        +'<div class="kt-bar"><i style="left:'+acwrPct+'%"></i></div>'
+        +'<div class="kt-c">'+loadWord+'</div>')
+  +'</div>';
+
+  const lvl = pain.level==null ? null : Math.round(pain.level);
+  const painTone = lvl==null ? 'var(--border)' : lvl<=3 ? 'var(--brand-fixed)' : lvl<=6 ? 'var(--vigilance)' : 'var(--red)';
+  const painAlert = lvl!=null && lvl>3;
+  // Tendance en sous-titre, jamais en valeur : la valeur affichee est la DERNIERE declaree, la meme
+  // que celle qui decide de l'ajustement de seance (cf recommendedIntensityLevel). Avant, la tuile
+  // montrait la tendance sur 3 seances pendant que le moteur decidait sur la derniere valeur — deux
+  // chiffres pour une meme notion, qui pouvaient se contredire a l'ecran.
+  const painWord = lvl==null ? '' : pain.trend==='hausse' ? trDyn('rising over 3 sessions') : pain.trend==='baisse' ? trDyn('easing over 3 sessions') : trDyn('stable over 3 sessions');
+  const painCell='<div class="kt sig" style="border-left-color:'+painTone+';">'
+    +'<div class="kt-l">'+trDyn('Pain')+info('Pain','Your most recent self-reported pain level, taken at the end of your last session. The trend compares it with up to 3 sessions ago.')
+      +(lvl==null?'':'<span style="color:'+painTone+';display:contents;">'+pic(painAlert?'alert':'check-circle')+'</span>')+'</div>'
+    +(lvl==null
+      ? '<div class="kt-c" style="margin-top:0;">'+trDyn('Not enough data yet')+'</div>'
+      : '<div class="kt-v" style="color:'+painTone+';">'+lvl+'<span class="kt-u">/10</span></div>'
+        +'<div class="kt-c" style="margin-top:9px;">'+painWord+'</div>')
+  +'</div>';
+
+  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('EFFORT')+'</div>'
+    +'<div class="kgrid" style="margin-bottom:18px;">'+volumeCell+intensityCell+'</div>'
+    +'<div class="zone-lbl">'+trDyn('SIGNALS')+'</div>'
+    +'<div class="kgrid" style="padding-bottom:20px;">'+loadCell+painCell+'</div>';
   el.innerHTML = out;
   sweepTranslate(el, currentLang);
 }
@@ -11399,6 +11439,20 @@ const EN_FR = {
   "Goal reached": "Objectif atteint",
   "Nothing planned": "Rien de prévu",
   "Usual day": "Jour habituel",
+  "EFFORT": "EFFORT",
+  "SIGNALS": "SIGNAUX",
+  "Intensity": "Intensité",
+  "vs your record": "vs ton record",
+  "rising fast": "en forte hausse",
+  "below usual": "sous ton habitude",
+  "steady": "stable",
+  "rising over 3 sessions": "en hausse sur 3 séances",
+  "easing over 3 sessions": "en baisse sur 3 séances",
+  "stable over 3 sessions": "stable sur 3 séances",
+  "Minutes trained this week versus your weekly target — your training days multiplied by your preferred session length.": "Minutes faites cette semaine par rapport à ton objectif hebdomadaire — tes jours d'entraînement multipliés par ta durée de séance préférée.",
+  "How intense your training has been over the last 7 rolling days, compared to your own best 7-day window ever recorded. 100% means you are matching your all-time best week.": "L'intensité de tes 7 derniers jours glissants, comparée à ta meilleure semaine jamais enregistrée. 100 %, c'est que tu égales ton record.",
+  "How hard you have trained over the last 7 days compared with your usual pace over 28 days. Between 0.8 and 1.3 is a healthy zone — much higher means you are ramping up fast.": "Ce que tu as encaissé sur 7 jours comparé à ton rythme habituel sur 28 jours. Entre 0,8 et 1,3, tu es dans une zone saine — bien au-dessus, tu montes vite.",
+  "Your most recent self-reported pain level, taken at the end of your last session. The trend compares it with up to 3 sessions ago.": "Ta dernière douleur déclarée, à la fin de ta séance précédente. La tendance la compare à celle d'il y a jusqu'à 3 séances.",
   "Runs Monday to Sunday and resets every Monday. A day counts as done as soon as you have trained, even outside your usual training days.": "Va du lundi au dimanche et se remet à zéro chaque lundi. Un jour compte comme fait dès que tu t'es entraîné, même en dehors de tes jours habituels.",
   "Catch-up added": "Rattrapage ajouté",
   "Cycle": "Cycle",
@@ -12477,6 +12531,11 @@ function setLang(lang){
   try{
     if(document.getElementById('homeObjectifZone')) renderHomeObjectifRing('home', userProfile);
     if(document.getElementById('homeCentreObjectifZone')) renderHomeObjectifRing('homeCentre', userProfileCentre);
+    // Meme raison pour la zone Effort/Signaux : "Objectif 90 min" ou "1.0×" sont composes au rendu,
+    // sweepTranslate ne sait traduire qu'un noeud texte entier et les laissait dans la langue du
+    // dernier rendu.
+    if(document.getElementById('homeKpiZone')) renderHomeKpiZone('home', userProfile);
+    if(document.getElementById('homeCentreKpiZone')) renderHomeKpiZone('homeCentre', userProfileCentre);
   }catch(e){}
   const flags = {fr:'FR', en:'EN', de:'DE'};
   const flagsFull = {fr:'Français', en:'English', de:'Deutsch'};
@@ -18449,11 +18508,16 @@ let painBefore=4, painAfter=0, feedbackEffort='modere';
 // bandeau d'intensité en début de séance. Même logique que le mini-bloc ACWR de Home (getFatigueSignal) —
 // un chiffre qu'on affichait sans jamais s'en servir ailleurs (cf discussion).
 function recommendedIntensityLevel(){
-  if(lastSessionPain>=6 || lastFeedbackEffort==='maximum') return {level:1, reason:'your pain was high last time'};
+  // Source unique pour la douleur (cf arbitrage "derniere valeur") : la meme que celle affichee dans
+  // la tuile Signaux — getPainSignal().level, c'est-a-dire la derniere douleur declaree dans
+  // l'historique. Avant, la cascade lisait la variable lastSessionPain pendant que la tuile lisait
+  // l'historique : deux sources pour une meme notion, qui pouvaient se contredire a l'ecran.
+  const painNow = (getPainSignal().level!=null) ? getPainSignal().level : lastSessionPain;
+  if(painNow>=6 || lastFeedbackEffort==='maximum') return {level:1, reason:'your pain was high last time'};
   if(isReturningFromGap()) return {level:1, reason:"you're returning after a break — let's ease back in"};
   if(getFatigueSignal().level==='high') return {level:1, reason:'your training load has ramped up fast recently'};
   if(todayCheckin==='fatigue') return {level:1, reason:"you're feeling tired today"};
-  if(lastSessionPain>=4 || lastFeedbackEffort==='intense') return {level:2, reason:'your last session felt tough'};
+  if(painNow>=4 || lastFeedbackEffort==='intense') return {level:2, reason:'your last session felt tough'};
   return null;
 }
 const feedbackMessages={
