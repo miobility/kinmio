@@ -9415,11 +9415,16 @@ function selectProgCalDay(year, month, day){
     // le nom et la durée, et aucune action — c'est un cul-de-sac"). Réutilise renderHistoryRecapModal,
     // la même fiche déjà utilisée depuis l'historique Progress — pas une 2e vue à maintenir.
     const effortLbl = EFFORT_LABELS_HIST[session.effort]||session.effort;
+    // Même étiquette que l'Accueil/la fiche séance/l'historique (sessionBadgeLabel) — avant, le détail
+    // d'un jour n'affichait aucun tag du tout (audit calendrier/historique).
+    const calSess = session.sessionId ? [...SESSIONS,...userSessions].find(s=>s.id===session.sessionId) : null;
+    const calBadge = calSess ? trDyn(sessionBadgeLabel(calSess)) : null;
     el.innerHTML = '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
       +'<div style="width:44px;height:44px;border-radius:12px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
       +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>'
       +'<div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
       +'<div style="font-size:14px;font-weight:700;margin-top:2px;">'+trDyn(session.nom)+'</div>'
+      +(calBadge?'<div style="font-size:11px;color:var(--gray2);margin-top:1px;">'+calBadge+'</div>':'')
       +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(session.duree+' min')+(session.exercices?' · '+trDyn(session.exercices+' exercise'+(session.exercices>1?'s':'')):'')+(effortLbl?' · '+trDyn(effortLbl):'')+'</div></div></div>'
       +'<button class="btn btn-outline" style="width:100%;margin-top:10px;padding:9px;font-size:12.5px;" onclick="openCalSessionRecap('+dateObj.getTime()+')">'+trDyn('View details →')+'</button>';
     return;
@@ -9451,6 +9456,7 @@ function selectProgCalDay(year, month, day){
     const sess=getSessionDuJour();
     el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
       +'<div style="font-size:13px;color:var(--brand-fixed);margin-top:4px;font-weight:700;">'+trDyn('Programme session')+'</div>'
+      +'<div style="font-size:11px;color:var(--gray2);margin-top:2px;">'+trDyn(sessionBadgeLabel(sess))+'</div>'
       +'<div style="font-size:12px;color:var(--gray2);margin-top:2px;">'+trDyn(sess.nom)+' · '+trDyn(sess.exercices.length+' exercise'+(sess.exercices.length>1?'s':''))+' · '+trDyn(sess.duree+' min')+'</div>'
       +'<div style="display:flex;gap:8px;margin-top:10px;">'
         +'<button class="btn btn-brand-fixed" style="flex:1;padding:9px;font-size:12.5px;" onclick="openSessionDetail(\''+sess.id+'\')">'+trDyn('View session')+'</button>'
@@ -9484,15 +9490,21 @@ function renderPatientHistoryList(){
   const items=[...userSessionHistory].sort((a,b)=>b.date-a.date);
   const effortMap={facile:'Easy',modere:'Moderate',intense:'Intense',maximum:'Maximum'};
   const dateLbl=d=>new Date(d).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
+  // Même étiquette que l'Accueil/la fiche séance (sessionBadgeLabel, tags réels) — avant, chaque carte
+  // affichait le mot "Session" en dur, sans distinction (audit calendrier/historique). Repli sur
+  // "Session" seulement si la séance catalogue n'existe plus (ex. exercice seul, sessionId absent).
+  const allSess=[...SESSIONS,...userSessions];
   el.innerHTML=items.map((h,i)=>{
     const effortLbl=effortMap[h.effort]||h.effort||'—';
     // Signal de plausibilité léger : terminée en moins de la moitié du temps prévu.
     const fast = h.dureeAttendue && h.duree < h.dureeAttendue*0.5;
     const srcLbl = REP_SOURCE_LABEL[h.repSource];
     const flag = fast ? '<div style="font-size:11px;color:var(--vigilance);margin-top:4px;">'+trDyn('⚠ Done in '+h.duree+' min · '+h.dureeAttendue+' min prescribed')+'</div>' : '';
+    const sess=h.sessionId ? allSess.find(s=>s.id===h.sessionId) : null;
+    const badgeLbl=sess ? trDyn(sessionBadgeLabel(sess)) : trDyn('Session');
     return '<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openPatientHistoryRecap('+i+')">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-      +'<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--teal);color:var(--teal);padding:2px 8px;font-size:10px;">'+trDyn('Session')+'</span>'
+      +'<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--teal);color:var(--teal);padding:2px 8px;font-size:10px;">'+badgeLbl+'</span>'
       +'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl(h.date)+'</div>'
       +'</div>'
       +'<div style="font-size:14px;font-weight:700;color:var(--white);margin-top:4px;">'+trDyn(h.nom)+'</div>'
