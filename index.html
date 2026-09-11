@@ -3656,16 +3656,18 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">AI Coach</div><div class="topnav-r"></div></div>
   <div id="coachIaWeeklyCard" style="flex-shrink:0;margin:14px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;"></div>
   <!-- Filtre par thème (réflexion Coach IA, 11/09) : filtre la MÊME liste chronologique, ne la
-       réorganise pas en sections séparées — un seul fil, une lentille optionnelle dessus.
-       flex-wrap plutôt que défilement horizontal (retour utilisateur : "il ne faut pas qu'on
-       puisse scroller de gauche à droite") — tout reste visible d'un coup, quitte à prendre une
-       deuxième ligne. -->
-  <div id="assistantThemeFilters" style="padding:10px 20px 0;flex-shrink:0;display:flex;flex-wrap:wrap;gap:8px;"></div>
+       réorganise pas en sections séparées — un seul fil, une lentille optionnelle dessus. Icône
+       seule sauf sur l'onglet actif (retour utilisateur, testé sur téléphone : le texte complet sur
+       5 onglets tenait sur 2 lignes ou débordait — "dégueulasse", et ça écrasait le fil). -->
+  <div id="assistantThemeFilters" style="padding:10px 20px 0;flex-shrink:0;display:flex;gap:6px;"></div>
   <div class="scroll px pt pb" id="assistantThread" style="display:flex;flex-direction:column;gap:12px;"></div>
-  <div id="assistantChips" style="padding:10px 20px 4px;flex-shrink:0;display:flex;flex-wrap:wrap;gap:8px;"></div>
-  <div style="padding:8px 20px 20px;flex-shrink:0;display:flex;gap:8px;align-items:center;">
-    <input type="text" id="assistantInput" placeholder="Try a suggestion above…" readonly style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:14px;color:var(--gray);font-family:inherit;outline:none;">
-    <button style="width:44px;height:44px;border-radius:14px;background:var(--bg3);border:none;color:var(--gray);font-size:18px;cursor:pointer;flex-shrink:0;">→</button>
+  <!-- Les 6 questions ne vivent plus en permanence à l'écran (retour utilisateur : elles prenaient
+       6 lignes et laissaient à peine de place au fil) — un seul déclencheur compact, la liste
+       s'ouvre dans une feuille au tap. Le faux champ de saisie (jamais fonctionnel, en lecture
+       seule) disparaît avec — il ne servait à rien de le garder à côté d'un vrai bouton d'action. -->
+  <div style="padding:8px 20px 20px;flex-shrink:0;display:flex;gap:8px;">
+    <button class="btn btn-outline" style="flex:1;padding:13px;font-size:14px;" onclick="openAssistantQuestionSheet()"><svg class="ki" style="width:15px;height:15px;"><use href="#ki-plus"/></svg> <span id="assistantAskBtnLbl">Ask a question</span></button>
+    <button id="assistantVoiceBtn" style="width:48px;height:48px;border-radius:14px;background:var(--bg3);border:none;color:var(--gray2);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;" onclick="startVoiceAsk()" title="Ask out loud"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v4"/></svg></button>
   </div>
   <div class="bnav">
     <button class="bnav-item" onclick="go(currentRole==='user_centre'?'home_centre':'home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
@@ -12490,7 +12492,7 @@ const EN_FR = {
   "Planning": "Planification",
   "Nothing in this category yet.": "Rien dans cette catégorie pour l'instant.",
   "You're up to date — nothing to confirm right now, I'll let you know if something comes up.": "Tu es à jour — rien à valider pour l'instant, je te préviens si besoin.",
-  "Try a suggestion above…": "Essaie une suggestion ci-dessus…",
+  "Ask a question": "Poser une question",
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
@@ -19381,10 +19383,52 @@ function assistantAsk(id, label){
   t.insertAdjacentHTML('beforeend', assistantBubble(assistantComputeAnswer(id), false));
   t.scrollTop=t.scrollHeight;
 }
-function renderAssistantChips(){
-  const c=document.getElementById('assistantChips'); if(!c) return;
+// Les questions ne vivent plus en permanence à l'écran (retour utilisateur, testé sur téléphone :
+// 6 lignes de puces écrasaient le fil, qui est le vrai contenu de cet écran) — un seul bouton ouvre
+// une feuille avec la liste, déjà filtrée par le thème actif comme avant.
+function openAssistantQuestionSheet(){
   const list=ASSISTANT_QUESTIONS.filter(q=>!coachThreadFilter || q.theme===coachThreadFilter);
-  c.innerHTML=list.map(q=>'<button class="lib-chip" onclick="assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')">'+q.q+'</button>').join('');
+  const rows = list.length ? list.map(q=>
+    '<button class="btn btn-outline" style="width:100%;text-align:left;margin-bottom:8px;padding:13px 16px;font-size:14px;" onclick="closeModal();assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')">'+q.q+'</button>'
+  ).join('') : '<div style="text-align:center;color:var(--gray);font-size:13.5px;padding:20px 0;">'+trDyn('Nothing in this category yet.')+'</div>';
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:14px;">'+trDyn('Ask a question')+'</div>'
+    +rows
+    +'<button class="btn-ghost" style="margin-top:6px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
+}
+// Vocal (retour utilisateur : "teste le vocal aussi") — reconnaissance vocale du navigateur, puis
+// correspondance par mots-clés avec les questions connues : il n'y a pas de vraie IA branchée derrière
+// (cf assistantComputeAnswer, toujours à id fixe), donc parler ne peut que DÉCLENCHER l'une des
+// questions existantes, pas obtenir une réponse à une question inédite — même limite que le chat libre,
+// juste une autre porte d'entrée vers les mêmes réponses calculées.
+function bestMatchingQuestion(said){
+  const said2=said.toLowerCase();
+  const pool=ASSISTANT_QUESTIONS.filter(q=>!coachThreadFilter || q.theme===coachThreadFilter);
+  let best=null, bestScore=0;
+  pool.forEach(q=>{
+    const words=q.q.toLowerCase().replace(/[?'’]/g,'').split(/\s+/).filter(w=>w.length>3);
+    const score=words.filter(w=>said2.includes(w)).length;
+    if(score>bestScore){ bestScore=score; best=q; }
+  });
+  return bestScore>0 ? best : null;
+}
+function startVoiceAsk(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast("Voice input isn't supported on this device"); return; }
+  const btn=document.getElementById('assistantVoiceBtn');
+  const rec=new SR();
+  rec.lang=currentLang==='fr'?'fr-FR':'en-US';
+  rec.interimResults=false;
+  if(btn){ btn.style.color='var(--orange)'; btn.style.background='rgba(var(--orange-rgb),.15)'; }
+  const reset=()=>{ if(btn){ btn.style.color='var(--gray2)'; btn.style.background='var(--bg3)'; } };
+  rec.onresult=(e)=>{
+    const said=e.results[0][0].transcript;
+    const match=bestMatchingQuestion(said);
+    if(match) assistantAsk(match.id, match.q);
+    else toast("Didn't recognize a known question — try the list instead");
+  };
+  rec.onerror=()=>{ toast('Voice input failed — try again or use the list'); };
+  rec.onend=reset;
+  try{ rec.start(); }catch(e){ toast('Voice input failed to start'); reset(); }
 }
 // Texte + date d'une entrée coachHistory, formatés pour vivre DANS une bulle du fil (chantier Coach
 // IA — le fil est la mémoire, plus de modale historique séparée). La date reste visible sous le texte
@@ -19433,10 +19477,16 @@ function setCoachThreadFilter(theme){
   coachThreadFilter = (coachThreadFilter===theme) ? null : theme;
   renderCoachThread();
 }
+// Icône seule sauf sur l'onglet actif (retour utilisateur, testé sur téléphone) — "Tous" garde
+// toujours son mot, il est court et sert de position de repli claire.
 function renderCoachThemeFilters(){
   const el=document.getElementById('assistantThemeFilters'); if(!el) return;
-  el.innerHTML = '<button class="lib-chip'+(!coachThreadFilter?' on':'')+'" onclick="setCoachThreadFilter(null)">'+trDyn('All')+'</button>'
-    + Object.keys(COACH_THEME_META).map(k=>'<button class="lib-chip'+(coachThreadFilter===k?' on':'')+'" onclick="setCoachThreadFilter(\''+k+'\')">'+trDyn(COACH_THEME_META[k].label)+'</button>').join('');
+  const pad=active=>'padding:'+(active?'7px 11px':'7px 8px')+';font-size:12px;flex-shrink:0;';
+  el.innerHTML = '<button class="lib-chip'+(!coachThreadFilter?' on':'')+'" style="'+pad(!coachThreadFilter)+'" onclick="setCoachThreadFilter(null)">'+trDyn('All')+'</button>'
+    + Object.keys(COACH_THEME_META).map(k=>{
+        const m=COACH_THEME_META[k], active=coachThreadFilter===k;
+        return '<button class="lib-chip'+(active?' on':'')+'" style="'+pad(active)+'" onclick="setCoachThreadFilter(\''+k+'\')" title="'+trDyn(m.label)+'"><svg class="ki" style="width:13px;height:13px;"><use href="#'+m.icon+'"/></svg>'+(active?trDyn(m.label):'')+'</button>';
+      }).join('');
 }
 // Le fil est la mémoire du coach (réflexion fonctionnelle, chantier Coach IA, 11/09) : les messages
 // qui vivaient enfermés dans l'historique (modale retirée) apparaissent ici, dans l'ordre
@@ -19458,7 +19508,6 @@ function renderCoachThread(){
   }
   t.innerHTML=html;
   renderCoachThemeFilters();
-  renderAssistantChips();   // les questions suggérées suivent le même filtre que le fil
   t.scrollTop=t.scrollHeight;
 }
 // Ajoute une entrée coachHistory au fil déjà à l'écran, sans tout reconstruire — utilisé quand une
@@ -19475,10 +19524,7 @@ function appendCoachThreadEntry(h){
 function initAssistantIa(){
   renderCoachIaWeeklyCard();
   coachThreadFilter=null;
-  renderCoachThread();   // appelle aussi renderAssistantChips()
-  // sweepTranslate ne touche jamais les attributs placeholder (seulement le texte visible) — resté en
-  // anglais malgré le balayage, jamais remarqué avant parce que jamais lu de près (retour utilisateur).
-  const input=document.getElementById('assistantInput'); if(input) input.placeholder=trDyn('Try a suggestion above…');
+  renderCoachThread();
 }
 // ===== MON PROFIL D'ENTRAÎNEMENT (réponses onboarding éditables au tap) =====
 const TP_FIELDS=[
