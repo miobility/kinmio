@@ -7664,11 +7664,18 @@ function openObjectifPaceInfo(scope){
     const manqueCount=countManqueInWindow(cycleStart, new Date(cycleStart.getTime()+daysInCycle*HIST_DAY), trainDays);
     const expectedCycle=Math.round((week.objectif*cw)*(daysIntoCycle/daysInCycle));
     state=objectifDayState(days4, plannedInCycle, manqueCount, week.objectif*cw, expectedCycle);
-    const elapsed = currentLang==='fr' ? `${daysIntoCycle}/${daysInCycle} jours écoulés dans le cycle.` : `${daysIntoCycle}/${daysInCycle} days into the cycle.`;
-    if(state.kind==='exceeded') body = elapsed+(currentLang==='fr' ? ' Envie d\'une séance bonus ?' : ' Feeling like a bonus session?');
+    // "X/Y jours écoulés dans le cycle" retiré partout, y compris à rattraper/en retard (cf discussion
+    // "besoin d'avoir le 5/28 ?" puis "on retrouve du 5/28... là aussi") — une position calendaire
+    // n'apprend rien que la carte ne montre déjà mieux, et ne situe même pas l'urgence (5/28 ne dit rien
+    // sur le temps qu'il reste pour rattraper). Le corps redevient le même texte que la carte partout —
+    // ce qui rend le tap utile ici, c'est l'action en dessous (puces de jours / lien calendrier), pas
+    // une phrase de plus.
+    if(state.kind==='exceeded') body = currentLang==='fr' ? 'Envie d\'une séance bonus ?' : 'Feeling like a bonus session?';
     else if(state.kind==='covered') body = trDyn('All your days are planned!');
-    else if(state.kind==='inprogress' || state.kind==='ontrack') body = elapsed;
-    else body = elapsed+' '+objectifCardLabel(state);
+    else if(state.kind==='inprogress' || state.kind==='ontrack') body = currentLang==='fr'
+      ? `Il te reste ${state.remaining} jour${state.remaining>1?'s':''} à faire dans ce cycle.`
+      : `${state.remaining} day${state.remaining>1?'s':''} left to do in this cycle.`;
+    else body = objectifCardLabel(state);
   }
   const title=objectifStateTitle(state.kind);
   // Cycle en retard : pas de sélecteur de jour ici (jusqu'à 8 semaines, trop pour une petite modale) —
@@ -7744,14 +7751,28 @@ function renderHomeObjectifRing(prefix, profile){
   // demande une décision, et accent quand l'état est neutre (sinon la couleur d'état prime).
   const paceLabel=(state,label,scope)=>{
     const alert = (state.color==='var(--red)'||state.color==='var(--vigilance)');
+    // Vert ET gris se distinguaient jusque-là par la seule couleur (même texte "X jours restants" pour
+    // les deux, cf discussion) — contraire à la charte de l'app, qui impose un marqueur qui ne dépend
+    // pas de la couleur (déjà le cas pour rouge/orange, ci-dessous). Un ✓ complète le trio pour les
+    // états positifs (dépassé/planifié/dans le rythme) ; le gris neutre reste sans icône, par contraste.
+    const ok = state.color==='var(--brand-fixed)';
     // Le libellé garde TOUJOURS la couleur de son état : le forcer en accent quand l'état est neutre
     // faisait apparaître un libellé vert au-dessus d'une barre grise, alors que les deux sortent du
     // même objectifDayState. C'est le chevron qui porte « c'est tapable », pas la couleur — la couleur
     // reste réservée à l'état, comme partout ailleurs dans l'app.
     const col = state.color;
+    const icon = (alert?'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-alert"/></svg>':'')
+      +(ok?'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg>':'');
+    // "En cours"/"Dans le rythme" ne mènent nulle part de neuf au tap — la modale ne faisait plus que
+    // répéter le chiffre déjà affiché ici (cf discussion "qu'est-ce qu'on apprend en cliquant si on
+    // affiche la même chose ?"). Devient un texte de statut, pas un bouton, pour ces deux états
+    // précisément — les 4 autres gardent l'accès (action réelle ou confirmation d'un jalon).
+    if(state.kind==='inprogress' || state.kind==='ontrack'){
+      return '<span style="font-size:10px;font-weight:700;color:'+col+';text-align:right;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;">'+icon+label+'</span>';
+    }
     return '<span role="button" tabindex="0" style="font-size:10px;font-weight:700;color:'+col+';cursor:pointer;text-align:right;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;" '
       +'onclick="openObjectifPaceInfo(\''+scope+'\')">'
-      +(alert?'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-alert"/></svg>':'')
+      +icon
       +label
       +'<svg class="ki" style="width:11px;height:11px;"><use href="#ki-fwd"/></svg></span>';
   };
