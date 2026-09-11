@@ -399,6 +399,26 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .sdots{display:flex;gap:5px;margin-top:5px;}
 .sdot{width:7px;height:7px;border-radius:50%;background:var(--border);}
 .sdot.on{background:var(--orange);}
+/* ===== SYSTEME D'IMAGES (direction artistique, sept. 2026) =====
+   Trois ratios, un seul degrade. Avant : six hauteurs arbitraires (118, 180, 140, 84, 60, 46 px),
+   aucun systeme, et un brief de tournage impossible a ecrire. En aspect-ratio plutot qu'en hauteur
+   fixe, l'emplacement devient independant du contenu : remplacer une photo ne demande plus de
+   retoucher une valeur. Les trois formats disent aussi ce qu'il faut shooter :
+     16:9 le bandeau (pose le decor)  ·  4:5 l'affiche (vend)  ·  1:1 la demonstration (informe).
+   Le degrade part de --bg (#0A0A0F, fixe dans la charte, jamais personnalisable) : l'image garde sa
+   lumiere en haut et se dissout dans l'interface en bas, donc un titre incruste reste lisible sans
+   boite. Consequence pour le tournage : rien d'important dans le tiers bas du cadre. */
+.kimg{position:relative;overflow:hidden;background:var(--bg3) center/cover no-repeat;display:flex;align-items:flex-end;}
+.kimg::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to top,rgba(10,10,15,.95) 0%,rgba(10,10,15,.30) 45%,rgba(10,10,15,0) 78%);}
+.kimg > *{position:relative;z-index:2;}
+.r-16-9{aspect-ratio:16/9;}
+.r-4-5{aspect-ratio:4/5;}
+.r-1-1{aspect-ratio:1/1;}
+/* Plein bord : l'image touche les bords quand l'ecran parle d'elle — en tete d'une fiche, jamais
+   dans une liste (la carte est ce qui rend la colonne lisible) ni dans une surface de donnees.
+   Compense les 20 px de .px. */
+.bleed{margin-left:-20px;margin-right:-20px;border-radius:0;}
 .hero-glow{position:relative;}
 .hero-glow::before{content:'';position:absolute;left:26px;right:26px;top:10px;height:60%;background:radial-gradient(ellipse at 30% 20%,rgba(var(--orange-rgb),.32),transparent 70%);filter:blur(26px);z-index:0;pointer-events:none;}
 .today{position:relative;z-index:1;margin:0 20px;background:var(--bg2);border-radius:22px;overflow:hidden;border:1px solid var(--border);cursor:pointer;}
@@ -466,10 +486,15 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .exo-prev-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
 .exo-prev-row{display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;cursor:pointer;}
 .exo-prev-num{width:22px;height:22px;border-radius:50%;background:var(--bg3);color:var(--gray2);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.exo-prev-img{width:46px;height:46px;border-radius:10px;background-size:cover;background-position:center;flex-shrink:0;background-color:#1E1D26;}
+/* 56 px et non 46 : a 46 on ne distingue pas une position d'une autre, la vignette n'etait plus que
+   decorative — et depuis que debout et assis sont deux exercices, c'est elle qui les differencie. */
+.exo-prev-img{width:56px;height:56px;border-radius:10px;background-size:cover;background-position:center;flex-shrink:0;background-color:#1E1D26;}
 .exo-prev-body{flex:1;min-width:0;}
 .exo-prev-name{font-size:14px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.exo-prev-meta{font-size:12px;color:var(--gray);margin-top:2px;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* La ligne passe sur deux lignes au besoin depuis qu'elle porte le repos : en nowrap, "25s de repos"
+   se faisait couper juste apres "3 series", c'est-a-dire qu'on ajoutait une information pour la
+   masquer. La vignette fait 56 px, la rangee a la hauteur pour l'accueillir. */
+.exo-prev-meta{font-size:12px;color:var(--gray);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.35;}
 
 /* ===== HOME V2 (refonte) ===== */
 .zone-lbl{font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;margin:20px 20px 12px;}
@@ -633,7 +658,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .lib-chip{flex-shrink:0;border:1.5px solid var(--border);background:var(--bg2);color:var(--gray2);border-radius:12px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
 .lib-chip.on{border-color:var(--orange);color:var(--orange);background:rgba(var(--orange-rgb),.08);}
 .lib-card{display:flex;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;}
-.lib-thumb{width:60px;height:60px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
+.lib-thumb{width:56px;height:56px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
 .lib-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;}
 .lib-name{font-size:15px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .lib-meta{font-size:12px;color:var(--gray);}
@@ -2612,8 +2637,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div id="sdPickStepLbl" style="display:none;padding:8px 20px 0;flex-shrink:0;font-size:12px;color:var(--gray);font-weight:600;">Step 3 of 4</div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="sdPickBanner" style="display:none;margin-bottom:14px;font-size:17px;font-weight:700;color:var(--white);"><span id="sdPickBannerTxt"></span></div>
-    <div class="hero-glow" style="margin:0 0 14px;">
-      <div id="sdHero" style="position:relative;height:180px;border-radius:20px;overflow:hidden;background:#1E1D26;background-size:cover;background-position:center;">
+    <div class="hero-glow bleed" style="margin:0 -20px 14px;">
+      <div id="sdHero" class="kimg r-16-9" style="background-color:#1E1D26;">
         <span id="sdHeroBadge" style="position:absolute;top:14px;left:14px;z-index:2;font-size:11px;font-weight:800;letter-spacing:.3px;padding:5px 11px;border-radius:8px;text-transform:uppercase;"></span>
         <button id="sdFavBtn" class="icon-btn" onclick="toggleSessionDetailFavori()" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.14);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.18);font-size:17px;"><svg class="ki"><use href="#ki-heart"/></svg></button>
         <div id="sdHeroTitle" style="position:absolute;left:16px;right:16px;bottom:14px;z-index:2;font-size:20px;font-weight:800;letter-spacing:-.4px;color:#fff;"></div>
@@ -2635,6 +2660,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <textarea id="sdDescInput" class="pres-inp" style="text-align:left;min-height:64px;resize:vertical;" oninput="onSdDescInput()"></textarea>
       </div>
     </div>
+    <!-- Le deroule reel de la seance (benchmark SmartWorkout, sept. 2026). session_warmup et
+         session_cooldown existent tous les deux depuis le chantier P0 securite, et la fiche n'en
+         disait pas un mot : elle annoncait 15 min pour un engagement reel de 19. Pour un public qui
+         compte son temps et sa fatigue, c'est exactement l'ecart qui fait qu'on ne lance pas. -->
+    <div id="sdPhases" style="margin-bottom:18px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 4px;">
       <div class="ex-sec-t" style="padding:0;">Exercises</div>
       <span onclick="openAddExoRich()" style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;">+ Add</span>
@@ -2653,10 +2683,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="exercice_detail">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="exTopTitle">Exercise</div><div class="topnav-r" style="width:auto;display:flex;gap:8px;flex-shrink:0;"><button class="btn-back" id="exNoteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="editExerciseCoachNote()"><svg class="ki"><use href="#ki-note"/></svg></button><button class="btn-back" id="exDeleteBtn" style="width:36px;height:36px;font-size:16px;display:none;flex-shrink:0;" onclick="deleteUserExercice()"><svg class="ki"><use href="#ki-trash"/></svg></button></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
-    <div style="text-align:center;padding:20px 0 8px;">
-      <div style="width:140px;height:140px;margin:0 auto;border-radius:24px;background:var(--bg2);overflow:hidden;position:relative;">
-        <div id="ex_illus" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;line-height:1;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6.5,9v6 /><path d=M17.5,9v6 /><rect x=3 y=10 width=3 height=4 rx=1 /><rect x=18 y=10 width=3 height=4 rx=1 /><path d=M6.5,12h11 /></svg></div>
-        <div id="exIllusNameOverlay" style="display:none;position:absolute;left:0;right:0;bottom:0;padding:20px 10px 10px;background:linear-gradient(to top, rgba(0,0,0,.8), transparent);color:#fff;font-size:14px;font-weight:800;text-align:center;pointer-events:none;"></div>
+    <!-- L'image passe de 140 px centres a un carre plein bord (audit direction artistique) : c'est
+         l'ecran ou la photo travaille le plus, parce que c'est le seul qui reponde a "est-ce que je
+         peux faire ca, moi ?". Le 1:1 garde le contexte au sol — indispensable maintenant qu'une
+         position est un exercice a part entiere : assis et debout doivent se distinguer d'un coup d'oeil. -->
+    <div class="bleed" style="margin-bottom:14px;">
+      <div class="kimg r-1-1" style="background-color:var(--bg2);">
+        <div id="ex_illus" style="position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-size:64px;line-height:1;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6.5,9v6 /><path d=M17.5,9v6 /><rect x=3 y=10 width=3 height=4 rx=1 /><rect x=18 y=10 width=3 height=4 rx=1 /><path d=M6.5,12h11 /></svg></div>
+        <div id="exIllusNameOverlay" style="display:none;position:absolute;left:0;right:0;bottom:0;z-index:3;padding:20px 16px 14px;color:#fff;font-size:17px;font-weight:800;font-family:var(--font-head);letter-spacing:-.3px;text-align:left;pointer-events:none;"></div>
       </div>
     </div>
     <h2 class="gap4" style="text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="ex_nom">Exercise</h2>
@@ -11238,6 +11272,14 @@ const EN_FR = {
   "LOAD": "CHARGE",
   "GOAL": "OBJECTIF",
   "Expected": "Attendu",
+  "How it runs": "Le déroulé",
+  "Resume →": "Reprendre →",
+  "Discover →": "Découvrir →",
+  "x/week": "×/sem.",
+  "Warm-up": "Échauffement",
+  "Cool-down": "Retour au calme",
+  "Total": "Total",
+  "rest": "de repos",
   "Your history": "Ton historique",
   "in the zone": "dans la zone",
   "Signals": "Signaux",
@@ -12914,6 +12956,11 @@ function setLang(lang){
     // "11 sept." restait en francais dans la version anglaise — aucun de ces noeuds n'est une cle de
     // dictionnaire. Meme piege que les libellés composes au rendu, meme remede.
     if(document.getElementById('assistantThread')) renderCoachThread();
+    // La fiche séance : "35s · 3 séries · 25s de repos" est une seule chaîne assemblée au rendu
+    // (sdExoSummary), donc aucune clé de dictionnaire ne la couvre. Changer de langue en restant sur
+    // la fiche donnait "Standing/Assis · 3 séries" — moitié anglais, moitié français. Bug préexistant,
+    // trouvé en testant l'aller-retour après avoir ajouté le repos à cette ligne.
+    if(document.getElementById('session_detail') && document.getElementById('session_detail').classList.contains('active') && window._curSessId) renderSessionDetail();
   }catch(e){}
   const flags = {fr:'FR', en:'EN', de:'DE'};
   const flagsFull = {fr:'Français', en:'English', de:'Deutsch'};
@@ -14919,6 +14966,10 @@ function sdExoSummary(ex){
   if(p.reps!==undefined) parts.push(p.reps+' reps');
   if(p.duree!==undefined) parts.push(p.duree+'s');
   if(p.series!==undefined) parts.push(p.series+' sets');
+  // Le repos etait un parametre reglable et invisible : on lisait "35s · 3 series" sans savoir si la
+  // serie suivante arrivait dans 10 ou dans 40 secondes. C'est pourtant ce qui fait qu'une seance est
+  // tenable ou non — et c'est la premiere chose qu'on regle quand elle ne l'est pas.
+  if(p.recup!==undefined) parts.push(p.recup+'s '+trDyn('rest'));
   return parts.join(' · ');
 }
 function renderSessionDetail(){
@@ -14992,6 +15043,22 @@ function renderSessionDetail(){
   }
   const noteBlock=document.getElementById('sdCoachNoteBlock'), noteTxt=document.getElementById('sdCoachNoteTxt');
   if(noteBlock){ noteBlock.style.display = s.coachNote ? 'flex' : 'none'; if(noteTxt) noteTxt.textContent = s.coachNote||''; }
+  // Durees calculees sur les VRAIS mouvements retenus pour ce profil (getWarmupMoves/getCooldownMoves
+   // filtrent par zones_eviter) — pas une constante affichee au hasard.
+  const phasesEl=document.getElementById('sdPhases');
+  if(phasesEl){
+    const mins=arr=>Math.max(1, Math.round(arr.reduce((a,m)=>a+(m.dur||0),0)/60));
+    const wu=mins(getWarmupMoves()), cd=mins(getCooldownMoves()), core=s.duree||0;
+    const row=(lbl,val,fort)=>'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">'
+      +'<span style="font-size:13.5px;color:'+(fort?'var(--white);font-weight:700;':'var(--gray2);')+'">'+trDyn(lbl)+'</span>'
+      +'<span style="font-size:12.5px;color:'+(fort?'var(--brand-fixed)':'var(--gray)')+';font-variant-numeric:tabular-nums;'+(fort?'font-weight:700;':'')+'">'+val+' '+trDyn('min')+'</span></div>';
+    phasesEl.innerHTML='<div class="ex-sec-t" style="padding:0 0 4px;">'+trDyn('How it runs')+'</div>'
+      +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:4px 14px;">'
+      +row('Warm-up', wu)+row('Session', core)+row('Cool-down', cd)
+      +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;"><span style="font-size:13.5px;color:var(--white);font-weight:700;">'+trDyn('Total')+'</span>'
+      +'<span style="font-size:13.5px;color:var(--brand-fixed);font-weight:700;font-variant-numeric:tabular-nums;">'+(wu+core+cd)+' '+trDyn('min')+'</span></div>'
+      +'</div>';
+  }
   const listEl=document.getElementById('sdExoList');
   if(listEl){
     listEl.innerHTML = '<div class="exo-prev-list">' + s.exercices.map((exId,i)=>{
@@ -15802,11 +15869,23 @@ function renderProgCard(p, origin){
   const active = programmeActif && programmeActif.id===p.id;
   const originPill = origin==='coach' ? '<span class="tag" style="background:rgba(var(--teal-rgb),.15);color:var(--teal);">Coach</span>'
     : origin==='perso' ? '<span class="tag tag-g">Personal</span>' : '';
+  // Le catalogue est le SEUL ecran de kinmio ou l'on fait un vrai choix — partout ailleurs le moteur
+  // decide. C'est donc le seul endroit ou l'image a le droit de vendre : la vignette passe en 1:1, et
+  // la frequence monte dessus, AVANT le titre. Pour un produit dont la promesse est la regularite,
+  // afficher l'engagement la ou la decision se prend n'est pas un detail de vignette.
+  // Et le verbe porte l'etat : "Reprendre" sur un programme entame, "Decouvrir" sinon (benchmark
+  // SmartWorkout) — avant, un programme actif se signalait par un badge qu'il fallait chercher.
+  // La frequence passe en TETE des tags et prend l'accent : pour un produit dont la promesse est la
+  // regularite, l'engagement doit se lire avant le niveau et la duree — on choisit d'abord ce qu'on
+  // peut tenir. Elle reste dans la rangee de tags plutot que sur la vignette : posee sur 56 px elle
+  // aurait mange l'image, et c'est l'image qui identifie le programme.
+  const freqTag='<span class="tag" style="background:rgba(var(--brand-fixed-rgb),.14);color:var(--brand-fixed);font-weight:700;">'+p.frequence+trDyn('x/week')+'</span>';
   return '<div class="lib-card" style="'+(active?'border-color:var(--orange);':'')+'" onclick="openProgrammeDetail(\''+p.id+'\')">'
-    +'<div class="lib-thumb" style="background-image:url(\''+programmePhotoFor(p)+'\');background-size:cover;background-position:center;"></div>'
-    +'<div class="lib-body"><div class="lib-name">'+p.nom_marketing+(active?' <span class="pbdg bdg-o" style="font-size:9px;padding:2px 7px;vertical-align:middle;">Active</span>':'')+'</div>'
-    +'<div class="lib-tags">'+originPill+'<span class="tag tag-g">'+p.niveau+'</span><span class="tag tag-g">'+p.duree_semaines+' weeks</span><span class="tag tag-g">'+p.frequence+'x/week</span></div>'
-    +'<div class="lib-meta">'+p.objectif+' · '+p.progression+'</div></div>'
+    +'<div class="kimg r-1-1 lib-thumb" style="background-image:url(\''+programmePhotoFor(p)+'\');align-self:flex-start;"></div>'
+    +'<div class="lib-body"><div class="lib-name">'+p.nom_marketing+'</div>'
+    +'<div class="lib-tags">'+freqTag+originPill+'<span class="tag tag-g">'+p.niveau+'</span><span class="tag tag-g">'+p.duree_semaines+' weeks</span></div>'
+    +'<div class="lib-meta">'+p.objectif+' · '+p.progression+'</div>'
+    +'<div style="font-size:12.5px;font-weight:700;color:'+(active?'var(--brand-fixed)':'var(--gray2)')+';margin-top:7px;">'+trDyn(active?'Resume →':'Discover →')+'</div></div>'
     +'<button onclick="event.stopPropagation();toggleFavori(\'programmes\',\''+p.id+'\');renderProgProgrammesView();" style="background:none;border:none;font-size:19px;cursor:pointer;align-self:center;flex-shrink:0;">'+(fav?'<svg class="ki"><use href="#ki-heart-fill"/></svg>':'<svg class="ki"><use href="#ki-heart"/></svg>')+'</button>'
     +'</div>';
 }
