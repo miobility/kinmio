@@ -442,8 +442,8 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .slbl{font-size:11px;color:var(--gray);margin-top:2px;}
 .coach-tip{display:flex;align-items:flex-start;gap:8px;padding:12px 14px;background:rgba(var(--orange-rgb),.06);border-left:3px solid var(--orange);border-radius:12px;font-size:13px;color:var(--gray2);line-height:1.4;}
 .coach-tip .ct-ic{flex-shrink:0;font-size:14px;line-height:1.4;}
-.checkin-row{display:flex;gap:8px;margin:10px 20px 22px;}
-.checkin-opt{flex:1;padding:14px 8px;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;text-align:center;cursor:pointer;font-size:26px;transition:all .15s;}
+.checkin-row{display:flex;gap:8px;margin:0 20px 20px;}
+.checkin-opt{flex:1;padding:14px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:13px;text-align:center;cursor:pointer;font-size:26px;transition:all .15s;}
 .exo-row{display:flex;gap:12px;padding:0 20px;overflow-x:auto;margin-bottom:20px;}
 .exo-row::-webkit-scrollbar{display:none;}
 .emini{width:170px;flex-shrink:0;background:var(--bg2);border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid var(--border);}
@@ -7748,7 +7748,7 @@ function renderHomeObjectifRing(prefix, profile){
   const expectedWeek=Math.round(week.objectif*(dayIdx+1)/7);
   const weekState=objectifDayState(week.fait, plannedThisWeek, manqueThisWeek, week.objectif, expectedWeek);
   const weekLabel=objectifCardLabel(weekState);
-  const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
+  const infoIcon='style="cursor:pointer;margin-left:0;padding:16px;margin:-16px -12px -16px 0;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
   const stripInfo='<span class="info-i" onclick="event.stopPropagation();openThisWeekInfo()" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
   // Libellé d'état : c'était un texte gris sans aucune affordance, alors que c'est la SEULE porte
   // vers l'explication du rythme — `cursor:pointer` n'existe pas au doigt (cf audit du bloc). Il
@@ -7808,7 +7808,7 @@ function renderHomeObjectifRing(prefix, profile){
     // Légende ramenée sous la frise, limitée aux états présents : elle se lit à côté de ce qu'elle
     // légende, au lieu d'obliger à ouvrir une fenêtre, mémoriser et refermer.
     +weekStripLegendHtml(weekStrip.map(d=>d.statut))
-    +'<div style="height:1px;background:var(--border);margin:16px 0 14px;"></div>'
+    +'<div style="height:1px;background:var(--border);margin:16px 0 16px;"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
       +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+cycleInfo+'</span>'
       +paceLabel(cycleState, cycleLabel, 'cycle')
@@ -7871,7 +7871,7 @@ function renderHomeKpiZone(prefix, profile){
   if(pct!=null){
     const pctPrev=computeEffortScorePct(prevSessions);
     const intDelta = pctPrev==null ? null : ptsDelta(pct, pctPrev);
-    const infoIcon='style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
+    const infoIcon='style="cursor:pointer;margin-left:0;padding:16px;margin:-16px -12px -16px 0;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
     const intInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best week.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
     intensityCell='<div class="kt" style="flex:1;">'
         +'<div class="kt-l">'+trDyn('7-day rolling')+intInfo+'</div>'
@@ -7944,7 +7944,7 @@ function renderCheckinPrompt(prefix){
 // un texte, était une duplication que cette carte n'a plus besoin de porter.
 // Titre de section conservé même une fois répondu (cf discussion : "on perd le titre, on devrait le
 // garder") — repris tel quel dans les deux états au lieu de disparaître avec le bloc de sélection.
-const CHECKIN_TITLE='<div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>';
+const CHECKIN_TITLE='<div class="eyebrow" style="margin:0 20px 12px;color:var(--gray);">How are you feeling?</div>';
 // ===== Calculatrice check-in → séance (cf discussion "il faut savoir sur quelle variable ça joue") =====
 // 3 leviers réels seulement — exercices, durée (recalculée au prorata, "fait le plus simple" plutôt que
 // changer le moteur de séance) et intensité (jauge par exercice, même mécanisme que
@@ -8052,16 +8052,16 @@ function renderCheckinPreview(prefix,val){
       +'<span style="display:block;font-size:11px;color:var(--gray);margin-top:5px;">'+parts+'</span>';
   }
   b.innerHTML=CHECKIN_TITLE
-    +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);">'
+    +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:16px;padding:16px 18px;border:1px solid var(--border);">'
     +'<div style="display:flex;align-items:center;gap:12px;">'
     +'<span style="font-size:26px;flex-shrink:0;">'+checkinEmoji(val)+'</span>'
     +'<span style="flex:1;font-size:14px;font-weight:700;color:var(--white);">'+checkinLabel(val)+'</span>'
-    +'<span style="font-size:16px;font-weight:700;color:var(--gray);cursor:pointer;flex-shrink:0;padding:2px 4px;" onclick="resetCheckinHome(\''+prefix+'\')">✕</span>'
+    +'<span role="button" tabindex="0" style="font-size:15px;color:var(--gray);cursor:pointer;flex-shrink:0;padding:15px;margin:-15px -15px -15px 0;display:inline-flex;align-items:center;" onclick="resetCheckinHome(\''+prefix+'\')"><svg class="ki"><use href="#ki-close"/></svg></span>'
     +'</div>'
     +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+body+'</div>'
     // Contour et non plein : valider une humeur ne doit pas peser autant que "Voir la séance", qui est
     // l'action principale de l'écran — deux boutons pleins en émeraude se disputaient l'attention.
-    +'<button class="btn btn-outline" style="margin-top:10px;padding:11px;font-size:13px;border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
+    +'<button class="btn btn-outline" style="margin-top:12px;padding:13px;font-size:13.5px;border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
     +'</div>';
   sweepTranslate(b, currentLang);
 }
@@ -8279,7 +8279,7 @@ function getNextTrainingDayInfo(){
 // aucun décalage géométrique (labelCenter/dotCenter identiques au pixel près), mais son rectangle
 // arrondi ajoutait un poids visuel qui perturbait la lecture de la ligne ; le retirer règle les deux.
 function renderWeekStripHtml(strip){
-  return '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:0 20px 18px;">'
+  return '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin:0 20px 18px;">'
     +strip.map(d=>{
       let dotStyle='', dotContent='';
       if(d.statut==='fait') dotStyle='background:var(--brand-fixed);';
@@ -8306,7 +8306,7 @@ function renderWeekStripHtml(strip){
       const dayClick = (d.statut==='fait' && d.sessionId) ? "openSessionDetail('"+d.sessionId+"')"
         : (d.today || d.statut==='prevu' || d.statut==='planned') ? "openSessionDetail(getSessionDuJour().id)"
         : "go('programme')";
-      return '<div style="text-align:center;cursor:pointer;" onclick="'+dayClick+'">'
+      return '<div style="text-align:center;cursor:pointer;padding:4px 0;" onclick="'+dayClick+'">'
         +'<div style="font-size:10px;'+lblStyle+'text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
         +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'">'+dotContent+'</div>'
         +'</div>';
