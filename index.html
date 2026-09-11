@@ -7640,7 +7640,24 @@ function weekStripLegendHtml(){
   if(has('fait'))   out+=item('background:var(--brand-fixed);','Trained');
   if(has('prevu')||has('planned')) out+=item('border:1.5px solid var(--brand-fixed);','Days planned');
   if(has('manque')) out+=item('border:1.5px solid var(--vigilance);','Missed');
-  return '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'+out+'</div>';
+  // La ligne de legende avait deux moities vides de part et d'autre ; l'acces au mois s'y loge donc a
+  // cout nul en hauteur, et juste sous ce qu'il prolonge — la frise EST un calendrier a sept jours,
+  // le lien l'etend a un mois. Avant, le calendrier demandait deux taps (Progres, puis le 4e onglet)
+  // et n'etait joignable depuis l'accueil que dans l'etat "en retard" (cf openObjectifPaceInfo).
+  // Reserve a la home : dans Progression, la legende est DEJA dans le calendrier.
+  const withCal = arguments[1]===true;
+  const calLink = withCal
+    ? '<span role="button" tabindex="0" onclick="event.stopPropagation();goToCalendar()" style="position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--gray2);cursor:pointer;display:inline-flex;align-items:center;gap:3px;padding:16px 0 16px 16px;">'
+      +trDyn('Calendar')+'<svg class="ki" style="width:11px;height:11px;"><use href="#ki-fwd"/></svg></span>'
+    : '';
+  return '<div style="position:relative;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0 2px;">'+out+calLink+'</div>';
+}
+// Ouvre Progression directement sur son onglet Calendrier. setProgTab est differe apres le setup par
+// defaut de go('progression') (setTimeout(renderProgPeriod,20)), sinon celui-ci ecrase l'onglet — meme
+// precaution que le lien calendrier des modales de rythme.
+function goToCalendar(){
+  go('progression');
+  setTimeout(()=>{ const t=document.getElementById('progTab4'); if(t) t.click(); }, 40);
 }
 // Alerte de rythme rendue actionnable au tap (cf discussion "proposerais-tu une reco en cliquant sur
 // l'alerte ?") — réutilise le patron showModal existant (même famille que showInfoSheet) plutôt qu'un
@@ -7765,14 +7782,6 @@ function openWeekStripInfo(){
 // frise à cette échelle pour la remplacer) mais bascule aussi en jours (fill = jours faits, repère =
 // jours attendus à ce stade). L'objectif chiffré (jours) reste toujours visible en clair, semaine et
 // cycle (cf discussion "qu'on voit l'objectif quelque part").
-// Repli du graphique du cycle (audit home, sept. 2026). Par prefixe, parce que home et home_centre
-// sont deux ecrans vivants en meme temps dans le DOM. Ferme par defaut : la ligne de titre porte deja
-// le verdict et le compte, c'est le DETAIL qui s'ouvre a la demande, jamais l'etat.
-let cycleFoldOpen={};
-function toggleCycleFold(prefix){
-  cycleFoldOpen[prefix]=!cycleFoldOpen[prefix];
-  renderHomeObjectifRing(prefix, prefix==='homeCentre'?userProfileCentre:userProfile);
-}
 function renderHomeObjectifRing(prefix, profile){
   const el=document.getElementById(prefix+'ObjectifZone'); if(!el) return;
   const week=getWeekDaysTrained();
@@ -7842,14 +7851,10 @@ function renderHomeObjectifRing(prefix, profile){
     +'style="font-size:11.5px;font-weight:700;color:var(--gray2);text-transform:none;letter-spacing:0;'
     +'cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:16px 0 16px 16px;margin:-16px 0;">'
     +trDyn('My programme')+'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-fwd"/></svg></span>';
-  // Le cycle repond a "est-ce que je tiens l'engagement pris a l'inscription" — une question du
-  // dimanche, pas du mardi matin. On ne replie pas le cycle, on replie SON GRAPHIQUE : le verdict et
-  // le compte restent toujours sur la ligne de titre, rien de ce qui pourrait changer une decision ne
-  // disparait. Exception, selon la regle qu'on s'est donnee (on replie ce qu'une condition rend
-  // inutile MAINTENANT) : un cycle en retard reste ouvert, avec sa barre et son acces au rattrapage.
-  const cycleAlert = (cycleState.kind==='behind' || cycleState.kind==='catching_up');
-  const cycleOpen = cycleAlert || !!cycleFoldOpen[prefix];
-  const cycleCount='<span style="font-size:11px;font-weight:600;color:var(--gray2);letter-spacing:0;text-transform:none;"> · '+days4+' / '+objectif4+' '+trDyn('days')+'</span>';
+  // Le repli du graphique du cycle est retire : il economisait 41 px et coutait un geste, un etat a
+  // retenir et une anatomie differente de "Cette semaine" juste au-dessus — pas un bon echange.
+  // Le cycle suit donc exactement la meme logique que la semaine : titre + verdict, puis le compte,
+  // puis le graphique. Deux echelles, une seule grammaire ; seule la taille du chiffre les hierarchise.
   el.innerHTML = '<div class="zone-lbl" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;">'+trDyn('GOAL')+progLink+'</div>'
     +'<div style="margin:0 20px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;">'
@@ -7863,31 +7868,29 @@ function renderHomeObjectifRing(prefix, profile){
     +'<div style="margin-top:12px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
     // Légende ramenée sous la frise, limitée aux états présents : elle se lit à côté de ce qu'elle
     // légende, au lieu d'obliger à ouvrir une fenêtre, mémoriser et refermer.
-    +weekStripLegendHtml(weekStrip.map(d=>d.statut))
+    +weekStripLegendHtml(weekStrip.map(d=>d.statut), true)
     +'<div style="height:1px;background:var(--border);margin:16px 0 16px;"></div>'
     // Le compte du cycle remonte AU-DESSUS de sa barre, dans la ligne de titre : il était sous la
     // barre alors que celui de la semaine est au-dessus de la frise (incohérence relevée en audit).
     // Replié, la ligne entière est la zone tapable ; le libellé d'état redevient un simple texte pour
     // qu'il n'y ait qu'une cible. Déplié, il retrouve son tap normal vers l'explication du rythme.
-    +'<div style="display:flex;align-items:center;justify-content:space-between;'+(cycleAlert?'':'cursor:pointer;padding:6px 0;margin:-6px 0;')+'"'
-      +(cycleAlert?'':' role="button" tabindex="0" onclick="toggleCycleFold(\''+prefix+'\')"')+'>'
-      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+cycleCount+(cycleOpen?cycleInfo:'')+'</span>'
-      +(cycleOpen
-        ? paceLabel(cycleState, cycleLabel, 'cycle')
-        : '<span style="font-size:10px;font-weight:700;color:'+cycleState.color+';display:inline-flex;align-items:center;gap:3px;flex-shrink:0;">'+cycleLabel
-          +'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-down"/></svg></span>')
+    +'<div style="display:flex;align-items:center;justify-content:space-between;">'
+      +'<span style="font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;">'+cycleTitle()+cycleInfo+'</span>'
+      +paceLabel(cycleState, cycleLabel, 'cycle')
     +'</div>'
-    +(cycleOpen
-      ? '<div style="margin-top:12px;">'
-        +'<div style="height:10px;border-radius:5px;background:var(--border);position:relative;overflow:visible;">'
-          +'<div style="position:absolute;top:0;left:0;height:100%;width:'+barPct+'%;background:'+cycleState.color+';border-radius:5px;transition:width .6s ease;"></div>'
-          +'<div style="position:absolute;top:-2px;left:'+Math.min(97,expectedPct)+'%;width:2px;height:14px;background:var(--white);"></div>'
-        +'</div>'
-        // Le repère blanc n'était expliqué nulle part : on le nomme sous la barre, aligné dessous,
-        // plutôt que de laisser "Attendu N jours" en bout de ligne sans lien visuel avec le trait.
-        +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn('days')+'</span></div>'
+    // Le compte au-dessus du graphique, comme "2 / 3 jours" est au-dessus de la frise. Plus petit que
+    // celui de la semaine (17 contre 24) : c'est ce qui dit laquelle des deux échelles se joue
+    // aujourd'hui, et c'est la seule chose qui doit les distinguer.
+    +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-top:7px;letter-spacing:-.3px;line-height:1;font-family:var(--font-head);">'+days4+'<span style="font-size:11.5px;font-weight:600;color:var(--gray2);letter-spacing:0;"> / '+objectif4+' '+trDyn('days')+'</span></div>'
+    +'<div style="margin-top:12px;">'
+      +'<div style="height:10px;border-radius:5px;background:var(--border);position:relative;overflow:visible;">'
+        +'<div style="position:absolute;top:0;left:0;height:100%;width:'+barPct+'%;background:'+cycleState.color+';border-radius:5px;transition:width .6s ease;"></div>'
+        +'<div style="position:absolute;top:-2px;left:'+Math.min(97,expectedPct)+'%;width:2px;height:14px;background:var(--white);"></div>'
       +'</div>'
-      : '')
+      // Le repère blanc n'était expliqué nulle part : on le nomme sous la barre, aligné dessous,
+      // plutôt que de laisser "Attendu N jours" en bout de ligne sans lien visuel avec le trait.
+      +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn('days')+'</span></div>'
+    +'</div>'
     +'</div>';
   sweepTranslate(el, currentLang);
 }
@@ -7912,13 +7915,22 @@ function renderHomeKpiZone(prefix, profile){
 
   // --- rangee 1 : EFFORT ---
   const week=getWeekDaysTrained();
+  const dayIdx=(new Date().getDay()+6)%7;   // lundi = 0, meme convention que le bloc Objectif
   const volTarget=week.objectif*(userProfileData.duree_seance||30);
   const volPct=volTarget ? Math.min(100, Math.round(week.minutes/volTarget*100)) : 0;
+  // Volume etait la seule tuile d'EFFORT sans evolution : elle disait ou on en est du but de la semaine
+  // (40 %) mais pas si c'est mieux ou moins bien que d'habitude. getPreviousWeekStats existait deja et
+  // decoupe la semaine calendaire exactement comme getWeekDaysTrained — pas une fenetre glissante, donc
+  // "lundi a maintenant" compare a "lundi a dimanche derniers", ce qui est defavorable en debut de
+  // semaine : on ne montre le delta qu'a partir du jeudi (dayIdx>=3), sinon il annonce une chute qui
+  // n'en est pas une. Le pourcentage d'objectif redescend en 4e ligne, avec la cible qu'il commente.
+  const prevWeek=getPreviousWeekStats();
+  const volD = (prevWeek && prevWeek.minutes>0 && dayIdx>=3) ? (week.minutes-prevWeek.minutes) : null;
   const volumeCell='<div class="kt">'
-    +'<div class="kt-l">'+trDyn('Volume')+info('Volume','Minutes trained this week versus your weekly target — your training days multiplied by your preferred session length.')+'</div>'
+    +'<div class="kt-l">'+trDyn('Volume')+info('Volume','Minutes trained this week versus your weekly target — your training days multiplied by your preferred session length. The change compares with the same point of last week.')+'</div>'
     +'<div class="kt-v">'+week.minutes+'<span class="kt-u"> min</span></div>'
-    +'<div class="kt-d" style="color:var(--gray2);">'+volPct+'%</div>'
-    +'<div class="kt-c">'+trDyn('Goal')+' '+volTarget+' min</div>'
+    +'<div class="kt-d" style="color:'+(volD==null?'var(--dim)':volD>0?'var(--teal)':volD<0?'var(--vigilance)':'var(--gray)')+';">'+(volD==null?'—':(volD>0?'↑ ':volD<0?'↓ ':'→ ')+Math.abs(volD)+' min')+'</div>'
+    +'<div class="kt-c">'+(currentLang==='fr' ? volPct+'% de '+volTarget+' min' : volPct+'% of '+volTarget+' min')+'</div>'
   +'</div>';
 
   const sessions=getSessionsInPeriod('semaine'), prevSessions=getPreviousPeriodSessions('semaine');
@@ -8395,6 +8407,10 @@ function assignPlannedDay(dateTimestamp, source){
   refreshHomeSeanceZones();
   if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
   toast(trDyn('Session planned'));
+  // L'historique du Coach IA enregistrait le check-in, l'ajustement sur signal, la progression de
+  // niveau et les seances faites — mais pas les deplacements de seance, qui sont pourtant la decision
+  // la plus frequente et la plus utile a se rappeler ("pourquoi je n'ai pas fait mardi ?").
+  logCoachHistory({type:'plan', message: trDyn(source==='catchup'?'Catch-up session planned for':'Session planned for')+' '+new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'short'})});
   // Rattrapage : la modale reste ouverte et se re-rend avec les jours restants (cf discussion "pouvoir
   // sélectionner autant de séances à rattraper que nécessaire") — avant, elle se fermait après un seul
   // choix, obligeant à rouvrir l'alerte pour chaque jour manqué. openObjectifPaceInfo recalcule
@@ -8402,7 +8418,9 @@ function assignPlannedDay(dateTimestamp, source){
   if(source==='catchup') openObjectifPaceInfo('week'); else closeModal();
 }
 function unassignPlannedDay(dateTimestamp){
+  const existait = userPlannedSessions.some(p=>p.date===dateTimestamp);
   userPlannedSessions = userPlannedSessions.filter(p=>p.date!==dateTimestamp);
+  if(existait) logCoachHistory({type:'plan', message: trDyn('Session removed from')+' '+new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'short'})});
   refreshHomeSeanceZones();
   if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
 }
@@ -8491,6 +8509,18 @@ function renderWeekStripHtml(strip){
     }).join('')
     +'</div>';
 }
+// Équipement réellement nécessaire pour une séance — l'info n'est pas portée par la séance, seulement
+// par chaque exercice, donc on agrège. "Aucun" est écarté : l'absence d'équipement n'a rien à signaler.
+// Même règle que les chips de session_detail, pour que la carte et la fiche ne puissent pas diverger.
+function sessionEquipementLabel(sess){
+  const exos=[...EXERCICES,...userExercices];
+  const eq=[...new Set(sess.exercices.map(id=>exos.find(e=>e.id===id)).filter(Boolean).map(e=>e.equipement))].filter(e=>e && e!=='Aucun');
+  // Difference assumee avec les chips de la fiche, qui taisent l'absence d'equipement : la, on est deja
+  // engage et la liste sert a rassembler le materiel. Ici la question est "est-ce que je peux m'y mettre
+  // maintenant, ou est-ce qu'il faut aller chercher quelque chose ?" — et "rien" y repond aussi bien
+  // que "la barre". Un silence, lui, ne repond pas.
+  return eq.length ? eq.map(e=>trDyn(e)).join(' · ') : trDyn('no equipment');
+}
 function renderHomeSeance(prefix, data){
   const zone=document.getElementById(prefix+'SeanceZone'); if(!zone) return;
   if(programmeActif && programmeActif.pausedAt){
@@ -8546,7 +8576,15 @@ function renderHomeSeance(prefix, data){
     const pct = target ? Math.min(100, Math.round(current/target*100)) : 100;
     doneBadge='<div class="today-dur" style="left:14px;right:auto;background:rgba(var(--brand-fixed-rgb),.92);color:var(--ink-on-accent);display:inline-flex;align-items:center;gap:5px;"><svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg>'+trDyn('Done today')+(pct<100?' · '+pct+'%':'')+'</div>';
   } else {
-    cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();demarrerSessionNouveau(\''+realSess.id+'\')">Start session →</button>';
+    // Le bouton repasse par la fiche séance et ne démarre plus directement. Correction d'une décision
+    // qui était la mienne et qui était mauvaise : la fiche est le SEUL endroit qui agrège l'équipement
+    // de tous les exercices ("sache AVANT de démarrer de quoi tu as besoin") et qui liste les
+    // mouvements. Sauter cet écran faisait arriver sur l'échauffement sans savoir à quoi ressemble la
+    // séance ni ce qu'il faut aller chercher — abrupt, et contraire à ce que fait tout le métier.
+    // Oui, ce bouton mène donc au même endroit que le tap sur la carte. Ce n'était pas ça le défaut :
+    // dupliquer une zone tapable est banal et c'est ce qui donne à la home une action primaire
+    // explicite. Le défaut, c'était un bouton qui promettait un départ et livrait une navigation.
+    cta='<button class="btn btn-orange" style="width:100%;padding:15px;font-size:15px;" onclick="event.stopPropagation();openSessionDetail(\''+realSess.id+'\')">View my session →</button>';
   }
   const badgeId=prefix+'SeanceBdg';
   // Photo de la VRAIE séance affichée (même logique que partout ailleurs, sessionPhotoFor) — avant,
@@ -8565,7 +8603,9 @@ function renderHomeSeance(prefix, data){
   zone.innerHTML='<div class="zone-lbl" style="margin-top:0;">'+trDyn(cardLbl)+'</div>'
     +'<div class="hero-glow">'
     +'<div class="today" onclick="openSessionDetail(\''+realSess.id+'\')">'
-    +'<div class="today-thumb" style="'+thumbStyle+'">'+(photo?'':'<svg class="ki"><use href="#ki-media"/></svg>')+doneBadge+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')+'</div>'
+    +'<div class="today-thumb" style="'+thumbStyle+'">'+(photo?'':'<svg class="ki"><use href="#ki-media"/></svg>')+doneBadge+(realSess.referent?'<div class="today-dur" style="background:var(--teal);color:var(--ink-on-accent);">Coach</div>':'')
+      +'<div class="today-dur" style="top:auto;bottom:12px;right:12px;font-weight:700;">'+sessionEquipementLabel(realSess)+'</div>'
+    +'</div>'
     // Chevron à côté du titre : c'est lui qui porte "cette carte s'ouvre", maintenant que le bouton ne
     // recopie plus le tap du parent. .today-title est en nowrap/ellipsis, d'où la ligne flex autour.
     +'<div class="today-body"><div style="display:flex;align-items:center;gap:6px;"><div class="today-title" style="font-size:22px;margin-bottom:0;flex:1;min-width:0;">'+realSess.nom_marketing+'</div>'
@@ -8573,6 +8613,10 @@ function renderHomeSeance(prefix, data){
     // Nombre d'exercices/durée reflètent l'ajustement du check-in une fois validé (cf calculatrice,
     // confirmCheckinHome) — même séance, juste recalculée ; intensité moyenne = moyenne des jauges
     // réellement appliquées (userParamsOverrides), donc change aussi si le check-in l'a modifiée.
+    // Équipement agrégé sur les exercices de la séance, même calcul que les chips de la fiche ("Aucun"
+    // filtré, seul ce qu'il faut vraiment aller chercher). Il répond ici à la question qui se pose le
+    // plus tôt — "de quoi j'ai besoin ?" — au lieu d'attendre l'écran suivant. L'intensité moyenne
+    // laisse la place : c'est une conséquence du réglage, pas une condition pour s'y mettre.
     +'<div class="today-sub">'+(todaySessionAdjust?todaySessionAdjust.exCount:realSess.exercices.length)+' exercises · '+(todaySessionAdjust?todaySessionAdjust.duree:realSess.duree)+' min'+(priorityMuscle?' · '+priorityMuscle:'')+(avgSessionJauge(realSess)!=null?' · '+trDyn('avg intensity')+' '+avgSessionJauge(realSess):'')+'</div>'
     +cta
     // "Mon programme →" est remonté dans la ligne de titre OBJECTIF (renderHomeObjectifRing) : il
@@ -11104,6 +11148,11 @@ const EN_FR = {
   "LOAD": "CHARGE",
   "GOAL": "OBJECTIF",
   "Expected": "Attendu",
+  "View my session →": "Voir ma séance →",
+  "no equipment": "sans matériel",
+  "Session planned for": "Séance planifiée le",
+  "Catch-up session planned for": "Rattrapage planifié le",
+  "Session removed from": "Séance retirée du",
   "Goal exceeded": "Objectif dépassé",
   "Week covered": "Semaine couverte",
   "Cycle covered": "Cycle couvert",
