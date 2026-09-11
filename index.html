@@ -3654,9 +3654,20 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
        maintenant (chantier Coach IA, réflexion fonctionnelle du 11/09) — pas la peine d'un deuxième
        endroit pour revoir ce que le coach a déjà dit. -->
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">AI Coach</div><div class="topnav-r"></div></div>
-  <div id="coachIaWeeklyCard" style="display:none;flex-shrink:0;margin:14px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;"></div>
+  <div id="coachIaWeeklyCard" style="flex-shrink:0;margin:14px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;"></div>
+  <!-- Filtre par thème (réflexion Coach IA, 11/09) : filtre la MÊME liste chronologique, ne la
+       réorganise pas en sections séparées — un seul fil, une lentille optionnelle dessus. -->
+  <div style="position:relative;flex-shrink:0;">
+    <div id="assistantThemeFilters" style="padding:10px 20px 0;display:flex;gap:8px;overflow-x:auto;"></div>
+    <div style="position:absolute;top:0;right:0;bottom:0;width:32px;pointer-events:none;background:linear-gradient(to right, transparent, var(--bg) 85%);"></div>
+  </div>
   <div class="scroll px pt pb" id="assistantThread" style="display:flex;flex-direction:column;gap:12px;"></div>
-  <div id="assistantChips" style="padding:10px 20px 4px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;"></div>
+  <div style="position:relative;flex-shrink:0;">
+    <div id="assistantChips" style="padding:10px 20px 4px;display:flex;gap:8px;overflow-x:auto;"></div>
+    <!-- Dégradé de fin de rangée (retour utilisateur : les puces se coupaient net sur le bord de
+         l'écran, sans indice qu'on peut en voir plus). -->
+    <div style="position:absolute;top:0;right:0;bottom:4px;width:32px;pointer-events:none;background:linear-gradient(to right, transparent, var(--bg) 85%);"></div>
+  </div>
   <div style="padding:8px 20px 20px;flex-shrink:0;display:flex;gap:8px;align-items:center;">
     <input type="text" id="assistantInput" placeholder="Try a suggestion above…" readonly style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:14px;color:var(--gray);font-family:inherit;outline:none;">
     <button style="width:44px;height:44px;border-radius:14px;background:var(--bg3);border:none;color:var(--gray);font-size:18px;cursor:pointer;flex-shrink:0;">→</button>
@@ -8231,7 +8242,7 @@ function confirmSignalAdjust(prefix){
     userParamsOverrides[exId]={...userParamsOverrides[exId], jauge: rec.level};
   });
   signalAdjustDone[prefix]=true;
-  logCoachHistory({type:'signal', message: trDyn('Session adjusted')});
+  logCoachHistory({type:'signal', theme:'ajustement', message: trDyn('Session adjusted')});
   renderSignalAdjust(prefix);
   refreshHomeSeanceZones();
   toast(trDyn('Session adjusted'));
@@ -8313,7 +8324,7 @@ function confirmCheckinHome(prefix){
   }
   if(prefix==='homeCentre') checkInDoneCentre=true; else checkInDone=true;
   recordCheckinHistory(val);
-  logCoachHistory({type:'checkin', message: trDyn('Check-in')+' '+checkinEmoji(val)+(todaySessionAdjust?' — '+trDyn('session adjusted'):'')});
+  logCoachHistory({type:'checkin', theme:'ajustement', message: trDyn('Check-in')+' '+checkinEmoji(val)+(todaySessionAdjust?' — '+trDyn('session adjusted'):'')});
   renderCheckinDone(prefix,val);
   updateHeaderCheckinBadge(prefix,val);
   refreshHomeSeanceZones();
@@ -8423,7 +8434,7 @@ function assignPlannedDay(dateTimestamp, source){
   // L'historique du Coach IA enregistrait le check-in, l'ajustement sur signal, la progression de
   // niveau et les seances faites — mais pas les deplacements de seance, qui sont pourtant la decision
   // la plus frequente et la plus utile a se rappeler ("pourquoi je n'ai pas fait mardi ?").
-  logCoachHistory({type:'plan', message: trDyn(source==='catchup'?'Catch-up session planned for':'Session planned for')+' '+new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'short'})});
+  logCoachHistory({type:'plan', theme:'planification', message: trDyn(source==='catchup'?'Catch-up session planned for':'Session planned for')+' '+new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'short'})});
   // Rattrapage : la modale reste ouverte et se re-rend avec les jours restants (cf discussion "pouvoir
   // sélectionner autant de séances à rattraper que nécessaire") — avant, elle se fermait après un seul
   // choix, obligeant à rouvrir l'alerte pour chaque jour manqué. openObjectifPaceInfo recalcule
@@ -8433,7 +8444,7 @@ function assignPlannedDay(dateTimestamp, source){
 function unassignPlannedDay(dateTimestamp){
   const existait = userPlannedSessions.some(p=>p.date===dateTimestamp);
   userPlannedSessions = userPlannedSessions.filter(p=>p.date!==dateTimestamp);
-  if(existait) logCoachHistory({type:'plan', message: trDyn('Session removed from')+' '+new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'short'})});
+  if(existait) logCoachHistory({type:'plan', theme:'planification', message: trDyn('Session removed from')+' '+new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'short'})});
   refreshHomeSeanceZones();
   if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
 }
@@ -8710,11 +8721,19 @@ function getCoachWeeklyProposal(){
   // au catalogue moderne, pas juste réutiliser findAlternatives() en supposant que les deux coïncident.
   return null;
 }
+// Cette zone ne disparaît plus jamais complètement (retour utilisateur : un vide non expliqué se lit
+// comme "cassé", pas comme "rien à signaler") — elle affiche soit la proposition active, soit un état
+// neutre explicite.
 function renderCoachIaWeeklyCard(){
   const el=document.getElementById('coachIaWeeklyCard'); if(!el) return;
   const p=getCoachWeeklyProposal();
-  if(!p){ el.style.display='none'; return; }
-  el.style.display='block';
+  if(!p){
+    el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">'
+      +'<div style="width:34px;height:34px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+aiSparkleIcon(18,'var(--gray2)')+'</div>'
+      +'<div style="font-size:13.5px;color:var(--gray2);line-height:1.4;">'+trDyn("You're up to date — nothing to confirm right now, I'll let you know if something comes up.")+'</div>'
+      +'</div>';
+    return;
+  }
   el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
     +'<div style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+aiSparkleIcon(18,'var(--brand-fixed)')+'</div>'
     +'<div style="font-size:11px;font-weight:700;color:var(--brand-fixed);letter-spacing:.6px;text-transform:uppercase;">'+trDyn('This week')+'</div></div>'
@@ -8734,7 +8753,7 @@ function applyCoachLevelUp(exId){
   const curLevel=curParams.jauge!==undefined?curParams.jauge:1;
   userParamsOverrides[exId]={...(userParamsOverrides[exId]||{}), jauge:curLevel+1};
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
-  logCoachHistory({type:'weekly', kind:'level', exName:ex.nom, level:curLevel+1, accepted:true});
+  logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:ex.nom, level:curLevel+1, accepted:true});
   appendCoachThreadEntry(coachHistory[0]);
   toast(trDyn('Level updated ✓'));
   renderCoachIaWeeklyCard();
@@ -8743,7 +8762,7 @@ function applyCoachLevelUp(exId){
 function dismissCoachWeekly(){
   const p=getCoachWeeklyProposal();
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
-  if(p){ logCoachHistory({type:'weekly', kind:'level', exName:p.exName, level:p.level+1, accepted:false}); appendCoachThreadEntry(coachHistory[0]); }
+  if(p){ logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:p.exName, level:p.level+1, accepted:false}); appendCoachThreadEntry(coachHistory[0]); }
   renderCoachIaWeeklyCard();
   updateCoachIaBadge();
 }
@@ -12467,6 +12486,12 @@ const EN_FR = {
   "Estimated": "Estimé",
   "Abandoned attempts": "Tentatives abandonnées",
   "Abandoned": "Abandonnée",
+  // Thèmes Coach IA (réflexion fonctionnelle, 11/09)
+  "Adjustment": "Ajustement",
+  "Follow-up": "Suivi",
+  "Planning": "Planification",
+  "Nothing in this category yet.": "Rien dans cette catégorie pour l'instant.",
+  "You're up to date — nothing to confirm right now, I'll let you know if something comes up.": "Tu es à jour — rien à valider pour l'instant, je te préviens si besoin.",
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
@@ -19011,7 +19036,7 @@ function setFeedbackCoachMsg(){
   const week=getWeekDaysTrained();
   const msg = trDyn(feedbackMessages[key])+' '+trDyn(week.fait+'/'+week.objectif+' sessions')+'.';
   renderCoachTip('feedbackCoachTip', msg);
-  logCoachHistory({type:'session', message: msg});
+  logCoachHistory({type:'session', theme:'suivi', message: msg});
 }
 function onFbPainInput(el){
   document.getElementById('fbPainVal').innerHTML=el.value+'<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span>';
@@ -19362,33 +19387,93 @@ function renderAssistantChips(){
 // Texte + date d'une entrée coachHistory, formatés pour vivre DANS une bulle du fil (chantier Coach
 // IA — le fil est la mémoire, plus de modale historique séparée). La date reste visible sous le texte
 // puisque, contrairement à une vraie conversation, ces messages peuvent dater de plusieurs jours.
-function coachHistoryBubble(h){
-  const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
-  const text = h.type==='weekly'
+// Quatre thèmes seulement (réflexion Coach IA, 11/09) : assez pour filtrer, pas assez pour fragmenter.
+// "alerte" n'a aujourd'hui aucune source qui log dessus (aucune détection proactive de charge/douleur
+// construite) — la catégorie existe pour quand ce chantier sera fait, elle restera juste vide avant ça.
+// Couleurs volontairement presque toutes neutres : --orange/--teal/--brand-fixed sont FUSIONNÉS sur le
+// même vert émeraude par la charte graphique ("une seule couleur pour 'c'est kinmio'") — leur donner
+// chacun à un thème différent ici les aurait rendus visuellement identiques (trouvé en testant : les
+// eyebrows "Ajustement" et "Planification" tombaient exactement sur le même rgb). Seule "alerte"
+// mérite une vraie couleur (vigilance, déjà réservée à "mérite un coup d'œil" ailleurs dans l'app) —
+// les trois autres se distinguent par l'icône, pas par la teinte (cf "jamais la couleur seule").
+const COACH_THEME_META = {
+  ajustement: {label:'Adjustment', icon:'ki-gauge', color:'var(--gray2)'},
+  suivi: {label:'Follow-up', icon:'ki-ob-chart', color:'var(--gray2)'},
+  planification: {label:'Planning', icon:'ki-cal', color:'var(--gray2)'},
+  alerte: {label:'Alert', icon:'ki-alert', color:'var(--vigilance)'}
+};
+function coachThemeEyebrow(theme){
+  const m=COACH_THEME_META[theme]; if(!m) return '';
+  return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;color:'+m.color+';font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;"><svg class="ki" style="width:12px;height:12px;"><use href="#'+m.icon+'"/></svg>'+trDyn(m.label)+'</div>';
+}
+function coachHistoryText(h){
+  return h.type==='weekly'
     ? (h.accepted ? trDyn('Moved up to level '+h.level+' on ')+trDyn(h.exName) : trDyn('Suggested level '+h.level+' on ')+trDyn(h.exName)+' — '+trDyn('declined'))
     : h.message;
-  return text+'<div style="font-size:11px;color:var(--gray);margin-top:4px;">'+dateLbl+'</div>';
+}
+// Icône + couleur par thème au lieu d'un texte plat indifférencié (retour utilisateur : "Check-in" et
+// "Passé au niveau 3" avaient exactement la même apparence) — plus de date par bulle, elle est portée
+// par le séparateur de jour dans renderCoachThread().
+function coachHistoryBubble(h){
+  return coachThemeEyebrow(h.theme)+coachHistoryText(h);
+}
+function coachDateSeparator(dateLbl){
+  return '<div data-date-sep="'+dateLbl+'" style="text-align:center;font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin:4px 0;">'+dateLbl+'</div>';
+}
+// Dernier séparateur de date déjà présent dans le fil (pas forcément le dernier enfant — une bulle
+// suit toujours le séparateur) : cherche en partant de la fin plutôt que de supposer une position fixe.
+function lastThreadDateSep(t){
+  for(let i=t.children.length-1;i>=0;i--){ if(t.children[i].dataset.dateSep) return t.children[i].dataset.dateSep; }
+  return null;
+}
+let coachThreadFilter=null;   // null = tout ; sinon une clé de COACH_THEME_META
+function setCoachThreadFilter(theme){
+  coachThreadFilter = (coachThreadFilter===theme) ? null : theme;
+  renderCoachThread();
+}
+function renderCoachThemeFilters(){
+  const el=document.getElementById('assistantThemeFilters'); if(!el) return;
+  el.innerHTML = '<button class="lib-chip'+(!coachThreadFilter?' on':'')+'" onclick="setCoachThreadFilter(null)">'+trDyn('All')+'</button>'
+    + Object.keys(COACH_THEME_META).map(k=>'<button class="lib-chip'+(coachThreadFilter===k?' on':'')+'" onclick="setCoachThreadFilter(\''+k+'\')">'+trDyn(COACH_THEME_META[k].label)+'</button>').join('');
+}
+// Le fil est la mémoire du coach (réflexion fonctionnelle, chantier Coach IA, 11/09) : les messages
+// qui vivaient enfermés dans l'historique (modale retirée) apparaissent ici, dans l'ordre
+// chronologique groupé par jour — le plus récent en bas, comme une vraie conversation qui continue
+// plutôt qu'un écran vide à chaque ouverture. Le filtre par thème s'applique à cette MÊME liste,
+// il n'en crée pas une copie réorganisée.
+function renderCoachThread(){
+  const t=document.getElementById('assistantThread'); if(!t) return;
+  const history=[...coachHistory].reverse().filter(h=>!coachThreadFilter || h.theme===coachThreadFilter).slice(-30);
+  let html = coachThreadFilter ? '' : assistantBubble("Salut ! Pose-moi une question sur ton entraînement — je réponds à partir de tes vraies données. (Maquette : pas encore une vraie IA, juste des réponses calculées en direct.)", false);
+  let lastDateLbl=null;
+  history.forEach(h=>{
+    const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
+    if(dateLbl!==lastDateLbl){ html+=coachDateSeparator(dateLbl); lastDateLbl=dateLbl; }
+    html+=assistantBubble(coachHistoryBubble(h), false);
+  });
+  if(coachThreadFilter && !history.length){
+    html+='<div style="text-align:center;color:var(--gray);font-size:13.5px;padding:30px 0;">'+trDyn('Nothing in this category yet.')+'</div>';
+  }
+  t.innerHTML=html;
+  renderCoachThemeFilters();
+  t.scrollTop=t.scrollHeight;
 }
 // Ajoute une entrée coachHistory au fil déjà à l'écran, sans tout reconstruire — utilisé quand une
 // carte de proposition est traitée (accepter/refuser) : le message descend dans le fil comme un
 // message normal au lieu de rester coincé dans la carte épinglée (chantier Coach IA).
 function appendCoachThreadEntry(h){
+  if(coachThreadFilter && h.theme!==coachThreadFilter) return;   // pas dans la vue filtrée actuelle
   const t=document.getElementById('assistantThread'); if(!t) return;
+  const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
+  if(lastThreadDateSep(t)!==dateLbl) t.insertAdjacentHTML('beforeend', coachDateSeparator(dateLbl));
   t.insertAdjacentHTML('beforeend', assistantBubble(coachHistoryBubble(h), false));
   t.scrollTop=t.scrollHeight;
 }
 function initAssistantIa(){
   renderCoachIaWeeklyCard();
-  const t=document.getElementById('assistantThread'); if(!t) return;
-  // Le fil est la mémoire du coach (réflexion fonctionnelle, chantier Coach IA, 11/09) : les messages
-  // qui vivaient enfermés dans l'historique (modale retirée) apparaissent ici, dans l'ordre
-  // chronologique — le plus récent en bas, comme une vraie conversation qui continue plutôt qu'un
-  // écran vide à chaque ouverture.
-  const history=[...coachHistory].reverse().slice(-20);
-  t.innerHTML=assistantBubble("Salut ! Pose-moi une question sur ton entraînement — je réponds à partir de tes vraies données. (Maquette : pas encore une vraie IA, juste des réponses calculées en direct.)", false)
-    + history.map(h=>assistantBubble(coachHistoryBubble(h), false)).join('');
+  coachThreadFilter=null;
+  renderCoachThread();
   renderAssistantChips();
-  t.scrollTop=t.scrollHeight;
 }
 // ===== MON PROFIL D'ENTRAÎNEMENT (réponses onboarding éditables au tap) =====
 const TP_FIELDS=[
