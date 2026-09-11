@@ -2660,7 +2660,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="ex-sec" id="exConseilSec"><div class="ex-sec-t">Tip</div><p class="ex-sec-b" id="ex_conseil">—</p></div>
     <div class="coach-tip" id="exDetailCoachTip" style="margin-bottom:16px;"></div>
     <div class="spacer" style="min-height:16px;"></div>
-    <button class="btn btn-orange" onclick="startExerciseFromFiche()">Start this exercise →</button>
+    <button class="btn btn-orange" id="exStartBtn" onclick="startExerciseFromFiche()">Start this exercise →</button>
     <button class="btn btn-outline" id="exAltBtn" style="margin-top:10px;" onclick="showAlternatives()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> See alternatives</button>
     <button class="btn btn-outline" id="exAddToSessionBtn" style="margin-top:10px;display:none;" onclick="openAddToSessionModal(window._curEx)">+ Add to a session</button>
     <button class="btn btn-outline" id="exReplaceBtn" style="margin-top:10px;display:none;" onclick="openSdExoAlternatives(window._curEx)"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> Replace this exercise</button>
@@ -13915,7 +13915,11 @@ function openExerciceNouveau(id, fromSession){
   const exclWrap=document.getElementById('exExclWrap'); if(exclWrap) exclWrap.style.display='none';
   const coachTip=document.getElementById('exDetailCoachTip'); if(coachTip){ coachTip.style.display='none'; coachTip.innerHTML=''; }
   const paramsSec=document.getElementById('exParamsSection'); if(paramsSec) paramsSec.style.display='block';
-  const addBtn=document.getElementById('exAddToSessionBtn'); if(addBtn) addBtn.style.display = currentRole==='referent' ? 'none' : 'block';
+  // Depuis une séance, "Démarrer cet exercice" et "Ajouter à une séance" n'ont plus de sens — on est
+  // déjà dans une séance, pas en train d'en composer une ni de lancer cet exercice tout seul. Seul
+  // "Remplacer" reste pertinent (chantier "fiche exercice unifiée", retour utilisateur).
+  const startBtn=document.getElementById('exStartBtn'); if(startBtn) startBtn.style.display = window._exFromSession ? 'none' : 'block';
+  const addBtn=document.getElementById('exAddToSessionBtn'); if(addBtn) addBtn.style.display = (currentRole==='referent' || window._exFromSession) ? 'none' : 'block';
   const replaceBtn=document.getElementById('exReplaceBtn'); if(replaceBtn) replaceBtn.style.display = window._exFromSession ? 'block' : 'none';
   window._curEx=ex.id;
   window._curExSource='nouveau';
