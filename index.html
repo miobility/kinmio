@@ -3650,7 +3650,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- ================= ASSISTANT IA (maquette — pas branché à une vraie IA, réponses calculées depuis les vraies données) ================= -->
 <div class="screen" id="assistant_ia">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">AI Coach</div><div class="topnav-r"><button class="btn-back" style="width:36px;height:36px;font-size:16px;" onclick="openCoachHistoryModal()" title="History"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg></button></div></div>
+  <!-- Plus d'icône historique séparée (openCoachHistoryModal, retirée) : le fil EST la mémoire
+       maintenant (chantier Coach IA, réflexion fonctionnelle du 11/09) — pas la peine d'un deuxième
+       endroit pour revoir ce que le coach a déjà dit. -->
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">AI Coach</div><div class="topnav-r"></div></div>
   <div id="coachIaWeeklyCard" style="display:none;flex-shrink:0;margin:14px 20px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;"></div>
   <div class="scroll px pt pb" id="assistantThread" style="display:flex;flex-direction:column;gap:12px;"></div>
   <div id="assistantChips" style="padding:10px 20px 4px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;"></div>
@@ -8732,6 +8735,7 @@ function applyCoachLevelUp(exId){
   userParamsOverrides[exId]={...(userParamsOverrides[exId]||{}), jauge:curLevel+1};
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
   logCoachHistory({type:'weekly', kind:'level', exName:ex.nom, level:curLevel+1, accepted:true});
+  appendCoachThreadEntry(coachHistory[0]);
   toast(trDyn('Level updated ✓'));
   renderCoachIaWeeklyCard();
   updateCoachIaBadge();
@@ -8739,7 +8743,7 @@ function applyCoachLevelUp(exId){
 function dismissCoachWeekly(){
   const p=getCoachWeeklyProposal();
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
-  if(p) logCoachHistory({type:'weekly', kind:'level', exName:p.exName, level:p.level+1, accepted:false});
+  if(p){ logCoachHistory({type:'weekly', kind:'level', exName:p.exName, level:p.level+1, accepted:false}); appendCoachThreadEntry(coachHistory[0]); }
   renderCoachIaWeeklyCard();
   updateCoachIaBadge();
 }
@@ -12499,7 +12503,7 @@ const EN_FR_PATTERNS = [
   [/^Next planned: (.+) · in (\d+) days?$/, (m)=>`Prochaine prévue : ${EN_FR[m[1]]||m[1]} · dans ${m[2]} jour${Number(m[2])>1?'s':''}`],
   [/^(\d+)% time in zone on $/, (m)=>`${m[1]}% de temps dans la zone sur `],
   [/^I suggest moving up to level (\d+)\.$/, (m)=>`Je te propose de passer au niveau ${m[1]}.`],
-  // Historique Coach IA (openCoachHistoryModal, coachHistoryRow) — même principe, nombre variable.
+  // Historique Coach IA, maintenant dans le fil (coachHistoryBubble) — même principe, nombre variable.
   [/^Moved up to level (\d+) on $/, (m)=>`Passé au niveau ${m[1]} sur `],
   [/^Suggested level (\d+) on $/, (m)=>`Niveau ${m[1]} proposé sur `],
   // Défi de volume hebdo (Défis, renderDefiVolumeChallenge).
@@ -19355,31 +19359,36 @@ function renderAssistantChips(){
   const c=document.getElementById('assistantChips'); if(!c) return;
   c.innerHTML=ASSISTANT_QUESTIONS.map(q=>'<button class="lib-chip" style="white-space:nowrap;flex-shrink:0;" onclick="assistantAsk(\''+q.id+'\',\''+q.q.replace(/'/g,"\\'")+'\')">'+q.q+'</button>').join('');
 }
+// Texte + date d'une entrée coachHistory, formatés pour vivre DANS une bulle du fil (chantier Coach
+// IA — le fil est la mémoire, plus de modale historique séparée). La date reste visible sous le texte
+// puisque, contrairement à une vraie conversation, ces messages peuvent dater de plusieurs jours.
+function coachHistoryBubble(h){
+  const dateLbl=new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
+  const text = h.type==='weekly'
+    ? (h.accepted ? trDyn('Moved up to level '+h.level+' on ')+trDyn(h.exName) : trDyn('Suggested level '+h.level+' on ')+trDyn(h.exName)+' — '+trDyn('declined'))
+    : h.message;
+  return text+'<div style="font-size:11px;color:var(--gray);margin-top:4px;">'+dateLbl+'</div>';
+}
+// Ajoute une entrée coachHistory au fil déjà à l'écran, sans tout reconstruire — utilisé quand une
+// carte de proposition est traitée (accepter/refuser) : le message descend dans le fil comme un
+// message normal au lieu de rester coincé dans la carte épinglée (chantier Coach IA).
+function appendCoachThreadEntry(h){
+  const t=document.getElementById('assistantThread'); if(!t) return;
+  t.insertAdjacentHTML('beforeend', assistantBubble(coachHistoryBubble(h), false));
+  t.scrollTop=t.scrollHeight;
+}
 function initAssistantIa(){
   renderCoachIaWeeklyCard();
   const t=document.getElementById('assistantThread'); if(!t) return;
-  t.innerHTML=assistantBubble("Salut ! Pose-moi une question sur ton entraînement — je réponds à partir de tes vraies données. (Maquette : pas encore une vraie IA, juste des réponses calculées en direct.)", false);
+  // Le fil est la mémoire du coach (réflexion fonctionnelle, chantier Coach IA, 11/09) : les messages
+  // qui vivaient enfermés dans l'historique (modale retirée) apparaissent ici, dans l'ordre
+  // chronologique — le plus récent en bas, comme une vraie conversation qui continue plutôt qu'un
+  // écran vide à chaque ouverture.
+  const history=[...coachHistory].reverse().slice(-20);
+  t.innerHTML=assistantBubble("Salut ! Pose-moi une question sur ton entraînement — je réponds à partir de tes vraies données. (Maquette : pas encore une vraie IA, juste des réponses calculées en direct.)", false)
+    + history.map(h=>assistantBubble(coachHistoryBubble(h), false)).join('');
   renderAssistantChips();
-}
-function coachHistoryRow(h){
-  const d=new Date(h.date);
-  const dateLbl=d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
-  let text;
-  if(h.type==='weekly'){
-    text = h.accepted ? trDyn('Moved up to level '+h.level+' on ')+trDyn(h.exName) : trDyn('Suggested level '+h.level+' on ')+trDyn(h.exName)+' — '+trDyn('declined');
-  } else {
-    text = h.message;
-  }
-  return '<div style="display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);">'
-    +'<span style="flex-shrink:0;margin-top:2px;">'+aiSparkleIcon(14,'var(--brand-fixed)')+'</span>'
-    +'<div style="flex:1;min-width:0;"><div style="font-size:13.5px;color:var(--white);line-height:1.4;">'+text+'</div><div style="font-size:11px;color:var(--gray);margin-top:3px;">'+dateLbl+'</div></div></div>';
-}
-function openCoachHistoryModal(){
-  const rows = coachHistory.length ? coachHistory.map(coachHistoryRow).join('')
-    : '<div style="font-size:13.5px;color:var(--gray);padding:20px 0;text-align:center;">'+trDyn('No history yet — check back after your first weekly check-in or session.')+'</div>';
-  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:12px;">'+trDyn('History')+'</div>'
-    +'<div style="max-height:60vh;overflow-y:auto;">'+rows+'</div>'
-    +'<button class="btn-ghost" style="margin-top:14px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
+  t.scrollTop=t.scrollHeight;
 }
 // ===== MON PROFIL D'ENTRAÎNEMENT (réponses onboarding éditables au tap) =====
 const TP_FIELDS=[
