@@ -2127,6 +2127,18 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 
+<!-- ================= CATALOGUE DES PROGRAMMES =================
+     Un environnement plein écran, rayonné par objectif — pas une liste au pied d'un scroll de 1 500 px.
+     Un programme est un engagement de quatre à huit semaines qu'on choisit UNE fois : la question est
+     « qu'est-ce que je veux obtenir ». Une séance se choisit cinquante fois, et la question y est
+     « qu'est-ce que je peux faire là, maintenant » — d'où des rayons par objectif ici, et par occasion
+     dans les séances. Ce n'est pas une incohérence, c'est la distinction. -->
+<div class="screen" id="catalogue_programmes">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Programmes</div><div class="topnav-r"></div></div>
+  <div class="px" style="padding-bottom:10px;flex-shrink:0;display:flex;gap:7px;overflow-x:auto;" id="catProgChips"></div>
+  <div class="scroll" id="catProgList" style="padding:0 20px 24px;"></div>
+</div>
+
 <!-- ================= GUIDE =================
      Sorti d'Entraînement (12 sept. 2026) : il y occupait un quart de la barre d'onglets pour un
      contenu qu'on ne vient pas chercher en s'entraînant. Sa vraie porte d'entrée sera l'info-bulle —
@@ -4903,10 +4915,29 @@ const SESSIONS = [
   }
 ];
 
+// ===== OBJECTIFS DE PROGRAMME (12 sept. 2026) ====================================================
+// Le champ `objectif` d'un programme ne valait que « Cardio » et « Renforcement » : ce sont des TYPES
+// D'EXERCICE, pas des objectifs. On demandait à la personne son but à l'onboarding et on lui proposait
+// de choisir entre deux familles de mouvements.
+//
+// `objectifs` est donc un champ SÉPARÉ, et `objectif` reste ce qu'il est (la composition, lue par les
+// filtres, les photos de thème et objectifDisplayKey) — un programme a les deux : ce dont il est fait,
+// et ce qu'il vise.
+//
+// Quatre, et pas un de plus, parce que chacun doit être mesurable avec ce que la barre capte. Pas de
+// « perte de poids » : sans nutrition ni dépense mesurée, ce serait une promesse qu'on ne saurait pas
+// tenir. Pas de « prise de masse » non plus : un élastique plafonne la charge progressive.
+const PROGRAMME_OBJECTIFS = [
+  { key:'endurance',    lbl:'Cardio endurance', sous:'Hold out longer, get your breath back', ic:'ki-bg-hours' },
+  { key:'renforcement', lbl:'Muscle strength',  sous:'Build strength, over time',             ic:'ki-bg-streak' },
+  { key:'tonicite',     lbl:'Tone',             sous:'Stay active without chasing performance', ic:'ki-bg-week' },
+  { key:'reprise',      lbl:'Gentle return',    sous:'Come back after a break, without forcing', ic:'ki-bg-clean' }
+];
+function objectifLabel(k){ const o=PROGRAMME_OBJECTIFS.find(x=>x.key===k); return o?trDyn(o.lbl):k; }
 const PROGRAMMES = [
   {
     id: "PRG-01", nom: "Real Start", nom_marketing: "Real Start",
-    objectif: ["Cardio","Renforcement"], niveau: "Débutant",
+    objectif: ["Cardio","Renforcement"], objectifs: ['reprise','tonicite'], niveau: "Débutant",
     duree_semaines: 4, frequence: 3,
     positions: ["Debout","Assis","Allongé"],
     progression: "Doux → Modéré",
@@ -4921,7 +4952,7 @@ const PROGRAMMES = [
   },
   {
     id: "PRG-02", nom: "Build Up", nom_marketing: "Build Up",
-    objectif: ["Renforcement"], niveau: "Intermédiaire",
+    objectif: ["Renforcement"], objectifs: ['renforcement'], niveau: "Intermédiaire",
     duree_semaines: 8, frequence: 3,
     positions: ["Debout"],
     progression: "Modéré → Intense",
@@ -4940,7 +4971,7 @@ const PROGRAMMES = [
   },
   {
     id: "PRG-03", nom: "Burn & Build", nom_marketing: "Burn & Build",
-    objectif: ["Cardio","Renforcement"], niveau: "Débutant",
+    objectif: ["Cardio","Renforcement"], objectifs: ['tonicite','endurance'], niveau: "Débutant",
     duree_semaines: 4, frequence: 3,
     positions: ["Debout"],
     progression: "Doux → Modéré",
@@ -4955,7 +4986,7 @@ const PROGRAMMES = [
   },
   {
     id: "PRG-04", nom: "Upper Body Focus", nom_marketing: "Upper Body Focus",
-    objectif: ["Renforcement"], niveau: "Intermédiaire",
+    objectif: ["Renforcement"], objectifs: ['renforcement'], niveau: "Intermédiaire",
     duree_semaines: 6, frequence: 3,
     positions: ["Debout","Assis"],
     progression: "Modéré → Intense",
@@ -4972,7 +5003,7 @@ const PROGRAMMES = [
   },
   {
     id: "PRG-05", nom: "Full Power", nom_marketing: "Full Power",
-    objectif: ["Cardio","Renforcement"], niveau: "Avancé",
+    objectif: ["Cardio","Renforcement"], objectifs: ['endurance','renforcement'], niveau: "Avancé",
     duree_semaines: 8, frequence: 4,
     positions: ["Debout"],
     progression: "Modéré → Intense",
@@ -5637,6 +5668,7 @@ function go(id){
   }, 20);
   if(id==='session_detail') setTimeout(renderSessionDetail, 20);
   if(id==='guide') setTimeout(renderLibGuide, 20);
+  if(id==='catalogue_programmes') setTimeout(renderCatalogueProgrammes, 20);
   if(id==='bibliotheque'){
     // Même écran pour tous les rôles désormais (le référent utilisait avant un écran séparé avec un
     // catalogue legacy jamais mis à jour — cf discussion). preselectLibNouveau()/renderLibNouveau()
@@ -11884,6 +11916,18 @@ const EN_FR = {
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
   "See my whole programme": "Voir tout mon programme",
+  "Cardio endurance": "Endurance cardio",
+  "Hold out longer, get your breath back": "Tenir plus longtemps, le souffle qui revient",
+  "Build strength, over time": "Gagner en force, sur la durée",
+  "Stay active without chasing performance": "Rester actif sans chercher la performance",
+  "Come back after a break, without forcing": "Revenir après une pause, sans forcer",
+  "What comes next": "Et après",
+  "Browse by goal": "Parcourir par objectif",
+  "Muscle strength": "Renforcement musculaire",
+  "Tone": "Tonicité",
+  "Gentle return": "Reprise en douceur",
+  "No programme for this goal yet.": "Pas encore de programme pour cet objectif.",
+  "All programmes": "Tous les programmes",
   "Edit sessions": "Modifier les séances",
   "Change programme": "Changer de programme",
   "Matched to your position and equipment": "Calé sur ta position et ton matériel",
@@ -15651,16 +15695,22 @@ function renderProgMonView(){
   }
   // Le catalogue de programmes descend ici : il n'a plus d'onglet, et « Gérer mon programme » a
   // disparu — c'était un tiroir qui rangeait trois gestes sans rapport au bas d'un long scroll.
+  // Deux suggestions, pas une liste : une liste demande de choisir, une suggestion répond. Elles sont
+  // calées sur les objectifs du programme en cours — qui suit « Reprise en douceur » se voit proposer
+  // la suite logique, pas les cinq programmes en vrac. Le catalogue complet est un environnement à
+  // part, atteint par la ligne du dessous : il tiendra à cinquante programmes.
   const cat=document.getElementById('progMonCatalogue');
   if(cat){
-    const autres=[...PROGRAMMES,...userProgrammes].filter(x=>!p || x.id!==p.id);
-    cat.innerHTML = '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn(p?'Change programme':'Choose a programme')+'</div>'
-      + autres.map(x=>'<div class="card-sm" style="display:flex;align-items:center;gap:11px;margin-bottom:8px;cursor:pointer;" onclick="openProgrammeDetail(\''+x.id+'\')">'
-        +'<div class="kimg" style="width:46px;height:58px;border-radius:10px;flex-shrink:0;background-image:url(\''+programmePhotoFor(x)+'\');"></div>'
-        +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);">'+x.nom_marketing+'</div>'
-        +'<div style="font-size:11.5px;color:var(--gray2);margin-top:2px;">'+trDyn(x.duree_semaines+' weeks')+' · '+trDyn(x.niveau)+'</div>'
-        +'<div style="font-size:11.5px;color:var(--gray2);">'+trDyn(x.frequence+' sessions/week')+'</div></div>'
-        +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>').join('');
+    const tous=[...PROGRAMMES,...userProgrammes].filter(x=>!p || x.id!==p.id);
+    const objs = p ? (p.objectifs||[]) : [];
+    const proches = tous.filter(x=>(x.objectifs||[]).some(k=>objs.includes(k)));
+    const sugg = (proches.length ? proches : tous).slice(0,2);
+    cat.innerHTML = '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn(p?'What comes next':'Choose a programme')+'</div>'
+      + sugg.map(x=>programmeCardHtml(x, false)).join('')
+      + '<div class="card-sm" style="display:flex;align-items:center;gap:11px;cursor:pointer;border-color:rgba(var(--brand-fixed-rgb),.3);" onclick="openCatalogueProgrammes()">'
+        +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--brand-fixed);">'+trDyn('All programmes')+'</div>'
+        +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn('Browse by goal')+'</div></div>'
+        +'<svg class="ki" style="color:var(--brand-fixed);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>';
     sweepTranslate(cat, currentLang);
   }
   sweepTranslate(document.getElementById('progMonView'), currentLang);
@@ -17161,6 +17211,57 @@ function editFeedbackComment(){
   const h=window._curRecapEntry; if(!h) return;
   openNoteEditor(h.coachComment||'', 'Comment on this session', function(v){ h.coachComment=v; renderHistoryRecapModal(h); });
 }
+// Filtre d'objectif du catalogue : null = tout, sinon la clé d'un PROGRAMME_OBJECTIFS.
+let catProgObjectif=null;
+function openCatalogueProgrammes(obj){
+  catProgObjectif = obj || null;
+  go('catalogue_programmes');
+  setTimeout(renderCatalogueProgrammes, 20);
+}
+function setCatProgObjectif(k){ catProgObjectif = (catProgObjectif===k) ? null : k; renderCatalogueProgrammes(); }
+function programmeCardHtml(x, actif){
+  return '<div class="card-sm" style="display:flex;align-items:center;gap:12px;margin-bottom:9px;cursor:pointer;'+(actif?'border-color:var(--brand-fixed);':'')+'" onclick="openProgrammeDetail(\''+x.id+'\')">'
+    +'<div class="kimg" style="width:54px;height:68px;border-radius:11px;flex-shrink:0;background-image:url(\''+programmePhotoFor(x)+'\');"></div>'
+    +'<div style="flex:1;min-width:0;">'
+      +(actif?'<div style="font-size:10px;font-weight:800;color:var(--brand-fixed);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px;">'+trDyn('In progress')+'</div>':'')
+      +'<div style="font-size:14.5px;font-weight:700;color:var(--white);">'+x.nom_marketing+'</div>'
+      +'<div style="font-size:11.5px;color:var(--gray2);margin-top:3px;">'+(x.objectifs||[]).map(k=>objectifLabel(k)).join(' · ')+'</div>'
+      +'<div style="font-size:11.5px;color:var(--gray2);">'+trDyn(x.duree_semaines+' weeks')+' · '+trDyn(x.frequence+' sessions/week')+' · '+trDyn(x.niveau)+'</div>'
+    +'</div>'
+    +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>';
+}
+function renderCatalogueProgrammes(){
+  const chips=document.getElementById('catProgChips'), list=document.getElementById('catProgList');
+  const tous=[...PROGRAMMES,...userProgrammes];
+  if(chips){
+    chips.innerHTML = PROGRAMME_OBJECTIFS.map(o=>
+      '<button class="lib-chip'+(catProgObjectif===o.key?' on':'')+'" style="flex-shrink:0;" onclick="setCatProgObjectif(\''+o.key+'\')">'+trDyn(o.lbl)+'</button>').join('');
+    sweepTranslate(chips, currentLang);
+  }
+  if(!list) return;
+  // Rayons par objectif tant qu'aucun n'est sélectionné — filtrer, c'est déjà savoir ce qu'on cherche.
+  let html='';
+  if(catProgObjectif){
+    const sel=tous.filter(x=>(x.objectifs||[]).includes(catProgObjectif));
+    const o=PROGRAMME_OBJECTIFS.find(x=>x.key===catProgObjectif);
+    html = '<div style="margin:16px 0 12px;"><div style="font-size:16px;font-weight:800;color:var(--white);">'+trDyn(o.lbl)+'</div>'
+      +'<div style="font-size:12px;color:var(--gray2);margin-top:2px;">'+trDyn(o.sous)+'</div></div>'
+      + (sel.length ? sel.map(x=>programmeCardHtml(x, programmeActif&&programmeActif.id===x.id)).join('')
+                    : '<div class="lib-empty">'+trDyn('No programme for this goal yet.')+'</div>');
+  } else {
+    html = PROGRAMME_OBJECTIFS.map(o=>{
+      const sel=tous.filter(x=>(x.objectifs||[]).includes(o.key));
+      if(!sel.length) return '';
+      return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:20px 0 10px;">'
+        +'<div style="min-width:0;"><div style="font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.2px;">'+trDyn(o.lbl)+'</div>'
+        +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(o.sous)+'</div></div>'
+        +'<span style="font-size:11.5px;color:var(--gray2);flex-shrink:0;padding-top:3px;">'+sel.length+'</span></div>'
+        + sel.map(x=>programmeCardHtml(x, programmeActif&&programmeActif.id===x.id)).join('');
+    }).join('');
+  }
+  list.innerHTML=html;
+  sweepTranslate(list, currentLang);
+}
 let ddCurrentId=null;
 function openDefiDetail(id){ ddCurrentId=id; go('defi_detail'); setTimeout(renderDefiDetail, 20); }
 function renderDefiDetail(){
@@ -17260,7 +17361,11 @@ function renderProgrammeDetail(){
   const chip=(icon,txt)=>'<span class="sd-chip" style="display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:7px 12px;font-size:12.5px;color:var(--gray2);"><svg class="ki" style="color:var(--gray);"><use href="#'+icon+'"/></svg>'+txt+'</span>';
   const tags=document.getElementById('pdTags');
   if(tags){
-    tags.innerHTML = chip('ki-calendar', trDyn(p.duree_semaines+' weeks'))
+    tags.innerHTML = (p.objectifs||[]).map(k=>{
+        const o=PROGRAMME_OBJECTIFS.find(x=>x.key===k);
+        return o ? '<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(var(--brand-fixed-rgb),.12);border:1px solid rgba(var(--brand-fixed-rgb),.3);border-radius:20px;padding:7px 12px;font-size:12.5px;color:var(--brand-fixed);font-weight:600;"><svg class="ki"><use href="#'+o.ic+'"/></svg>'+trDyn(o.lbl)+'</span>' : '';
+      }).join('')
+      + chip('ki-calendar', trDyn(p.duree_semaines+' weeks'))
       + chip('ki-repeat', trDyn(p.frequence+' sessions/week'))
       + (p.positions||[]).map(pos=>chip('ki-body', trDyn(pos))).join('')
       + (p.objectif||[]).map(o=>chip('ki-spark', trDyn(o))).join('');
