@@ -2212,12 +2212,34 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
 </div>
 
+<!-- ================= INVITATION A UN DEFI (recue) ================= -->
+<div class="screen" id="invitation_defi">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Invitation</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 0 8px;">
+      <div id="invDefiAvatar"></div>
+      <div id="invDefiNom" style="font-size:19px;font-weight:800;color:var(--white);margin-top:14px;"></div>
+      <div id="invDefiSub" style="font-size:13px;color:var(--gray2);margin-top:3px;"></div>
+    </div>
+    <div id="invDefiCarte" style="margin-top:14px;"></div>
+    <div id="invDefiQui" style="margin-top:18px;"></div>
+    <div style="flex:1;"></div>
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="declinerInvitationDefi()">Decline</button>
+      <button class="btn btn-brand-fixed" style="flex:1.4;" onclick="accepterInvitationDefi()">Join</button>
+    </div>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
 <!-- ================= DEFI PARTAGE — le classement ================= -->
 <div class="screen" id="defi_partage_detail">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="dpTopTitle">Challenge</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="dpHead"></div>
     <div id="dpClassement" style="margin-top:18px;"></div>
+    <div id="dpAttente" style="margin-top:18px;"></div>
+    <div id="dpInviter" style="margin-top:18px;"></div>
     <div id="dpCode" style="margin-top:18px;"></div>
     <div id="dpCta" style="margin-top:18px;"></div>
     <div style="height:24px;"></div>
@@ -5341,17 +5363,53 @@ function dpValeur(dp, participantId){
   if(dp.unite==='serie') return Math.min(jours, Math.round(friendRythme(f)*(0.6+friendSeed(f,'serie')*0.8)));
   return Math.round((parJour[dp.unite]||0)*jours);
 }
+// Un participant coche a la creation est INVITE, pas inscrit : on ne met pas quelqu'un dans un
+// classement sans qu'il ait dit oui. Seuls les 'in' sont classes ; les 'invite' attendent a part.
 function dpClassement(dp){
-  return dp.participants
+  return dp.participants.filter(p=>p.statut==='in')
     .map(p=>({...p, valeur:dpValeur(dp, p.id)}))
     .sort((a,b)=>b.valeur-a.valeur);
 }
+function dpEnAttente(dp){ return dp.participants.filter(p=>p.statut==='invite'); }
+function dpAInviter(dp){
+  const dedans=new Set(dp.participants.map(p=>p.id));
+  return FRIENDS.filter(f=>f.statut==='actif' && !dedans.has(f.id));
+}
+function inviterAuDefi(dpId, amiId){
+  const dp=getDefiPartage(dpId); if(!dp) return;
+  const f=FRIENDS.find(x=>x.id===amiId); if(!f) return;
+  if(dp.participants.some(p=>p.id===amiId)) return;
+  dp.participants.push({id:f.id, nom:f.nom, ini:f.ini, couleur:'#529CFE', statut:'invite'});
+  simulerReponseInvite(dpId, amiId);
+  renderDefiPartage(); renderDefisScreen();
+  toast(trDyn('Invitation sent to ')+f.nom);
+}
+// Prototype : il n'y a pas d'autre appareil en face. La reponse arrive apres un delai plausible, et
+// elle n'est pas toujours oui — une invitation qu'on accepte a coup sur n'est pas une invitation.
+function simulerReponseInvite(dpId, amiId){
+  const delai=4000+Math.random()*5000;
+  setTimeout(()=>{
+    const dp=getDefiPartage(dpId); if(!dp) return;
+    const p=dp.participants.find(x=>x.id===amiId); if(!p || p.statut!=='invite') return;
+    const accepte = Math.random()<0.75;
+    if(accepte){
+      p.statut='in';
+      pushNotif('⚡', p.nom+' '+trDyn('joined')+' — '+dpNom(dp), null);
+    } else {
+      dp.participants=dp.participants.filter(x=>x.id!==amiId);
+      pushNotif('⚡', p.nom+' '+trDyn('cannot make it this time'), null);
+    }
+    if(document.querySelector('#defi_partage_detail.active')) renderDefiPartage();
+    renderDefisScreen();
+  }, delai);
+}
 function creerDefiPartage(unite, jours, cible, amisIds){
   const debut=Date.now(), fin=debut+jours*HIST_DAY;
-  const parts=[{id:'me', nom:trDyn('You'), ini:'M', couleur:'var(--brand-fixed)'}]
-    .concat(amisIds.map(id=>{ const f=FRIENDS.find(x=>x.id===id); return f?{id:f.id, nom:f.nom, ini:f.ini, couleur:'#529CFE'}:null; }).filter(Boolean));
+  const parts=[{id:'me', nom:trDyn('You'), ini:'M', couleur:'var(--brand-fixed)', statut:'in'}]
+    .concat(amisIds.map(id=>{ const f=FRIENDS.find(x=>x.id===id); return f?{id:f.id, nom:f.nom, ini:f.ini, couleur:'#529CFE', statut:'invite'}:null; }).filter(Boolean));
   const dp={ id:'DP-'+(++dpSeq), unite, cible:cible||null, debut, fin, jours, createurId:'me', participants:parts, code:genDefiCode() };
   defisPartages.unshift(dp);
+  amisIds.forEach(id=>simulerReponseInvite(dp.id, id));
   return dp;
 }
 // ===== CREATION D'UN DEFI PARTAGE =====
@@ -5437,7 +5495,13 @@ function renderDefiPartage(){
   set('dpHead', '<div class="card-sm" style="margin:0;">'
     +'<div style="font-size:13px;color:var(--white);font-weight:700;">'
       +(fini ? trDyn('Finished') : trDyn(restants+' day'+(restants>1?'s':'')+' left'))
-      +'<span style="color:var(--gray2);font-weight:400;"> · '+dp.participants.length+' '+trDyn('participants')+'</span></div>'
+      +'<span style="color:var(--gray2);font-weight:400;"> · '+(function(){
+        const n=dpClassement(dp).length, a=dpEnAttente(dp).length;
+        const fr=currentLang==='fr';
+        let t = fr ? (n+' participant'+(n>1?'s':'')) : (n+' participant'+(n>1?'s':''));
+        if(a) t += fr ? (' · '+a+' invité'+(a>1?'s':'')) : (' · '+a+' invited');
+        return t;
+      })()+'</span></div>'
     +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'
       +(dp.cible ? trDyn('To reach')+' : '+dp.cible+' '+uniteLbl(dp.unite, dp.cible) : trDyn('No target — the highest score wins.'))
       +'</div></div>');
@@ -5461,6 +5525,30 @@ function renderDefiPartage(){
     + '<div style="font-size:11.5px;color:var(--gray2);margin-top:8px;line-height:1.45;">'
       + trDyn('Everyone here trained. The ranking says in which order, nothing else.') + '</div>');
 
+  // Les invites qui n'ont pas repondu ne sont pas dans le classement — les y mettre a 0 les
+  // ferait passer pour derniers alors qu'ils n'ont pas encore dit oui.
+  const att=dpEnAttente(dp);
+  set('dpAttente', att.length
+    ? '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn('Waiting for an answer')+'</div>'
+      + att.map(p=>'<div style="display:flex;align-items:center;gap:11px;margin-bottom:7px;padding:10px 12px;border-radius:12px;border:1px dashed var(--border);">'
+          +'<span style="width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#0A0A0F;background:'+p.couleur+';opacity:.55;">'+p.ini+'</span>'
+          +'<span style="flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--gray2);">'+p.nom+'</span>'
+          +'<span style="font-size:11.5px;color:var(--gray);flex-shrink:0;">'+trDyn('Invited')+'</span></div>').join('')
+    : '');
+
+  // Lot D applique la : les comparables d'abord, avec la raison. On n'invite pas au hasard.
+  const libres=dpAInviter(dp);
+  const tri=[...libres].sort((a,b)=>(estComparable(b)?1:0)-(estComparable(a)?1:0));
+  set('dpInviter', libres.length
+    ? '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn('Invite')+'</div>'
+      + tri.map(f=>'<div style="display:flex;align-items:center;gap:11px;margin-bottom:7px;padding:10px 12px;border-radius:12px;background:var(--bg2);border:1px solid var(--border);">'
+          +'<span style="width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#0A0A0F;background:#529CFE;">'+f.ini+'</span>'
+          +'<span style="flex:1;min-width:0;"><span style="display:block;font-size:13px;font-weight:700;color:var(--white);">'+f.nom+'</span>'
+          +(estComparable(f)?'<span style="display:block;font-size:11px;color:var(--gray2);margin-top:1px;line-height:1.3;">'+raisonComparable(f)+'</span>':'')+'</span>'
+          +'<span role="button" tabindex="0" onclick="inviterAuDefi(\''+dp.id+'\',\''+f.id+'\')" style="font-size:12px;font-weight:700;color:var(--brand-fixed);flex-shrink:0;cursor:pointer;padding:12px 0 12px 14px;margin:-12px 0;">'+trDyn('Invite')+'</span>'
+          +'</div>').join('')
+    : '');
+
   set('dpCode', '<div class="card-sm" style="margin:0;display:flex;align-items:center;gap:12px;">'
     +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:var(--white);">'+trDyn('Invite with this code')+'</div>'
     +'<div style="font-size:15px;font-weight:800;letter-spacing:.1em;color:var(--brand-fixed);font-variant-numeric:tabular-nums;margin-top:3px;">'+dp.code+'</div></div>'
@@ -5468,6 +5556,98 @@ function renderDefiPartage(){
 
   set('dpCta', '<button class="btn btn-outline" style="width:100%;" onclick="confirmQuitterDefiPartage(\''+dp.id+'\')">'+trDyn('Leave this challenge')+'</button>');
   const sc=document.getElementById('defi_partage_detail'); if(sc) sweepTranslate(sc, currentLang);
+}
+// ===== L'AUTRE BOUT : recevoir une invitation, et rejoindre par code =====
+// Prototype : il n'y a pas de second appareil. On fabrique le defi comme s'il venait d'un ami, avec
+// nous dedans au statut 'invite' — exactement l'etat dans lequel le serveur nous mettrait.
+let invitationDefiId=null;
+function defiPartageDUnAmi(f){
+  const combos=[{u:'serie',j:14,c:5},{u:'jours',j:30,c:12},{u:'minutes',j:14,c:180},{u:'points',j:30,c:1200}];
+  const combo=combos[Math.floor(Math.random()*combos.length)];
+  const debut=Date.now()-2*HIST_DAY, fin=debut+combo.j*HIST_DAY;
+  const autres=FRIENDS.filter(x=>x.statut==='actif' && x.id!==f.id).slice(0,1);
+  const dp={ id:'DP-'+(++dpSeq), unite:combo.u, cible:combo.c, debut, fin, jours:combo.j,
+    createurId:f.id, createurNom:f.nom,
+    participants:[{id:f.id, nom:f.nom, ini:f.ini, couleur:'#529CFE', statut:'in'}]
+      .concat(autres.map(a=>({id:a.id, nom:a.nom, ini:a.ini, couleur:'#A87EFD', statut:'in'})))
+      .concat([{id:'me', nom:trDyn('You'), ini:'M', couleur:'var(--brand-fixed)', statut:'invite'}]),
+    code:genDefiCode() };
+  defisPartages.unshift(dp);
+  return dp;
+}
+function simulateDefiInviteIncoming(){
+  const f=FRIENDS.find(x=>x.statut==='actif'); if(!f) return;
+  const dp=defiPartageDUnAmi(f);
+  invitationDefiId=dp.id;
+  pushNotif('🏁', f.nom+' '+trDyn('invites you to take on')+' '+dpNom(dp), 'invitation_defi');
+  if(NOTIFS[0]) NOTIFS[0].defiInvite=dp.id;
+}
+function renderInvitationDefi(){
+  const dp=getDefiPartage(invitationDefiId);
+  if(!dp){ go('defis'); return; }
+  const set=(id,html)=>{ const e=document.getElementById(id); if(e) e.innerHTML=html; };
+  const createur=dp.participants.find(p=>p.id===dp.createurId) || {ini:'?', nom:dp.createurNom||''};
+  set('invDefiAvatar','<div style="width:64px;height:64px;border-radius:22px;background:#529CFE;color:#0A0A0F;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;">'+createur.ini+'</div>');
+  const n=document.getElementById('invDefiNom'); if(n) n.textContent=createur.nom;
+  const sb=document.getElementById('invDefiSub'); if(sb) sb.textContent=trDyn('invites you to take on');
+  const restants=dpJoursRestants(dp);
+  set('invDefiCarte','<div class="card-sm" style="margin:0;text-align:center;">'
+    +'<div style="font-size:17px;font-weight:800;color:var(--white);">'+dpNom(dp)+'</div>'
+    +'<div style="font-size:12.5px;color:var(--gray2);margin-top:5px;">'
+      +trDyn(restants+' day'+(restants>1?'s':'')+' left')
+      +(dp.cible?' · '+trDyn('To reach')+' '+dp.cible+' '+uniteLbl(dp.unite, dp.cible):'')+'</div>'
+    // Le defi a demarre il y a deux jours : le dire, plutot que de laisser croire a un depart a zero.
+    +'<div style="font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.4;">'+trDyn('It already started — everyone is counted from the same day.')+'</div>'
+    +'</div>');
+  const dedans=dp.participants.filter(p=>p.statut==='in');
+  set('invDefiQui','<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn('Already in')+'</div>'
+    + dedans.map(p=>'<div style="display:flex;align-items:center;gap:11px;margin-bottom:7px;padding:10px 12px;border-radius:12px;background:var(--bg2);border:1px solid var(--border);">'
+        +'<span style="width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#0A0A0F;background:'+p.couleur+';">'+p.ini+'</span>'
+        +'<span style="flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--white);">'+p.nom+'</span>'
+        +'<span style="font-size:12.5px;font-weight:700;color:var(--gray2);font-variant-numeric:tabular-nums;">'+dpValeur(dp,p.id)+' '+uniteLbl(dp.unite, dpValeur(dp,p.id))+'</span></div>').join(''));
+  const sc=document.getElementById('invitation_defi'); if(sc) sweepTranslate(sc, currentLang);
+}
+function accepterInvitationDefi(){
+  const dp=getDefiPartage(invitationDefiId); if(!dp){ go('defis'); return; }
+  const moi=dp.participants.find(p=>p.id==='me'); if(moi) moi.statut='in';
+  invitationDefiId=null;
+  openDefiPartage(dp.id);
+  renderDefisScreen();
+  toast(trDyn('Challenge joined'));
+}
+function declinerInvitationDefi(){
+  const dp=getDefiPartage(invitationDefiId);
+  // Decliner retire le defi de la liste : on ne garde pas dans "Mes defis" quelque chose qu'on a refuse.
+  if(dp) defisPartages=defisPartages.filter(d=>d.id!==dp.id);
+  invitationDefiId=null;
+  go('defis'); renderDefisScreen();
+}
+// Rejoindre par code. Le code d'un defi existe depuis sa creation mais aucune porte ne le recevait.
+function openRejoindreParCode(){
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:8px;">'+trDyn('Join with a code')+'</div>'
+    +'<div style="font-size:13.5px;color:var(--gray2);line-height:1.5;margin-bottom:14px;">'+trDyn('Six characters, given by whoever launched the challenge.')+'</div>'
+    +'<input type="text" id="rejoindreCodeInput" class="pres-inp" maxlength="6" placeholder="ABC123" style="width:100%;text-align:center;letter-spacing:.22em;text-transform:uppercase;font-weight:800;">'
+    +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:14px;" onclick="submitRejoindreParCode()">'+trDyn('Join')+'</button>'
+    +'<button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Cancel')+'</button>');
+  setTimeout(()=>{ const i=document.getElementById('rejoindreCodeInput'); if(i) i.focus(); }, 120);
+}
+function submitRejoindreParCode(){
+  const el=document.getElementById('rejoindreCodeInput');
+  const code=(el&&el.value||'').trim().toUpperCase();
+  if(code.length<4){ toast(trDyn('Enter the six-character code')); return; }
+  const connu=defisPartages.find(d=>d.code===code);
+  if(connu){
+    const moi=connu.participants.find(p=>p.id==='me');
+    if(moi) moi.statut='in'; else connu.participants.push({id:'me', nom:trDyn('You'), ini:'M', couleur:'var(--brand-fixed)', statut:'in'});
+    closeModal(); openDefiPartage(connu.id); renderDefisScreen(); toast(trDyn('Challenge joined'));
+    return;
+  }
+  // Prototype : un code inconnu ouvre quand meme un defi plausible, sinon la porte ne se demontre pas.
+  const f=FRIENDS.find(x=>x.statut==='actif'); if(!f){ toast(trDyn('Unknown code')); return; }
+  const dp=defiPartageDUnAmi(f);
+  dp.code=code;
+  invitationDefiId=dp.id;
+  closeModal(); go('invitation_defi'); setTimeout(renderInvitationDefi,20);
 }
 function confirmQuitterDefiPartage(id){
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:8px;">'+trDyn('Leave this challenge?')+'</div>'
@@ -6069,6 +6249,7 @@ function go(id){
   if(id==='defi_config') setTimeout(resetDefiConfig, 20);
   if(id==='creer_defi') setTimeout(renderCreerDefi, 20);
   if(id==='defi_partage_detail') setTimeout(renderDefiPartage, 20);
+  if(id==='invitation_defi') setTimeout(renderInvitationDefi, 20);
   if(id==='defi_ami_config') setTimeout(resetDefiAmiConfig, 20);
   if(id==='defi_ami_attente') setTimeout(startFriendWait, 20);
   if(id==='mes_amis') setTimeout(renderMesAmis, 20);
@@ -9643,8 +9824,13 @@ function renderDefisScreen(){
     }
     // "Creer un defi" vit dans le titre et non sur une carte : une porte n'a pas besoin de 70 px pour
     // dire qu'elle est une porte, et la zone tapable descend a 44 px par le padding.
-    const creer='<span role="button" tabindex="0" onclick="openCreerDefi()" style="margin-left:auto;font-size:11.5px;font-weight:700;color:var(--brand-fixed);letter-spacing:0;text-transform:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:15px 0 15px 16px;margin-top:-15px;margin-bottom:-15px;">'
-      +'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-plus"/></svg>'+trDyn('Create a challenge')+'</span>';
+    const act=(txt,onclick,ic)=>'<span role="button" tabindex="0" onclick="'+onclick+'" style="font-size:11.5px;font-weight:700;color:var(--brand-fixed);letter-spacing:0;text-transform:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:15px 0 15px 14px;margin-top:-15px;margin-bottom:-15px;">'
+      +(ic?'<svg class="ki" style="width:12px;height:12px;"><use href="#'+ic+'"/></svg>':'')+trDyn(txt)+'</span>';
+    // Le code d'un defi existait des sa creation, mais aucune porte ne le recevait : on pouvait le
+    // partager, jamais s'en servir.
+    const creer='<span style="margin-left:auto;display:inline-flex;align-items:center;">'
+      + act('I have a code','openRejoindreParCode()',null)
+      + act('Create a challenge','openCreerDefi()','ki-plus') + '</span>';
     cat.innerHTML = '<div class="zone-lbl" style="margin-top:22px;display:flex;align-items:center;">'+trDyn('TO TAKE ON')+creer+'</div>'
       + (libres.length ? corps : '');
     sweepTranslate(cat, currentLang);
@@ -12319,6 +12505,23 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "Invitation sent to ": "Invitation envoyée à ",
+  "joined": "a rejoint",
+  "cannot make it this time": "ne peut pas cette fois",
+  "Waiting for an answer": "En attente de réponse",
+  "Invited": "Invité",
+  "invites you to take on": "t’invite à relever",
+  "It already started — everyone is counted from the same day.": "Il a déjà commencé — tout le monde est compté depuis le même jour.",
+  "Already in": "Déjà dedans",
+  "Join": "Rejoindre",
+  "Challenge joined": "Défi rejoint",
+  "Join with a code": "Rejoindre avec un code",
+  "Six characters, given by whoever launched the challenge.": "Six caractères, donnés par celui qui a lancé le défi.",
+  "Enter the six-character code": "Entre le code à six caractères",
+  "Unknown code": "Code inconnu",
+  "I have a code": "J’ai un code",
+  "Receive a challenge invitation": "Recevoir une invitation à un défi",
+  "A friend invites you to a shared, dated challenge": "Un ami t’invite à un défi partagé et daté",
   "To reach": "À atteindre",
   "No target — the highest score wins.": "Sans cible — le meilleur score gagne.",
   "day in a row": "jour d’affilée",
@@ -19065,7 +19268,7 @@ function renderNotifs(){
   el.innerHTML=NOTIFS.map((n,i)=>'<div class="notif '+(n.unread?'unread':'')+'" onclick="onNotif('+i+')"><div class="notif-ic">'+n.ic+'</div><div style="flex:1;"><div style="font-size:14px;color:var(--white);font-weight:600;line-height:1.3;">'+n.t+'</div><div style="font-size:12px;color:var(--gray);margin-top:3px;">'+n.x+'</div></div>'+(n.unread?'<span style="width:8px;height:8px;border-radius:50%;background:var(--orange);align-self:center;flex-shrink:0;"></span>':'')+'</div>').join('');
 }
 function openNotifs(){ withSkeleton('notifList',3,renderNotifs); go('notifications'); }
-function onNotif(i){ const n=NOTIFS[i]; if(!n)return; n.unread=false; renderNotifs(); syncBell(); if(n.invite) pendingInvite=n.invite; if(n.go) go(n.go); }
+function onNotif(i){ const n=NOTIFS[i]; if(!n)return; n.unread=false; renderNotifs(); syncBell(); if(n.invite) pendingInvite=n.invite; if(n.defiInvite) invitationDefiId=n.defiInvite; if(n.go) go(n.go); }
 function markNotifsRead(){ NOTIFS.forEach(n=>n.unread=false); renderNotifs(); syncBell(); toast('Notifications marked as read'); }
 function syncBell(){ const any=NOTIFS.some(n=>n.unread); document.querySelectorAll('.bell-dot').forEach(d=>d.style.display=any?'block':'none'); }
 function pushNotif(ic,txt,target){
@@ -21435,6 +21638,7 @@ function renderDemoSection(containerId){
       + row('','AI assistant (mockup)','Chat over your real data — not a live LLM','initAssistantIa();go(\'assistant_ia\')',O)
       + row('','Receive a friend challenge','Pushes a notification — tap it to accept','simulateFriendChallengeIncoming();toast(\'✓ Check your notifications 🔔\')',O)
       + row('','Receive a coach challenge','Same, from Martin Dupont','simulateReferentChallengeIncoming();toast(\'✓ Check your notifications 🔔\')',O)
+      + row('','Receive a challenge invitation','A friend invites you to a shared, dated challenge','simulateDefiInviteIncoming();toast(\'✓ Check your notifications 🔔\')',O)
       )
     + secTitle('Centre user')
     + card(
