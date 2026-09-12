@@ -8770,8 +8770,32 @@ function logCoachHistory(entry){
 function getWeekStartTimestamp(){
   const d=new Date(); const day=(d.getDay()+6)%7; d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d.getTime();
 }
+// Adaptation du programme dans la duree (chantier Coach IA mis en stock, repris) : un signal
+// protecteur (charge haute, douleur en hausse, retard chronique sur le rythme) prime sur la
+// proposition de niveau (une recompense) — jamais les deux dans le meme creneau hebdo, cf plus bas.
+// Reserve au B2C self-managed (cf arbitrage referent-vs-auto-adapt) : un membre suivi par un
+// referent (currentRole==='user_centre') ne voit jamais ce type de proposition — son programme est
+// une prescription, pas la sienne a ajuster seule. Le meme signal existe cote referent
+// (isProgrammeBehindPace, reutilise dans computeReferentAttention) mais y devient une alerte au
+// coach humain, jamais un changement automatique ni une proposition au patient.
+function getCoachProgrammeProposal(){
+  if(currentRole==='user_centre') return null;
+  if(!programmeActif || !programmeActif.frequence || programmeActif.frequence<=1) return null;
+  const prog=getProgrammeProgress(programmeActif);
+  if(prog.done) return null;
+  const overloaded = getFatigueSignal().level==='high';
+  const painRising = isPainTrendRising();
+  const behind = isProgrammeBehindPace();
+  if(!overloaded && !painRising && !behind) return null;
+  const reasonKey = overloaded ? 'your training load has ramped up fast recently'
+    : painRising ? 'your pain has been trending up'
+    : "you've been behind pace on this programme";
+  return {type:'programme', programmeName: programmeActif.nom_marketing||programmeActif.nom, oldFrequence:programmeActif.frequence, newFrequence:programmeActif.frequence-1, reasonKey};
+}
 function getCoachWeeklyProposal(){
   if(coachWeeklyDismissedWeekStart===getWeekStartTimestamp()) return null;
+  const progProposal=getCoachProgrammeProposal();
+  if(progProposal) return progProposal;
   const exos=[...EXERCICES,...userExercices];
   let best=null;
   Object.keys(exerciseZoneHistory).forEach(exId=>{
@@ -8811,6 +8835,24 @@ function coachWeeklyHtml(){
   if(!p){
     return assistantBubble(trDyn("You're up to date — nothing to confirm right now, I'll let you know if something comes up."), false);
   }
+  if(p.type==='programme'){
+    // Phrase construite directement selon currentLang, jamais via trDyn() mot a mot sur un fragment
+    // numerote (piege i18n deja rencontre 3 fois cette semaine sur ce meme schema).
+    const reasonTxt = (currentLang==='fr' && ASSISTANT_REASON_FR[p.reasonKey]) ? ASSISTANT_REASON_FR[p.reasonKey] : trDyn(p.reasonKey);
+    const bodyTxt = currentLang==='fr'
+      ? 'Le rythme de '+p.programmeName+' ne suit plus : '+reasonTxt+'. Je te propose de passer à '+p.newFrequence+'x par semaine au lieu de '+p.oldFrequence+'x.'
+      : "Your pace on "+p.programmeName+" isn't holding up: "+reasonTxt+". I suggest moving to "+p.newFrequence+"x a week instead of "+p.oldFrequence+"x.";
+    const btnTxt = currentLang==='fr' ? 'Passer à '+p.newFrequence+'x/semaine' : 'Lower to '+p.newFrequence+'x/week';
+    return '<div style="align-self:stretch;display:flex;align-items:flex-start;gap:8px;">'+av
+      +'<div style="flex:1;min-width:0;background:var(--bg2);border-radius:16px 16px 16px 4px;padding:12px 14px;">'
+        +coachThemeEyebrow('ajustement')
+        +'<div style="font-size:14px;color:var(--white);line-height:1.5;">'+bodyTxt+'</div>'
+        +'<div style="display:flex;gap:8px;margin-top:14px;">'
+          +'<button class="btn" style="flex:1;padding:12px;font-size:13.5px;background:var(--brand-fixed);color:var(--ink-on-accent);" onclick="applyCoachProgrammeAdjust()">'+btnTxt+'</button>'
+          +'<button class="btn btn-outline" style="flex:1;padding:12px;font-size:13.5px;" onclick="dismissCoachWeekly()">'+trDyn('Not this week')+'</button>'
+        +'</div>'
+      +'</div></div>';
+  }
   return '<div style="align-self:stretch;display:flex;align-items:flex-start;gap:8px;">'+av
     +'<div style="flex:1;min-width:0;background:var(--bg2);border-radius:16px 16px 16px 4px;padding:12px 14px;">'
       +coachThemeEyebrow('ajustement')
@@ -8839,10 +8881,23 @@ function applyCoachLevelUp(exId){
   renderCoachIaWeeklyCard();   // reconstruit le fil : l'entree y entre, et la proposition traitee en sort
   updateCoachIaBadge();
 }
+// Mute programmeActif.frequence directement — c'est le seul champ que getProgrammeProgress()/
+// getSessionDuJour() lisent pour le rythme hebdo, donc ça suffit a re-repartir les seances a venir
+// sans toucher au contenu deja ecrit de programmeActif.semaines.
+function applyCoachProgrammeAdjust(){
+  const p=getCoachWeeklyProposal(); if(!p || p.type!=='programme' || !programmeActif) return;
+  programmeActif.frequence = p.newFrequence;
+  coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
+  logCoachHistory({type:'weekly', theme:'ajustement', kind:'programme', programmeName:p.programmeName, newFrequence:p.newFrequence, accepted:true});
+  toast(trDyn('Programme updated ✓'));
+  renderCoachIaWeeklyCard();
+  updateCoachIaBadge();
+}
 function dismissCoachWeekly(){
   const p=getCoachWeeklyProposal();
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
-  if(p) logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:p.exName, level:p.level+1, accepted:false});
+  if(p && p.type==='programme') logCoachHistory({type:'weekly', theme:'ajustement', kind:'programme', programmeName:p.programmeName, newFrequence:p.newFrequence, accepted:false});
+  else if(p) logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:p.exName, level:p.level+1, accepted:false});
   // Retour utilisateur : "Valider" avait son toast, "Pas encore" n'en avait aucun — les deux boutons
   // faisaient disparaître la carte de la même façon, donc se ressentaient comme identiques.
   toast("Noted — I'll suggest it again another time");
@@ -9078,6 +9133,20 @@ function getFatigueSignal(){
   if(acwr>=1.5 || (acwr>=1.3 && painUp)) return {level:'high', acwr};
   if(acwr<0.8) return {level:'low', acwr};
   return {level:'normal', acwr};
+}
+// Retard chronique sur le rythme prescrit du programme (sa propre frequence), pas juste cette semaine
+// — un signal que ni la regularite hebdo (Home) ni l'ACWR (charge recente vs habituelle) ne couvrent :
+// on peut avoir un ACWR normal tout en etant sous le rythme du programme depuis longtemps (cf
+// discussion Coach IA "adaptation du programme dans la duree"). Deux semaines de recul minimum pour
+// ne pas reagir a un simple faux depart juste apres l'activation.
+function isProgrammeBehindPace(){
+  if(!programmeActif || !programmeActif.frequence || programmeActif.frequence<=1) return false;
+  const prog=getProgrammeProgress(programmeActif);
+  if(prog.done) return false;
+  const weeksElapsed = programmeActifDepuis ? (Date.now()-programmeActifDepuis)/(7*HIST_DAY) : 0;
+  if(weeksElapsed<2) return false;
+  const expected = weeksElapsed*programmeActif.frequence;
+  return expected>0 && (prog.completedCount/expected) < 0.6;
 }
 function getExerciseVerdictsForPeriod(sessions){
   return getAllExoIdsInSessions(sessions).map(id=>{
@@ -11626,6 +11695,7 @@ const EN_FR = {
   "Programme": "Programme",
   "ACWR high — overload risk": "ACWR élevé — risque de surcharge",
   "ACWR low — ease back in gently": "ACWR bas — reprise en douceur à prévoir",
+  "Behind pace on programme — worth revisiting": "En retard sur le rythme du programme — à revoir",
   "Reported fatigue this morning — session scheduled today": "Fatigue signalée ce matin — séance prévue aujourd'hui",
   "Access request pending": "Demande d'accès en attente",
   "Alert thresholds": "Seuils d'alerte",
@@ -11927,6 +11997,7 @@ const EN_FR = {
   "pain trending up": "douleur en hausse",
   "pain stable": "douleur stable",
   "Level updated ✓": "Niveau mis à jour ✓",
+  "Programme updated ✓": "Programme mis à jour ✓",
   "Confirm level up": "Valider",
   "Not this week": "Pas encore",
   "AI Coach": "Coach IA",
@@ -12700,6 +12771,8 @@ const EN_FR_PATTERNS = [
   // Historique Coach IA, maintenant dans le fil (coachHistoryBubble) — même principe, nombre variable.
   [/^Moved up to level (\d+) on $/, (m)=>`Passé au niveau ${m[1]} sur `],
   [/^Suggested level (\d+) on $/, (m)=>`Niveau ${m[1]} proposé sur `],
+  [/^Moved to (\d+)x\/week on $/, (m)=>`Passé à ${m[1]}x/semaine sur `],
+  [/^Suggested (\d+)x\/week on $/, (m)=>`${m[1]}x/semaine proposé sur `],
   // Défi de volume hebdo (Défis, renderDefiVolumeChallenge).
   [/^(\d+) min$/, (m)=>`${m[1]} min`],
   [/^(\d+) days? left$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''} restant${Number(m[1])>1?'s':''}`],
@@ -16967,6 +17040,16 @@ function getReferentAcwrSignal(patientId){
   if(fs.level==='low') return {type:'checker', reason:'ACWR low — ease back in gently'};
   return null;
 }
+// Arbitrage référent-vs-auto-adapt (chantier Coach IA "adaptation du programme dans la durée") : côté
+// self-managed, ce même signal (isProgrammeBehindPace) propose de baisser la fréquence du programme
+// directement à la personne (cf getCoachProgrammeProposal). Ici, pour un patient suivi, on ne touche
+// JAMAIS son programme tout seul — c'est une prescription du référent, pas la sienne à ajuster — donc
+// le signal devient une ligne à checker pour le référent, jamais un changement automatique. Seul p1 a
+// un programme réel dans ce prototype (cf getReferentAcwrSignal, même limite).
+function getReferentProgrammeSignal(patientId){
+  if(patientId!=='p1') return null;
+  return isProgrammeBehindPace() ? {reason:'Behind pace on programme — worth revisiting'} : null;
+}
 // Check-in matinal → signal référent, uniquement côté centre (checkInDoneCentre, jamais checkInDone
 // qui est le check-in B2C séparé) et uniquement si une séance est prévue aujourd'hui pour cette
 // personne — sinon la fatigue du matin n'a rien à checker côté coach.
@@ -16996,11 +17079,16 @@ function computeReferentAttention(){
     // Régularité basse non remontée séparément pour un membre déjà inactif (cf discussion) : sous ce seuil
     // d'inactivité la régularité tombe mécaniquement à 0%, ce n'est pas un second signal distinct — juste
     // la même réalité que "à checker : inactif" reformulée, ça ferait doublon thématique dans Alerts.
-    if(!isInactive && alertCfg.observance.on && getPatientRegularity(p)<alertCfg.observance.val) alertes.push({patient:p, reason:'Low consistency — '+getPatientRegularity(p)+'%'});
+    const lowRegularity = !isInactive && alertCfg.observance.on && getPatientRegularity(p)<alertCfg.observance.val;
+    if(lowRegularity) alertes.push({patient:p, reason:'Low consistency — '+getPatientRegularity(p)+'%'});
     const acwr=getReferentAcwrSignal(p.id);
     if(acwr) (acwr.type==='alerte'?alertes:aChecker).push({patient:p, reason:acwr.reason});
     const chk=getReferentCheckinSignal(p.id);
     if(chk) aChecker.push({patient:p, reason:chk.reason});
+    // Même garde-fou doublon : si la régularité générale est déjà remontée pour ce membre, le retard
+    // sur SON programme n'est pas une 2e information, juste la même reformulée.
+    const progSignal = (!isInactive && !lowRegularity) ? getReferentProgrammeSignal(p.id) : null;
+    if(progSignal) aChecker.push({patient:p, reason:progSignal.reason});
     if(isInactive) {
       // Libellé de démo (cf discussion) : ACWR bas / fatigue signalée sont des signaux réels réservés à
       // Marc (seul historique quotidien vivant) — pour varier ce qu'affiche Home sans étendre cette
@@ -19656,7 +19744,9 @@ const ASSISTANT_REASON_FR={
   "you're returning after a break — let's ease back in": "tu reprends après une pause, on y va doucement",
   'your training load has ramped up fast recently': "ta charge d'entraînement a beaucoup augmenté récemment",
   "you're feeling tired today": "tu te sens fatigué aujourd'hui",
-  'your last session felt tough': "ta dernière séance était difficile"
+  'your last session felt tough': "ta dernière séance était difficile",
+  'your pain has been trending up': "ta douleur est en hausse ces derniers temps",
+  "you've been behind pace on this programme": "tu es en retard sur le rythme prévu de ce programme"
 };
 function assistantComputeAnswer(id){
   if(id==='seances'){
@@ -19813,9 +19903,13 @@ function assistantAnswerTone(id){
   return null;
 }
 function coachHistoryText(h){
-  return h.type==='weekly'
-    ? (h.accepted ? trDyn('Moved up to level '+h.level+' on ')+trDyn(h.exName) : trDyn('Suggested level '+h.level+' on ')+trDyn(h.exName)+' — '+trDyn('declined'))
-    : h.message;
+  if(h.type!=='weekly') return h.message;
+  if(h.kind==='programme'){
+    return h.accepted
+      ? trDyn('Moved to '+h.newFrequence+'x/week on ')+trDyn(h.programmeName)
+      : trDyn('Suggested '+h.newFrequence+'x/week on ')+trDyn(h.programmeName)+' — '+trDyn('declined');
+  }
+  return h.accepted ? trDyn('Moved up to level '+h.level+' on ')+trDyn(h.exName) : trDyn('Suggested level '+h.level+' on ')+trDyn(h.exName)+' — '+trDyn('declined');
 }
 // Icône + couleur par thème au lieu d'un texte plat indifférencié (retour utilisateur : "Check-in" et
 // "Passé au niveau 3" avaient exactement la même apparence) — plus de date par bulle, elle est portée
