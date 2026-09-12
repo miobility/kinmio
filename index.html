@@ -983,11 +983,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <!-- Boutons bas -->
   <div style="position:relative;z-index:3;padding:0 24px calc(48px + env(safe-area-inset-bottom));">
-    <button class="btn btn-brand-fixed" style="margin-bottom:10px;font-size:15px;" onclick="go('login')" id="t_login">Log in</button>
+    <button class="btn btn-brand-fixed" style="margin-bottom:10px;font-size:15px;" onclick="go('login')" id="t_login">I already have an account</button>
     <button class="btn btn-outline" style="margin-bottom:8px;font-size:15px;border-color:rgba(255,255,255,.3);color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="go('centre_entry')">I have an invitation code</button>
     <div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:16px;">Reserved for members invited by a partner centre</div>
     <div style="text-align:center;margin-bottom:8px;">
-      <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;" onclick="userParcours='B';go('ob_intro')">New here? Discover kinmio</button>
+      <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;" onclick="userParcours='B';go('ob_intro')">I'm discovering kinmio</button>
     </div>
     <div style="text-align:center;">
       <button onclick="showLang()" id="langBtn" style="background:none;border:none;color:var(--gray);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:10px 4px;"><svg class="ki" style="width:15px;height:15px;"></svg><span>English</span></button>
@@ -1024,8 +1024,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:17%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
-    <h2 class="gap8">What do you want to get out of it?</h2>
-    <p class="sub gap20">One or two — your programme is picked from this.</p>
+    <h2 class="gap8">What is your goal?</h2>
+    <p class="sub gap20">You can change it whenever you want.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;" id="ob_objectif_opts"></div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
@@ -5497,11 +5497,13 @@ function renderObObjectifs(){
   const btn=document.getElementById('obObjectifNext'); if(btn) btn.disabled = obObjectifsChoisis.length===0;
   sweepTranslate(document.getElementById('ob_objectif'), currentLang);
 }
+// UN SEUL objectif (décidé le 12 sept., je reviens sur mon premier choix). Un programme est UN
+// engagement et doit répondre à UNE question : deux objectifs rendent la suggestion floue, alors que
+// c'est toute son utilité. Et « Reprise en douceur » n'est pas un objectif mais une PHASE — qui est en
+// reprise voudra autre chose ensuite, pas en même temps. Choisir oblige à se situer, ce qui est le
+// travail de cette question ; le sous-titre donne la permission d'en changer.
 function toggleObObjectif(k){
-  const i=obObjectifsChoisis.indexOf(k);
-  if(i>=0) obObjectifsChoisis.splice(i,1);
-  else if(obObjectifsChoisis.length<2) obObjectifsChoisis.push(k);
-  else { obObjectifsChoisis.shift(); obObjectifsChoisis.push(k); }   // un ou deux, jamais trois
+  obObjectifsChoisis = (obObjectifsChoisis[0]===k) ? [] : [k];
   renderObObjectifs();
 }
 function syncUserProfileDataFromOnboarding(){
@@ -11984,6 +11986,9 @@ const EN_FR = {
   "MY CHALLENGES": "MES DÉFIS",
   "See my whole programme": "Voir tout mon programme",
   "Cardio endurance": "Endurance cardio",
+  "What is your goal?": "Quel est ton objectif ?",
+  "You can change it whenever you want.": "Tu pourras en changer quand tu veux.",
+  "I'm discovering kinmio": "Je découvre kinmio",
   "Noted.": "Noté.",
   "We will never ask you to push through it.": "On ne te demandera jamais de forcer dessus.",
   "Your shoulders": "Les épaules",
@@ -11993,8 +11998,6 @@ const EN_FR = {
   "Your knees": "Les genoux",
   "Your wrists": "Les poignets",
   "Jumping": "Les sauts",
-  "What do you want to get out of it?": "Qu'est-ce que tu veux en retirer ?",
-  "One or two — your programme is picked from this.": "Un ou deux — c'est là-dessus qu'on choisit ton programme.",
   "Hold out longer, get your breath back": "Tenir plus longtemps, le souffle qui revient",
   "Build strength, over time": "Gagner en force, sur la durée",
   "Stay active without chasing performance": "Rester actif sans chercher la performance",
