@@ -2119,6 +2119,21 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 
+<!-- ================= DÉTAIL D'UN DÉFI =================
+     Même grammaire que programme_detail : c'est le même objet — un engagement daté avec un
+     avancement. La différence tient au bloc « ce qui l'a fait avancer » : un défi doit montrer d'où
+     vient son chiffre, sinon le compteur n'est pas croyable. -->
+<div class="screen" id="defi_detail">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="ddTopTitle">The challenge</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <div id="ddHead"></div>
+    <div id="ddPath" style="display:none;"></div>
+    <div id="ddSource"></div>
+    <div id="ddCta" style="margin-top:18px;"></div>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
 <!-- ================= DÉTAIL D'UN PROGRAMME =================
      Un programme s'ouvrait dans une MODALE de 340 × 543 avec une image de 72 × 72 (audit Bibliothèque) :
      l'objet le plus lourd de l'app — quatre semaines, douze séances — était le seul sans écran à lui, et
@@ -2266,7 +2281,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="defis">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Challenges</div><div class="topnav-r"></div></div>
   <div class="scroll">
-    <div style="display:flex;align-items:center;gap:10px;margin:18px 20px 0;">
+    <!-- Ordre inversé (12 sept. 2026) : le bloc social ouvrait l'onglet, donc un utilisateur sans ami
+         tombait d'abord sur trois avatars et un « défier un ami » inutilisable, et l'onglet paraissait
+         vide. Mes défis et le catalogue à rejoindre passent devant ; le social descend. -->
+    <div id="defisMes"></div>
+    <div id="defisCatalogue"></div>
+    <div class="zone-lbl" style="margin-top:22px;">WITH OTHERS</div>
+    <div style="display:flex;align-items:center;gap:10px;margin:10px 20px 0;">
       <div style="display:flex;flex-shrink:0;">
         <div style="width:30px;height:30px;border-radius:50%;background:var(--brand-fixed);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--ink-on-accent);">M</div>
         <div style="width:30px;height:30px;border-radius:50%;background:#529CFE;border:2px solid var(--bg);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0A0F;">L</div>
@@ -2287,8 +2308,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="color:var(--gray);font-size:16px;">›</div>
     </div>
 
-    <div class="zone-lbl" style="margin-top:22px;">ACTIVE CHALLENGE</div>
-    <div id="defisVolumeChallenge" class="card-sm" style="margin:10px 20px 0;padding:18px;border-radius:18px;"></div>
+    <div id="defisVolumeChallenge" class="card-sm" style="margin:12px 20px 0;padding:18px;border-radius:18px;"></div>
 
     <div class="zone-lbl" style="margin-top:22px;">BADGES</div>
     <div id="defisBadgesSection" style="margin:10px 20px 24px;"></div>
@@ -5004,6 +5024,80 @@ let userSessionHistory = [
 // fausser ACWR/streaks qui comptent les jours réellement faits. Visibilité référent uniquement
 // (retour utilisateur — "comment se prémunir de la triche").
 let userSessionAttempts = [];
+
+// ===== DÉFIS À REJOINDRE (12 sept. 2026) ==========================================================
+// L'onglet Défis ne contenait que du social : groupe, duel contre un ami, défi de volume contre un
+// ami. Tout y demandait quelqu'un — un utilisateur sans ami trouvait un onglet vide, alors que
+// quatorze écrans avaient été bâtis pour celui qui en a. Ces quatorze-là servent un affrontement EN
+// DIRECT (un moment, un vainqueur) ; ce qui manquait est l'inverse : un défi PASSIF, qu'on rejoint et
+// où ce qu'on fait s'accumule tout seul. Aucun de ces écrans n'est donc réemployé ici — seules les
+// mesures le sont, et elles existaient déjà toutes.
+//
+// Cinq unités, et pas une de plus : ce sont les seules que la barre et la séance mesurent vraiment.
+// Pas de pas, pas de kilomètres, pas de longueurs — nous n'avons ni GPS ni podomètre, et un défi
+// qu'on ne peut pas honnêtement compter ne vaut pas d'être proposé.
+const DEFI_UNITES = {
+  minutes: { lbl:'minutes',            calc:(sess)=>sess.reduce((t,h)=>t+(h.duree||0),0) },
+  seances: { lbl:'sessions',           calc:(sess)=>sess.length },
+  jours:   { lbl:'training days',      calc:(sess)=>new Set(sess.map(h=>Math.floor(h.date/HIST_DAY))).size },
+  points:  { lbl:'effort points',      calc:(sess)=>Math.round(sess.reduce((t,h)=>t+(h.cardioScore||0)+(h.renfoScore||0),0)) },
+  zone:    { lbl:'sessions in the zone', calc:(sess,from,to)=>{
+    // Seule unité qui ne se lit pas sur userSessionHistory : le temps en zone vit par exercice.
+    let n=0;
+    Object.values(exerciseZoneHistory).forEach(hist=>hist.forEach(e=>{ if(e.date>=from && e.date<to && e.pctZone>=75) n++; }));
+    return n;
+  } }
+};
+// Défis GLISSANTS (décidé le 12 sept.) : la fenêtre démarre le jour où on rejoint, pas à une date du
+// calendrier. Un catalogue daté se vide tout seul le 1er du mois suivant et oblige à le réalimenter ;
+// un glissant ne s'épuise jamais. centreId est prévu dès maintenant — vide pour le catalogue kinmio,
+// renseigné le jour où un référent lancera le défi de son centre : le champ est gratuit aujourd'hui
+// et coûteux à rétrofiter.
+const DEFIS_CATALOGUE = [
+  { id:'DEF-01', nom:'Three hundred minutes', sousTitre:'Thirty days to get there, at your own pace', unite:'minutes', cible:300, fenetreJours:30, ic:'ki-bg-hours',   centreId:null },
+  { id:'DEF-02', nom:'Fifteen active days',   sousTitre:'One day in two, over a month',              unite:'jours',   cible:15,  fenetreJours:30, ic:'ki-bg-month',   centreId:null },
+  { id:'DEF-03', nom:'Ten sessions',          sousTitre:'A good first target after a break',         unite:'seances', cible:10,  fenetreJours:30, ic:'ki-bg-week',    centreId:null },
+  { id:'DEF-04', nom:'A full week',           sousTitre:'Seven days in a row, nothing more',         unite:'jours',   cible:7,   fenetreJours:14, ic:'ki-bg-streak',  centreId:null },
+  { id:'DEF-05', nom:'Two thousand points',   sousTitre:'Effort counts double when it is intense',   unite:'points',  cible:2000, fenetreJours:30, ic:'ki-bg-zone',   centreId:null },
+  { id:'DEF-06', nom:'Ten times in the zone', sousTitre:'Not harder — more accurate',                unite:'zone',    cible:10,  fenetreJours:30, ic:'ki-bg-clean',   centreId:null },
+  { id:'DEF-07', nom:'Sixty days of training',sousTitre:'The long one. Two months, no rush.',        unite:'jours',   cible:60,  fenetreJours:120, ic:'ki-bg-months', centreId:null, expedition:true },
+  { id:'DEF-08', nom:'Ten hours',             sousTitre:'Six hundred minutes over three months',     unite:'minutes', cible:600, fenetreJours:90, ic:'ki-bg-long',    centreId:null, expedition:true }
+];
+let userDefis = [];   // { id, joinedAt, closedAt|null, faitFinal|null } — un défi rejoint
+
+function getDefi(id){ return DEFIS_CATALOGUE.find(d=>d.id===id) || null; }
+function getUserDefi(id){ return userDefis.find(u=>u.id===id) || null; }
+// Avancement. Sans inscription, on calcule à blanc sur la fenêtre qui COMMENCERAIT aujourd'hui — ça
+// permet à la carte du catalogue de rester muette sur un chiffre qui n'existe pas encore.
+function defiProgress(defi, entry){
+  const from = entry ? entry.joinedAt : Date.now();
+  const to   = from + defi.fenetreJours*HIST_DAY;
+  const sess = userSessionHistory.filter(h=>h.date>=from && h.date<to);
+  const u    = DEFI_UNITES[defi.unite];
+  const fait = entry ? u.calc(sess, from, to) : 0;
+  const pct  = defi.cible ? Math.min(100, Math.round(fait/defi.cible*100)) : 0;
+  const joursRestants = Math.max(0, Math.ceil((to-Date.now())/HIST_DAY));
+  const atteint = fait >= defi.cible;
+  // Un défi ne peut pas être RATÉ (décidé le 12 sept.) : il se termine, avec ce qui a été fait. Même
+  // principe que l'arrêt d'un programme — l'historique garde la trace, aucun mot d'échec nulle part.
+  const termine = !!entry && (atteint || joursRestants<=0);
+  return { fait, cible:defi.cible, pct, joursRestants, atteint, termine, from, to };
+}
+function joinDefi(id){
+  if(getUserDefi(id)) return;
+  const d=getDefi(id); if(!d) return;
+  userDefis.unshift({ id, joinedAt:Date.now(), closedAt:null, faitFinal:null });
+  toast('✓ '+trDyn(d.nom));
+  renderDefisScreen();
+}
+function leaveDefi(id){
+  const i=userDefis.findIndex(u=>u.id===id); if(i<0) return;
+  userDefis.splice(i,1);
+  closeModal();
+  toast(trDyn('Challenge left'));
+  renderDefisScreen();
+}
+
 let userProgrammeHistory = [
   { date: Date.now()-16*HIST_DAY, nom:'Real Start', id:'PRG-01', sessionsCount:11, dureeTotal:238 }
 ];
@@ -5471,7 +5565,7 @@ function go(id){
   if(id==='ob_summary_centre') setTimeout(function(){ populateSummary(); initApresOnboarding(); }, 50);
   if(id==='ob_commit' || id==='ob_projection') setTimeout(function(){ populateSummary(); renderObProjection(); }, 50);
   if(id==='ob_vision') preloadObDemoVideo(OB_DEMO_STEPS[0]);
-  if(id==='defis') setTimeout(function(){ renderProgBadges('defisBadgesSection'); renderDefiVolumeChallenge(); }, 20);
+  if(id==='defis') setTimeout(renderDefisScreen, 20);
   if(id==='session_warmup') setTimeout(renderWarmupList, 20);
   if(id==='session_cooldown') setTimeout(renderCooldownList, 20);
   if(id==='ob_consent'){
@@ -9067,6 +9161,42 @@ function getChallengeDaysLeft(){
   const day=(now.getDay()+6)%7;
   return 6-day;
 }
+// Une carte de défi, dans les deux contextes : rejoint (avec sa barre) ou au catalogue (avec sa cible).
+function defiCardHtml(d, entry){
+  const pr=defiProgress(d, entry);
+  const u=DEFI_UNITES[d.unite];
+  const bas = entry
+    ? '<div style="font-size:11.5px;color:var(--gray2);margin-top:2px;">'+trDyn(pr.fait+'/'+d.cible+' '+u.lbl)
+        +(pr.atteint ? ' · '+trDyn('done') : ' · '+trDyn(pr.joursRestants+' day'+(pr.joursRestants>1?'s':'')+' left'))+'</div>'
+        +'<div style="height:5px;border-radius:3px;background:var(--bg3);margin-top:9px;overflow:hidden;"><div style="height:100%;width:'+pr.pct+'%;background:'+(pr.atteint?'var(--brand-fixed)':'var(--orange)')+';border-radius:3px;"></div></div>'
+    : '<div style="font-size:11.5px;color:var(--gray2);margin-top:2px;">'+trDyn(d.sousTitre)+'</div>'
+        +'<div style="font-size:11.5px;color:var(--gray2);margin-top:5px;">'+trDyn(d.cible+' '+u.lbl)+' · '+trDyn(d.fenetreJours+' days')+'</div>';
+  return '<div class="card-sm" style="margin:0 20px 10px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;'+(entry&&pr.atteint?'border-color:var(--brand-fixed);':'')+'" onclick="openDefiDetail(\''+d.id+'\')">'
+    +'<div style="width:40px;height:40px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:'+(entry&&pr.atteint?'var(--brand-fixed)':'var(--gray2)')+';"><svg class="ki" style="width:21px;height:21px;"><use href="#'+d.ic+'"/></svg></div>'
+    +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);">'+trDyn(d.nom)+'</div>'+bas+'</div>'
+    +'<svg class="ki" style="color:var(--gray);flex-shrink:0;margin-top:3px;"><use href="#ki-fwd"/></svg>'
+    +'</div>';
+}
+function renderDefisScreen(){
+  const mes=document.getElementById('defisMes'), cat=document.getElementById('defisCatalogue');
+  if(mes){
+    mes.innerHTML = userDefis.length
+      ? '<div class="zone-lbl" style="margin-top:18px;">MY CHALLENGES</div>'
+        + userDefis.map(u=>{ const d=getDefi(u.id); return d?defiCardHtml(d,u):''; }).join('')
+      : '';
+    sweepTranslate(mes, currentLang);
+  }
+  if(cat){
+    const libres = DEFIS_CATALOGUE.filter(d=>!getUserDefi(d.id));
+    cat.innerHTML = libres.length
+      ? '<div class="zone-lbl" style="margin-top:'+(userDefis.length?'22':'18')+'px;">JOIN A CHALLENGE</div>'
+        + libres.map(d=>defiCardHtml(d,null)).join('')
+      : '';
+    sweepTranslate(cat, currentLang);
+  }
+  renderProgBadges('defisBadgesSection');
+  renderDefiVolumeChallenge();
+}
 function renderDefiVolumeChallenge(){
   const el=document.getElementById('defisVolumeChallenge'); if(!el) return;
   const friend=FRIENDS.find(f=>f.statut==='actif') || {id:'demo', nom:'Léa Martin'};
@@ -11722,6 +11852,39 @@ const EN_FR = {
   "The weeks": "Les semaines",
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
+  "MY CHALLENGES": "MES DÉFIS",
+  "The challenge": "Le défi",
+  "JOIN A CHALLENGE": "REJOINDRE UN DÉFI",
+  "WITH OTHERS": "AVEC LES AUTRES",
+  "THE WAY": "LE CHEMIN",
+  "WHAT COUNTED": "CE QUI A COMPTÉ",
+  "Join this challenge": "Rejoindre ce défi",
+  "Leave this challenge": "Quitter ce défi",
+  "Close this challenge": "Clore ce défi",
+  "Challenge left": "Défi quitté",
+  "Target reached": "Objectif atteint",
+  "Window closed — kept as it stands": "Fenêtre terminée — gardé en l'état",
+  "The window starts the day you join.": "La fenêtre démarre le jour où tu le rejoins.",
+  "Target": "Objectif",
+  "done": "atteint",
+  "effort points": "points d'effort",
+  "sessions in the zone": "séances dans la zone",
+  "Three hundred minutes": "Trois cents minutes",
+  "Thirty days to get there, at your own pace": "Trente jours pour y arriver, à ton rythme",
+  "Fifteen active days": "Quinze jours actifs",
+  "One day in two, over a month": "Un jour sur deux, pendant un mois",
+  "Ten sessions": "Dix séances",
+  "A good first target after a break": "Une bonne première cible après une pause",
+  "A full week": "Une semaine pleine",
+  "Seven days in a row, nothing more": "Sept jours d'affilée, rien de plus",
+  "Two thousand points": "Deux mille points",
+  "Effort counts double when it is intense": "L'effort compte double quand il est intense",
+  "Ten times in the zone": "Dix fois dans la zone",
+  "Not harder — more accurate": "Pas plus fort — plus juste",
+  "Sixty days of training": "Soixante jours d'entraînement",
+  "The long one. Two months, no rush.": "Le long. Deux mois, sans se presser.",
+  "Ten hours": "Dix heures",
+  "Six hundred minutes over three months": "Six cents minutes sur trois mois",
   "Programme activated": "programme activé",
   "No programme right now": "Pas de programme en ce moment",
   "Your sessions stay available in the library — what you are missing is the thread that links them week after week.": "Tes séances restent accessibles dans la bibliothèque — ce qui te manque, c'est le fil qui les relie semaine après semaine.",
@@ -12026,7 +12189,6 @@ const EN_FR = {
   "Assign": "Assigner",
   "Assign →": "Assigner →",
   "Assign this session →": "Assigner cette séance →",
-  "Assign this programme →": "Assigner ce programme →",
   "Programme": "Programme",
   "ACWR high — overload risk": "ACWR élevé — risque de surcharge",
   "ACWR low — ease back in gently": "ACWR bas — reprise en douceur à prévoir",
@@ -12875,8 +13037,6 @@ const EN_FR = {
   "See exercise details (incl. video) →": "Voir la fiche exercice (avec vidéo) →",
   "No programme matches these filters.": "Aucun programme ne correspond à ces filtres.",
   "Currently active": "Actuellement actif",
-  "Activate this programme": "Activer ce programme",
-  "Delete this programme": "Supprimer ce programme",
   "Choose this exercise": "Choisir cet exercice",
   "No alternative available right now.": "Aucune alternative disponible pour le moment.",
   "Similar exercises": "Exercices similaires",
@@ -13078,6 +13238,17 @@ const EN_FR_PATTERNS = [
   [/^Started (\d+) days? ago$/, (m)=>`Commencé il y a ${m[1]} jour${Number(m[1])>1?'s':''}`],
   [/^Started (\d+) weeks? ago$/, (m)=>`Commencé il y a ${m[1]} semaine${Number(m[1])>1?'s':''}`],
   [/^(\d+)\/(\d+) sessions$/, (m)=>`${m[1]}/${m[2]} séances`],
+  // Défis : cible, avancement et fenêtre sont composés à l'affichage.
+  [/^(\d+)\/(\d+) minutes$/, (m)=>`${m[1]}/${m[2]} minutes`],
+  [/^(\d+)\/(\d+) training days$/, (m)=>`${m[1]}/${m[2]} jours d'entraînement`],
+  [/^(\d+)\/(\d+) effort points$/, (m)=>`${m[1]}/${m[2]} points d'effort`],
+  [/^(\d+)\/(\d+) sessions in the zone$/, (m)=>`${m[1]}/${m[2]} séances dans la zone`],
+  [/^(\d+)\/(\d+) stages$/, (m)=>`${m[1]}/${m[2]} étapes`],
+  [/^(\d+) training days$/, (m)=>`${m[1]} jours d'entraînement`],
+  [/^(\d+) effort points$/, (m)=>`${m[1]} points d'effort`],
+  [/^(\d+) sessions? in the zone$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} dans la zone`],
+  [/^(\d+) days$/, (m)=>`${m[1]} jours`],
+  [/^(\d+) days? left$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''} restant${Number(m[1])>1?'s':''}`],
   // Générique pour tous les compteurs d'étape de wizard (csi/csc/cprog + détours) — posés en JS brut
   // via textContent, jamais captés par un balayage statique, donc jamais traduits sans ce pattern.
   [/^Step (\d+) of (\d+)$/, (m)=>`Étape ${m[1]} sur ${m[2]}`],
@@ -13090,7 +13261,6 @@ const EN_FR_PATTERNS = [
   // Stat de projection onboarding (ob_projection, "150 min/week") — posé en JS brut via textContent.
   [/^(\d+) min\/week$/, (m)=>`${m[1]} min/semaine`],
   // Carte Coach hebdo (Home, renderHomeCoachCard) — composée à partir de segments traduits séparément.
-  [/^(\d+)\/(\d+) sessions$/, (m)=>`${m[1]}/${m[2]} séances`],
   // Ligne de contexte "Volume" de la tuile Home (renderHomeKpiZone) — nombre de séances, sans préfixe.
   [/^(\d+) sessions?$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''}`],
   // Libellé de la carte séance quand aujourd'hui n'est pas un jour choisi (renderHomeSeance, cardLbl) —
@@ -13256,6 +13426,15 @@ const FR_EN_PATTERNS = [
   [/^(\d+) sur (\d+) exercices?$/, (m)=>`${m[1]} of ${m[2]} exercises`],
   [/^(\d+) sur (\d+) séances?$/, (m)=>`${m[1]} of ${m[2]} sessions`],
   [/^(\d+) sur (\d+) programmes?$/, (m)=>`${m[1]} of ${m[2]} programmes`],
+  [/^(\d+)\/(\d+) jours d'entraînement$/, (m)=>`${m[1]}/${m[2]} training days`],
+  [/^(\d+)\/(\d+) points d'effort$/, (m)=>`${m[1]}/${m[2]} effort points`],
+  [/^(\d+)\/(\d+) séances dans la zone$/, (m)=>`${m[1]}/${m[2]} sessions in the zone`],
+  [/^(\d+)\/(\d+) étapes$/, (m)=>`${m[1]}/${m[2]} stages`],
+  [/^(\d+) jours d'entraînement$/, (m)=>`${m[1]} training days`],
+  [/^(\d+) points d'effort$/, (m)=>`${m[1]} effort points`],
+  [/^(\d+) séances? dans la zone$/, (m)=>`${m[1]} sessions in the zone`],
+  [/^(\d+) jours$/, (m)=>`${m[1]} days`],
+  [/^(\d+) jours? restants?$/, (m)=>`${m[1]} day${Number(m[1])>1?'s':''} left`],
   [/^(\d+) semaines?$/, (m)=>`${m[1]} week${Number(m[1])>1?'s':''}`],
   [/^(\d+) séances?\/semaine$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''}/week`],
   [/^Commencé il y a (\d+) jours?$/, (m)=>`Started ${m[1]} day${Number(m[1])>1?'s':''} ago`],
@@ -16850,6 +17029,80 @@ function renderHistoryRecapModal(h){
 function editFeedbackComment(){
   const h=window._curRecapEntry; if(!h) return;
   openNoteEditor(h.coachComment||'', 'Comment on this session', function(v){ h.coachComment=v; renderHistoryRecapModal(h); });
+}
+let ddCurrentId=null;
+function openDefiDetail(id){ ddCurrentId=id; go('defi_detail'); setTimeout(renderDefiDetail, 20); }
+function renderDefiDetail(){
+  const d=getDefi(ddCurrentId); if(!d) return;
+  const entry=getUserDefi(d.id), pr=defiProgress(d, entry), u=DEFI_UNITES[d.unite];
+  const head=document.getElementById('ddHead');
+  if(head){
+    head.innerHTML='<div class="card-sm" style="margin-bottom:16px;'+(entry&&pr.atteint?'border-color:var(--brand-fixed);':'')+'">'
+      +'<div style="display:flex;align-items:center;gap:13px;">'
+        +'<div style="width:52px;height:52px;border-radius:15px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:'+(entry&&pr.atteint?'var(--brand-fixed)':'var(--gray2)')+';"><svg class="ki" style="width:26px;height:26px;"><use href="#'+d.ic+'"/></svg></div>'
+        +'<div style="flex:1;min-width:0;"><div style="font-size:18px;font-weight:800;color:var(--white);line-height:1.2;">'+trDyn(d.nom)+'</div>'
+        +'<div style="font-size:12.5px;color:var(--gray2);margin-top:3px;">'+trDyn(d.sousTitre)+'</div></div>'
+      +'</div>'
+      + (entry
+        ? '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">'
+            +'<div style="display:flex;align-items:baseline;gap:8px;"><div style="font-size:30px;font-weight:800;color:var(--white);line-height:1;">'+pr.fait+'<span style="font-size:17px;color:var(--gray2);">/'+d.cible+'</span></div>'
+            +'<div style="font-size:13px;color:var(--gray2);">'+trDyn(u.lbl)+'</div></div>'
+            +'<div style="height:7px;border-radius:4px;background:var(--bg3);margin-top:12px;overflow:hidden;"><div style="height:100%;width:'+pr.pct+'%;background:'+(pr.atteint?'var(--brand-fixed)':'var(--orange)')+';border-radius:4px;"></div></div>'
+            // Jamais « échoué » : un défi non atteint se TERMINE, avec ce qui a été fait.
+            +'<div style="font-size:12px;font-weight:600;color:'+(pr.atteint?'var(--brand-fixed)':'var(--gray2)')+';margin-top:9px;">'
+              +(pr.atteint ? trDyn('Target reached') : pr.joursRestants>0 ? trDyn(pr.joursRestants+' day'+(pr.joursRestants>1?'s':'')+' left') : trDyn('Window closed — kept as it stands'))+'</div>'
+          +'</div>'
+        : '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:13px;color:var(--gray2);">'
+            +trDyn('Target')+' : <b style="color:var(--white);">'+trDyn(d.cible+' '+u.lbl)+'</b> · '+trDyn(d.fenetreJours+' days')
+            +'<div style="font-size:12px;color:var(--gray2);margin-top:6px;">'+trDyn('The window starts the day you join.')+'</div></div>')
+      +'</div>';
+  }
+  // Expédition : même moteur, autre dessin — l'avancement se raconte comme un chemin.
+  const path=document.getElementById('ddPath');
+  if(path){
+    if(d.expedition && entry){
+      const etapes=6, franchies=Math.round(pr.pct/100*etapes);
+      path.style.display='';
+      path.innerHTML='<div class="zone-lbl" style="margin:0 0 10px;">THE WAY</div><div class="card-sm" style="margin-bottom:16px;">'
+        +'<div style="display:flex;align-items:center;gap:0;">'
+        + Array.from({length:etapes},(_,i)=>{
+            const fait=i<franchies;
+            return (i?'<div style="flex:1;height:2px;background:'+(fait?'var(--brand-fixed)':'var(--bg3)')+';"></div>':'')
+              +'<div style="width:13px;height:13px;border-radius:50%;flex-shrink:0;background:'+(fait?'var(--brand-fixed)':'var(--bg3)')+';"></div>';
+          }).join('')
+        +'</div>'
+        +'<div style="font-size:12px;color:var(--gray2);margin-top:10px;">'+trDyn(franchies+'/'+etapes+' stages')+'</div>'
+        +'</div>';
+    } else { path.style.display='none'; path.innerHTML=''; }
+  }
+  // D'où vient le chiffre — sans ça, le compteur n'est pas croyable.
+  const src=document.getElementById('ddSource');
+  if(src){
+    const sess = entry ? userSessionHistory.filter(h=>h.date>=pr.from && h.date<pr.to).slice(0,6) : [];
+    src.innerHTML = sess.length
+      ? '<div class="zone-lbl" style="margin:0 0 10px;">WHAT COUNTED</div><div class="card-sm">'
+        + sess.map(h=>{
+            const apport = d.unite==='minutes' ? (h.duree||0)+' min'
+                        : d.unite==='points'  ? Math.round((h.cardioScore||0)+(h.renfoScore||0))+' pts'
+                        : '';
+            return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">'
+              +'<div style="flex:1;min-width:0;font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+trDyn(h.nom)+'</div>'
+              +'<div style="font-size:11.5px;color:var(--gray2);flex-shrink:0;" data-notranslate="1">'+new Date(h.date).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'})+'</div>'
+              +(apport?'<div style="font-size:12px;font-weight:700;color:var(--brand-fixed);flex-shrink:0;min-width:52px;text-align:right;">'+apport+'</div>':'')
+              +'</div>';
+          }).join('')
+        +'</div>'
+      : '';
+  }
+  const cta=document.getElementById('ddCta');
+  if(cta){
+    cta.innerHTML = entry
+      ? (pr.termine
+          ? '<button class="btn btn-outline" style="width:100%;" onclick="leaveDefi(\''+d.id+'\');go(\'defis\')">'+trDyn('Close this challenge')+'</button>'
+          : '<button class="btn-ghost" style="width:100%;color:var(--gray2);" onclick="leaveDefi(\''+d.id+'\');go(\'defis\')">'+trDyn('Leave this challenge')+'</button>')
+      : '<button class="btn btn-brand-fixed" style="width:100%;" onclick="joinDefi(\''+d.id+'\');renderDefiDetail()">'+trDyn('Join this challenge')+'</button>';
+  }
+  sweepTranslate(document.getElementById('defi_detail'), currentLang);
 }
 let pdCurrentId=null;
 function openProgrammeDetail(id){
