@@ -5493,6 +5493,7 @@ function renderDefiPartage(){
   // porte que les faits qu'elle seule peut dire. Et "14 jours restants · 14 jours" disait deux fois la
   // meme chose au premier jour : la duree totale part, il reste ce qu'il reste.
   set('dpHead', '<div class="card-sm" style="margin:0;">'
+    + (dp.origine ? '<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--brand-fixed);margin-bottom:5px;">'+libelleCadence(dp.cadence)+'</div>' : '')
     +'<div style="font-size:13px;color:var(--white);font-weight:700;">'
       +(fini ? trDyn('Finished') : trDyn(restants+' day'+(restants>1?'s':'')+' left'))
       +'<span style="color:var(--gray2);font-weight:400;"> · '+(function(){
@@ -5513,7 +5514,7 @@ function renderDefiPartage(){
         const moi=p.id==='me';
         const atteint = dp.cible && p.valeur>=dp.cible;
         return '<div style="display:flex;align-items:center;gap:11px;margin-bottom:7px;padding:10px 12px;border-radius:12px;background:'+(moi?'rgba(var(--brand-fixed-rgb),.07)':'var(--bg2)')+';border:1px solid '+(moi?'rgba(var(--brand-fixed-rgb),.4)':'var(--border)')+';">'
-          +'<span style="font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--gray2);width:16px;text-align:center;flex-shrink:0;">'+(i+1)+'</span>'
+          + (cl.length>1 ? '<span style="font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--gray2);width:16px;text-align:center;flex-shrink:0;">'+(i+1)+'</span>' : '')
           +'<span style="width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#0A0A0F;background:'+p.couleur+';">'+p.ini+'</span>'
           +'<span style="flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+p.nom+'</span>'
           +(atteint?'<span style="color:var(--brand-fixed);display:inline-flex;flex-shrink:0;"><svg class="ki" style="width:14px;height:14px;"><use href="#ki-check-circle"/></svg></span>':'')
@@ -5521,9 +5522,12 @@ function renderDefiPartage(){
           +'</div>';
       }).join('')
     // Un dernier n'est pas un perdant : le classement dit un ordre, pas un verdict. Aucun mot d'echec
-    // nulle part, meme fini — c'est la meme regle que pour un programme qu'on arrete.
-    + '<div style="font-size:11.5px;color:var(--gray2);margin-top:8px;line-height:1.45;">'
-      + trDyn('Everyone here trained. The ranking says in which order, nothing else.') + '</div>');
+    // nulle part, meme fini — c'est la meme regle que pour un programme qu'on arrete. La phrase ne
+    // sert que s'il y a plusieurs personnes : seul, elle n'a personne a rassurer.
+    + (cl.length>1 ? '<div style="font-size:11.5px;color:var(--gray2);margin-top:8px;line-height:1.45;">'
+      + trDyn('Everyone here trained. The ranking says in which order, nothing else.') + '</div>'
+      : '<div style="font-size:11.5px;color:var(--gray2);margin-top:8px;line-height:1.45;">'
+      + trDyn('Invite someone and the ranking starts.') + '</div>'));
 
   // Les invites qui n'ont pas repondu ne sont pas dans le classement — les y mettre a 0 les
   // ferait passer pour derniers alors qu'ils n'ont pas encore dit oui.
@@ -5654,6 +5658,93 @@ function confirmQuitterDefiPartage(id){
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+trDyn('Your sessions stay in your history. Only the ranking loses you.')+'</div>'
     +'<button class="btn btn-outline" style="width:100%;margin-top:18px;" onclick="quitterDefiPartage(\''+id+'\')">'+trDyn('Leave')+'</button>'
     +'<button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Cancel')+'</button>');
+}
+// ===== LES DEFIS DATES PROPOSES PAR KINMIO =====
+// Le catalogue des huit est entierement GLISSANT : parfait pour un objectif qu'on se donne, incapable
+// de faire revenir quelqu'un un lundi. Ce qui manquait, c'est le rendez-vous — "quarante minutes ce
+// week-end" — ou tout le monde part le meme jour. Trois fenetres vivent en permanence, et elles se
+// renouvellent toutes seules : pas de serveur ici, la cible se tire d'une graine calculee sur l'index
+// de la periode, donc elle change a chaque semaine/mois et reste stable a l'interieur.
+const DEFIS_DATES_MODELES = [
+  { id:'WKD', cadence:'weekend', unite:'minutes', cibles:[30,40,50,60] },
+  { id:'WK',  cadence:'semaine', unite:'serie',   cibles:[3,4] },
+  { id:'MO',  cadence:'mois',    unite:'jours',   cibles:[10,12,14] }
+];
+function debutDeJour(d){ const x=new Date(d); x.setHours(0,0,0,0); return x.getTime(); }
+// Le week-end se compte samedi et dimanche, mais se PROPOSE toute la semaine : on s'inscrit le mardi
+// pour samedi, c'est meme tout l'interet d'un rendez-vous.
+function fenetreWeekend(now){
+  const d=new Date(now), jour=(d.getDay()+6)%7;           // lundi = 0
+  const samedi=debutDeJour(now + (5-jour)*HIST_DAY);
+  return { debut:samedi, fin:samedi+2*HIST_DAY };
+}
+function fenetreSemaine(now){
+  const d=new Date(now), jour=(d.getDay()+6)%7;
+  const lundi=debutDeJour(now - jour*HIST_DAY);
+  return { debut:lundi, fin:lundi+7*HIST_DAY };
+}
+function fenetreMois(now){
+  const d=new Date(now), p=new Date(d.getFullYear(), d.getMonth(), 1);
+  const f=new Date(d.getFullYear(), d.getMonth()+1, 1);
+  return { debut:p.getTime(), fin:f.getTime() };
+}
+function fenetrePour(cadence, now){
+  return cadence==='weekend' ? fenetreWeekend(now) : cadence==='semaine' ? fenetreSemaine(now) : fenetreMois(now);
+}
+function defisDatesProposes(){
+  const now=Date.now();
+  return DEFIS_DATES_MODELES.map(m=>{
+    const f=fenetrePour(m.cadence, now);
+    // Graine stable par fenetre : la cible ne bouge pas pendant la semaine, et change la suivante.
+    const idx=Math.floor(f.debut/HIST_DAY);
+    const cible=m.cibles[idx % m.cibles.length];
+    return { modeleId:m.id, cadence:m.cadence, unite:m.unite, cible, debut:f.debut, fin:f.fin };
+  });
+}
+function libelleCadence(cadence){
+  const fr=currentLang==='fr';
+  return cadence==='weekend' ? (fr?'Ce week-end':'This weekend')
+       : cadence==='semaine' ? (fr?'Cette semaine':'This week')
+       : (fr?'Ce mois-ci':'This month');
+}
+function defiDateDejaRejoint(d){
+  return defisPartages.find(dp=>dp.origine===d.modeleId && dp.debut===d.debut) || null;
+}
+// Rejoindre un defi kinmio CREE un defi partage : meme moteur date, meme classement, meme fiche — et
+// on peut donc y inviter ses amis, ce qui est exactement ce qui manquait au catalogue glissant.
+function rejoindreDefiDate(modeleId){
+  const d=defisDatesProposes().find(x=>x.modeleId===modeleId); if(!d) return;
+  const deja=defiDateDejaRejoint(d); if(deja){ closeModal(); openDefiPartage(deja.id); return; }
+  const jours=Math.round((d.fin-d.debut)/HIST_DAY);
+  const dp={ id:'DP-'+(++dpSeq), unite:d.unite, cible:d.cible, debut:d.debut, fin:d.fin, jours,
+    createurId:'kinmio', origine:d.modeleId, cadence:d.cadence,
+    participants:[{id:'me', nom:trDyn('You'), ini:'M', couleur:'var(--brand-fixed)', statut:'in'}],
+    code:genDefiCode() };
+  defisPartages.unshift(dp);
+  closeModal(); openDefiPartage(dp.id); renderDefisScreen();
+  toast(trDyn('Challenge joined'));
+}
+function apercuDefiDate(modeleId){
+  const d=defisDatesProposes().find(x=>x.modeleId===modeleId); if(!d) return;
+  const nom=d.cible+' '+uniteLbl(d.unite, d.cible);
+  const commence=Date.now()>=d.debut;
+  const jours=Math.max(0, Math.ceil((d.fin-Date.now())/HIST_DAY));
+  showModal('<div style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--brand-fixed);">'+libelleCadence(d.cadence)+'</div>'
+    +'<div style="font-size:19px;font-weight:800;color:var(--white);margin-top:4px;">'+nom+'</div>'
+    +'<div style="font-size:13.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'
+      + trDyn(commence ? 'Everyone is counted from the same day — it has already started.'
+                       : 'Everyone is counted from the same day — it has not started yet.')
+      +'</div>'
+    +'<div style="font-size:12.5px;color:var(--gray);margin-top:8px;">'
+      + defiDateFenetreLbl(d) + (commence ? ' · '+trDyn(jours+' day'+(jours>1?'s':'')+' left') : '') + '</div>'
+    +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="rejoindreDefiDate(\''+d.modeleId+'\')">'+trDyn('Join')+'</button>'
+    +'<button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Cancel')+'</button>');
+}
+// Une fenetre datee se dit avec ses dates : c'est ce qui la distingue d'un glissant.
+function defiDateFenetreLbl(d){
+  const loc = currentLang==='fr' ? 'fr-FR' : 'en-US';
+  const o={day:'numeric', month:'short'};
+  return new Date(d.debut).toLocaleDateString(loc,o)+' → '+new Date(d.fin-HIST_DAY).toLocaleDateString(loc,o);
 }
 function genDefiCode(){
   const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c='';
@@ -9785,10 +9876,13 @@ function defiPartageCardHtml(dp){
   const restants=dpJoursRestants(dp), fini=!dpEnCours(dp);
   return '<div class="card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiPartage(\''+dp.id+'\')">'
     +'<div style="flex:1;min-width:0;">'
+      + (dp.origine ? '<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--brand-fixed);margin-bottom:3px;">'+libelleCadence(dp.cadence)+'</div>' : '')
       +'<div style="font-size:14px;font-weight:700;color:var(--white);">'+dpNom(dp)+'</div>'
       +'<div style="font-size:11.5px;color:var(--gray2);margin-top:3px;">'
-        + (currentLang==='fr' ? (moi+'ᵉ sur '+cl.length) : (moi+' of '+cl.length))
-        + ' · ' + val + ' ' + uniteLbl(dp.unite, val)
+        // Un classement d'une seule personne n'est pas un classement : tant qu'on est seul, la carte
+        // dit ce qu'on a fait, pas qu'on est premier de soi-meme. Et en francais 1 s'ordonne "1er".
+        + (cl.length>1 ? (currentLang==='fr' ? (moi===1?'1er':moi+'e')+' sur '+cl.length : moi+' / '+cl.length) + ' · ' : '')
+        + val + ' ' + uniteLbl(dp.unite, val)
         + ' · ' + (fini ? trDyn('Finished') : trDyn(restants+' day'+(restants>1?'s':'')+' left')) + '</div>'
     +'</div>'
     +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg>'
@@ -9831,8 +9925,21 @@ function renderDefisScreen(){
     const creer='<span style="margin-left:auto;display:inline-flex;align-items:center;">'
       + act('I have a code','openRejoindreParCode()',null)
       + act('Create a challenge','openCreerDefi()','ki-plus') + '</span>';
+    // Les dates passent DEVANT les glissants : ils ont une echeance, et un rendez-vous qu'on decouvre
+    // apres coup n'est plus un rendez-vous. Ceux qu'on a deja rejoints disparaissent d'ici — ils sont
+    // remontes dans "Mes defis".
+    const dates=defisDatesProposes().filter(d=>!defiDateDejaRejoint(d));
+    const blocDates = dates.length
+      ? '<div style="margin:15px 20px 8px;font-size:13px;font-weight:800;color:var(--white);letter-spacing:-.1px;">'+trDyn('On a fixed date')+'</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
+        + dates.map(d=>'<div class="card-sm" style="margin:0;padding:11px 12px;cursor:pointer;border-color:rgba(var(--brand-fixed-rgb),.32);" onclick="apercuDefiDate(\''+d.modeleId+'\')">'
+            +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--brand-fixed);">'+libelleCadence(d.cadence)+'</div>'
+            +'<div style="font-size:13px;font-weight:700;color:var(--white);line-height:1.22;margin-top:4px;">'+d.cible+' '+uniteLbl(d.unite, d.cible)+'</div>'
+            +'<div style="font-size:10.5px;color:var(--gray2);margin-top:5px;font-variant-numeric:tabular-nums;">'+defiDateFenetreLbl(d)+'</div>'
+            +'</div>').join('') + '</div>'
+      : '';
     cat.innerHTML = '<div class="zone-lbl" style="margin-top:22px;display:flex;align-items:center;">'+trDyn('TO TAKE ON')+creer+'</div>'
-      + (libres.length ? corps : '');
+      + blocDates + (libres.length ? corps : '');
     sweepTranslate(cat, currentLang);
   }
   renderProgBadges('defisBadgesSection');
@@ -12505,6 +12612,11 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "Invite someone and the ranking starts.": "Invite quelqu’un et le classement commence.",
+  "On a fixed date": "À date fixe",
+  "This weekend": "Ce week-end",
+  "Everyone is counted from the same day — it has already started.": "Tout le monde est compté depuis le même jour — il a déjà commencé.",
+  "Everyone is counted from the same day — it has not started yet.": "Tout le monde sera compté depuis le même jour — il n’a pas encore commencé.",
   "Invitation sent to ": "Invitation envoyée à ",
   "joined": "a rejoint",
   "cannot make it this time": "ne peut pas cette fois",
