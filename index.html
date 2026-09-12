@@ -742,6 +742,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 @keyframes exfloat{0%,100%{transform:translateY(-6px) scale(1);}50%{transform:translateY(6px) scale(1.07);}}
 .ex-badge{position:absolute;top:12px;right:12px;background:var(--orange);color:var(--ink-on-accent);font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px;}
 .ex-sec{margin-bottom:20px;}
+/* Interrupteur des phases de seance (fiche seance, 12 sept. 2026) — le geste iOS : gris a gauche,
+   emeraude a droite. --brand-fixed et pas --orange : allumer une phase n'est pas une signaletique
+   personnalisable, c'est un etat. */
+.ph-sw{width:47px;height:28px;border-radius:14px;background:var(--bg3);border:1px solid var(--border);position:relative;flex-shrink:0;cursor:pointer;padding:0;transition:background .22s,border-color .22s;}
+.ph-sw::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--white);transition:transform .22s cubic-bezier(.3,.9,.4,1);}
+.ph-sw[aria-checked="true"]{background:var(--brand-fixed);border-color:var(--brand-fixed);}
+.ph-sw[aria-checked="true"]::after{transform:translateX(19px);background:#fff;}
+@media (prefers-reduced-motion:reduce){ .ph-sw,.ph-sw::after{transition:none;} }
 .ex-sec-t{font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;font-family:var(--font-head);}
 .ex-sec-b{font-size:14px;color:var(--gray2);line-height:1.6;}
 
@@ -2943,6 +2951,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;" id="sdTags"></div>
+    <!-- CTA au-dessus du bloc SEANCE, juste sous les pastilles (retour terrain, 12 sept.). Il etait
+         d'abord passe sous le nom ; c'est encore trop bas. La photo, le badge d'intensite et les
+         pastilles suffisent a decider — le nom et la description sont des details, pas des criteres.
+         Le bouton du bas reste pour qui a tout lu : deux boutons, pas un deplacement. -->
+    <div id="sdStartTop" style="display:none;margin-bottom:16px;"></div>
     <div class="coach-tip" id="sdCoachNoteBlock" style="display:none;margin-bottom:14px;"><span class="ct-ic"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg></span><span id="sdCoachNoteTxt"></span></div>
     <div style="margin-bottom:18px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -2951,11 +2964,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div id="sdReadView">
         <div id="sdNameDisplay" style="font-size:19px;font-weight:800;letter-spacing:-.3px;color:var(--white);margin-bottom:8px;"></div>
-        <!-- CTA remonte sous le nom, AVANT la description (retour terrain, 12 sept. : "mettre le CTA
-             avant la description de la seance"). Mesure : sur une seance de 8 exercices, le bouton du
-             bas etait a plus d'un ecran et demi de deroule — la decision se prend ici, pas la-bas.
-             Le bouton du bas reste pour qui a tout lu : deux boutons, pas un deplacement. -->
-        <div id="sdStartTop" style="display:none;margin-bottom:12px;"></div>
         <div id="sdDescDisplay" style="font-size:13.5px;line-height:1.55;color:var(--gray2);"></div>
       </div>
       <div id="sdEditView" style="display:none;">
@@ -2971,12 +2979,20 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
          jour. Elle n'apparait que si la seance affichee EST celle du jour ET qu'un ajustement a
          reellement ete applique — pas si le moteur l'a seulement propose. -->
     <div id="sdAdjust" style="display:none;margin-bottom:16px;"></div>
-    <div id="sdPhases" style="margin-bottom:18px;"></div>
+    <!-- LE DEROULE, version 12 sept. 2026. La carte-tableau de quatre lignes chiffrees est remplacee
+         par les trois phases DANS L'ORDRE OU ON LES VIT : echauffement, exercices, retour au calme,
+         du haut vers le bas. Une liste n'a pas besoin d'un sommaire quand elle est deja dans le bon
+         ordre. Chaque phase porte une bascule : elle ETEINT, elle ne cache pas — le bloc reste en
+         place, en retrait, et le total tombe, donc on voit ce qu'on enleve et ce que ca coute. Seul le
+         total survit de l'ancienne carte, et il descend sous le retour au calme. -->
+    <div id="sdWarmupRow" style="margin-bottom:10px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 4px;">
       <div class="ex-sec-t" style="padding:0;">Exercises</div>
       <span onclick="openAddExoRich()" style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;">+ Add</span>
     </div>
     <div id="sdExoList"></div>
+    <div id="sdCooldownRow" style="margin-top:16px;"></div>
+    <div id="sdTotalRow"></div>
     <div style="height:20px;"></div>
     <button class="btn btn-orange" id="sdStartBtn" onclick="startSessionFromDetail()">Start this session →</button>
     <button class="btn btn-orange" id="sdAssignBtn" style="display:none;" onclick="assignSessionTemplate()">Assign this session →</button>
@@ -14425,6 +14441,11 @@ const EN_FR = {
   "Replace this exercise →": "Remplacer cet exercice →",
   "Replace this exercise": "Remplacer cet exercice",
   "Your goal follows your own pace": "Ton objectif suit ton rythme à toi",
+  "Skipped this time": "Coupé pour cette fois",
+  "moves": "mouvements",
+  "stretches": "étirements",
+  "this session eases you in": "cette séance démarre en douceur",
+  "this session winds down fast": "cette séance redescend vite",
   "Sessions planned": "Séances planifiées",
   "Plan": "Planifier",
   "Running since": "En cours depuis le",
@@ -14950,6 +14971,11 @@ function setLang(lang){
     // "11 sept." restait en francais dans la version anglaise — aucun de ces noeuds n'est une cle de
     // dictionnaire. Meme piege que les libellés composes au rendu, meme remede.
     if(document.getElementById('assistantThread')) renderCoachThread();
+    // Le deroule de la fiche seance (12 sept. 2026), meme piege : "2 mouvements \u00b7 1 min \u2014 cette
+    // seance demarre en douceur" est UN seul noeud texte assemble au rendu, donc aucune cle du
+    // dictionnaire ne lui correspond. Mesure avant correction : passer en anglais donnait "Warm-up \u00b7
+    // 2 mouvements \u00b7 1 min \u2014 cette seance demarre en douceur" — le titre traduit, la sous-ligne non.
+    if(document.getElementById('sdWarmupRow') && window._curSessId) renderSdPhases();
     // La fiche séance : "35s · 3 séries · 25s de repos" est une seule chaîne assemblée au rendu
     // (sdExoSummary), donc aucune clé de dictionnaire ne la couvre. Changer de langue en restant sur
     // la fiche donnait "Standing/Assis · 3 séries" — moitié anglais, moitié français. Bug préexistant,
@@ -18830,7 +18856,7 @@ function demarrerSessionNouveau(id){
   // Trois niveaux (cf discussion Benjamin/DESIGN, remplace la coche par lancement) : la séance elle-
   // même peut dire non (shouldRunWarmup), sinon la préférence réglée une fois dans Mon profil
   // d'entraînement décide — "Passer l'échauffement" dans l'écran reste l'exception du jour, inchangée.
-  go(shouldRunWarmup(s) ? 'session_warmup' : 'session');
+  go(phaseActive(s,'warmup') ? 'session_warmup' : 'session');   // bascule de la fiche d'abord, reglage ensuite
 }
 // Échauffement — P0 sécurité (cf Manques identifiés) : aucune notion de warm-up n'existait avant dans
 // le déroulé de séance. Skippable, adapté au profil : filtré par userProfileData.zones_eviter, même
@@ -18895,6 +18921,27 @@ const LONG_SESSION_MIN_DUREE=30;
 // Un reglage qu'une donnee peut annuler en silence n'est pas un reglage, c'est une suggestion.
 // Desormais : la personne decide SI, la seance decide COMBIEN. echauffement/retour_calme===false ne
 // supprime plus, il RACCOURCIT — et la fiche l'ecrit.
+// EXCEPTION DU JOUR (decide le 12 sept. 2026). Les deux bascules de la fiche seance valent POUR CETTE
+// FOIS, pas pour toujours : le profil d'entrainement garde la regle ("Toujours" / "Seances longues
+// seulement" / "Jamais"), et ce qu'on coupe ici ne la reecrit pas. Sinon un reglage pose sur une fiche
+// de seance modifierait en silence un reglage pose dans un ecran qu'on n'a pas ouvert — exactement le
+// defaut qu'on vient de corriger, dans l'autre sens. En memoire seulement : on rouvre la fiche demain,
+// l'echauffement est revenu.
+let phaseOverride = {};
+function phaseActive(s, quoi){
+  if(!s) return false;
+  const o = phaseOverride[s.id];
+  if(o && typeof o[quoi]==='boolean') return o[quoi];
+  return quoi==='warmup' ? shouldRunWarmup(s) : shouldRunCooldown(s);
+}
+function togglePhase(sessId, quoi){
+  const s=[...SESSIONS,...userSessions].find(x=>x.id===sessId); if(!s) return;
+  if(!phaseOverride[sessId]) phaseOverride[sessId]={};
+  phaseOverride[sessId][quoi] = !phaseActive(s, quoi);
+  renderSdPhases();
+}
+// Vidé quand la séance est terminée : l'exception ne vaut que pour l'occurrence qu'on vient de faire.
+function clearPhaseOverride(sessId){ if(sessId) delete phaseOverride[sessId]; else phaseOverride={}; }
 function warmupReduit(s){ return !!(s && s.echauffement===false); }
 function cooldownReduit(s){ return !!(s && s.retour_calme===false); }
 function shouldRunWarmup(s){
@@ -18909,42 +18956,50 @@ function shouldRunCooldown(s){
   if(pref==='Long sessions only') return !!(s && s.duree>=LONG_SESSION_MIN_DUREE);
   return true;
 }
-// Affichage simple, volontairement pas encore conditionné par shouldRunWarmup/shouldRunCooldown —
-// DESIGN reprend ce bloc pour n'annoncer que les phases qui auront vraiment lieu une fois le routage
-// confirmé branché (cf discussion), pas avant : sinon la fiche annoncerait "pas d'échauffement" sur
-// des séances qui en auront quand même un selon la préférence du moment.
+// LE DEROULE (refonte du 12 sept. 2026, maquette validee par Benjamin). L'ancienne carte-tableau
+// annoncait Echauffement / Seance / Retour au calme / Total en quatre lignes chiffrees, posee AVANT la
+// liste d'exercices — un sommaire de ce qui suivait. Elle disparait : les trois phases occupent
+// desormais la place ou on les vit, echauffement au-dessus de la liste, retour au calme en dessous,
+// chacune avec une bascule. Seul le total survit, sous la derniere phase.
+// La bascule ETEINT, elle ne cache pas : le bloc reste a sa place a 50% et le total tombe, donc on
+// voit ce qu'on a enleve et ce que ca coute. Elle vaut POUR CETTE FOIS (phaseOverride), jamais pour
+// toujours — le profil d'entrainement garde la regle.
+function phaseRowHtml(s, quoi){
+  const on = phaseActive(s, quoi);
+  const wu = quoi==='warmup';
+  const moves = wu ? getWarmupMoves(s) : getCooldownMoves(s);
+  const mn = Math.max(1, Math.round(moves.reduce((a,m)=>a+(m.dur||0),0)/60));
+  const titre = trDyn(wu ? 'Warm-up' : 'Cool-down');
+  const reduit = wu ? warmupReduit(s) : cooldownReduit(s);
+  // Trois sous-lignes possibles, dans cet ordre de priorite : eteint aujourd'hui / raccourci par la
+  // seance / normal. Chacune dit QUI a decide, jamais un silence.
+  let sous;
+  if(!on) sous = trDyn(wu ? 'Skipped this time' : 'Skipped this time');
+  else if(reduit) sous = moves.length+' '+trDyn(wu?'moves':'stretches')+' \u00b7 '+mn+' '+trDyn('min')+' \u2014 '+trDyn(wu?'this session eases you in':'this session winds down fast');
+  else sous = moves.length+' '+trDyn(wu?'moves':'stretches')+' \u00b7 '+mn+' '+trDyn('min');
+  const icon = wu ? 'ki-timer' : 'ki-mobility';
+  return '<div style="display:flex;align-items:center;gap:13px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:14px 15px;'+(on?'':'opacity:.5;')+'">'
+    +'<span style="width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:17px;background:'+(on?'rgba(var(--brand-fixed-rgb),.12)':'var(--bg3)')+';color:'+(on?'var(--brand-fixed)':'var(--gray)')+';"><svg class="ki"><use href="#'+icon+'"/></svg></span>'
+    +'<span style="flex:1;min-width:0;">'
+      +'<span style="display:block;font-size:14.5px;font-weight:700;color:var(--white);">'+titre+'</span>'
+      +'<span style="display:block;font-size:12px;color:var(--gray2);margin-top:2px;">'+sous+'</span>'
+    +'</span>'
+    +'<button class="ph-sw" role="switch" aria-checked="'+(on?'true':'false')+'" aria-label="'+titre+'" onclick="togglePhase(\''+s.id+'\',\''+quoi+'\')"></button>'
+    +'</div>';
+}
 function renderSdPhases(){
   const s=[...SESSIONS,...userSessions].find(x=>x.id===window._curSessId); if(!s) return;
-  const phasesEl=document.getElementById('sdPhases'); if(!phasesEl) return;
+  const wuEl=document.getElementById('sdWarmupRow'), cdEl=document.getElementById('sdCooldownRow'), totEl=document.getElementById('sdTotalRow');
+  if(!wuEl || !cdEl || !totEl) return;
   const mins=arr=>Math.max(1, Math.round(arr.reduce((a,m)=>a+(m.dur||0),0)/60));
-  // Le bloc lit maintenant le routage reel (shouldRunWarmup/shouldRunCooldown, livrees par DEV) :
-  // il n'annonce que les phases qui auront lieu pour CETTE seance et CE profil. Avant le branchement
-  // il annoncait les trois quoi qu'il arrive — c'etait vrai du comportement et faux de la donnee ;
-  // depuis le branchement ce serait faux des deux. Le total suit, donc la duree annoncee est
-  // exactement le temps engage.
-  const avecWu=shouldRunWarmup(s), avecCd=shouldRunCooldown(s);
+  const avecWu=phaseActive(s,'warmup'), avecCd=phaseActive(s,'cooldown');
   const wu=avecWu?mins(getWarmupMoves(s)):0, cd=avecCd?mins(getCooldownMoves(s)):0, core=s.duree||0;
-  const row=(lbl,val,fort)=>'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">'
-    +'<span style="font-size:13.5px;color:'+(fort?'var(--white);font-weight:700;':'var(--gray2);')+'">'+trDyn(lbl)+'</span>'
-    +'<span style="font-size:12.5px;color:'+(fort?'var(--brand-fixed)':'var(--gray)')+';font-variant-numeric:tabular-nums;'+(fort?'font-weight:700;':'')+'">'+val+' '+trDyn('min')+'</span></div>';
-  // Le bloc s'affiche TOUJOURS (retour terrain, 12 sept.) : il disparaissait entierement quand ni
-  // echauffement ni retour au calme n'avaient lieu, emportant avec lui la decomposition de la duree —
-  // la fiche annoncait 15 min sans plus rien detailler, et on ne savait pas si c'etait un oubli ou un
-  // choix. Meme quand il n'y a que le coeur de seance, le dire est une information.
-  phasesEl.style.display='block';
-  // Ce qui a ete raccourci par la seance est ecrit, pas subi en silence.
-  const notes=[];
-  if(avecWu && warmupReduit(s)) notes.push(trDyn('Shorter warm-up \u2014 this session eases you in.'));
-  if(avecCd && cooldownReduit(s)) notes.push(trDyn('Shorter cool-down \u2014 this session winds down fast.'));
-  if(!avecWu && (profile.warmupPref||'Always')!=='Always') notes.push(trDyn('No warm-up \u2014 that comes from your training profile.'));
-  if(!avecCd && (profile.cooldownPref||'Always')!=='Always') notes.push(trDyn('No cool-down \u2014 that comes from your training profile.'));
-  const noteHtml = notes.length ? '<div style="font-size:12px;color:var(--gray2);line-height:1.5;margin-top:8px;">'+notes.join('<br>')+'</div>' : '';
-  phasesEl.innerHTML='<div class="ex-sec-t" style="padding:0 0 4px;">'+trDyn('How it runs')+'</div>'
-    +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:4px 14px;">'
-    +(avecWu?row('Warm-up', wu):'')+row('Session', core)+(avecCd?row('Cool-down', cd):'')
-    +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;"><span style="font-size:13.5px;color:var(--white);font-weight:700;">'+trDyn('Total')+'</span>'
-    +'<span style="font-size:13.5px;color:var(--brand-fixed);font-weight:700;font-variant-numeric:tabular-nums;">'+(wu+core+cd)+' '+trDyn('min')+'</span></div>'
-    +'</div>'+noteHtml;
+  wuEl.innerHTML = phaseRowHtml(s,'warmup');
+  cdEl.innerHTML = phaseRowHtml(s,'cooldown');
+  totEl.innerHTML = '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:13px 2px 0;">'
+    +'<span style="font-size:13.5px;font-weight:700;color:var(--white);">'+trDyn('Total')+'</span>'
+    +'<span style="font-size:15px;font-weight:800;color:var(--brand-fixed);font-variant-numeric:tabular-nums;">'+(wu+core+cd)+' '+trDyn('min')+'</span></div>';
+  sweepTranslate(wuEl, currentLang); sweepTranslate(cdEl, currentLang); sweepTranslate(totEl, currentLang);
 }
 function renderCooldownList(){
   const el=document.getElementById('cooldownList'); if(!el) return;
@@ -18961,7 +19016,7 @@ function skipCooldown(){ go('feedback'); }
 // Point de sortie unique de la séance live (dernier exercice fini, via "Finish" ou finishRest) —
 // shouldRunCooldown() décide si le retour au calme a lieu (séance + préférence, cf discussion), jamais
 // redemandé ici : la décision est déjà prise avant le lancement, pas à la sortie.
-function goEndOfSession(){ go(shouldRunCooldown(sessionActuelle) ? 'session_cooldown' : 'feedback'); }
+function goEndOfSession(){ go(phaseActive(sessionActuelle,'cooldown') ? 'session_cooldown' : 'feedback'); }
 // Démarrer UN SEUL exercice depuis sa fiche (pas une séance) : la fiche expose déjà
 // tous les réglages (reps/durée/repos/intensité) — direct sur l'écran live, le décompte
 // vocal 3-2-1 existant tient lieu de "avant".
@@ -21837,6 +21892,9 @@ function showSuccessOverlay(icon,text,dest,delay){
 let lastFeedbackHadNote=false;
 let personalNotes=[];
 function submitFeedback(){
+  // L'exception du jour meurt avec l'occurrence : les bascules de la fiche reprennent la valeur du
+  // profil d'entrainement a la prochaine ouverture.
+  if(sessionActuelle) clearPhaseOverride(sessionActuelle.id);
   lastSessionPain=painAfter;   // sert de référence "avant" pour la prochaine séance
   lastFeedbackEffort=feedbackEffort;   // sert à recommander une intensité moindre la prochaine fois
   const noteEl=document.getElementById('fbNote');
