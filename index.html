@@ -761,6 +761,27 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .u-points {background:linear-gradient(145deg,#7A6413,#B69F2B);}
 .u-zone   {background:linear-gradient(145deg,#126166,#42CFD7);}
 /* Carte large d'un defi date : le rendez-vous merite plus de place que le compteur personnel. */
+/* LA VEDETTE — le defi deja rejoint. Une seule mise en avant sur l'onglet (13 sept. 2026). */
+.dvedette{border-radius:18px;overflow:hidden;border:1px solid var(--border);background:var(--bg2);margin:0 20px 9px;cursor:pointer;}
+.dv-top{padding:14px 15px 15px;display:block;}
+.dv-eb{display:block;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.85);}
+.dv-nb{display:block;font-size:36px;font-weight:800;line-height:1;letter-spacing:-.025em;color:#fff;margin-top:6px;font-family:var(--font-head);}
+.dv-sur{font-size:17px;font-weight:700;}
+.dv-un{display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,.86);margin-top:2px;}
+.dv-bot{padding:13px 15px 15px;}
+.dv-bar{display:block;height:7px;border-radius:4px;background:var(--bg3);overflow:hidden;}
+.dv-bar i{display:block;height:100%;border-radius:4px;background:var(--brand-fixed);}
+.dv-mt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:8px;font-size:11.5px;color:var(--gray2);font-variant-numeric:tabular-nums;}
+.dv-mt b{color:var(--white);font-weight:700;}
+.dv-who{display:flex;align-items:center;margin-top:11px;}
+.dv-who .l{font-size:11px;color:var(--gray2);margin-left:15px;}
+/* La pastille des lignes compactes : nombre et unite sur UNE ligne, alignes sur la meme base
+   (retour terrain, 13 sept. : "le j est en dessous du 3, c'est mieux de le mettre a cote").
+   Empiles sur 46 px, ca donnait deux lignes minuscules la ou une seule se lit — et "30 min" s'ecrit
+   deja comme ca partout ailleurs dans l'app. */
+.dpz{width:46px;height:46px;border-radius:12px;flex-shrink:0;display:flex;align-items:baseline;justify-content:center;gap:2px;color:#fff;}
+.dpz b{font-size:17px;font-weight:800;line-height:1;font-family:var(--font-head);}
+.dpz i{font-size:10px;font-weight:700;font-style:normal;opacity:.85;}
 .dbig{border-radius:16px;overflow:hidden;border:1px solid var(--border);background:var(--bg2);margin:0 20px 10px;cursor:pointer;}
 .dbig .dtop{display:flex;align-items:flex-end;padding:12px 14px 14px;}
 .dbig .deyeb{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.88);}
@@ -2206,6 +2227,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="coach-tip" id="resumeCoachTip" style="background:none;border-left:none;padding:0 0 10px;margin-bottom:10px;border-bottom:1px solid var(--border);"></div>
       <div id="resumeMetricsCard"></div>
     </div>
+    <div id="resumeDefiDone" style="display:none;margin:0 20px 16px;"></div>
+    <div id="resumeDefis" style="display:none;margin:0 20px 16px;"></div>
     <div id="resumeNextSeance" style="margin:0 20px 16px;padding:14px 16px;background:var(--bg2);border-radius:14px;border:1px solid var(--border);"></div>
     <div style="padding:0 20px 8px;"><button class="btn btn-orange" id="resumeBackBtn" onclick="go('home')">Back to home</button></div>
     <!-- Pied de page utilitaire : actions de synchro secondaires (confirmation coach, FC Apple Watch,
@@ -2403,10 +2426,20 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <!-- Trois mots, trois sections (12 sept. 2026) : un DEFI a une fin et peut avoir des gens dedans,
          un DUEL a une heure, un BADGE n'a ni l'un ni l'autre. L'ordre suit ce qu'on vient y faire :
          ce que j'ai en cours, ce que je peux relever, ce que je lance maintenant, ce que j'ai gagne. -->
+    <!-- ORDRE REVU (13 sept. 2026, maquette "Quatre reperes de temps"). Les cinq titres deviennent des
+         REPERES DE TEMPS, parce que c'est ce qui separe vraiment les familles : En cours (maintenant),
+         Cette semaine (une fenetre commune), Quand tu veux (glissant), En direct (la meme minute).
+         On lit la colonne de titres et on comprend l'onglet sans lire une carte.
+         Les BADGES remontent juste apres "En cours" : c'est la seule chose de l'onglet qu'on a GAGNEE,
+         elle ne se merite pas une deuxieme fois en deroulant deux ecrans. Les deux entrees ("J'ai un
+         code", "Creer un defi") descendent en pied : elles servent une fois sur vingt et occupaient la
+         deuxieme place de l'ecran. -->
     <div id="defisMes"></div>
+    <div class="zone-lbl" style="margin:28px 20px 10px;display:flex;align-items:baseline;gap:6px;">BADGES<span id="defisBadgesCount" style="color:var(--gray);font-weight:600;letter-spacing:0;text-transform:none;font-size:10.5px;"></span></div>
+    <div id="defisBadgesSection" style="margin:0;"></div>
     <div id="defisCatalogue"></div>
 
-    <div class="zone-lbl" style="margin-top:22px;">DUELS</div>
+<div class="zone-lbl" style="margin:28px 20px 10px;">LIVE</div>
     <div class="card-sm" style="margin:0 20px 0;border-color:rgba(var(--orange-rgb),.30);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiAmi()">
       <div style="width:38px;height:38px;border-radius:12px;background:rgba(var(--orange-rgb),.10);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
       <div style="flex:1;min-width:0;">
@@ -2415,7 +2448,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div style="color:var(--gray);font-size:16px;">›</div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin:10px 20px 0;">
+    <div style="display:flex;align-items:center;gap:10px;margin:9px 20px 0;">
       <div style="display:flex;flex-shrink:0;">
         <div style="width:30px;height:30px;border-radius:50%;background:var(--brand-fixed);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--ink-on-accent);">M</div>
         <div style="width:30px;height:30px;border-radius:50%;background:#529CFE;border:2px solid var(--bg);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0A0F;">L</div>
@@ -2425,9 +2458,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="go('mes_amis')">Manage friends</span>
     </div>
 
-    <div class="zone-lbl" style="margin-top:22px;">BADGES</div>
-    <div id="defisBadgesSection" style="margin:10px 20px 24px;"></div>
-  </div>
+    
+    <!-- Pied : les deux entrees rares -->
+    <div style="display:flex;gap:9px;margin:28px 20px 24px;">
+      <button class="btn btn-outline" style="flex:1;padding:13px 10px;font-size:12.5px;margin:0;" onclick="openRejoindreParCode()">I have a code</button>
+      <button class="btn btn-outline" style="flex:1;padding:13px 10px;font-size:12.5px;margin:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;" onclick="openCreerDefi()"><svg class="ki" style="width:13px;height:13px;"><use href="#ki-plus"/></svg>Create a challenge</button>
+    </div>
   <div class="bnav">
     <button class="bnav-item" onclick="go(currentRole==='user_centre'?'home_centre':'home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
     <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Training</span></button>
@@ -6492,6 +6528,7 @@ function go(id){
   if(id==='attente_validation') setTimeout(scheduleCentreAutoValidate, 20);
   if(id==='notifications') setTimeout(syncBell, 30);
   if(id==='home' || id==='home_centre') setTimeout(syncBell, 30);
+  setTimeout(syncDefiDot, 30);   // la barre du bas est recopiee par ecran : on repose le point a chaque entree
   // Notif "séance planifiée aujourd'hui" (chantier calendrier/auto-assignation) — vérifiée à chaque
   // entrée sur Home, idempotente via _notified (pas de spam si on navigue plusieurs fois dans la journée).
   if(id==='home' || id==='home_centre') checkPlannedNotifToday();
@@ -10181,11 +10218,9 @@ function uniteAbrege(u){
 function defiDateRowHtml(d){
   const parts = dpParticipantsProbables(d);
   return '<div class="card-sm" style="margin:0 20px 9px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="apercuDefiDate(\''+d.modeleId+'\')">'
-    +'<span class="u-'+d.unite+'" style="width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;line-height:1;">'
-      +'<span style="font-size:15px;font-weight:800;font-family:var(--font-head);">'+d.cible+'</span>'
-      +'<span style="font-size:8.5px;font-weight:700;opacity:.8;margin-top:1px;">'+uniteAbrege(d.unite)+'</span></span>'
+    +'<span class="dpz u-'+d.unite+'"><b>'+d.cible+'</b><i>'+uniteAbrege(d.unite)+'</i></span>'
     +'<span style="flex:1;min-width:0;">'
-      +'<span style="display:block;font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange);">'+libelleCadence(d.cadence)+'</span>'
+      +'<span style="display:block;font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--gray);">'+libelleCadence(d.cadence)+'</span>'
       +'<span style="display:block;font-size:13.5px;font-weight:700;color:var(--white);margin-top:2px;">'+d.cible+' '+uniteLbl(d.unite, d.cible)+'</span>'
       +'<span style="display:block;font-size:10.5px;color:var(--gray2);margin-top:2px;font-variant-numeric:tabular-nums;">'+defiDateFenetreLbl(d)
         +(parts.length?' \u00b7 '+parts.length+' '+trDyn(parts.length>1?'people in':'person in'):'')+'</span>'
@@ -10243,58 +10278,66 @@ function defiPartageCardHtml(dp){
 // rendez-vous DATES avec du monde dedans et un classement, huit compteurs personnels GLISSANTS qu'on
 // porte seul. Rien a l'ecran ne les distinguait. La structure et le vocabulaire (defi/duel/badge,
 // quatre sections, glissant sans echec) sont bons et tranches : seul le dessin change.
-let defisVoirTout = false;   // "A ton rythme" se replie a 4 sur 8 — repli, pas suppression
+let defisVoirTout = false;   // "Quand tu veux" se replie a 4 sur 8
 function toggleDefisVoirTout(){ defisVoirTout=!defisVoirTout; renderDefisScreen(); }
+// LA VEDETTE (13 sept. 2026). Mesure avant : le defi DEJA REJOINT tenait dans une ligne de 77 px
+// pendant qu'un defi PROPOSE occupait une carte de 166. La vedette etait la mauvaise. Desormais une
+// seule mise en avant, et c'est celle qui me concerne : barre de progression, ma position, ce qu'il
+// reste a faire, et les visages.
+function defiVedetteHtml(dp){
+  const cl=dpClassement(dp), moi=cl.findIndex(x=>x.id==='me')+1;
+  const val=(cl.find(x=>x.id==='me')||{valeur:0}).valeur;
+  const restants=dpJoursRestants(dp), fini=!dpEnCours(dp);
+  const cible=dp.cible||null;
+  const pct = cible ? Math.min(100, Math.round(val/cible*100)) : (cl.length? Math.round(val/Math.max(1,cl[0].valeur)*100) : 0);
+  const u=uniteLbl(dp.unite, cible||val);
+  const COUL=['#26C57B','#529CFE','#A87EFD','#B69F2B','#42CFD7'];
+  const ini=(n)=>n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const av=cl.slice(0,3).map((x,k)=>'<span class="dav" style="background:'+COUL[k%COUL.length]+';">'+ini(x.nom)+'</span>').join('');
+  const reste = cible ? Math.max(0, cible-val) : 0;
+  return '<div class="dvedette" onclick="openDefiPartage(\''+dp.id+'\')">'
+    +'<div class="dv-top u-'+dp.unite+'">'
+      +'<span class="dv-eb">'+trDyn(fini?'Finished':(restants+' day'+(restants>1?'s':'')+' left'))+'</span>'
+      +'<span class="dv-nb">'+val+(cible?'<span class="dv-sur"> / '+cible+'</span>':'')+'</span>'
+      +'<span class="dv-un">'+u+'</span>'
+    +'</div>'
+    +'<div class="dv-bot">'
+      +'<span class="dv-bar"><i style="width:'+pct+'%"></i></span>'
+      +'<span class="dv-mt">'
+        +'<span>'+(cl.length>1 ? '<b>'+(moi===1?trDyn('1st'):moi+trDyn('th'))+'</b> '+trDyn('of')+' '+cl.length : '<b>'+val+'</b> '+u)+'</span>'
+        +(cible&&reste>0?'<span>'+reste+' '+u+' '+trDyn('to go')+'</span>':'')
+      +'</span>'
+      + (cl.length ? '<span class="dv-who"><span style="display:flex;">'+av+'</span><span class="l">'+cl.map(x=>x.nom).slice(0,2).join(trDyn(' and '))+'</span></span>' : '')
+    +'</div></div>';
+}
 function renderDefisScreen(){
-  seedDefiVolumeHebdo();   // un seul moteur : la vieille carte codee en dur est devenue une entree
+  defiBouge=false; syncDefiDot();   // on vient regarder : le point s'eteint
+  seedDefiVolumeHebdo();
   const mes=document.getElementById('defisMes'), cat=document.getElementById('defisCatalogue');
   if(mes){
-    // "MES DEFIS" devient "EN COURS", et la section DISPARAIT quand elle est vide : un titre suivi
-    // d'une phrase d'absence occupait la premiere place de l'ecran pour dire qu'il n'y a rien. Quand
-    // rien n'est en cours, "Cette semaine, avec les autres" prend la tete — ce qu'on veut faire faire.
     const enCours = defisPartages.length + userDefis.length;
     mes.innerHTML = enCours
-      ? '<div class="zone-lbl" style="margin-top:18px;">IN PROGRESS</div>'
-        + defisPartages.map(defiPartageCardHtml).join('')
+      ? '<div class="zone-lbl" style="margin:16px 20px 10px;">IN PROGRESS</div>'
+        + defisPartages.map((dp,k)=> k===0 ? defiVedetteHtml(dp) : defiPartageCardHtml(dp)).join('')
         + userDefis.map(u=>{ const d=getDefi(u.id); return d?defiCardHtml(d,u):''; }).join('')
       : '';
     sweepTranslate(mes, currentLang);
   }
   if(cat){
-    // --brand-fixed dit "ca va" : un signal. --orange est l'accent, ce sur quoi on peut appuyer.
-    // Ces deux liens sont des ACTIONS, donc l'accent.
-    // Les deux entrees quittent la ligne de titre (retour terrain, 13 sept. : "avec les autres ca
-    // depasse a gauche, creer un defi ca depasse a droite, je ne sais pas pourquoi c'est en vert").
-    // Trois defauts dans un seul objet : elles debordaient, elles ecrasaient le titre, et leur couleur
-    // (--orange, c'est-a-dire l'ACCENT, pas le vert de reussite) se confondait avec l'emeraude par
-    // defaut. Elles deviennent deux boutons sur leur propre ligne : lisibles, tapables sur 44 px,
-    // sans concurrence avec le titre ni avec le vrai CTA de l'onglet.
-    const act=(txt,onclick,ic)=>'<button class="btn btn-outline" style="flex:1;padding:13px 10px;font-size:12.5px;margin:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;" onclick="'+onclick+'">'
-      +(ic?'<svg class="ki" style="width:13px;height:13px;"><use href="#'+ic+'"/></svg>':'')+trDyn(txt)+'</button>';
-    const creer='<div style="display:flex;gap:9px;margin:0 20px 12px;">'
-      + act('I have a code','openRejoindreParCode()',null)
-      + act('Create a challenge','openCreerDefi()','ki-plus') + '</div>';
-
-    // RAYON 1 — les dates. Rendez-vous : fenetre commune, du monde dedans, ca tourne chaque semaine.
-    // Cartes larges, une par ligne : elles ont plus a dire qu'un compteur personnel.
+    // RAYON 1 — les dates. Trois lignes uniformes : ce sont des rendez-vous a choisir, pas des
+    // vedettes. La grande carte est reservee a ce qu'on a deja rejoint.
     const dates=defisDatesProposes().filter(d=>!defiDateDejaRejoint(d));
     const blocDates = dates.length
-      // La PREMIERE en grand, les suivantes en ligne compacte. Trois cartes larges faisaient monter
-      // l'onglet de 1227 a 1466 px — mesure faite, et l'inverse de ce qu'on cherche. Une seule mise en
-      // avant suffit a dire "c'est un rendez-vous" ; les autres se lisent en une ligne.
-      ? '<div class="zone-lbl" style="margin:22px 20px 10px;">'+trDyn('WITH OTHERS')+'</div>'
-        + creer
-        + defiDateCardHtml(dates[0])
-        + dates.slice(1).map(defiDateRowHtml).join('')
+      ? '<div class="zone-lbl" style="margin:28px 20px 10px;display:flex;align-items:baseline;gap:6px;">'+trDyn('THIS WEEK')
+          +'<span style="color:var(--gray);font-weight:600;letter-spacing:0;text-transform:none;font-size:10.5px;">'+dates.length+' '+trDyn(dates.length>1?'meet-ups':'meet-up')+'</span></div>'
+        + dates.map(defiDateRowHtml).join('')
       : '';
-
-    // RAYON 2 — les glissants. On est seul, la fenetre demarre au moment ou on rejoint. Grille de
-    // deux, repliee a 4 : huit tuiles font quatre rangees, quatre en font deux.
+    // RAYON 2 — les glissants, replies a 4 sur 8.
     const libres = DEFIS_CATALOGUE.filter(d=>!getUserDefi(d.id));
     const montres = defisVoirTout ? libres : libres.slice(0,4);
     const blocSolo = libres.length
-      ? '<div class="zone-lbl" style="margin:22px 20px 10px;">'+trDyn('AT YOUR OWN PACE')+'</div>'
-        + (dates.length ? '' : creer)
+      ? '<div class="zone-lbl" style="margin:28px 20px 10px;display:flex;align-items:baseline;gap:6px;">'+trDyn('WHENEVER YOU LIKE')
+          +'<span style="color:var(--gray);font-weight:600;letter-spacing:0;text-transform:none;font-size:10.5px;">'+libres.length+' '+trDyn('challenges')+'</span></div>'
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
         + montres.map(defiTileHtml).join('') + '</div>'
         + (libres.length>4
@@ -10304,6 +10347,11 @@ function renderDefisScreen(){
       : '';
     cat.innerHTML = blocDates + blocSolo;
     sweepTranslate(cat, currentLang);
+  }
+  const bc=document.getElementById('defisBadgesCount');
+  if(bc && typeof getRealBadges==='function'){
+    const b=getRealBadges(); const ok=b.filter(x=>x.unlocked).length;
+    bc.textContent = currentLang==='fr' ? ok+' sur '+b.length : ok+' of '+b.length;
   }
   renderProgBadges('defisBadgesSection');
 }
@@ -10769,17 +10817,17 @@ function renderProgBadges(elId){
   // deroulant. Sur Progres, la planche reste entiere : c'est une vitrine, on vient pour la voir.
   const replie = (elId==='defisBadgesSection') && !badgesVoirTout && badges.length>4;
   const montres = replie ? badges.slice(0,4) : badges;
-  el.innerHTML='<div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 20px 10px;"><span style="font-size:11.5px;color:var(--gray2);">'+(currentLang==='fr' ? nbOk+' sur '+badges.length : nbOk+' of '+badges.length)+'</span></div>'
+  el.innerHTML=(elId==='defisBadgesSection' ? '' : '<div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 20px 10px;"><span style="font-size:11.5px;color:var(--gray2);">'+(currentLang==='fr' ? nbOk+' sur '+badges.length : nbOk+' of '+badges.length)+'</span></div>')
     +'<div class="badges-grid">'
     +montres.map(b=>'<div class="badge-card'+(b.unlocked?'':' lock')+'" style="cursor:pointer;" onclick="openBadgeDetail(\''+b.k+'\')"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div></div>').join('')
     +'</div>'
     +((elId==='defisBadgesSection' && badges.length>4)
-      ? '<div style="text-align:center;margin-top:9px;"><span role="button" tabindex="0" onclick="toggleBadgesVoirTout()" style="font-size:12.5px;font-weight:700;color:var(--orange);cursor:pointer;padding:12px 16px;display:inline-block;">'
+      ? '<div style="text-align:center;margin:9px 20px 0;"><span role="button" tabindex="0" onclick="toggleBadgesVoirTout()" style="font-size:12.5px;font-weight:700;color:var(--orange);cursor:pointer;padding:12px 16px;display:inline-block;">'
         + (badgesVoirTout ? trDyn('Show less') : trDyn('See all')+' '+badges.length+' \u203a') + '</span></div>'
       : '')
-    +(next ? '<div style="margin-top:12px;font-size:13px;color:var(--white);display:flex;align-items:center;gap:7px;"><span style="color:var(--gray2);display:inline-flex;"><svg class="ki" style="width:15px;height:15px;"><use href="#'+next.ic+'"/></svg></span><span>'+trDyn('Next badge')+' : '+trDyn(next.t)+' — '+(next.target-total)+' '+trDyn('to go')+'</span></div>'
-      +'<div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:6px;"><div style="height:100%;width:'+Math.round(total/next.target*100)+'%;background:var(--orange);border-radius:3px;"></div></div>'
-      +'<div style="font-size:11px;color:var(--gray);margin-top:4px;">'+total+'/'+next.target+'</div>' : '');
+    +(next ? '<div style="margin:12px 20px 0;font-size:13px;color:var(--white);display:flex;align-items:center;gap:7px;"><span style="color:var(--gray2);display:inline-flex;"><svg class="ki" style="width:15px;height:15px;"><use href="#'+next.ic+'"/></svg></span><span>'+trDyn('Next badge')+' : '+trDyn(next.t)+' — '+(next.target-total)+' '+trDyn('to go')+'</span></div>'
+      +'<div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:6px 20px 0;"><div style="height:100%;width:'+Math.round(total/next.target*100)+'%;background:var(--orange);border-radius:3px;"></div></div>'
+      +'<div style="font-size:11px;color:var(--gray);margin:4px 20px 0;">'+total+'/'+next.target+'</div>' : '');
   sweepTranslate(el, currentLang);
 }
 function getPeriodLabel(periodKey){ return periodKey==='semaine'?'7 days':periodKey==='mois'?'30 days':'90 days'; }
@@ -13734,6 +13782,19 @@ const EN_FR = {
   "Mild pain": "Douleur légère",
   "AT YOUR OWN PACE": "À TON RYTHME",
   "IN PROGRESS": "EN COURS",
+  "Your challenges moved": "Tes d\u00e9fis avancent",
+  "CHALLENGE DONE": "D\u00c9FI RELEV\u00c9",
+  "See the detail": "Voir le d\u00e9tail",
+  "in": "en",
+  "WHENEVER YOU LIKE": "QUAND TU VEUX",
+  "LIVE": "EN DIRECT",
+  "meet-up": "rendez-vous",
+  "meet-ups": "rendez-vous",
+  "challenges": "d\u00e9fis",
+  "1st": "1er",
+  "th": "e",
+  "of": "sur",
+  " and ": " et ",
   "Show less": "Voir moins",
   "people in": "personnes dedans",
   "person in": "personne dedans",
@@ -13751,6 +13812,7 @@ const EN_FR = {
   "Alert settings saved ✓": "Réglages d'alertes enregistrés ✓",
   "No session in": "Aucune séance depuis",
   "days": "jours",
+  "day": "jour",
   "Average pain ≥": "Douleur moyenne ≥",
   "Consistency <": "Régularité <",
   "Alerts": "Alertes",
@@ -22362,7 +22424,83 @@ function setResumeCoachMsg(){
   renderCoachTip('resumeCoachTip', resumeMessages[key].replace('$N', weekSessions));
 }
 // ===== resume — stats réelles de la séance qui vient de se terminer =====
+// LA BOUCLE DE RETOUR (13 sept. 2026). Mesure avant : l'ecran de fin de seance ne disait RIEN des
+// defis — ni l'Accueil, ni une pastille, ni une notification — et atteindre la cible n'affichait que
+// le mot "atteint" sur une carte qu'il fallait aller chercher. Le compteur etait juste ; personne ne
+// prevenait. C'est ici que ca se joue : le moment ou l'effort vient d'etre fourni.
+// Pas de notification poussee, volontairement : un defi avance PARCE QU'ON VIENT DE S'ENTRAINER, on
+// est deja dans l'app. Les notifications restent pour ce qui vient des autres (invitation, ami qui
+// rejoint).
+// La pastille de l'onglet Defis : UN POINT, pas un nombre (maquette du 13 sept.). Il dit "quelque
+// chose a bouge depuis ta derniere visite" et s'eteint a l'ouverture. Un compteur inviterait a revenir
+// compter ; le point invite a regarder. Pose en JS parce que la barre du bas est recopiee dans chaque
+// ecran — un seul endroit a maintenir plutot que vingt.
+let defiBouge = false;
+function marquerDefiBouge(){ defiBouge=true; syncDefiDot(); }
+function syncDefiDot(){
+  document.querySelectorAll('.screen .bnav .bnav-item').forEach(b=>{
+    const lbl=b.querySelector('.bnav-label');
+    if(!lbl || !/Challenges|D\u00e9fis/.test(lbl.textContent)) return;
+    const ic=b.querySelector('.bnav-icon'); if(!ic) return;
+    ic.style.position='relative';
+    let d=ic.querySelector('.defi-dot');
+    if(defiBouge && !d){
+      d=document.createElement('span'); d.className='defi-dot';
+      d.style.cssText='position:absolute;top:-1px;right:-3px;width:7px;height:7px;border-radius:50%;background:var(--brand-fixed);';
+      ic.appendChild(d);
+    } else if(!defiBouge && d){ d.remove(); }
+  });
+}
+function renderResumeDefis(){
+  const av=document.getElementById('resumeDefis'), done=document.getElementById('resumeDefiDone');
+  if(!av||!done) return;
+  av.style.display='none'; done.style.display='none'; av.innerHTML=''; done.innerHTML='';
+  // Seuls les defis SOLO ont une cible personnelle qui avance avec ses propres seances. Les defis
+  // partages sont un classement : ils vivent dans l'onglet, pas ici.
+  const entrees = userDefis.filter(u=>!u.closedAt).map(u=>({u, d:getDefi(u.id)})).filter(x=>x.d);
+  if(!entrees.length) return;
+  const lignes=[], atteints=[];
+  entrees.forEach(({u,d})=>{
+    const pr=defiProgress(d,u);
+    // Apport de CETTE seance : la derniere entree de l'historique, dans l'unite du defi.
+    const derniere = userSessionHistory[0] ? [userSessionHistory[0]] : [];
+    const apport = DEFI_UNITES[d.unite].calc(derniere, u.joinedAt, u.joinedAt + d.fenetreJours*HIST_DAY);
+    if(apport<=0) return;
+    if(pr.atteint && !u._feteAuj){ u._feteAuj=true; atteints.push({d, pr, u}); return; }
+    lignes.push({d, pr, apport});
+  });
+  if(atteints.length){
+    const a=atteints[0];
+    const jours = Math.max(1, Math.ceil((Date.now()-a.u.joinedAt)/HIST_DAY));
+    done.style.display='block';
+    done.innerHTML='<div style="border-radius:16px;overflow:hidden;border:1px solid rgba(var(--brand-fixed-rgb),.4);">'
+      +'<div class="u-'+a.d.unite+'" style="padding:18px 16px;text-align:center;">'
+        +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.85);">'+trDyn('CHALLENGE DONE')+'</div>'
+        +'<div style="font-size:30px;font-weight:800;color:#fff;font-family:var(--font-head);margin-top:6px;line-height:1.1;">'+a.d.cible+' '+uniteLbl(a.d.unite,a.d.cible)+'</div>'
+        +'<div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;">'+trDyn('in')+' '+jours+' '+trDyn(jours>1?'days':'day')+' '+trDyn('of')+' '+a.d.fenetreJours+'</div>'
+      +'</div>'
+      +'<div style="padding:13px 15px;background:var(--bg2);">'
+        +'<button class="btn btn-brand-fixed" style="width:100%;margin:0;padding:11px;font-size:13px;" onclick="openDefiDetail(\''+a.d.id+'\')">'+trDyn('See the detail')+'</button>'
+      +'</div></div>';
+  }
+  if(lignes.length || atteints.length) marquerDefiBouge();
+  if(lignes.length){
+    av.style.display='block';
+    av.innerHTML='<div class="card-sm" style="margin:0;">'
+      +'<div style="font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--gray2);">'+trDyn('Your challenges moved')+'</div>'
+      + lignes.map(l=>'<div style="display:flex;align-items:center;gap:11px;margin-top:11px;">'
+          +'<span class="dpz u-'+l.d.unite+'" style="width:40px;height:40px;"><b style="font-size:14px;">'+l.d.cible+'</b></span>'
+          +'<span style="flex:1;min-width:0;">'
+            +'<span style="display:block;font-size:13px;font-weight:700;color:var(--white);">'+trDyn(l.d.nom)+'</span>'
+            +'<span style="display:block;font-size:11px;color:var(--brand-fixed);font-weight:700;margin-top:2px;">+'+l.apport+' '+uniteLbl(l.d.unite,l.apport)+' \u00b7 '+l.pr.fait+' / '+l.d.cible+'</span>'
+            +'<span style="display:block;height:5px;border-radius:3px;background:var(--bg3);margin-top:6px;overflow:hidden;"><span style="display:block;height:100%;width:'+l.pr.pct+'%;background:var(--brand-fixed);border-radius:3px;"></span></span>'
+          +'</span></div>').join('')
+      +'</div>';
+  }
+  sweepTranslate(av, currentLang); sweepTranslate(done, currentLang);
+}
 function renderResumeStats(){
+  renderResumeDefis();
   const elapsedMs = sessionStartTime ? Date.now()-sessionStartTime : 0;
   const mins=Math.floor(elapsedMs/60000), secs=Math.floor((elapsedMs%60000)/1000);
   const durEl=document.getElementById('resStatDuration'); if(durEl) durEl.textContent=mins+':'+String(secs).padStart(2,'0');
