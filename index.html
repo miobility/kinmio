@@ -891,9 +891,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 @keyframes beat{0%,100%{transform:scale(1)}30%{transform:scale(1.28)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes splashPulse{0%,100%{transform:scale(.85);opacity:.6;}50%{transform:scale(1.15);opacity:1;}}
-/* "HIIT" est en vert plein (pas de glow) — souligne le mot-clé sans nuire à la lisibilité sur les
-   fonds photo/vidéo chargés de l'écran d'entrée ; rattache aussi visuellement le tagline au "mio"
-   du logo juste au-dessus, même vert. */
 .health-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
 .health-ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 
@@ -1093,7 +1090,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="margin-bottom:8px;">
         <img id="entryLogoImg" src="kinmio_logo_app.png" alt="kinmio" style="height:40px;width:auto;display:block;">
       </div>
-      <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-style:italic;font-size:21px;letter-spacing:1.6px;text-transform:uppercase;margin:0;" id="t_tagline" data-notranslate="1"><span style="color:var(--white);">Ready for HIIT</span></p>
+      <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-style:italic;font-size:21px;letter-spacing:1.6px;text-transform:uppercase;margin:0;" id="t_tagline" data-notranslate="1"><span style="color:var(--white);">Make it count</span></p>
     </div>
   </div>
   <!-- Boutons bas -->
@@ -1299,7 +1296,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="display:flex;align-items:baseline;gap:8px;">
         <div style="font-size:36px;font-weight:800;color:var(--brand-fixed);" id="obProjectionPct">—</div>
       </div>
-      <div style="font-size:13px;color:var(--gray2);margin-top:4px;">of guided HIIT — <a href="https://www.who.int/news/item/26-06-2024-nearly-1.8-billion-adults-at-risk-of-disease-from-not-doing-enough-physical-activity" target="_blank" style="color:var(--brand-fixed);text-decoration:underline;">WHO recommends 75-150 min/week of vigorous activity</a></div>
+      <div style="font-size:13px;color:var(--gray2);margin-top:6px;line-height:1.5;">WHO recommends 150 min of moderate activity a week, or 75 min vigorous, plus strength training twice. <a href="https://www.who.int/news/item/25-11-2020-every-move-counts-towards-better-health-says-who" target="_blank" style="color:var(--brand-fixed);text-decoration:underline;font-weight:600;">Every move counts.</a></div>
     </div>
     <div class="eyebrow" style="margin-bottom:10px;">Here's what we understood about you.</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
@@ -1325,7 +1322,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <video muted loop playsinline preload="none" id="obVisionVideo" data-src="ob_vision.mp4" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0) 55%,rgba(10,10,15,.55) 100%);"></div>
     </div>
-    <p style="font-size:20px;font-weight:800;color:var(--brand-fixed);line-height:1.4;text-align:center;margin:0 0 24px;">The HIIT bar connected to your effort</p>
+    <p style="font-size:20px;font-weight:800;color:var(--brand-fixed);line-height:1.4;text-align:center;margin:0 0 24px;">The connected training bar</p>
     <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:4px;">
       <div style="display:flex;align-items:center;gap:14px;">
         <span style="width:34px;height:34px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand-fixed);"><svg class="ki" style="width:18px;height:18px;"><use href="#ki-ob-pulse"/></svg></span>
@@ -12828,8 +12825,8 @@ const EN_FR = {
   "Let's build your training profile together": "Créons ton profil d'entraînement ensemble",
   "How long do you want to commit, to start?": "Tu veux t'engager combien de temps, pour commencer ?",
   "Pick a horizon — we'll check back in with you then.": "Choisis un horizon — on refera le point avec toi à ce moment-là.",
-  "of guided HIIT —": "de HIIT guidé —",
-  "WHO recommends 75-150 min/week of vigorous activity": "l'OMS recommande 75 à 150 min/semaine d'activité vigoureuse",
+  "WHO recommends 150 min of moderate activity a week, or 75 min vigorous, plus strength training twice.": "L'OMS recommande 150 min d'activité modérée par semaine, ou 75 min intense, et du renforcement 2 fois.",
+  "Every move counts.": "Chaque mouvement compte.",
   "A few questions so every session fits you.": "Quelques questions pour que chaque séance te corresponde.",
   "Let's go! →": "C'est parti ! →",
   "When do you train?": "Quand t'entraînes-tu ?",
@@ -12840,7 +12837,7 @@ const EN_FR = {
   "30 seconds to get it right — anchor, adjust, go.": "30 secondes pour bien t'installer.",
   "✦ Your plan is ready": "✦ Ton plan est prêt",
   "Real habits, your effort truly measured.": "Des habitudes qui durent, ton effort vraiment mesuré.",
-  "The HIIT bar connected to your effort": "La barre HIIT connectée à ton effort",
+  "The connected training bar": "La barre d'entraînement connectée",
   "Real-time effort, measured as you train": "Ton effort mesuré en temps réel",
   "AI coach — adapts, corrects your form": "Coach IA — s'adapte à toi, corrige ton geste",
   "Exercises picked for your profile, every time": "Des exercices choisis pour ton profil",
