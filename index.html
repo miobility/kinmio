@@ -2436,7 +2436,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= BIBLIOTHÈQUE D'EXERCICES ================= -->
 <div class="screen" id="bibliotheque">
   <div id="libNouveauWrap" style="display:flex;flex-direction:column;flex:1;min-height:0;position:relative;">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="libTopTitle">Exercises</div><div class="topnav-r"><button class="btn-back" style="width:36px;height:36px;font-size:17px;" onclick="toggleLibSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="libTopTitle">Training</div><div class="topnav-r"><button class="btn-back" id="libSearchBtn" style="width:36px;height:36px;font-size:17px;" onclick="toggleLibSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button></div></div>
   <!-- Bibliothèque référent : mêmes 3 catalogues que côté B2C (SESSIONS/PROGRAMMES partagés, jamais
        inventés) — avant, seuls les exercices étaient consultables ici (cf discussion). Pour l'instant
        simple parcours (voir/ouvrir le détail) ; le branchement "utiliser ce modèle pour assigner"
@@ -2450,38 +2450,16 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
          le libellé passait sur deux lignes. Le mot « programme » n'est pas perdu — il est porté par le
          titre de l'écran, et « En cours » est le mot que l'app employait déjà, qui s'apparie avec le
          catalogue « Programmes » juste à côté. -->
-    <div class="p-tab" id="libTopTab_plan" onclick="setLibTopTab('plan')">Current</div>
-    <div class="p-tab" id="libTopTab_programmes" onclick="setLibTopTab('programmes')">Programmes</div>
-    <div class="p-tab active" id="libTopTab_exercices" onclick="setLibTopTab('exercices')">Exercises</div>
-    <div class="p-tab" id="libTopTab_seances" onclick="setLibTopTab('seances')">Sessions</div>
+    <!-- Quatre onglets, aucun sous-onglet nulle part (audit Entraînement, 3e passe). Le calendrier
+         devient un onglet : c'était la seule vraie rangée d'onglets-sous-onglets, et d'autant plus
+         trompeuse qu'elle avait la forme exacte des onglets du dessus. Le catalogue de programmes
+         descend au pied de l'onglet Programme — on choisit un programme depuis le sien. -->
+    <div class="p-tab" id="libTopTab_plan" onclick="setLibTopTab('plan')">Programme</div>
+    <div class="p-tab" id="libTopTab_calendrier" onclick="setLibTopTab('calendrier')">Calendar</div>
+    <div class="p-tab active" id="libTopTab_seances" onclick="setLibTopTab('seances')">Sessions</div>
+    <div class="p-tab" id="libTopTab_exercices" onclick="setLibTopTab('exercices')">Exercises</div>
   </div>
   <div id="libTab_plan" style="display:none;flex-direction:column;flex:1;min-height:0;">
-    <div class="px" style="padding-bottom:10px;flex-shrink:0;">
-      <div class="p-tabs" style="margin:0;max-width:190px;">
-        <div class="p-tab active" id="libPlanTabSem" onclick="setPlanScale('semaine')">Week</div>
-        <div class="p-tab" id="libPlanTabMois" onclick="setPlanScale('mois')">Month</div>
-      </div>
-    </div>
-  <!-- Calendrier déplacé depuis Progrès (audit Progrès, sept. 2026) : ce n'est pas une VUE, c'est
-       l'outil de planification — le seul endroit de toute la plateforme où l'on peut planifier une
-       séance sur un jour libre, déplacer un jour planifié ou un jour de programme, retirer une
-       planification, rattraper un jour manqué. Il vivait à Progrès > Historique > Mois, deux taps dans
-       un onglet dont le nom veut dire « le passé ». Or Programme est l'écran de l'avenir : « mon
-       programme dit 3 fois par semaine » et « le calendrier dit lundi, mercredi, vendredi » sont la
-       même phrase, et les cinq actions du calendrier modifient toutes l'exécution du programme.
-       Conséquence côté Progrès : Historique perd ses sous-onglets et redevient une liste unique. -->
-  <div id="progCalView" class="scroll px" style="display:none;padding-top:4px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
-        <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
-        <div id="progCalNextSlot" style="min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
-      <div id="progCalLegend"></div>
-      <div id="progCalDayDetail" style="margin-top:16px;"></div>
-      <div style="height:84px;"></div>
-  </div>
   <div id="progMonView" class="scroll">
       <div class="prog-hero">
         <div class="prog-thumb" id="progMon_thumb"><svg class="ki" style="width:28px;height:28px;color:var(--dim);"><use href="#ki-media"/></svg></div>
@@ -2516,12 +2494,37 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="px pt pb" id="progMonWeeksBlock">
         <div class="ex-sec-t" style="padding:0 0 8px;">This week's sessions</div>
         <div id="progMonWeekList"></div>
-        <div id="progMonUpcomingWrap" style="display:none;margin-top:14px;">
-          <div class="ex-sec-t" style="padding:0 0 8px;">Upcoming weeks</div>
-          <div id="progMonUpcomingList"></div>
-        </div>
-        <button class="btn-ghost" style="color:var(--orange);margin-top:6px;" onclick="openChangeProgrammeSheet()">Manage my programme →</button>
+        <!-- « Semaines à venir » faisait 263 px et ne contenait AUCUN élément cliquable — des noms de
+             séances en gris, empilés. Et programme_detail, construit le matin même, déroule déjà toutes
+             les semaines avec pour chaque séance sa vignette et un chevron. Une ligne remplace le bloc. -->
+        <div id="progMonSeeAll" style="margin-top:6px;"></div>
+        <div id="progMonCatalogue" style="margin-top:20px;"></div>
       </div>
+      <div style="height:84px;"></div>
+  </div>
+  </div>
+  <!-- Le calendrier est un onglet à part entière depuis l'audit Entraînement (3e passe) : c'est un
+       endroit où l'on va, pas un réglage de l'écran du programme. Sa bascule Semaine / Mois était la
+       seule rangée d'onglets sous onglets de tout Entraînement. -->
+  <div id="libTab_calendrier" style="display:none;flex-direction:column;flex:1;min-height:0;">
+  <!-- Calendrier déplacé depuis Progrès (audit Progrès, sept. 2026) : ce n'est pas une VUE, c'est
+       l'outil de planification — le seul endroit de toute la plateforme où l'on peut planifier une
+       séance sur un jour libre, déplacer un jour planifié ou un jour de programme, retirer une
+       planification, rattraper un jour manqué. Il vivait à Progrès > Historique > Mois, deux taps dans
+       un onglet dont le nom veut dire « le passé ». Or Programme est l'écran de l'avenir : « mon
+       programme dit 3 fois par semaine » et « le calendrier dit lundi, mercredi, vendredi » sont la
+       même phrase, et les cinq actions du calendrier modifient toutes l'exécution du programme.
+       Conséquence côté Progrès : Historique perd ses sous-onglets et redevient une liste unique. -->
+  <div id="progCalView" class="scroll px" style="padding-top:4px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
+        <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
+        <div id="progCalNextSlot" style="min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
+      <div id="progCalLegend"></div>
+      <div id="progCalDayDetail" style="margin-top:16px;"></div>
       <div style="height:84px;"></div>
   </div>
   </div>
@@ -2540,12 +2543,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="scroll" id="libListNouveau" style="padding:0 20px 96px 20px;"></div>
   </div>
   <div id="libTab_seances" style="display:none;flex-direction:column;flex:1;min-height:0;">
-    <div style="padding:0 20px 10px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;">
-      <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibSessFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libSessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-    </div>
+
     <div class="px" style="padding-bottom:8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
       <div id="libSeancesCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 sessions</div>
-      <button class="btn-ghost" id="libSessResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibSessFilters()">Reset all</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <button class="btn-ghost" id="libSessResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibSessFilters()">Reset all</button>
+        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibSessFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libSessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+      </div>
     </div>
     <div class="scroll" id="libSeancesList" style="padding:0 20px 96px 20px;"></div>
   </div>
@@ -5647,7 +5651,7 @@ function go(id){
     const topTabs=document.querySelector('#libNouveauWrap .p-tabs');
     if(topTabs) topTabs.style.display = 'flex';
     syncLibProgrammesTab();
-    setLibTopTab(libHasPlanTab() ? 'plan' : 'exercices');
+    setLibTopTab(libHasPlanTab() ? 'plan' : 'seances');
     renderLibBnav();
     preselectLibNouveau(); renderLibNouveau();
     setTimeout(()=>sweepTranslate(document.getElementById('libNouveauWrap'), currentLang), 60);
@@ -8001,7 +8005,7 @@ function weekStripLegendHtml(){
 // Le calendrier vit maintenant dans Programme, et le lien y va directement.
 function goToCalendar(){
   go('bibliotheque');
-  setTimeout(()=>{ planScale='mois'; setLibTopTab('plan'); }, 40);
+  setTimeout(()=>setLibTopTab('calendrier'), 40);
 }
 // Alerte de rythme rendue actionnable au tap (cf discussion "proposerais-tu une reco en cliquant sur
 // l'alerte ?") — réutilise le patron showModal existant (même famille que showInfoSheet) plutôt qu'un
@@ -11879,6 +11883,17 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "See my whole programme": "Voir tout mon programme",
+  "Edit sessions": "Modifier les séances",
+  "Change programme": "Changer de programme",
+  "Matched to your position and equipment": "Calé sur ta position et ton matériel",
+  "I've got fifteen minutes": "J'ai quinze minutes",
+  "Short sessions": "Les séances courtes",
+  "Without taking anything out": "Sans rien sortir",
+  "Nothing to set up": "Rien à installer",
+  "Build strength": "Gagner en force",
+  "Strength work": "Du renforcement",
+  "All sessions": "Toutes les séances",
   "My programme": "Mon programme",
   "Training": "Entraînement",
   "My plan": "Mon plan",
@@ -14451,7 +14466,10 @@ function openGuideArticle(sectionKey, i){
 // Le catalogue de programmes est désormais visible pour tous : il n'était atteignable que par
 // « Gérer mon programme », au bas d'un long scroll, dans une modale. Choisir un programme reste un
 // acte — mais un acte doit avoir une porte.
-function libHasProgrammesTab(){ return true; }
+// Le catalogue de programmes n'est plus un onglet : il descend au pied de l'onglet Programme, sous
+// « Changer de programme ». On choisit un programme depuis le sien — et ça libère la place du
+// calendrier dans une rangée qui ne peut pas porter cinq onglets à 375 px.
+function libHasProgrammesTab(){ return false; }
 // Fusion Bibliothèque + Programme (12 sept. 2026). Programme n'était dans AUCUNE barre de navigation :
 // son seul accès était un lien dans le titre d'une carte de l'Accueil, et on lui avait ajouté le
 // calendrier le matin même — un écran devenu important qu'on ne trouvait pas. Or Bibliothèque et
@@ -14470,46 +14488,40 @@ function syncLibProgrammesTab(){
   const actif=document.querySelector('#libNouveauWrap .p-tabs .p-tab.active');
   if(actif && getComputedStyle(actif).display==='none') setLibTopTab(libHasPlanTab()?'plan':'exercices');
 }
-// Semaine ou mois : la même échéance à deux échelles, toutes deux tournées vers l'avenir — d'où une
-// bascule et non deux onglets (le couple Historique/Calendrier, lui, opposait le passé au futur et a
-// justement été séparé dans Progrès).
-let planScale='semaine';
-function setPlanScale(v){
-  planScale=v;
-  const a=document.getElementById('libPlanTabSem'), b=document.getElementById('libPlanTabMois');
-  if(a) a.classList.toggle('active', v==='semaine');
-  if(b) b.classList.toggle('active', v==='mois');
-  const mon=document.getElementById('progMonView'), cal=document.getElementById('progCalView');
-  if(mon) mon.style.display = v==='semaine' ? 'block' : 'none';
-  if(cal) cal.style.display = v==='mois' ? 'block' : 'none';
-  if(v==='semaine') renderProgMonView(); else renderProgCalendarView();
-}
+// Le calendrier a son onglet : plus de bascule, plus rien sous la rangée d'onglets.
+function libHasCalendrierTab(){ return currentRole!=='referent'; }
 function setLibTopTab(key){
   if(key==='programmes' && !libHasProgrammesTab()) key='exercices';
-  if(key==='plan' && !libHasPlanTab()) key='exercices';
-  ['plan','exercices','seances','programmes'].forEach(k=>{
+  if(key==='plan' && !libHasPlanTab()) key='seances';
+  if(key==='calendrier' && !libHasCalendrierTab()) key='seances';
+  ['plan','calendrier','exercices','seances','programmes'].forEach(k=>{
     const tab=document.getElementById('libTopTab_'+k); if(tab) tab.classList.toggle('active', k===key);
     const panel=document.getElementById('libTab_'+k); if(panel) panel.style.display = k===key ? 'flex' : 'none';
   });
   const titleEl=document.getElementById('libTopTitle');
   const fab=document.getElementById('libFab');
+  // Le titre nomme l'ENDROIT, pas l'onglet actif — comme Progrès, Défis et Coach IA. Il suivait
+  // l'onglet, si bien qu'on tapait « Entraînement » et qu'on arrivait sur « Mon programme ».
+  if(titleEl) titleEl.textContent='Training';
+  // La loupe n'apparaît que là où il y a quelque chose à chercher : elle ouvre libSearchWrap, qui vit
+  // dans le panneau Exercices, donc elle ne faisait rien sur trois onglets sur quatre.
+  const srch=document.getElementById('libSearchBtn');
+  if(srch) srch.style.display = (key==='exercices'||key==='seances') ? '' : 'none';
   if(key==='plan'){
-    if(titleEl) titleEl.textContent='My programme';
-    setPlanScale(planScale);
+    renderProgMonView();
+  } else if(key==='calendrier'){
+    renderProgCalendarView();
   } else if(key==='exercices'){
-    if(titleEl) titleEl.textContent='Exercises';
     if(fab){ fab.setAttribute('onclick','openCreateExercise()'); fab.title='Create an exercise'; }
   } else if(key==='seances'){
-    if(titleEl) titleEl.textContent='Sessions';
     if(fab){ fab.setAttribute('onclick',"go('creer_session_nouveau')"); fab.title='Create a session'; }
     renderLibSeances();
   } else if(key==='programmes'){
-    if(titleEl) titleEl.textContent='Programmes';
     if(fab){ fab.setAttribute('onclick',"go('creer_programme_nouveau')"); fab.title='Create a programme'; }
     renderLibProgrammes();
   }
   // Rien a creer sur Mon programme : le bouton flottant disparait plutot que de rester la sans cible.
-  if(fab) fab.style.display = key==='plan' ? 'none' : '';
+  if(fab) fab.style.display = (key==='plan'||key==='calendrier') ? 'none' : '';
   sweepTranslate(document.getElementById('libNouveauWrap'), currentLang);
 }
 // Filtres dédiés à la bibliothèque référent (état séparé de sessNouveauFilters/progNouveauFilters
@@ -14626,6 +14638,43 @@ function openLibProgFilterModal(){
   showModal(html);
   updateLibProgModalApplyBtn();
 }
+// ===== RAYONS DE SÉANCES (audit catalogues, 12 sept. 2026) =======================================
+// Une séance, on la CHOISIT : peu d'options à la fois, et l'image fait le travail. Un exercice, on le
+// CONSULTE : la densité vaut mieux. D'où des rayons ici et une liste plate côté exercices.
+//
+// Règle de nommage, et c'est le point qui compte pour la taxonomie à venir : un rayon répond à une
+// QUESTION qu'on se pose, jamais à une catégorie de la base. « Faire monter le souffle », pas
+// « Cardio » ; « J'ai quinze minutes », pas « Durée 15 ». Le type reste dans la donnée et alimente les
+// filtres — il ne monte pas en titre. Conséquence voulue : ajouter un type demain ne casse rien.
+//
+// « Pour toi » ouvre toujours, parce que le rayon du haut est celui qu'on regarde : il est calé sur la
+// position et le matériel du profil, le même calcul que le chip « Pour toi ».
+const SEANCE_RAYONS = [
+  { titre:'For you',                  sous:'Matched to your position and equipment', test:(s)=>sessionMatchesProfile(s) },
+  { titre:"I've got fifteen minutes", sous:'Short sessions',                          test:(s)=>s.duree<=15 },
+  { titre:'Without taking anything out', sous:'Nothing to set up',                     test:(s)=>!sessionNeedsEquipment(s) },
+  { titre:'Build strength',           sous:'Strength work',                           test:(s)=>(s.objectif||[]).includes('Renforcement') }
+];
+const RAYON_MAX = 3;
+function sessionMatchesProfile(s){
+  const pos = userProfileData.position;
+  if(pos && Array.isArray(s.positions) && !s.positions.includes(pos)) return false;
+  return !sessionMissingEquipment(s);
+}
+function sessionNeedsEquipment(s){
+  const exos=[...EXERCICES,...userExercices];
+  return (s.exercices||[]).some(id=>{ const e=exos.find(x=>x.id===id); return e && e.equipement && e.equipement!=='Aucun'; });
+}
+function libSeanceRayonHtml(r, seances){
+  const sel=seances.filter(r.test).slice(0, RAYON_MAX);
+  if(sel.length<2) return '';   // un rayon d'une seule carte n'est pas un rayon
+  return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:22px 0 10px;">'
+    +'<div style="min-width:0;"><div style="font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.2px;">'+trDyn(r.titre)+'</div>'
+    +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(r.sous)+'</div></div>'
+    +'<span role="button" tabindex="0" style="font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;cursor:pointer;padding:4px 0 4px 10px;" onclick="openLibSessFilterModal()">'+trDyn('See all')+' ›</span>'
+    +'</div>'
+    + sel.map(s=>renderSessCard(s,'catalogue')).join('');
+}
 function renderLibSeances(){
   updateLibSessFilterBadge();
   const el=document.getElementById('libSeancesList'); if(!el) return;
@@ -14639,7 +14688,16 @@ function renderLibSeances(){
     return;
   }
   let html = mine.length ? libSectionLbl('My sessions') + mine.map(s=>renderSessCard(s, s.referent?'coach':'perso')).join('') : '';
-  if(main.length) html += libSectionLbl('Catalogue') + main.map(s=>renderSessCard(s,'catalogue')).join('');
+  // Les rayons ne s'affichent QUE sans filtre actif : filtrer, c'est déjà savoir ce qu'on cherche —
+  // les rayons servent à qui ne sait pas encore. Sinon on propose à quelqu'un qui a déjà choisi.
+  const filtreActif = libSessFilters.objectif.length || libSessFilters.intensite.length
+    || libSessFilters.position.length || libSessFilters.duree.length || libSessFilters.perso;
+  if(main.length && !filtreActif){
+    html += SEANCE_RAYONS.map(r=>libSeanceRayonHtml(r, main)).join('');
+    html += libSectionLbl('All sessions') + main.map(s=>renderSessCard(s,'catalogue')).join('');
+  } else if(main.length){
+    html += libSectionLbl('Catalogue') + main.map(s=>renderSessCard(s,'catalogue')).join('');
+  }
   el.innerHTML = html;
   sweepTranslate(el, currentLang);
 }
@@ -15351,7 +15409,7 @@ function setProgrammeTab(el, view){
 // redirigés plutôt que réécrits un par un sur chaque site d'appel.
 function showProgMonView(){
   go('bibliotheque');
-  setTimeout(()=>{ planScale='semaine'; setLibTopTab('plan'); }, 40);
+  setTimeout(()=>setLibTopTab('plan'), 40);
 }
 // Point d'entrée nav "Sessions" — affiche progSessionsView directement, sans passer par le
 // sous-onglet (retiré du segmented control). Déclenché via goSessions() + le flag progEntryToSessions
@@ -15580,26 +15638,40 @@ function renderProgMonView(){
       upcomingWrap.style.display='none';
     }
   }
+  // Une ligne vers l'écran du programme, qui contient déjà les semaines cliquables.
+  const seeAll=document.getElementById('progMonSeeAll');
+  if(seeAll){
+    seeAll.innerHTML = p
+      ? '<div class="card-sm" style="display:flex;align-items:center;gap:11px;cursor:pointer;border-color:rgba(var(--brand-fixed-rgb),.35);" onclick="openProgrammeDetail(\''+p.id+'\')">'
+        +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--brand-fixed);">'+trDyn('See my whole programme')+'</div>'
+        +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(p.duree_semaines+' weeks')+' · '+trDyn((p.frequence*p.duree_semaines)+' sessions')+'</div></div>'
+        +'<svg class="ki" style="color:var(--brand-fixed);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>'
+      : '';
+    sweepTranslate(seeAll, currentLang);
+  }
+  // Le catalogue de programmes descend ici : il n'a plus d'onglet, et « Gérer mon programme » a
+  // disparu — c'était un tiroir qui rangeait trois gestes sans rapport au bas d'un long scroll.
+  const cat=document.getElementById('progMonCatalogue');
+  if(cat){
+    const autres=[...PROGRAMMES,...userProgrammes].filter(x=>!p || x.id!==p.id);
+    cat.innerHTML = '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn(p?'Change programme':'Choose a programme')+'</div>'
+      + autres.map(x=>'<div class="card-sm" style="display:flex;align-items:center;gap:11px;margin-bottom:8px;cursor:pointer;" onclick="openProgrammeDetail(\''+x.id+'\')">'
+        +'<div class="kimg" style="width:46px;height:58px;border-radius:10px;flex-shrink:0;background-image:url(\''+programmePhotoFor(x)+'\');"></div>'
+        +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);">'+x.nom_marketing+'</div>'
+        +'<div style="font-size:11.5px;color:var(--gray2);margin-top:2px;">'+trDyn(x.duree_semaines+' weeks')+' · '+trDyn(x.niveau)+'</div>'
+        +'<div style="font-size:11.5px;color:var(--gray2);">'+trDyn(x.frequence+' sessions/week')+'</div></div>'
+        +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>').join('');
+    sweepTranslate(cat, currentLang);
+  }
   sweepTranslate(document.getElementById('progMonView'), currentLang);
 }
 // Action sheet à 2 choix (switch vs edit) — les deux besoins exprimés par l'utilisateur ("je pense
 // qu'on doit pouvoir faire les deux") plutôt qu'un seul lien direct vers le catalogue comme avant.
-function openChangeProgrammeSheet(){
-  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:14px;">Manage my programme</div>'
-    +'<button class="btn-outline" style="width:100%;margin-bottom:10px;text-align:left;padding:16px;" onclick="closeModal();go(\'programme\')">'
-      +'<div style="font-size:14.5px;font-weight:700;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> Switch to another programme</div>'
-      +'<div style="font-size:12px;color:var(--gray);font-weight:400;margin-top:2px;">Browse the catalogue and activate a different one</div>'
-    +'</button>'
-    +'<button class="btn-outline" style="width:100%;margin-bottom:10px;text-align:left;padding:16px;" onclick="openEditProgrammeSessions()">'
-      +'<div style="font-size:14.5px;font-weight:700;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,20l.8-3.8L15.5,5.5a1.8,1.8,0,0,1,2.5,0l.5,.5a1.8,1.8,0,0,1,0,2.5L7.8,19.2,4,20Z /><path d=M13.5,7.5l3,3 /></svg> Edit sessions in this programme</div>'
-      +'<div style="font-size:12px;color:var(--gray);font-weight:400;margin-top:2px;">Add, remove or reorder this programme\'s sessions</div>'
-    +'</button>'
-    +'<button class="btn-outline" style="width:100%;margin-bottom:10px;text-align:left;padding:16px;" onclick="arreterProgramme()">'
-      +'<div style="font-size:14.5px;font-weight:700;color:var(--red);"><svg class="ki"><use href="#ki-stop-prog"/></svg> '+trDyn('Stop this programme')+'</div>'
-      +'<div style="font-size:12px;color:var(--gray);font-weight:400;margin-top:2px;">'+trDyn('It goes into your history — you can pick it up again later')+'</div>'
-    +'</button>'
-    +'<button class="btn-ghost" style="width:100%;color:var(--gray2);" onclick="closeModal()">Cancel</button>');
-}
+// « Gérer mon programme » supprimé (audit Entraînement, 3e passe) : un tiroir qui rangeait trois
+// gestes sans rapport, au bas d'un scroll de 1 391 px. « Changer » est le catalogue au pied de
+// l'onglet Programme ; « Modifier » et « Arrêter » sont au pied de l'écran du programme. La fonction
+// reste, redirigée, pour les points d'appel qui la référencent encore.
+function openChangeProgrammeSheet(){ if(programmeActif) openProgrammeDetail(programmeActif.id); }
 
 // ===== Onglet Sessions — recherche/filtres/favoris, même principe que la bibliothèque d'exercices =====
 let sessNouveauFilters = { objectif:[], intensite:[], niveau:[], position:[], duree:[], favoris:false, matchProfile:false, perso:false, coach:false };
@@ -17250,7 +17322,10 @@ function renderProgrammeDetail(){
     cta.innerHTML = (currentRole==='referent'
       ? '<button class="btn btn-orange" style="width:100%;" onclick="assignProgrammeTemplate(\''+p.id+'\')">'+trDyn('Assign this programme →')+'</button>'
       : (isActive
-        ? '<button class="btn btn-outline" style="width:100%;" onclick="go(\'programme\');setTimeout(showProgMonView,30)">'+trDyn('Currently active — open it →')+'</button>'
+        // Les deux gestes du tiroir « Gérer mon programme » atterrissent ici : c'est l'écran DU
+        // programme, donc l'endroit où l'on agit sur lui.
+        ? '<button class="btn btn-outline" style="width:100%;" onclick="openEditProgrammeSessions()">'+trDyn('Edit sessions')+'</button>'
+          +'<button class="btn btn-outline" style="width:100%;margin-top:10px;color:var(--red);border-color:rgba(255,41,79,.4);" onclick="arreterProgramme()">'+trDyn('Stop this programme')+'</button>'
         : '<button class="btn btn-orange" style="width:100%;" onclick="activerProgramme(\''+p.id+'\')">'+trDyn('Activate this programme')+'</button>'))
       + (isPersonal ? '<button class="btn-ghost" style="margin-top:10px;width:100%;color:var(--red);" onclick="deleteUserProgramme(\''+p.id+'\')">'+trDyn('Delete this programme')+'</button>' : '');
   }
