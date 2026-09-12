@@ -322,6 +322,13 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
    qu'une image rend concrètes). Nulle part ailleurs : une image qui décore coûte sa place, comme un
    badge qui décore. Les fichiers de position sont des doublons en attendant la séance photo. */
 .ob-photo{width:56px;height:70px;border-radius:12px;background:var(--bg3) center/cover no-repeat;flex-shrink:0;}
+/* "Toutes les positions" etait la SEULE option de cette question sans photo — et c'est celle qu'on
+   choisit par defaut (retour terrain, 12 sept.) : elle paraissait de second rang alors qu'elle est la
+   plus frequente. Montage des trois vignettes en trois bandes, plutot que d'emprunter l'une d'elles,
+   qui aurait dit "debout" pour une option qui dit "les trois". */
+.ob-photo-all{width:56px;height:70px;border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;gap:1px;background:var(--bg3);}
+.ob-photo-all i{flex:1;min-height:0;background:var(--bg3) center/cover no-repeat;display:block;}
+.ob-opt.sel .ob-photo-all{box-shadow:0 0 0 1.5px var(--brand-fixed);}
 .ob-opt.sel .ob-photo{box-shadow:0 0 0 1.5px var(--brand-fixed);}
 .ob-opt.sel .ob-icon{background:rgba(var(--brand-fixed-rgb),.12);}
 .ob-label{font-size:15px;font-weight:600;color:var(--white);}
@@ -365,7 +372,16 @@ h2{font-size:22px;font-weight:800;color:var(--white);line-height:1.2;letter-spac
 h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head);}
 .sub{font-size:15px;color:var(--gray);line-height:1.5;}
 .label{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.8px;text-transform:uppercase;}
-.eyebrow{font-size:11px;font-weight:700;color:var(--gray2);letter-spacing:.6px;text-transform:uppercase;}
+/* UN TITRE DE SECTION = --gray2, 11px, 700, majuscules, 0.8px d'interlettrage, JAMAIS l'accent
+   (retour terrain, 12 sept. : "des titres de blocs ne sont pas dans la meme nuance de gris").
+   Mesure avant correction : quatre classes pour un seul role, trois couleurs differentes —
+   .zone-lbl en --gray2 (28 elements), .eyebrow en --gray2 (12), .ps-title en --gray (59, soit
+   4.42:1, SOUS le seuil AA) et .ex-sec-t en --orange, c'est-a-dire l'ACCENT PERSONNALISABLE (53) :
+   chez un centre en violet, les titres de la fiche exercice devenaient violets pendant que ceux de
+   l'Accueil restaient gris. Un titre de section nomme ce qui suit, il ne le concurrence pas — le
+   blanc lui donnerait le meme poids que les titres de cartes qu'il contient, l'accent en ferait une
+   signaletique. Reference : "PROCHAINE SEANCE" sur l'Accueil. */
+.eyebrow{font-size:11px;font-weight:700;color:var(--gray2);letter-spacing:.8px;text-transform:uppercase;}
 
 /* ===== SPLASH ===== */
 #splash{justify-content:space-between;}
@@ -534,7 +550,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 /* ===== PRE-SESSION ===== */
 .ps-lbl{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;}
 .ps-section{margin-bottom:22px;}
-.ps-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;font-family:var(--font-head);}
+.ps-title{font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;font-family:var(--font-head);}
 .ps-opts{display:flex;gap:8px;flex-wrap:wrap;}
 .ps-opt{padding:8px 13px;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;color:var(--gray2);cursor:pointer;transition:all .15s;}
 .ps-opt.on{border-color:var(--teal);color:var(--teal);background:rgba(var(--teal-rgb),.07);}
@@ -726,7 +742,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 @keyframes exfloat{0%,100%{transform:translateY(-6px) scale(1);}50%{transform:translateY(6px) scale(1.07);}}
 .ex-badge{position:absolute;top:12px;right:12px;background:var(--orange);color:var(--ink-on-accent);font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px;}
 .ex-sec{margin-bottom:20px;}
-.ex-sec-t{font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;font-family:var(--font-head);}
+.ex-sec-t{font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;font-family:var(--font-head);}
 .ex-sec-b{font-size:14px;color:var(--gray2);line-height:1.6;}
 
 /* ===== TOAST ===== */
@@ -907,6 +923,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-bg-weekend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="3.4" cy="12" r="1.35"/><circle cx="7" cy="12" r="1.35"/><circle cx="10.6" cy="12" r="1.35"/><circle cx="14.2" cy="12" r="1.35"/><circle cx="17.8" cy="12" r="2.1" fill="currentColor" stroke="none"/><circle cx="21.4" cy="12" r="2.1" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-bg-hours" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6a8.4 8.4 0 1 1-5.9 2.5"/><path d="M6.1 6.1V2.6M6.1 6.1H9.6"/><path d="M12 7.6V12l3.2 2"/></symbol>
   <symbol id="ki-bg-zone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2.4" y="10.4" width="19.2" height="3.2" rx="1.6"/><rect x="8.6" y="10.4" width="6.8" height="3.2" rx="1.6" fill="currentColor" stroke="none"/><path d="M12 6.6v2.2M12 15.2v2.2" stroke-width="1.9"/></symbol>
+  <symbol id="ki-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="4.4"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 19 6.2v5.5c0 4.1-2.8 7-7 8.7-4.2-1.7-7-4.6-7-8.7V6.2Z"/><path d="M9.4 12.2h5.2"/></symbol>
   <symbol id="ki-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.8" y="5.6" width="16.4" height="14" rx="2.4"/><path d="M3.8 10.2h16.4"/><path d="M8.2 3.6v3.4"/><path d="M15.8 3.6v3.4"/><circle cx="8.9" cy="14.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="15.1" cy="14.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="17.2" r="1.15" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-cal-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.8" y="5.6" width="16.4" height="14" rx="2.4"/><path d="M3.8 10.2h16.4"/><path d="M8.2 3.6v3.4"/><path d="M15.8 3.6v3.4"/><path d="M8.7 14.8l2.4 2.4 4.4-4.6"/></symbol>
@@ -1055,7 +1072,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <h2 class="gap8">Which position(s) do you train in?</h2>
     <p class="sub gap20">Multiple choices possible — your sessions adapt.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;" id="pos_opts">
-      <div class="ob-opt multi" onclick="toggleAllPositions(this)" data-val="toutes"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-all"/></svg></div><div style="flex:1"><div class="ob-label">All positions</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt multi" onclick="toggleAllPositions(this)" data-val="toutes"><div class="ob-photo-all"><i style="background-image:url('ob-position-debout.jpg');"></i><i style="background-image:url('ob-position-assis.jpg');"></i><i style="background-image:url('ob-position-allonge.jpg');"></i></div><div style="flex:1"><div class="ob-label">All positions</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="debout"><div class="ob-photo" style="background-image:url('ob-position-debout.jpg');"></div><div style="flex:1"><div class="ob-label">Standing</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="assis"><div class="ob-photo" style="background-image:url('ob-position-assis.jpg');"></div><div style="flex:1"><div class="ob-label">Seated</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="allonge"><div class="ob-photo" style="background-image:url('ob-position-allonge.jpg');"></div><div style="flex:1"><div class="ob-label">Lying down</div></div><div class="ob-check"></div></div>
@@ -1447,7 +1464,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
     <!-- ZONE 2 — TODAY : check-in humeur (avant la séance) — passe en premier (cf #home) -->
     <div id="homeCentreCheckinBlock" style="margin-top:20px;">
-      <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
+      <div class="eyebrow" style="margin:0 20px 10px;">How are you feeling?</div>
       <div class="checkin-row">
         <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','homeCentre')">😩</div>
         <div class="checkin-opt" onclick="selCheckinHome(this,'fatigue','homeCentre')">😴</div>
@@ -1815,7 +1832,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <!-- ZONE 2 — TODAY : check-in humeur (avant la séance, dont il peut ajuster le niveau) — passe
          en premier (cf discussion) : l'app écoute avant d'afficher un statut. -->
     <div id="homeCheckinBlock" style="margin-top:20px;">
-      <div class="eyebrow" style="margin:0 20px 10px;color:var(--gray);">How are you feeling?</div>
+      <div class="eyebrow" style="margin:0 20px 10px;">How are you feeling?</div>
       <div class="checkin-row">
         <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','home')">😩</div>
         <div class="checkin-opt" onclick="selCheckinHome(this,'fatigue','home')">😴</div>
@@ -2934,6 +2951,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div id="sdReadView">
         <div id="sdNameDisplay" style="font-size:19px;font-weight:800;letter-spacing:-.3px;color:var(--white);margin-bottom:8px;"></div>
+        <!-- CTA remonte sous le nom, AVANT la description (retour terrain, 12 sept. : "mettre le CTA
+             avant la description de la seance"). Mesure : sur une seance de 8 exercices, le bouton du
+             bas etait a plus d'un ecran et demi de deroule — la decision se prend ici, pas la-bas.
+             Le bouton du bas reste pour qui a tout lu : deux boutons, pas un deplacement. -->
+        <div id="sdStartTop" style="display:none;margin-bottom:12px;"></div>
         <div id="sdDescDisplay" style="font-size:13.5px;line-height:1.55;color:var(--gray2);"></div>
       </div>
       <div id="sdEditView" style="display:none;">
@@ -2987,6 +3009,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <span style="font-size:24px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5.5 y=4.5 width=13 height=17 rx=2 /><rect x=9 y=3 width=6 height=3 rx=1 /><path d=M8.5,11h7 /><path d=M8.5,15h7 /></svg></span>
       <div style="flex:1;font-size:14px;font-weight:700;color:var(--white);" id="ex_seance">—</div>
     </div>
+    <!-- "Remplacer" remonte AVANT les reglages quand on arrive ici depuis une seance (retour terrain,
+         12 sept.). Il etait le dernier bouton de la page, apres les reglages, l'historique, la
+         description technique et le conseil : on faisait regler l'exercice avant de laisser decider
+         si on le gardait. Depuis une seance la question n'est pas "comment je le regle" mais "est-ce
+         que je le garde". Ailleurs (bibliotheque) il n'apparait pas — il n'y a rien a remplacer. -->
+    <div id="exReplaceTop" style="display:none;margin-bottom:16px;"><button class="btn btn-outline" id="exReplaceBtn" style="margin:0;" onclick="openSdExoAlternatives(window._curEx)"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> Replace this exercise</button></div>
     <div class="ex-sec" id="exParamsSection" style="display:none;"></div>
     <!-- Historique de CET exercice (audit historique, sept. 2026). exerciseZoneHistory stockait déjà
          date/niveau/% dans la zone séance par séance, et getExerciseProgressionVerdict en tirait déjà
@@ -3001,7 +3029,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <button class="btn btn-orange" id="exStartBtn" onclick="startExerciseFromFiche()">Start this exercise →</button>
     <button class="btn btn-outline" id="exAltBtn" style="margin-top:10px;" onclick="showAlternatives()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> See alternatives</button>
     <button class="btn btn-outline" id="exAddToSessionBtn" style="margin-top:10px;display:none;" onclick="openAddToSessionModal(window._curEx)">+ Add to a session</button>
-    <button class="btn btn-outline" id="exReplaceBtn" style="margin-top:10px;display:none;" onclick="openSdExoAlternatives(window._curEx)"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> Replace this exercise</button>
+    
     <div style="text-align:center;margin-top:14px;" id="exExclWrap"><span style="color:var(--gray);font-size:13px;cursor:pointer;" onclick="confirmExcludeExercise()">Don't suggest this exercise again</span></div>
     <div style="height:24px;"></div>
   </div>
@@ -5033,12 +5061,17 @@ const SESSIONS = [
 // Quatre, et pas un de plus, parce que chacun doit être mesurable avec ce que la barre capte. Pas de
 // « perte de poids » : sans nutrition ni dépense mesurée, ce serait une promesse qu'on ne saurait pas
 // tenir. Pas de « prise de masse » non plus : un élastique plafonne la charge progressive.
+// PHOTO RETIREE de cette question (retour terrain, 12 sept. : "pertinence des vignettes sur certains
+// ecrans, et pertinence si vignettes uniquement sur certains et pas d'autres"). Reutiliser les visuels
+// de theme des PROGRAMMES pour illustrer un OBJECTIF creait une fausse promesse — on croyait choisir
+// le programme qu'on voyait. Regle desormais tenue sur tout l'onboarding : PHOTO = une position du
+// corps (elle enseigne quelque chose qu'un mot ne montre pas), ICONE = tout le reste.
+// Les ic: d'origine etaient des icones de BADGE (horloge, serie, semaine, sans-faute) : sans rapport.
 const PROGRAMME_OBJECTIFS = [
-  // photo : les visuels de thème des programmes, qui existent déjà — rien à aller chercher.
-  { key:'endurance',    lbl:'Cardio endurance', sous:'Hold out longer, get your breath back',   ic:'ki-bg-hours',  photo:'programme-cardio.jpg' },
-  { key:'renforcement', lbl:'Muscle strength',  sous:'Build strength, over time',               ic:'ki-bg-streak', photo:'programme-renforcement.jpg' },
-  { key:'tonicite',     lbl:'Tone',             sous:'Stay active without chasing performance', ic:'ki-bg-week',   photo:'programme-entretien.jpg' },
-  { key:'reprise',      lbl:'Gentle return',    sous:'Come back after a break, without forcing', ic:'ki-bg-clean', photo:'programme-mobilite.jpg' }
+  { key:'endurance',    lbl:'Cardio endurance', sous:'Hold out longer, get your breath back',   ic:'ki-ob-pulse' },
+  { key:'renforcement', lbl:'Muscle strength',  sous:'Build strength, over time',               ic:'ki-ob-dumbbell' },
+  { key:'tonicite',     lbl:'Tone',             sous:'Stay active without chasing performance', ic:'ki-ob-rings' },
+  { key:'reprise',      lbl:'Gentle return',    sous:'Come back after a break, without forcing', ic:'ki-mobility' }
 ];
 function objectifLabel(k){ const o=PROGRAMME_OBJECTIFS.find(x=>x.key===k); return o?trDyn(o.lbl):k; }
 const PROGRAMMES = [
@@ -6082,7 +6115,7 @@ function renderObObjectifs(){
     // coche remplie). Avec .on, choisir un objectif ne changeait RIEN à l'écran — le state changeait,
     // l'interface restait muette.
     '<div class="ob-opt multi'+(obObjectifsChoisis.includes(o.key)?' sel':'')+'" onclick="toggleObObjectif(\''+o.key+'\')" data-val="'+o.key+'">'
-    +'<div class="ob-photo" style="background-image:url(\''+o.photo+'\');"></div>'
+    +'<div class="ob-icon"><svg class="ki"><use href="#'+o.ic+'"/></svg></div>'
     +'<div style="flex:1"><div class="ob-label">'+trDyn(o.lbl)+'</div>'
     +'<div style="font-size:12px;color:var(--gray);margin-top:2px;line-height:1.35;">'+trDyn(o.sous)+'</div></div>'
     +'<div class="ob-check">'+(obObjectifsChoisis.includes(o.key)?'✓':'')+'</div></div>').join('');
@@ -8761,10 +8794,18 @@ function openObjectifPaceInfo(scope){
       const today0=new Date(); today0.setHours(0,0,0,0);
       const openDays=weekStrip.filter(d=>(d.statut==='libre'||d.statut==='prevu') && d.date>=today0.getTime());
       if(openDays.length){
-        extraCtx='<div style="font-size:12px;color:var(--gray);margin-top:16px;margin-bottom:8px;">'+trDyn('Plan a catch-up day:')+'</div>'
-          +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'+openDays.map(d=>
-            '<span onclick="assignPlannedDay('+d.date+',\'catchup\')" style="padding:8px 14px;border-radius:12px;font-size:12.5px;font-weight:700;cursor:pointer;'+(d.today?'background:var(--brand-fixed);color:var(--ink-on-accent);border:1.5px solid var(--brand-fixed);':'border:1.5px solid var(--border);background:var(--bg2);color:var(--white);')+'">'+(d.today?trDyn('Today'):trDyn(d.j))+'</span>'
-          ).join('')+'</div>';
+        // Taper une pastille ECRIVAIT la seance immediatement (retour terrain, 12 sept. : "choisir le
+        // jour a rattraper ET demander validation"). Un toast passait, la fenetre se re-rendait, et il
+        // disparaissait avant qu'on ait lu quel jour avait ete pris — aucun moyen de changer d'avis.
+        // Deux temps desormais : la pastille SELECTIONNE, le bouton nomme le jour et engage. La
+        // selection multiple continue de marcher : on coche plusieurs jours, on valide une fois.
+        extraCtx='<div style="font-size:12px;color:var(--gray2);margin-top:16px;margin-bottom:8px;">'+trDyn('Plan a catch-up day:')+'</div>'
+          +'<div style="display:flex;flex-wrap:wrap;gap:8px;" id="catchupChips">'+openDays.map(d=>
+            '<span data-ts="'+d.date+'" onclick="toggleCatchupDay('+d.date+')" style="padding:8px 14px;border-radius:12px;font-size:12.5px;font-weight:700;cursor:pointer;'+(catchupSelection.includes(d.date)?'background:rgba(var(--brand-fixed-rgb),.14);color:var(--brand-fixed);border:1.5px solid var(--brand-fixed);':'border:1.5px solid var(--border);background:var(--bg2);color:var(--white);')+'">'+(d.today?trDyn('Today'):trDyn(d.j))+'</span>'
+          ).join('')+'</div>'
+          +(catchupSelection.length
+            ? '<button class="btn btn-brand-fixed" style="width:100%;margin-top:12px;" onclick="validerRattrapage()">'+libelleValiderRattrapage(openDays)+'</button>'
+            : '');
       }
     }
   } else {
@@ -8814,8 +8855,17 @@ function openObjectifPaceInfo(scope){
   // discussion "voir ma séance ne veut littéralement rien dire là" — au plus le lien calendrier).
   const hideSessBtn = scope==='cycle' || state.kind==='behind' || state.kind==='catching_up' || state.kind==='covered';
   const sessBtn = hideSessBtn ? '' : '<button class="btn btn-brand-fixed" style="width:100%;margin-top:18px;" onclick="closeModal();openSessionDetail(\''+sess.id+'\')">'+sessBtnLabel+'</button>';
+  // Ecart entre la frequence choisie et celle du programme actif : dit ici plutot que tranche en
+  // silence (retour terrain, 12 sept.). getWeeklyGoal() suit desormais la personne ; cette ligne
+  // explique pourquoi le chiffre de l'objectif ne colle pas au rythme du programme.
+  const ec = ecartFrequenceProgramme();
+  const ligneEcart = ec ? '<div style="margin-top:14px;padding:11px 13px;border-radius:12px;background:var(--bg3);font-size:12.5px;color:var(--gray2);line-height:1.5;">'
+      + trDyn('Your goal follows your own pace') + ' \u2014 <b style="color:var(--white);">' + ec.perso + ' ' + trDyn(ec.perso>1?'days a week':'day a week') + '</b>. '
+      + trDyn('Your programme suggests') + ' ' + ec.programme + '. ' + trDyn('The extra days are yours to fill from the free sessions.')
+      + '</div>' : '';
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
+    +ligneEcart
     +extraCtx
     +calendarLink
     +sessBtn
@@ -8887,7 +8937,7 @@ function renderHomeObjectifRing(prefix, profile){
       return '<span style="font-size:10px;font-weight:700;color:'+col+';text-align:right;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;">'+icon+label+'</span>';
     }
     return '<span role="button" tabindex="0" style="font-size:10px;font-weight:700;color:'+col+';cursor:pointer;text-align:right;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;padding:16px 0 16px 12px;margin:-16px 0;" '
-      +'onclick="openObjectifPaceInfo(\''+scope+'\')">'
+      +'onclick="catchupSelection=[];openObjectifPaceInfo(\''+scope+'\')">'
       +icon
       +label
       +'<svg class="ki" style="width:11px;height:11px;"><use href="#ki-fwd"/></svg></span>';
@@ -9087,7 +9137,7 @@ function renderCheckinPrompt(prefix){
 // un texte, était une duplication que cette carte n'a plus besoin de porter.
 // Titre de section conservé même une fois répondu (cf discussion : "on perd le titre, on devrait le
 // garder") — repris tel quel dans les deux états au lieu de disparaître avec le bloc de sélection.
-const CHECKIN_TITLE='<div class="eyebrow" style="margin:0 20px 12px;color:var(--gray);">How are you feeling?</div>';
+const CHECKIN_TITLE='<div class="eyebrow" style="margin:0 20px 12px;">How are you feeling?</div>';
 // ===== Calculatrice check-in → séance (cf discussion "il faut savoir sur quelle variable ça joue") =====
 // 3 leviers réels seulement — exercices, durée (recalculée au prorata, "fait le plus simple" plutôt que
 // changer le moteur de séance) et intensité (jauge par exercice, même mécanisme que
@@ -9440,13 +9490,37 @@ function computeWeekStrip(){
 // Auto-assignation (chantier calendrier, cf discussion) — un seul point d'écriture pour les 2 entrées
 // (alerte de rattrapage Home, calendrier Progress), pour que la frise et le calendrier restent
 // synchronisés sans recalcul manuel : les deux lisent userPlannedSessions via getDayStatus().
+// Selection en attente de validation dans la fenetre de rattrapage — vidée à chaque ouverture de la
+// fenetre et apres validation, donc jamais un reliquat d'une session precedente.
+let catchupSelection = [];
+function toggleCatchupDay(ts){
+  const i=catchupSelection.indexOf(ts);
+  if(i>=0) catchupSelection.splice(i,1); else catchupSelection.push(ts);
+  openObjectifPaceInfo('week');
+}
+function libelleValiderRattrapage(openDays){
+  if(catchupSelection.length===1){
+    const d=openDays.find(x=>x.date===catchupSelection[0]);
+    const nom = d ? (d.today ? trDyn('today') : trDyn(d.j).toLowerCase()) : '';
+    return trDyn('Plan')+' '+nom;
+  }
+  return trDyn('Plan')+' '+catchupSelection.length+' '+trDyn('days');
+}
+function validerRattrapage(){
+  const jours=[...catchupSelection];
+  catchupSelection=[];
+  window._rattrapageEnCours = jours.length>1;   // un seul toast pour une validation multiple
+  jours.forEach(ts=>assignPlannedDay(ts,'catchup'));
+  window._rattrapageEnCours = false;
+  if(jours.length>1) toast(trDyn('Sessions planned'));
+}
 function assignPlannedDay(dateTimestamp, source){
   userPlannedSessions = userPlannedSessions.filter(p=>p.date!==dateTimestamp);
   userPlannedSessions.push({date:dateTimestamp, source:source});
   checkPlannedNotifToday();
   refreshHomeSeanceZones();
   if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
-  toast(trDyn('Session planned'));
+  if(!window._rattrapageEnCours) toast(trDyn('Session planned'));
   // L'historique du Coach IA enregistrait le check-in, l'ajustement sur signal, la progression de
   // niveau et les seances faites — mais pas les deplacements de seance, qui sont pourtant la decision
   // la plus frequente et la plus utile a se rappeler ("pourquoi je n'ai pas fait mardi ?").
@@ -9455,6 +9529,8 @@ function assignPlannedDay(dateTimestamp, source){
   // sélectionner autant de séances à rattraper que nécessaire") — avant, elle se fermait après un seul
   // choix, obligeant à rouvrir l'alerte pour chaque jour manqué. openObjectifPaceInfo recalcule
   // "remaining" à chaque appel, donc les puces déjà choisies disparaissent naturellement.
+  // La fenetre se re-rend avec les jours restants (plusieurs rattrapages d'affilee restent possibles) ;
+  // validerRattrapage a deja vide la selection, donc les puces choisies disparaissent naturellement.
   if(source==='catchup') openObjectifPaceInfo('week'); else closeModal();
 }
 function unassignPlannedDay(dateTimestamp){
@@ -10068,14 +10144,40 @@ const RADAR_ZONE_KEYS=['dos','epaules','bras','jambes','corps_entier'];
 // Palette du donut Body Balance : cycle teal/orange (les 2 seuls accents de l'app) à opacité
 // décroissante par paire, pas un arc-en-ciel — cohérent avec le reste de la palette kinmio.
 const ZONE_DONUT_COLORS={dos:'rgba(var(--teal-rgb),1)', epaules:'rgba(var(--teal-rgb),.65)', bras:'rgba(var(--orange-rgb),1)', jambes:'rgba(var(--orange-rgb),.65)', corps_entier:'rgba(var(--orange-rgb),.35)'};
-function getSessionsInPeriod(periodKey){
+// UNE SEULE SEMAINE (retour terrain, 12 sept. : l'Accueil disait "2/3 jours, 1 jour a rattraper" et
+// Progres "3/3, objectif tenu", a la meme seconde et sur les memes donnees). L'Accueil comptait la
+// semaine CALENDAIRE (lundi->dimanche), Progres une fenetre GLISSANTE de 7 jours : une seance faite
+// le dimanche precedent tombait dans l'une et hors de l'autre. Aucun des deux n'avait tort, et c'est
+// exactement le probleme — deux chiffres qui se contredisent ne font pas deux informations.
+// Regle desormais : la REGULARITE se compte en semaine calendaire partout. C'est la fenetre que la
+// personne a choisie (elle a coche des jours de la semaine, pas "7 jours glissants"), et la seule qui
+// se remet a zero, donc la seule ou "rattraper" veut dire quelque chose. Le glissant reste pour ce qui
+// n'a pas de jour de remise a zero : la CHARGE (ACWR), moyenne physiologique et pas objectif.
+function lundiDeLaSemaine(ts){
+  const d=new Date(ts||Date.now()); d.setHours(0,0,0,0);
+  d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return d.getTime();
+}
+function periodRange(periodKey){
   const days=PROG_PERIOD_DAYS[periodKey]||7;
-  return userSessionHistory.filter(h=>h.date>=Date.now()-days*HIST_DAY);
+  if(periodKey==='semaine'){
+    const from=lundiDeLaSemaine();
+    return {from: from, to: from+7*HIST_DAY, days: days, calendaire: true};
+  }
+  return {from: Date.now()-days*HIST_DAY, to: Date.now(), days: days, calendaire: false};
+}
+function periodRangePrecedent(periodKey){
+  const r=periodRange(periodKey);
+  if(r.calendaire) return {from: r.from-7*HIST_DAY, to: r.from, days: r.days, calendaire: true};
+  return {from: r.from-r.days*HIST_DAY, to: r.from, days: r.days, calendaire: false};
+}
+function getSessionsInPeriod(periodKey){
+  const r=periodRange(periodKey);
+  return userSessionHistory.filter(h=>h.date>=r.from && h.date<r.to);
 }
 function getPreviousPeriodSessions(periodKey){
-  const days=PROG_PERIOD_DAYS[periodKey]||7;
-  const from=Date.now()-2*days*HIST_DAY, to=Date.now()-days*HIST_DAY;
-  return userSessionHistory.filter(h=>h.date>=from && h.date<to);
+  const r=periodRangePrecedent(periodKey);
+  return userSessionHistory.filter(h=>h.date>=r.from && h.date<r.to);
 }
 function computeRealStreak(){
   const days=new Set(userSessionHistory.map(h=>Math.floor(h.date/HIST_DAY)));
@@ -10098,7 +10200,19 @@ function computeBestStreak(sessions){
 function computeActiveMonthsCount(){
   return new Set(userSessionHistory.map(h=>{const d=new Date(h.date); return d.getFullYear()+'-'+d.getMonth();})).size;
 }
-function getWeeklyGoal(){ return (programmeActif && programmeActif.frequence) || userProfileData.frequence || 3; }
+// La reponse de la personne passe AVANT celle du programme (retour terrain, 12 sept.). L'ordre etait
+// inverse : programmeActif.frequence gagnait toujours, donc repondre 7 jours a l'onboarding donnait un
+// objectif de 3. Le programme reste le repli quand la personne n'a rien dit. Quand les deux divergent,
+// on ne tranche plus en silence : ecartFrequenceProgramme() le dit a l'ecran.
+function getWeeklyGoal(){ return userProfileData.frequence || (programmeActif && programmeActif.frequence) || 3; }
+// Renvoie {perso, programme} seulement si les deux existent ET different — null sinon. Sert a ecrire
+// une phrase la ou l'ecart se voit, plutot que de laisser la personne decouvrir le chiffre qui a gagne.
+function ecartFrequenceProgramme(){
+  const perso = userProfileData.frequence;
+  const prog = programmeActif && programmeActif.frequence;
+  if(!perso || !prog || perso===prog) return null;
+  return {perso: perso, programme: prog};
+}
 function getAllExoIdsInSessions(sessions){
   const s=new Set(); sessions.forEach(h=>(h.exoIds||[]).forEach(id=>s.add(id))); return [...s];
 }
@@ -10362,8 +10476,11 @@ function badgeStats(k){
     Object.values(exerciseZoneHistory).forEach(h=>h.forEach(e=>{ if(e.pctZone>=80 && (!date||e.date<date)) date=e.date; }));
     return {date, fois:date?1:0};
   }
-  // 'clean' : demande le verdict de progression semaine par semaine, qu'on ne rejoue pas sur
-  // l'historique. On l'assume : la fiche montre la condition, pas une date inventee.
+  // 'clean' : ce badge recompense une ABSENCE d'evenement (aucun recul cette semaine), donc il n'y a
+  // pas de jour ou il s'est produit — il n'est pas datable par construction. Mais un badge acquis ne
+  // doit jamais afficher un vide (retour terrain, 12 sept.) : a defaut d'une date d'obtention, on
+  // donne la date de DEBUT de la periode couverte, et openBadgeDetail l'ecrit "en cours depuis le".
+  if(k==='clean') return {date:null, fois:0, depuis: lundiDeLaSemaine()};
   return {date:null, fois:0};
 }
 function openBadgeDetail(k){
@@ -10375,9 +10492,12 @@ function openBadgeDetail(k){
   const avance = b.target ? (k==='hours'?totalMin:total) : null;
   let corps='';
   if(b.unlocked){
+    const depuisTxt = (!dateTxt && st.depuis) ? new Date(st.depuis).toLocaleDateString(loc,{day:'numeric',month:'long',year:'numeric'}) : null;
     corps += dateTxt
       ? '<div style="font-size:14px;color:var(--white);">'+trDyn('Earned on')+' <b>'+dateTxt+'</b></div>'
-      : '<div style="font-size:14px;color:var(--white);">'+trDyn('Earned')+'</div>';
+      : depuisTxt
+        ? '<div style="font-size:14px;color:var(--white);">'+trDyn('Running since')+' <b>'+depuisTxt+'</b></div>'
+        : '<div style="font-size:14px;color:var(--white);">'+trDyn('Earned')+'</div>';
     if(st.fois>1) corps += '<div style="font-size:13px;color:var(--gray2);margin-top:5px;">'
       + (currentLang==='fr' ? st.fois+' fois depuis le début' : st.fois+' times so far') + '</div>';
   } else {
@@ -10471,14 +10591,16 @@ function periodPainState(avg, avgPrev){
   return {label:trDyn('Stable over this period'), color:'var(--gray2)'};
 }
 function getPeriodCheckins(periodKey){
-  const from=Date.now()-PROG_PERIOD_DAYS[periodKey]*HIST_DAY;
-  return userCheckinHistory.filter(c=>c.date>=from).sort((a,b)=>b.date-a.date);
+  const r=periodRange(periodKey);
+  return userCheckinHistory.filter(c=>c.date>=r.from && c.date<r.to).sort((a,b)=>b.date-a.date);
 }
 // Fenêtre réelle de l'onglet, en clair — "7 jours" ne disait jamais depuis quand (audit Progrès).
 // data-notranslate : la chaîne est déjà composée dans la bonne langue par toLocaleDateString.
 function periodWindowLabel(periodKey){
-  const days=PROG_PERIOD_DAYS[periodKey];
-  const to=new Date(), from=new Date(Date.now()-(days-1)*HIST_DAY);
+  const r=periodRange(periodKey);
+  // Semaine calendaire : on ecrit la semaine entiere (lundi -> dimanche), pas "lundi -> aujourd'hui" —
+  // c'est la fenetre qui compte, et elle ne bouge plus jusqu'a lundi prochain.
+  const to=new Date(r.calendaire ? r.to-HIST_DAY : r.to), from=new Date(r.from);
   const loc = currentLang==='fr' ? 'fr-FR' : 'en-US';
   const sameMonth = from.getMonth()===to.getMonth() && from.getFullYear()===to.getFullYear();
   // Dans un meme mois, le mois ne s'ecrit qu'une fois — mais pas du meme cote : le francais le place
@@ -10601,8 +10723,24 @@ function renderProgPeriod(periodKey){
     const fState = fd>=1 ? {lbl:trDyn('Improving over this window'), col:'var(--brand-fixed)'}
                  : fd<=-1 ? {lbl:trDyn('Dipping over this window'),  col:'var(--vigilance)'}
                           : {lbl:trDyn('Steady over this window'),   col:'var(--gray2)'};
-    const fSpark='<div style="display:flex;align-items:flex-end;gap:3px;height:34px;">'
-      +ord.map(v=>'<div style="flex:1;min-width:3px;border-radius:2px;height:'+Math.max(3, Math.round(v/5*34))+'px;background:var(--gray2);"></div>').join('')
+    // La frise disait "en hausse" sans que le graphique ne dise rien (retour terrain, 12 sept. :
+    // "l'evolution de la forme n'est pas claire, mettre l'emoji, ecrire le statut"). Mesure : deux
+    // barres grises de 7 px et 20 px, MEME couleur, sans axe, sans repere, sans libelle — seule la
+    // hauteur encodait l'etat, illisible sur 34 px sans echelle. On croyait la phrase ou on ne la
+    // croyait pas. Ce qui s'applique a la forme n'est pas une hauteur, c'est un ETAT NOMME : les cinq
+    // niveaux ont deja un visage et un nom. Une suite d'emoji dates se lit SANS echelle, parce qu'il
+    // n'y en a pas besoin. Le dernier est souligne — c'est celui que le gros chiffre reprend.
+    const locF = currentLang==='fr' ? 'fr-FR' : 'en-US';
+    const fSpark='<div style="display:flex;align-items:flex-end;gap:10px;overflow-x:auto;padding-bottom:2px;">'
+      +serie.map((c,i)=>{
+        const dernier = i===serie.length-1;
+        return '<div style="flex:0 0 auto;text-align:center;min-width:34px;'+(dernier?'':'opacity:.62;')+'">'
+          +'<div style="font-size:21px;line-height:1.1;">'+checkinEmoji(c.val)+'</div>'
+          +'<div style="font-size:9.5px;color:var(--gray2);margin-top:3px;white-space:nowrap;font-variant-numeric:tabular-nums;" data-notranslate>'
+          + new Date(c.date).toLocaleDateString(locF,{day:'numeric',month:'short'})+'</div>'
+          +'<div style="height:2px;border-radius:1px;margin-top:4px;background:'+(dernier?'var(--brand-fixed)':'transparent')+';"></div>'
+          +'</div>';
+      }).join('')
       +'</div>';
     blocForme+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">FORM<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Form\',\'Your daily check-in over this window, oldest on the left. Five levels, from exhausted to great. The verdict compares your most recent answer with the oldest one in the window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
     blocForme+='<div class="card-sm" style="margin-bottom:16px;">'
@@ -10727,7 +10865,7 @@ function renderProgPeriod(periodKey){
     // La zone saine 0,8-1,3 est dessinee en fond : sans elle, une barre haute et une barre basse se
     // ressemblent, alors que l'une est un signal et l'autre pas. L'echelle est plafonnee a 2,0, la
     // meme que la jauge de l'Accueil.
-    const H=40, maxV=2;
+    const H=64, maxV=2;   // 40 avant : la bande saine ne faisait que 10 px et les deux graduations se chevauchaient
     const barres=loadSerie.map(p2=>{
       const h=Math.max(3, Math.round(Math.min(p2.v,maxV)/maxV*H));
       const col = p2.v>=1.5 ? 'var(--red)' : p2.v<0.8 ? 'var(--vigilance)' : 'var(--gray2)';
@@ -10739,9 +10877,22 @@ function renderProgPeriod(periodKey){
       +'<div style="font-size:32px;font-weight:800;color:'+etat.col+';line-height:1;flex-shrink:0;">'+cur.toFixed(1)+'<span style="font-size:15px;font-weight:600;color:var(--gray2);">×</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);">'+trDyn('vs your usual pace')+'</div></div>'
       +'<div style="font-size:12.5px;font-weight:600;color:'+etat.col+';margin:7px 0 0;">'+etat.lbl+'</div>'
-      +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);position:relative;">'
-        +'<div style="position:absolute;left:0;right:0;bottom:20px;height:'+Math.round((1.3-0.8)/maxV*H)+'px;transform:translateY(-'+Math.round(0.8/maxV*H)+'px);background:rgba(var(--brand-fixed-rgb),.08);border-radius:2px;"></div>'
-        +'<div style="display:flex;align-items:flex-end;gap:3px;height:'+H+'px;position:relative;">'+barres+'</div>'
+      // La bande saine etait dessinee en fond SANS jamais ecrire ses deux bornes (retour terrain,
+      // 12 sept. : "pour la charge, pas d'echelle, donc il faut un nombre ou une couleur"). Le nombre
+      // et la couleur existaient deja en haut de la carte ; c'est la courbe qui n'avait aucune
+      // graduation — une bande claire sur un fond sombre, et rien pour dire a quelle hauteur. Les deux
+      // bornes 0,8 et 1,3 sont desormais ecrites, posees exactement a la hauteur qu'elles marquent.
+      +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'
+        +'<div style="display:flex;align-items:flex-end;gap:8px;">'
+          +'<div style="position:relative;width:24px;height:'+H+'px;flex-shrink:0;">'
+            +'<span style="position:absolute;right:0;bottom:'+(Math.round(1.3/maxV*H)-5)+'px;font-size:9.5px;color:var(--gray2);font-variant-numeric:tabular-nums;" data-notranslate>1,3</span>'
+            +'<span style="position:absolute;right:0;bottom:'+(Math.round(0.8/maxV*H)-5)+'px;font-size:9.5px;color:var(--gray2);font-variant-numeric:tabular-nums;" data-notranslate>0,8</span>'
+          +'</div>'
+          +'<div style="flex:1;position:relative;height:'+H+'px;">'
+            +'<div style="position:absolute;left:0;right:0;bottom:'+Math.round(0.8/maxV*H)+'px;height:'+Math.round((1.3-0.8)/maxV*H)+'px;background:rgba(var(--brand-fixed-rgb),.10);border-top:1px dashed rgba(var(--brand-fixed-rgb),.35);border-bottom:1px dashed rgba(var(--brand-fixed-rgb),.35);"></div>'
+            +'<div style="display:flex;align-items:flex-end;gap:3px;height:'+H+'px;position:relative;">'+barres+'</div>'
+          +'</div>'
+        +'</div>'
         +'<div style="font-size:11px;color:var(--gray2);margin-top:6px;">'+tend+'</div>'
       +'</div></div>';
   }
@@ -14273,6 +14424,20 @@ const EN_FR = {
   "💪 Strength reps": "💪 Reps renforcement",
   "Replace this exercise →": "Remplacer cet exercice →",
   "Replace this exercise": "Remplacer cet exercice",
+  "Your goal follows your own pace": "Ton objectif suit ton rythme à toi",
+  "Sessions planned": "Séances planifiées",
+  "Plan": "Planifier",
+  "Running since": "En cours depuis le",
+  "Shorter warm-up \u2014 this session eases you in.": "Échauffement raccourci \u2014 cette séance démarre en douceur.",
+  "Shorter cool-down \u2014 this session winds down fast.": "Retour au calme raccourci \u2014 cette séance redescend vite.",
+  "No warm-up \u2014 that comes from your training profile.": "Pas d'échauffement \u2014 c'est ton profil d'entraînement qui le dit.",
+  "No cool-down \u2014 that comes from your training profile.": "Pas de retour au calme \u2014 c'est ton profil d'entraînement qui le dit.",
+  "6×/week": "6×/semaine",
+  "7×/week": "7×/semaine",
+  "days a week": "jours par semaine",
+  "day a week": "jour par semaine",
+  "Your programme suggests": "Ton programme en propose",
+  "The extra days are yours to fill from the free sessions.": "Les jours en plus, tu les remplis avec les séances libres.",
   "Same muscle group": "Même groupe musculaire",
   "Mixed": "Mixte",
   "No equivalent exercise (same mode) found for this session.": "Aucun exercice équivalent (même mode) trouvé pour cette séance.",
@@ -15107,6 +15272,13 @@ const freqData = {
 };
 function setFreqSlider(val){
   const n = parseInt(val);
+  // Le curseur n'ecrivait NULLE PART (retour terrain, 12 sept. : "l'onboarding dit 7 jours/semaine,
+  // l'Accueil affiche 2/3 jours"). Il mettait a jour le gros chiffre, le libelle et le degrade, et
+  // s'arretait la : la frequence choisie n'existait que comme texte affiche. profile.freq restait
+  // vide, donc syncUserProfileDataFromOnboarding() sautait son affectation et userProfileData.frequence
+  // gardait sa valeur d'usine. Une question posee dont la reponse n'est lue nulle part n'est pas une
+  // question. Une seule adresse desormais : profile.freq, ecrite ici, au moment du choix.
+  profile.freq = n;
   const pct = ((n-1)/6)*100;
   const slider = document.getElementById('freqSlider');
   if(slider) slider.style.background = `linear-gradient(90deg,var(--orange) ${pct}%,var(--border) ${pct}%)`;
@@ -16207,7 +16379,7 @@ function openExerciceNouveau(id, fromSession){
   // "Remplacer" reste pertinent (chantier "fiche exercice unifiée", retour utilisateur).
   const startBtn=document.getElementById('exStartBtn'); if(startBtn) startBtn.style.display = window._exFromSession ? 'none' : 'block';
   const addBtn=document.getElementById('exAddToSessionBtn'); if(addBtn) addBtn.style.display = (currentRole==='referent' || window._exFromSession) ? 'none' : 'block';
-  const replaceBtn=document.getElementById('exReplaceBtn'); if(replaceBtn) replaceBtn.style.display = window._exFromSession ? 'block' : 'none';
+  const replaceTop=document.getElementById('exReplaceTop'); if(replaceTop) replaceTop.style.display = window._exFromSession ? 'block' : 'none';
   window._curEx=ex.id;
   window._curExSource='nouveau';
   const delBtn=document.getElementById('exDeleteBtn'); if(delBtn) delBtn.style.display = EXERCICES.some(e=>e.id===id) ? 'none' : 'block';
@@ -16498,7 +16670,16 @@ function objectifDisplayKey(arr){ return (arr && arr.length>1) ? 'Mixte' : (arr 
 // comme des disciplines. On utilise plutôt tags, déjà écrit à la main pour chaque séance du
 // catalogue mais jamais affiché nulle part jusqu'ici — bien plus parlant ("Full body", "Express"...).
 // objectif/type restent en interne pour le matching de contenu (bibliothèque, "For you").
-function sessionBadgeLabel(s){ return (s.tags && s.tags.length) ? s.tags[0] : (s.intensite || (s.duree+' min')); }
+// Le badge pose sur la vignette affichait tags[0], le premier tag ecrit a la main dans le catalogue —
+// donc une LOTERIE (retour terrain, 12 sept. : "pourquoi un tag sur la vignette, et celui-ci n'est pas
+// pertinent"). Mesure sur les 20 seances : ce premier tag etait une position (10 fois), un niveau (6),
+// une zone du corps (6) ou un equipement absent (3). Quatre registres dans un seul emplacement,
+// toujours dans la meme teinte : l'oeil apprenait une place et n'apprenait jamais un sens. Et
+// l'information etait reprise juste dessous dans la rangee de pastilles.
+// Desormais l'INTENSITE : un seul registre, trois valeurs (Doux / Modere / Intense), renseignee sur
+// les 20 seances. C'est le type de seance au sens ou kinmio l'entend — l'app est 100% HIIT, la
+// distinction Cardio/Renforcement a ete retiree par l'audit seance.
+function sessionBadgeLabel(s){ return s.intensite || (s.duree+' min'); }
 // Une séance dont un des exercices a sa propre photo dédiée (EXO_MEDIA, ex. Shadow boxing) réutilise
 // CETTE photo plutôt que la photo générique du thème — partout où il y a du "shadow", même photo.
 function sessionPhotoFor(s){
@@ -16978,7 +17159,7 @@ function renderSessCard(s, origin){
   return '<div class="lib-card" onclick="openSessionDetail(\''+s.id+'\')">'
     +'<div class="lib-thumb" style="background-image:url(\''+sessionPhotoFor(s)+'\');background-size:cover;background-position:center;"></div>'
     +'<div class="lib-body"><div class="lib-name">'+s.nom_marketing+'</div>'
-    +'<div class="lib-tags">'+originPill+'<span class="tag tag-g">'+sessionBadgeLabel(s)+'</span><span class="tag tag-g">'+s.intensite+'</span><span class="tag tag-g">'+s.duree+' min</span></div>'
+    +'<div class="lib-tags">'+originPill+'<span class="tag tag-g">'+sessionBadgeLabel(s)+'</span><span class="tag tag-g">'+s.duree+' min</span></div>'   // sessionBadgeLabel EST l'intensite depuis le 12 sept. : la pastille suivante en faisait un doublon
     +'<div class="lib-meta">'+s.exercices.length+' exercises</div></div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;">'
     +'<button onclick="event.stopPropagation();toggleFavori(\'sessions\',\''+s.id+'\');renderProgSessionsView();" style="background:none;border:none;font-size:19px;cursor:pointer;">'+favHeart(fav)+'</button>'
@@ -17221,9 +17402,9 @@ function renderSessionDetail(){
     const chip=(icon,txt)=>'<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 11px 6px 9px;border-radius:10px;background:var(--bg3);color:var(--gray2);font-size:12.5px;font-weight:600;">'+(icon?icon+' ':'')+txt+'</span>';
     // Reste des tags (le premier alimente déjà le badge sur l'image) + accroche — de vraies
     // spécificités HIIT plutôt que la distinction Cardio/Renforcement (audit séance).
-    const extraTags = (s.tags||[]).slice(1);
+    const extraTags = (s.tags||[]);   // plus de slice(1) : le badge ne consomme plus tags[0]
+    // L'intensite n'est plus repetee ici : elle est desormais LE badge pose sur la photo.
     tagsEl.innerHTML = chip(SD_ICON_CLOCK, s.duree+' min')
-      + (s.intensite ? chip(SD_ICON_BOLT, s.intensite) : '')
       + (s.positions||[]).map(p=>chip(SD_POS_ICON[p]||SD_ICON_STAND, p)).join('')
       + equipements.map(eq=>chip(SD_ICON_BARBELL, eq)).join('')
       + (s.accroche && s.accroche!=='Sans accroche' ? chip(SD_ICON_BARBELL, s.accroche) : '')
@@ -17233,6 +17414,14 @@ function renderSessionDetail(){
   const delBtn=document.getElementById('sdDeleteBtn'); if(delBtn) delBtn.style.display = (isCatalogSession(s.id)||sessionPickMode) ? 'none' : 'block';
   const noteBtn=document.getElementById('sdNoteBtn'); if(noteBtn) noteBtn.style.display = (currentRole==='referent'&&!sessionPickMode) ? 'block' : 'none';
   const startBtn=document.getElementById('sdStartBtn'); if(startBtn) startBtn.style.display = (currentRole==='referent'||sessionPickMode) ? 'none' : 'block';
+  // Le meme CTA, une deuxieme fois, juste sous le nom — suit exactement la visibilite de celui du bas,
+  // quelle que soit la porte d'entree (referent, mode selection, membre).
+  const startTop=document.getElementById('sdStartTop');
+  if(startTop){
+    const visible = !(currentRole==='referent'||sessionPickMode);
+    startTop.style.display = visible ? 'block' : 'none';
+    startTop.innerHTML = visible ? '<button class="btn btn-orange" style="margin:0;" onclick="startSessionFromDetail()">'+trDyn('Start this session \u2192')+'</button>' : '';
+  }
   const assignBtn=document.getElementById('sdAssignBtn'); if(assignBtn) assignBtn.style.display = (currentRole==='referent'&&!sessionPickMode) ? 'block' : 'none';
   const pickBtn=document.getElementById('sdPickBtn'); if(pickBtn) pickBtn.style.display = sessionPickMode ? 'block' : 'none';
   // "Start now" réel n'existe que pour Marc (p1) en individuel — seul patient avec un espace utilisateur
@@ -18655,16 +18844,18 @@ const WARMUP_MOVES=[
   {id:'wu_wrist', zone:'Poignets', nom:'Wrist circles', dur:15, instr:'Circle your wrists in both directions.'},
   {id:'wu_knee', zone:'Genoux', nom:'Knee circles', dur:15, instr:'Gently circle your knees, seated or standing.'}
 ];
-function getWarmupMoves(){
+function getWarmupMoves(s){
   const avoid=userProfileData.zones_eviter||[];
   const list=WARMUP_MOVES.filter(m=>!m.zone || !avoid.includes(m.zone));
-  return list.length ? list : WARMUP_MOVES.filter(m=>!m.zone);
+  const base = list.length ? list : WARMUP_MOVES.filter(m=>!m.zone);
+  // Seance "demarrage en douceur" : deux mouvements au lieu de six, pas zero.
+  return warmupReduit(s) ? base.slice(0,2) : base;
 }
 function renderWarmupList(){
   const reminder=document.getElementById('warmupBarReminder');
   if(reminder) reminder.style.display = sessionUsesBar(sessionActuelle) ? 'flex' : 'none';
   const el=document.getElementById('warmupList'); if(!el) return;
-  const moves=getWarmupMoves();
+  const moves=getWarmupMoves(sessionActuelle);   // version courte si la seance demarre en douceur
   el.innerHTML=moves.map(m=>
     '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
     +'<div style="width:38px;height:38px;border-radius:11px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;color:var(--brand-fixed);">'+m.dur+'s</div>'
@@ -18683,10 +18874,11 @@ const COOLDOWN_MOVES=[
   {id:'cd_quad', zone:'Genoux', nom:'Quad stretch', dur:20, instr:'Hold one ankle behind you, then switch sides.'},
   {id:'cd_calf', zone:null, nom:'Calf stretch', dur:20, instr:'Step one foot back, press the heel down, then switch sides.'}
 ];
-function getCooldownMoves(){
+function getCooldownMoves(s){
   const avoid=userProfileData.zones_eviter||[];
   const list=COOLDOWN_MOVES.filter(m=>!m.zone || !avoid.includes(m.zone));
-  return list.length ? list : COOLDOWN_MOVES.filter(m=>!m.zone);
+  const base = list.length ? list : COOLDOWN_MOVES.filter(m=>!m.zone);
+  return cooldownReduit(s) ? base.slice(0,2) : base;
 }
 // Échauffement/retour au calme en trois niveaux (décision Benjamin, remplace la coche par lancement) :
 // 1) la séance elle-même peut dire non (echauffement/retour_calme===false), auquel cas rien ne le fait
@@ -18695,15 +18887,23 @@ function getCooldownMoves(){
 //    jour, ne modifie jamais la préférence. Aucune séance du catalogue n'est entre 15 et 30 min : c'est
 //    la coupure naturelle pour "longue".
 const LONG_SESSION_MIN_DUREE=30;
+// REVISION 12 sept. 2026 (retour terrain : "sur la seance je ne vois ni l'echauffement ni le retour
+// au calme, pourtant dans mes reglages c'est actif"). L'ordre etait inverse : la seance disait non et
+// rien ne la faisait changer d'avis, y compris un reglage explicite sur "Toujours". Mesure : 6 seances
+// sur 20 (Shadow Round, Ski Express, Core Strike, Arms Blast, Cardio Chair, Mix Express) faisaient
+// disparaitre tout le bloc "LE DEROULE", donc aussi la decomposition de la duree, sans un mot.
+// Un reglage qu'une donnee peut annuler en silence n'est pas un reglage, c'est une suggestion.
+// Desormais : la personne decide SI, la seance decide COMBIEN. echauffement/retour_calme===false ne
+// supprime plus, il RACCOURCIT — et la fiche l'ecrit.
+function warmupReduit(s){ return !!(s && s.echauffement===false); }
+function cooldownReduit(s){ return !!(s && s.retour_calme===false); }
 function shouldRunWarmup(s){
-  if(s && s.echauffement===false) return false;
   const pref=profile.warmupPref||'Always';
   if(pref==='Never') return false;
   if(pref==='Long sessions only') return !!(s && s.duree>=LONG_SESSION_MIN_DUREE);
   return true;
 }
 function shouldRunCooldown(s){
-  if(s && s.retour_calme===false) return false;
   const pref=profile.cooldownPref||'Always';
   if(pref==='Never') return false;
   if(pref==='Long sessions only') return !!(s && s.duree>=LONG_SESSION_MIN_DUREE);
@@ -18723,22 +18923,32 @@ function renderSdPhases(){
   // depuis le branchement ce serait faux des deux. Le total suit, donc la duree annoncee est
   // exactement le temps engage.
   const avecWu=shouldRunWarmup(s), avecCd=shouldRunCooldown(s);
-  const wu=avecWu?mins(getWarmupMoves()):0, cd=avecCd?mins(getCooldownMoves()):0, core=s.duree||0;
+  const wu=avecWu?mins(getWarmupMoves(s)):0, cd=avecCd?mins(getCooldownMoves(s)):0, core=s.duree||0;
   const row=(lbl,val,fort)=>'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">'
     +'<span style="font-size:13.5px;color:'+(fort?'var(--white);font-weight:700;':'var(--gray2);')+'">'+trDyn(lbl)+'</span>'
     +'<span style="font-size:12.5px;color:'+(fort?'var(--brand-fixed)':'var(--gray)')+';font-variant-numeric:tabular-nums;'+(fort?'font-weight:700;':'')+'">'+val+' '+trDyn('min')+'</span></div>';
-  if(!avecWu && !avecCd){ phasesEl.style.display='none'; phasesEl.innerHTML=''; return; }
+  // Le bloc s'affiche TOUJOURS (retour terrain, 12 sept.) : il disparaissait entierement quand ni
+  // echauffement ni retour au calme n'avaient lieu, emportant avec lui la decomposition de la duree —
+  // la fiche annoncait 15 min sans plus rien detailler, et on ne savait pas si c'etait un oubli ou un
+  // choix. Meme quand il n'y a que le coeur de seance, le dire est une information.
   phasesEl.style.display='block';
+  // Ce qui a ete raccourci par la seance est ecrit, pas subi en silence.
+  const notes=[];
+  if(avecWu && warmupReduit(s)) notes.push(trDyn('Shorter warm-up \u2014 this session eases you in.'));
+  if(avecCd && cooldownReduit(s)) notes.push(trDyn('Shorter cool-down \u2014 this session winds down fast.'));
+  if(!avecWu && (profile.warmupPref||'Always')!=='Always') notes.push(trDyn('No warm-up \u2014 that comes from your training profile.'));
+  if(!avecCd && (profile.cooldownPref||'Always')!=='Always') notes.push(trDyn('No cool-down \u2014 that comes from your training profile.'));
+  const noteHtml = notes.length ? '<div style="font-size:12px;color:var(--gray2);line-height:1.5;margin-top:8px;">'+notes.join('<br>')+'</div>' : '';
   phasesEl.innerHTML='<div class="ex-sec-t" style="padding:0 0 4px;">'+trDyn('How it runs')+'</div>'
     +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:4px 14px;">'
     +(avecWu?row('Warm-up', wu):'')+row('Session', core)+(avecCd?row('Cool-down', cd):'')
     +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;"><span style="font-size:13.5px;color:var(--white);font-weight:700;">'+trDyn('Total')+'</span>'
     +'<span style="font-size:13.5px;color:var(--brand-fixed);font-weight:700;font-variant-numeric:tabular-nums;">'+(wu+core+cd)+' '+trDyn('min')+'</span></div>'
-    +'</div>';
+    +'</div>'+noteHtml;
 }
 function renderCooldownList(){
   const el=document.getElementById('cooldownList'); if(!el) return;
-  const moves=getCooldownMoves();
+  const moves=getCooldownMoves(sessionActuelle);
   el.innerHTML=moves.map(m=>
     '<div class="card-sm" style="display:flex;align-items:center;gap:14px;">'
     +'<div style="width:38px;height:38px;border-radius:11px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;color:var(--brand-fixed);">'+m.dur+'s</div>'
@@ -22355,11 +22565,17 @@ function initAssistantIa(){
 }
 // ===== MON PROFIL D'ENTRAÎNEMENT (réponses onboarding éditables au tap) =====
 const TP_FIELDS=[
+  // OBJECTIF en premiere ligne (retour terrain, 12 sept. : "dans profil d'entrainement on n'a pas
+  // l'objectif renseigne dans l'onboarding"). C'est la PREMIERE question posee, et la seule dont la
+  // reponse ne figurait pas sur l'ecran qui annonce "tes reponses de depart". La valeur ne vit pas
+  // dans profile mais dans userProfileData.objectifs (cle de PROGRAMME_OBJECTIFS) : traitee a part
+  // dans tpValue/editTrainingField/tpPick plutot que dupliquee dans un deuxieme stockage.
+  {key:'objectif', icon:'<svg class="ki"><use href="#ki-target"/></svg>', label:'Goal', opts:PROGRAMME_OBJECTIFS.map(o=>o.lbl)},
   {key:'pos', icon:'<svg class="ki"><use href="#ki-pos"/></svg>', label:'Positions', multi:true, opts:['Standing','Seated','Lying down']},
   {key:'grip', icon:'<svg class="ki"><use href="#ki-grip"/></svg>', label:'Grip', opts:['Both wrists','One hand — centre grip','Both, depending on the exercise']},
   {key:'grip_ease', icon:'<svg class="ki"><use href="#ki-grip-ease"/></svg>', label:'Grip ease', opts:['Easy and stable','It depends on the moment','I need adaptations']},
   {key:'zones', icon:'<svg class="ki"><use href="#ki-shield"/></svg>', label:'Area to protect', multi:true, empty:'No specific area', opts:['Shoulder(s)','Back / lower back','Knee(s)','Wrist(s) / arms']},
-  {key:'freq', icon:'<svg class="ki"><use href="#ki-cal"/></svg>', label:'Frequency', opts:['1×/week','2×/week','3×/week','4×/week','5×/week']},
+  {key:'freq', icon:'<svg class="ki"><use href="#ki-cal"/></svg>', label:'Frequency', opts:['1×/week','2×/week','3×/week','4×/week','5×/week','6×/week','7×/week']},   // 6 et 7 ajoutes : l'onboarding les propose, cet ecran les rendait inatteignables
   {key:'jours', icon:'<svg class="ki"><use href="#ki-cal-check"/></svg>', label:'Training days', multi:true, opts:OB_DAYS},
   {key:'duree', icon:'<svg class="ki"><use href="#ki-timer"/></svg>', label:'Preferred duration', opts:['15 min','30 min','45 min','60 min']},
   // Réglé une fois, pas redemandé à chaque séance (cf discussion "un choix refait 3x/semaine est de la
@@ -22380,7 +22596,13 @@ function tpSeed(){
   if(!profile.cooldownPref) profile.cooldownPref='Always';
 }
 function tpValue(f){
+  // objectif : stocke en CLE dans userProfileData.objectifs, affiche en libelle traduit.
+  if(f.key==='objectif'){
+    const k=(userProfileData.objectifs||[])[0];
+    return k ? objectifLabel(k) : '—';
+  }
   if(f.key==='freq') return profile.freq+'×/week';
+  if(f.key==='duree') return profile.duree+' min';   // l'unite manquait : la ligne affichait "30" tout court
   if(f.multi){ const arr=profile[f.key]||[]; return arr.length?arr.join(' · '):(f.empty||'—'); }
   return profile[f.key]||'—';
 }
@@ -22421,7 +22643,8 @@ function editTrainingField(key){
   const f=TP_FIELDS.find(x=>x.key===key); if(!f) return;
   const rows=f.opts.map(opt=>{
     let on;
-    if(f.key==='freq') on=(profile.freq+'×/week')===opt;
+    if(f.key==='objectif'){ const k=(userProfileData.objectifs||[])[0]; const o=PROGRAMME_OBJECTIFS.find(x=>x.key===k); on = !!o && o.lbl===opt; }
+    else if(f.key==='freq') on=(profile.freq+'×/week')===opt;
     else if(f.key==='duree') on=(profile.duree+' min')===opt;
     else if(f.multi) on=(profile[f.key]||[]).includes(opt);
     else on=profile[f.key]===opt;
@@ -22433,6 +22656,15 @@ function editTrainingField(key){
   showModal('<div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">'+f.icon+' '+f.label+'</div>'+rows+foot);
 }
 function tpPick(key,opt){
+  // Changer d'objectif doit pouvoir se faire sans refaire l'onboarding. On ecrit la cle, pas le
+  // libelle : userProfileData.objectifs est lu par getProgrammeSuggere() et par les filtres.
+  if(key==='objectif'){
+    const o=PROGRAMME_OBJECTIFS.find(x=>x.lbl===opt);
+    if(o) userProfileData.objectifs=[o.key];
+    closeModal(); renderTrainingProfile();
+    sessionActuelle = getSessionDuJour();
+    return;
+  }
   profile[key]=(key==='freq'||key==='duree')?parseInt(opt):opt;
   // Jours et fréquence doivent rester le même chiffre partout (cf discussion "s'assurer que la mise à
   // jour du nombre de jours se propage partout") — sans ça la frise continuait d'afficher l'ancien jeu
