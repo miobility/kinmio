@@ -298,7 +298,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 .btn[disabled]{background:var(--bg3);color:var(--gray);border-color:var(--border);cursor:not-allowed;box-shadow:none;}
 .btn-danger{background:transparent;border:1.5px solid var(--border);color:var(--red);}
 .btn-ghost{position:relative;background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
-.btn-ghost.ob-skip{color:var(--gray2);font-size:14px;font-weight:600;padding:10px 4px;}
+.btn-ghost.ob-skip{color:var(--gray2);font-size:13px;font-weight:600;padding:8px 10px;}
 .btn-ghost::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 /* 36 px dessinés, 44 px touchés : le ::after transparent porte la cible sans grossir le bouton ni
    déplacer la mise en page (même remède que .info-i, audit Progrès). */
@@ -1122,7 +1122,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div style="position:relative;z-index:2;padding:0 28px calc(24px + env(safe-area-inset-bottom));">
     <button class="btn btn-brand-fixed" onclick="obExpress=false;majOb1Express();go('ob_objectif')" id="t_ob_intro_cta">Let's go! →</button>
-    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost" style="color:var(--gray);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip the questions ›</button><div style="font-size:12px;color:rgba(255,255,255,.62);margin-top:2px;">Just your positions, then you're in.</div></div>
+    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" onclick="skipObIntro()" id="t_ob_intro_skip">Skip the questions ›</button><div style="font-size:12px;color:rgba(255,255,255,.62);margin-top:2px;">Just your positions, then you're in.</div></div>
   </div>
 </div>
 
@@ -1133,7 +1133,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      valeur par défaut. C'est la première question parce que c'est la seule qui porte sur l'intention ;
      tout le reste dit comment, celle-ci dit pourquoi. (Manque P0-2 du benchmark de juillet.) -->
 <div class="screen ob-light" id="ob_objectif" style="--ob-x:8%;">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r" style="margin-left:auto;"><button class="btn-ghost ob-skip" onclick="go('ob1')">Skip</button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 6</div>
     <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:17%;background:var(--brand-fixed);border-radius:2px;"></div></div>
@@ -1145,6 +1145,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" id="obObjectifNext" disabled onclick="go('ob1')">Continue →</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" onclick="go('ob1')">Skip this question</button></div>
   </div>
 </div>
 
@@ -1315,7 +1316,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- Écran vision : le tagline complet + les fonctionnalités clés, une fois le profil paramétré -->
 <div class="screen" id="ob_vision">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r" style="margin-left:auto;"><button class="btn-ghost ob-skip" onclick="go('ob_consent')">Skip</button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="display:flex;justify-content:center;margin-bottom:20px;">
       <img src="kinmio_logo_app.png" alt="kinmio" style="height:28px;width:auto;display:block;">
@@ -1350,11 +1351,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" onclick="obDemoReviewMode=false;obDemoStepIdx=0;renderObDemoStep();go('ob_demo')">Set up my bar →</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" onclick="go('ob_consent')">Skip the introduction</button></div>
   </div>
 </div>
 
 <div class="screen" id="ob_demo">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r" style="margin-left:auto;"><button class="btn-ghost ob-skip" id="obDemoSkip" onclick="go('ob_consent')">Skip</button></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <h2 class="gap8">Meet your bar</h2>
     <p class="sub gap20">30 seconds to get it right — anchor, adjust, go.</p>
@@ -1366,6 +1368,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" id="obDemoNextBtn" onclick="advanceObDemo()">Got it, next step →</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" id="obDemoSkip" onclick="go('ob_consent')">Skip the tutorial</button></div>
   </div>
 </div>
 
@@ -12865,6 +12868,9 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions ›": "Passer les questions ›",
+  "Skip this question": "Passer cette question",
+  "Skip the introduction": "Passer la présentation",
+  "Skip the tutorial": "Passer le tuto",
   "Just your positions, then you're in.": "Juste tes positions, puis tu entres.",
   // ob1
   "Which position(s) do you train in?": "Dans quelle(s) position(s) t'entraînes-tu ?",
@@ -15555,7 +15561,7 @@ function renderObDemoStep(){
   if(step) step.innerHTML = '<div style="width:26px;height:26px;border-radius:50%;background:var(--brand-fixed);color:var(--ink-on-accent);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(obDemoStepIdx+1)+'</div>'
     +'<div><div style="font-size:15px;font-weight:600;color:var(--white);">'+trDyn(s.title)+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(s.sub)+'</div></div>';
   const skip=document.getElementById('obDemoSkip');
-  if(skip) skip.hidden = obDemoReviewMode;   // revu depuis Mon équipement : le retour suffit
+  if(skip) skip.parentElement.hidden = obDemoReviewMode;   // revu depuis Mon équipement : le retour suffit
   const btn=document.getElementById('obDemoNextBtn');
   if(btn) btn.textContent = trDyn(obDemoStepIdx < OB_DEMO_STEPS.length-1 ? 'Got it, next step →' : 'Got it, all set →');
   // La vidéo change avec l'étape — un vrai tuto séquentiel, pas une boucle générique identique du début à la fin.
