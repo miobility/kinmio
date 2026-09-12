@@ -1000,21 +1000,42 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <p style="font-size:15px;color:rgba(255,255,255,.82);line-height:1.5;text-shadow:0 1px 4px rgba(0,0,0,.5);" id="t_ob_intro_sub">A few questions so every session fits you.</p>
   </div>
   <div style="position:relative;z-index:2;padding:0 28px calc(24px + env(safe-area-inset-bottom));">
-    <button class="btn btn-brand-fixed" onclick="go('ob1')" id="t_ob_intro_cta">Let's go! →</button>
+    <button class="btn btn-brand-fixed" onclick="go('ob_objectif')" id="t_ob_intro_cta">Let's go! →</button>
     <div style="text-align:center;margin-top:8px;"><button class="btn-ghost" style="color:var(--gray);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip ›</button></div>
   </div>
 </div>
 
 <!-- OB1 : Profil -->
-<div class="screen ob-light" id="ob1" style="--ob-x:15%;">
+<!-- ================= OBJECTIF (onboarding) =================
+     L'onboarding ne demandait JAMAIS pourquoi la personne était là : position, zone à protéger,
+     fréquence, durée, horizon — cinq questions de logistique, et userProfileData.objectif restait à sa
+     valeur par défaut. C'est la première question parce que c'est la seule qui porte sur l'intention ;
+     tout le reste dit comment, celle-ci dit pourquoi. (Manque P0-2 du benchmark de juillet.) -->
+<div class="screen ob-light" id="ob_objectif" style="--ob-x:8%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 5</div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 6</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:17%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+  </div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
+    <h2 class="gap8">What do you want to get out of it?</h2>
+    <p class="sub gap20">One or two — your programme is picked from this.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;" id="ob_objectif_opts"></div>
+  </div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
+    <button class="btn btn-brand-fixed" id="obObjectifNext" disabled onclick="go('ob1')">Continue →</button>
+  </div>
+</div>
+
+<div class="screen ob-light" id="ob1" style="--ob-x:24%;">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
+  <div style="padding:2px 20px 10px;flex-shrink:0;">
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 6</div>
     <!-- Barre de progression réintroduite (cf discussion) — retirée une 1re fois car elle atteignait
          100% avec encore 4 écrans à faire (calcul indépendant, pas fiable). Cette fois : une largeur
          fixe par écran, calquée directement sur le même "Question N of 5" déjà affiché juste au-dessus
          — jamais désynchronisée puisque c'est littéralement le même chiffre, pas un second calcul. -->
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:20%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:33%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Which position(s) do you train in?</h2>
@@ -1050,8 +1071,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob6" style="--ob-x:32%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 5</div>
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:40%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 6</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:50%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Do you have an area to protect?</h2>
@@ -1073,8 +1094,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob7" style="--ob-x:50%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 5</div>
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:60%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 6</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:67%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">When do you train?</h2>
@@ -1105,8 +1126,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob8" style="--ob-x:68%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 5</div>
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:80%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 of 6</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:83%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">How long do you like to train?</h2>
@@ -1127,7 +1148,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob_commit" style="--ob-x:85%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 of 5</div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 6 of 6</div>
     <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:100%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
@@ -5030,7 +5051,8 @@ let userProfileData = {
   prenom: "",
   email: "",
   position: "Debout",
-  objectif: ["Cardio","Renforcement"],
+  objectif: ["Cardio","Renforcement"],   // composition (types d'exercice) — lue par les filtres et les photos
+  objectifs: ["tonicite"],               // ce que la personne VISE — demandé à l'onboarding (PROGRAMME_OBJECTIFS)
   niveau: "Débutant",
   seuil_defaut: 2,
   duree_defaut: 40,
@@ -5358,8 +5380,14 @@ function getProgrammeSuggere() {
   const allProgrammes = [...PROGRAMMES, ...userProgrammes];
 
   // Cherche un programme aligné sur le profil
+  // Le programme suggéré se cale d'abord sur ce que la personne VISE (objectifs), et retombe sur la
+  // composition si aucun programme ne porte son objectif — avant, seule la composition comptait, ce qui
+  // revenait à choisir un programme sur la famille de mouvements plutôt que sur le but.
+  const vises = userProfileData.objectifs || [];
   let match = allProgrammes.find(p => {
-    const objOk = p.objectif.some(o => userProfileData.objectif.includes(o));
+    const objOk = vises.length
+      ? (p.objectifs||[]).some(o => vises.includes(o))
+      : p.objectif.some(o => userProfileData.objectif.includes(o));
     const freqOk = p.frequence <= userProfileData.frequence + 1;
     const ciOk = !programmeHasContraindication(p);
     const equipOk = !programmeMissingEquipment(p);
@@ -5439,7 +5467,29 @@ function getParamsExercice(exercice) {
 // Synchronise userProfileData avec les réponses réelles de l'onboarding (profile.pos/obj/freq,
 // userNiveau, cases cochées #zone_opts) — sans quoi les recommandations restaient figées sur
 // les valeurs par défaut pour tout le monde.
+// L'objectif rejoint enfin le profil : il était le seul champ jamais demandé, figé sur sa valeur par
+// défaut depuis l'origine. Un ou deux, parce qu'un programme en porte souvent deux.
+let obObjectifsChoisis = [];
+function renderObObjectifs(){
+  const el=document.getElementById('ob_objectif_opts'); if(!el) return;
+  el.innerHTML = PROGRAMME_OBJECTIFS.map(o=>
+    '<div class="ob-opt multi'+(obObjectifsChoisis.includes(o.key)?' on':'')+'" onclick="toggleObObjectif(\''+o.key+'\')" data-val="'+o.key+'">'
+    +'<div class="ob-icon"><svg class="ki"><use href="#'+o.ic+'"/></svg></div>'
+    +'<div style="flex:1"><div class="ob-label">'+trDyn(o.lbl)+'</div>'
+    +'<div style="font-size:12px;color:var(--gray);margin-top:2px;line-height:1.35;">'+trDyn(o.sous)+'</div></div>'
+    +'<div class="ob-check"></div></div>').join('');
+  const btn=document.getElementById('obObjectifNext'); if(btn) btn.disabled = obObjectifsChoisis.length===0;
+  sweepTranslate(document.getElementById('ob_objectif'), currentLang);
+}
+function toggleObObjectif(k){
+  const i=obObjectifsChoisis.indexOf(k);
+  if(i>=0) obObjectifsChoisis.splice(i,1);
+  else if(obObjectifsChoisis.length<2) obObjectifsChoisis.push(k);
+  else { obObjectifsChoisis.shift(); obObjectifsChoisis.push(k); }   // un ou deux, jamais trois
+  renderObObjectifs();
+}
 function syncUserProfileDataFromOnboarding(){
+  if(obObjectifsChoisis.length) userProfileData.objectifs = obObjectifsChoisis.slice();
   const posMap = {'Standing':'Debout','Debout':'Debout','Seated':'Assis','Assis':'Assis','Lying down':'Allongé','Allongé':'Allongé'};
   if(profile.pos && profile.pos.length){
     const mapped = profile.pos.map(p=>posMap[p]).filter(Boolean);
@@ -5667,6 +5717,7 @@ function go(id){
     if(mode==='edit') initCpnEditMode(); else resetCpn();
   }, 20);
   if(id==='session_detail') setTimeout(renderSessionDetail, 20);
+  if(id==='ob_objectif') setTimeout(renderObObjectifs, 20);
   if(id==='guide') setTimeout(renderLibGuide, 20);
   if(id==='catalogue_programmes') setTimeout(renderCatalogueProgrammes, 20);
   if(id==='bibliotheque'){
@@ -11917,6 +11968,8 @@ const EN_FR = {
   "MY CHALLENGES": "MES DÉFIS",
   "See my whole programme": "Voir tout mon programme",
   "Cardio endurance": "Endurance cardio",
+  "What do you want to get out of it?": "Qu'est-ce que tu veux en retirer ?",
+  "One or two — your programme is picked from this.": "Un ou deux — c'est là-dessus qu'on choisit ton programme.",
   "Hold out longer, get your breath back": "Tenir plus longtemps, le souffle qui revient",
   "Build strength, over time": "Gagner en force, sur la durée",
   "Stay active without chasing performance": "Rester actif sans chercher la performance",
@@ -15702,7 +15755,10 @@ function renderProgMonView(){
   const cat=document.getElementById('progMonCatalogue');
   if(cat){
     const tous=[...PROGRAMMES,...userProgrammes].filter(x=>!p || x.id!==p.id);
-    const objs = p ? (p.objectifs||[]) : [];
+    // On privilégie ce que la PERSONNE vise ; le programme en cours ne sert de repli que si elle n'a
+    // rien déclaré (profil ancien, onboarding sauté).
+    const objs = (userProfileData.objectifs && userProfileData.objectifs.length)
+      ? userProfileData.objectifs : (p ? (p.objectifs||[]) : []);
     const proches = tous.filter(x=>(x.objectifs||[]).some(k=>objs.includes(k)));
     const sugg = (proches.length ? proches : tous).slice(0,2);
     cat.innerHTML = '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn(p?'What comes next':'Choose a programme')+'</div>'
