@@ -849,7 +849,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 /* ===== MODAL / MINI POPUP ===== */
 .modal-ov{position:absolute;inset:0;z-index:300;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:24px;}
 .modal-ov.show{display:flex;}
-.modal-card{background:var(--bg2);border:1px solid var(--border);border-radius:22px;padding:22px;width:100%;max-width:340px;}
+.modal-card{background:var(--bg2);border:1px solid var(--border);border-radius:22px;padding:22px;width:100%;max-width:340px;position:relative;}
+/* La croix vit dans le coin, hors du flux : aucune fenetre n'a a lui reserver de place. 44 px de zone
+   tapable pour 15 px de dessin — on agrandit la cible, pas le trait. Le titre reste lisible : les
+   titres de fenetre font une ligne courte, et padding-right les tient a distance. */
+.modal-x{position:absolute;top:6px;right:6px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:0;color:var(--gray);font-size:15px;cursor:pointer;padding:0;border-radius:50%;z-index:2;}
+.modal-x:hover{color:var(--white);}
+.modal-card > :first-child + *{}
+.modal-card > div:first-of-type{padding-right:30px;}
 
 /* ===== CALENDRIER RÉFÉRENT ===== */
 .cal-week{display:flex;gap:4px;align-items:stretch;min-height:440px;}
@@ -3018,12 +3025,17 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="sdExoList"></div>
     <div id="sdCooldownRow" style="margin-top:16px;"></div>
     <div id="sdTotalRow"></div>
-    <div style="height:20px;"></div>
+    <!-- 20 px ne suffisaient pas : le Total finissait exactement la ou commencait "Demarrer cette
+         seance" (ecart mesure : 0 px). Le bas de fiche etait serre — retour terrain du 13 sept. -->
+    <!-- flex-shrink:0 indispensable : ce .scroll est en display:flex, donc un intercalaire sans
+         contenu se fait ecraser a 0 px. Mesure avant correction : le Total finissait exactement
+         la ou commencait "Demarrer cette seance" — la vraie cause du "tout est serre en bas". -->
+    <div style="height:30px;flex-shrink:0;"></div>
     <button class="btn btn-orange" id="sdStartBtn" onclick="startSessionFromDetail()">Start this session →</button>
     <button class="btn btn-orange" id="sdAssignBtn" style="display:none;" onclick="assignSessionTemplate()">Assign this session →</button>
     <button class="btn btn-orange" id="sdPickBtn" style="display:none;" onclick="confirmSessionPick()">Schedule this session →</button>
     <button class="btn btn-teal" style="margin-top:10px;display:none;" id="sdPickNowBtn" onclick="startPickNow()"><svg class="ki"><use href="#ki-play"/></svg>Start now</button>
-    <div style="height:24px;"></div>
+    <div style="height:24px;flex-shrink:0;"></div>
   </div>
 </div>
 
@@ -10064,11 +10076,18 @@ function dpParticipantsProbables(d){
 // Version compacte : une pastille teintee par l'unite tient lieu de couverture. Meme information,
 // une ligne — la couleur suffit a dire de quoi il s'agit, c'est tout l'interet d'avoir une teinte
 // par unite plutot qu'une photo.
+// "3" ne dit pas 3 quoi (retour terrain, 13 sept.). Abreviation d'unite pour la pastille de 44 px,
+// ou le libelle complet ne tient pas : "j" pour les jours, "min" pour les minutes, "s" pour les
+// seances. Le libelle entier reste sur la ligne, juste a cote.
+function uniteAbrege(u){
+  return ({minutes:'min', seances:'s\u00e9anc.', jours:'j', serie:'j', points:'pts', zone:'zone'})[u] || '';
+}
 function defiDateRowHtml(d){
   const parts = dpParticipantsProbables(d);
   return '<div class="card-sm" style="margin:0 20px 9px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="apercuDefiDate(\''+d.modeleId+'\')">'
-    +'<span class="u-'+d.unite+'" style="width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">'
-      +'<span style="font-size:15px;font-weight:800;line-height:1;font-family:var(--font-head);">'+d.cible+'</span></span>'
+    +'<span class="u-'+d.unite+'" style="width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;line-height:1;">'
+      +'<span style="font-size:15px;font-weight:800;font-family:var(--font-head);">'+d.cible+'</span>'
+      +'<span style="font-size:8.5px;font-weight:700;opacity:.8;margin-top:1px;">'+uniteAbrege(d.unite)+'</span></span>'
     +'<span style="flex:1;min-width:0;">'
       +'<span style="display:block;font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange);">'+libelleCadence(d.cadence)+'</span>'
       +'<span style="display:block;font-size:13.5px;font-weight:700;color:var(--white);margin-top:2px;">'+d.cible+' '+uniteLbl(d.unite, d.cible)+'</span>'
@@ -10148,11 +10167,17 @@ function renderDefisScreen(){
   if(cat){
     // --brand-fixed dit "ca va" : un signal. --orange est l'accent, ce sur quoi on peut appuyer.
     // Ces deux liens sont des ACTIONS, donc l'accent.
-    const act=(txt,onclick,ic)=>'<span role="button" tabindex="0" onclick="'+onclick+'" style="font-size:11.5px;font-weight:700;color:var(--orange);letter-spacing:0;text-transform:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:15px 0 15px 14px;margin-top:-15px;margin-bottom:-15px;">'
-      +(ic?'<svg class="ki" style="width:12px;height:12px;"><use href="#'+ic+'"/></svg>':'')+trDyn(txt)+'</span>';
-    const creer='<span style="margin-left:auto;display:inline-flex;align-items:center;">'
+    // Les deux entrees quittent la ligne de titre (retour terrain, 13 sept. : "avec les autres ca
+    // depasse a gauche, creer un defi ca depasse a droite, je ne sais pas pourquoi c'est en vert").
+    // Trois defauts dans un seul objet : elles debordaient, elles ecrasaient le titre, et leur couleur
+    // (--orange, c'est-a-dire l'ACCENT, pas le vert de reussite) se confondait avec l'emeraude par
+    // defaut. Elles deviennent deux boutons sur leur propre ligne : lisibles, tapables sur 44 px,
+    // sans concurrence avec le titre ni avec le vrai CTA de l'onglet.
+    const act=(txt,onclick,ic)=>'<button class="btn btn-outline" style="flex:1;padding:13px 10px;font-size:12.5px;margin:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;" onclick="'+onclick+'">'
+      +(ic?'<svg class="ki" style="width:13px;height:13px;"><use href="#'+ic+'"/></svg>':'')+trDyn(txt)+'</button>';
+    const creer='<div style="display:flex;gap:9px;margin:0 20px 12px;">'
       + act('I have a code','openRejoindreParCode()',null)
-      + act('Create a challenge','openCreerDefi()','ki-plus') + '</span>';
+      + act('Create a challenge','openCreerDefi()','ki-plus') + '</div>';
 
     // RAYON 1 — les dates. Rendez-vous : fenetre commune, du monde dedans, ca tourne chaque semaine.
     // Cartes larges, une par ligne : elles ont plus a dire qu'un compteur personnel.
@@ -10161,7 +10186,8 @@ function renderDefisScreen(){
       // La PREMIERE en grand, les suivantes en ligne compacte. Trois cartes larges faisaient monter
       // l'onglet de 1227 a 1466 px — mesure faite, et l'inverse de ce qu'on cherche. Une seule mise en
       // avant suffit a dire "c'est un rendez-vous" ; les autres se lisent en une ligne.
-      ? '<div class="zone-lbl" style="margin:22px 0 10px;display:flex;align-items:center;">'+trDyn('WITH OTHERS')+creer+'</div>'
+      ? '<div class="zone-lbl" style="margin:22px 20px 10px;">'+trDyn('WITH OTHERS')+'</div>'
+        + creer
         + defiDateCardHtml(dates[0])
         + dates.slice(1).map(defiDateRowHtml).join('')
       : '';
@@ -10171,10 +10197,8 @@ function renderDefisScreen(){
     const libres = DEFIS_CATALOGUE.filter(d=>!getUserDefi(d.id));
     const montres = defisVoirTout ? libres : libres.slice(0,4);
     const blocSolo = libres.length
-      ? '<div class="zone-lbl" style="margin:22px 0 10px;display:flex;align-items:center;justify-content:space-between;">'
-          + trDyn('AT YOUR OWN PACE')
-          + (dates.length ? '' : creer)
-        + '</div>'
+      ? '<div class="zone-lbl" style="margin:22px 20px 10px;">'+trDyn('AT YOUR OWN PACE')+'</div>'
+        + (dates.length ? '' : creer)
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
         + montres.map(defiTileHtml).join('') + '</div>'
         + (libres.length>4
@@ -10810,11 +10834,13 @@ function renderProgPeriod(periodKey){
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:'+painCol+';line-height:1;flex-shrink:0;">'+painShown+'<span style="font-size:15px;font-weight:600;color:var(--gray2);">/10</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);">average pain</div>'
-      +(painDelta?'<div style="margin-left:auto;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:'+painDelta.col+';">'+painDelta.txt+'</div>':'')
+      +'<div style="margin-left:auto;font-size:12.5px;font-weight:700;color:'+painCol+';text-align:right;">'+trDyn(painAvg<=3?'Mild pain':painAvg<=6?'Moderate pain':'High pain')+'</div>'
       +'</div>'
-      +'<div style="font-size:12.5px;font-weight:600;color:'+painCol+';margin:7px 0 0;">'+trDyn(painAvg<=3?'Mild pain':painAvg<=6?'Moderate pain':'High pain')+'</div>'
       +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'+spark
-      +'<div style="font-size:11px;color:var(--gray2);margin-top:6px;">'+painSeries.length+' session'+(painSeries.length!==1?'s':'')+' rated</div>'
+      +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:7px;">'
+        +'<span style="font-size:11px;color:var(--gray2);">'+painSeries.length+' session'+(painSeries.length!==1?'s':'')+' rated</span>'
+        +(painDelta?'<span style="font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;color:'+painDelta.col+';">'+painDelta.txt+'</span>':'')
+      +'</div>'
       +'</div>'
       +'</div>';
   }
@@ -10859,11 +10885,13 @@ function renderProgPeriod(periodKey){
       +'<div style="font-size:30px;line-height:1;flex-shrink:0;">'+checkinEmoji(cks[0].val)+'</div>'
       +'<div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:800;color:'+formeColOf(CHECKIN_ORDINAL[cks[0].val]||3)+';line-height:1.2;">'+checkinLabel(cks[0].val)+'</div>'
       +'<div style="font-size:12.5px;color:var(--gray2);margin-top:1px;">today</div></div>'
-      +(fDelta?'<div style="font-size:12.5px;font-weight:700;color:'+fDelta.col+';flex-shrink:0;">'+fDelta.txt+'</div>':'')
       +'</div>'
 
       +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'+fSpark
-      +'<div style="font-size:11px;color:var(--gray2);margin-top:6px;">'+ord.length+' check-in'+(ord.length!==1?'s':'')+' logged</div>'
+      +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:6px;">'
+        +'<span style="font-size:11px;color:var(--gray2);">'+ord.length+' check-in'+(ord.length!==1?'s':'')+' logged</span>'
+        +(fDelta?'<span style="font-size:12px;font-weight:700;color:'+fDelta.col+';flex-shrink:0;">'+fDelta.txt+'</span>':'')
+      +'</div>'
       +'</div>'
       +'</div>';
   }
@@ -10997,9 +11025,8 @@ function renderProgPeriod(periodKey){
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:'+etat.col+';line-height:1;flex-shrink:0;">'+cur.toFixed(1)+'<span style="font-size:15px;font-weight:600;color:var(--gray2);">×</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);">'+trDyn('vs your usual pace')+'</div>'
-      +(tendDelta?'<div style="margin-left:auto;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:'+tendDelta.col+';">'+tendDelta.txt+'</div>':'')
+      +'<div style="margin-left:auto;font-size:12.5px;font-weight:700;color:'+etat.col+';text-align:right;">'+etat.lbl+'</div>'
       +'</div>'
-      +'<div style="font-size:12.5px;font-weight:600;color:'+etat.col+';margin:7px 0 0;">'+etat.lbl+'</div>'
       // GRADUATIONS RETIREES (retour terrain, 12 sept., le soir de leur deploiement : "sur la charge,
       // je ne suis pas sur qu'on ait besoin de l'echelle, par contre on a besoin de la couleur").
       // Il a raison : une fois que chaque barre porte sa couleur, on voit directement quelle journee
@@ -11010,7 +11037,10 @@ function renderProgPeriod(periodKey){
           +'<div style="position:absolute;left:0;right:0;bottom:'+Math.round(0.8/maxV*H)+'px;height:'+Math.round((1.3-0.8)/maxV*H)+'px;background:rgba(var(--brand-fixed-rgb),.10);"></div>'
           +'<div style="display:flex;align-items:flex-end;gap:3px;height:'+H+'px;position:relative;">'+barres+'</div>'
         +'</div>'
-        +'<div style="font-size:11px;color:var(--gray2);margin-top:8px;">'+legendeCharge+'</div>'
+        +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:8px;">'
+          +'<span style="font-size:11px;color:var(--gray2);">'+legendeCharge+'</span>'
+          +(tendDelta?'<span style="font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;color:'+tendDelta.col+';flex-shrink:0;">'+tendDelta.txt+'</span>':'')
+        +'</div>'
       +'</div></div>';
   }
 
@@ -13220,6 +13250,10 @@ const EN_FR = {
   "Edit sessions": "Modifier les séances",
   "Change programme": "Changer de programme",
   "Matched to your position and equipment": "Calé sur ta position et ton matériel",
+  "Seated, if you prefer": "Assis, si tu préfères",
+  "Done sitting down": "À faire en position assise",
+  "My exercises": "Mes exercices",
+  "All exercises": "Tous les exercices",
   "I've got fifteen minutes": "J'ai quinze minutes",
   "Short sessions": "Les séances courtes",
   "Without taking anything out": "Sans rien sortir",
@@ -13587,7 +13621,6 @@ const EN_FR = {
   "Inactivity": "Inactivité",
   "High pain": "Douleur élevée",
   "Mild pain": "Douleur légère",
-  "WITH OTHERS": "AVEC LES AUTRES",
   "AT YOUR OWN PACE": "À TON RYTHME",
   "IN PROGRESS": "EN COURS",
   "Show less": "Voir moins",
@@ -16243,10 +16276,10 @@ function resetLibNouveauFilters(){
   renderLibNouveau();
 }
 function preselectLibNouveau(){
-  // "For you" présélectionné par défaut pour le B2C (profil onboarding pertinent), mais n'a aucun sens
-  // pour le référent qui parcourt un catalogue partagé pour plusieurs patients — cf discussion.
-  const matchByDefault = currentRole!=='referent';
-  libNouveauFilters = { type:[], mode:[], position:[], equipement:[], niveau:[], zone:[], favoris:false, matchProfile:matchByDefault, coach:false };
+  // "Pour toi" n'est PLUS pre-coche : il est devenu un RAYON, exactement comme sur les seances. Le
+  // catalogue s'ouvre donc entier — quelqu'un qui cherche un exercice dont il se souvient le trouve,
+  // au lieu d'en conclure qu'il n'existe pas parce que 8 sur 49 avaient ete caches avant son arrivee.
+  libNouveauFilters = { type:[], mode:[], position:[], equipement:[], niveau:[], zone:[], favoris:false, matchProfile:false, coach:false };
   applyProfileMatchNouveau();
 }
 function libExoMatchesZone(ex, chipLabel){
@@ -16398,6 +16431,38 @@ function renderLibExoCard(ex){
     +'</div>'
     +'</div>';
 }
+// HARMONISATION SEANCES / EXERCICES (13 sept. 2026). Les deux onglets voisins avaient deux logiques :
+// Seances organisait en RAYONS et mettait "Mes seances" en tete ; Exercices etait une LISTE PLATE qui
+// mettait le perso EN DERNIER, avec "Pour toi" pre-coche — d'ou le compteur "41 sur 49 exercices
+// filtre sur ton profil" quand Seances disait simplement "21 seances". Le meme mot, "Pour toi",
+// designait donc deux mecaniques a un onglet d'ecart : un rayon qu'on parcourt d'un cote, un filtre
+// qui avait deja cache 8 exercices de l'autre.
+// Meme regle de nommage que SEANCE_RAYONS : un rayon repond a une QUESTION qu'on se pose, jamais a une
+// categorie de la base. Les libelles sont ceux des seances la ou la question est la meme.
+const EXO_RAYONS = [
+  { titre:'For you',                     sous:'Matched to your position and equipment', test:(e)=>exerciceMatchesProfile(e) },
+  { titre:'Without taking anything out', sous:'Nothing to set up',                      test:(e)=>e.equipement==='Aucun' },
+  { titre:'Seated, if you prefer',       sous:'Done sitting down',                      test:(e)=>(e.positions||[]).includes('Assis') },
+  { titre:'Build strength',              sous:'Strength work',                          test:(e)=>e.type==='Renforcement' }
+];
+function exerciceMatchesProfile(e){
+  const pos = userProfileData.position;
+  if(pos && Array.isArray(e.positions) && !e.positions.includes(pos)) return false;
+  const eq = userProfileData.equipement || {};
+  if(e.equipement==='Barre' && !eq.bar) return false;
+  if(e.equipement==='Barre avec élastique' && (!eq.bar || !eq.elastique)) return false;
+  return true;
+}
+function libExoRayonHtml(r, exos){
+  const sel=exos.filter(r.test).slice(0, RAYON_MAX);
+  if(sel.length<2) return '';   // meme regle que les seances : un rayon d'une seule carte n'est pas un rayon
+  return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:22px 0 10px;">'
+    +'<div style="min-width:0;"><div style="font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.2px;">'+trDyn(r.titre)+'</div>'
+    +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(r.sous)+'</div></div>'
+    +'<span role="button" tabindex="0" style="font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;cursor:pointer;padding:4px 0 4px 10px;" onclick="openLibNouveauFilterModal()">'+trDyn('See all')+' \u203a</span>'
+    +'</div>'
+    + sel.map(renderLibExoCard).join('');
+}
 function renderLibNouveau(){
   updateLibFilterBadgeNouveau();
   const favChip=document.getElementById('libChipFavoris'), matchChip=document.getElementById('libChipMatchProfile');
@@ -16431,9 +16496,18 @@ function renderLibNouveau(){
     list.innerHTML='<div class="lib-empty">No exercise matches these filters.<br><button class="btn-ghost" style="color:var(--orange);margin-top:8px;" onclick="resetLibNouveauFilters()">Reset all</button></div>';
     return;
   }
-  let html = main.map(renderLibExoCard).join('');
-  if(mine.length){
-    html += '<div style="font-size:13px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:20px 0 10px;">Your exercises</div>' + mine.map(renderLibExoCard).join('');
+  // Meme ordre que les seances : ce qui m'appartient d'abord, les rayons ensuite, le catalogue entier
+  // a la fin. C'etait l'inverse — le catalogue ouvrait et "Vos exercices" fermait la marche.
+  let html = mine.length ? libSectionLbl('My exercises') + mine.map(renderLibExoCard).join('') : '';
+  const filtreActif = libNouveauFilters.type.length || libNouveauFilters.mode.length
+    || libNouveauFilters.position.length || libNouveauFilters.equipement.length
+    || libNouveauFilters.niveau.length || libNouveauFilters.zone.length
+    || libNouveauFilters.favoris || libNouveauFilters.coach;
+  if(main.length && !filtreActif){
+    html += EXO_RAYONS.map(r=>libExoRayonHtml(r, main)).join('');
+    html += libSectionLbl('All exercises') + main.map(renderLibExoCard).join('');
+  } else if(main.length){
+    html += libSectionLbl('Catalogue') + main.map(renderLibExoCard).join('');
   }
   list.innerHTML = html;
   sweepTranslate(list, currentLang);
@@ -17622,11 +17696,7 @@ function renderSessionDetail(){
         +'<button onclick="event.stopPropagation();removeExoFromSession(\''+exId+'\')" style="width:26px;height:26px;border-radius:50%;background:var(--bg3);border:none;color:var(--gray2);font-size:14px;cursor:pointer;line-height:1;flex-shrink:0;">×</button>'
         +'</div>';
     }).join('') + '</div>'
-    // Le lien va au BAS de la liste, pas dans le bloc "Comment ca se deroule" : ce bloc disparait
-    // quand la seance n'a ni echauffement ni retour au calme, et il est colle a la carte
-    // d'ajustement, qui porte deja un lien. Ici il est toujours la, et il tombe juste sous les
-    // "35s de repos" qu'il explique.
-    + guideLink('seance',0);
+    ;
   }
   // Contrairement au premier rendu (go() sweep la vue 110ms après), un re-rendu déclenché par une
   // action (remplacer/retirer/ajuster un exercice) court-circuite ce sweep automatique — le texte
@@ -19108,9 +19178,13 @@ function renderSdPhases(){
   const wu=avecWu?mins(getWarmupMoves(s)):0, cd=avecCd?mins(getCooldownMoves(s)):0, core=s.duree||0;
   wuEl.innerHTML = phaseRowHtml(s,'warmup');
   cdEl.innerHTML = phaseRowHtml(s,'cooldown');
-  totEl.innerHTML = '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:13px 2px 0;">'
+  totEl.innerHTML = '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:13px 2px 0;border-top:1px solid var(--border);margin-top:14px;">'
     +'<span style="font-size:13.5px;font-weight:700;color:var(--white);">'+trDyn('Total')+'</span>'
-    +'<span style="font-size:15px;font-weight:800;color:var(--brand-fixed);font-variant-numeric:tabular-nums;">'+(wu+core+cd)+' '+trDyn('min')+'</span></div>';
+    +'<span style="font-size:15px;font-weight:800;color:var(--brand-fixed);font-variant-numeric:tabular-nums;">'+(wu+core+cd)+' '+trDyn('min')+'</span></div>'
+    // Le lien du Guide se pose ICI : l'article s'appelle "Comment se deroule une seance", et le Total
+    // est justement la somme des trois temps qu'il explique. Il porte desormais le TITRE de l'article
+    // au lieu du generique "Lire dans le Guide", qui ne disait pas de quoi on allait parler.
+    + guideLink('seance',0,'margin-top:10px;');
   sweepTranslate(wuEl, currentLang); sweepTranslate(cdEl, currentLang); sweepTranslate(totEl, currentLang);
 }
 function renderCooldownList(){
@@ -21927,7 +22001,15 @@ function renderResumeHealth(){
 function showModal(html){
   let m=document.getElementById('kmModal');
   if(!m){ m=document.createElement('div'); m.id='kmModal'; m.className='modal-ov'; m.addEventListener('click',function(e){ if(e.target===m) closeModal(); }); document.getElementById('app').appendChild(m); }
-  m.innerHTML='<div class="modal-card">'+html+'</div>';
+  // CROIX DE FERMETURE SUR TOUTES LES FENETRES (13 sept. 2026). Regression introduite la veille : en
+  // retirant le bouton "Fermer" des fenetres qui portent une action, j'ai laisse des fenetres SANS
+  // aucune sortie visible — la fenetre de rattrapage n'a aucun bouton tant qu'aucune puce n'est
+  // choisie. Taper a cote fonctionnait deja (le fond ferme), mais rien ne le disait. La croix est
+  // posee ici, dans showModal, donc les 85 fenetres de l'app l'ont d'un coup et se ferment toutes de
+  // la meme facon — c'est l'uniformisation demandee, pas un rustine sur une fenetre.
+  m.innerHTML='<div class="modal-card">'
+    +'<button class="modal-x" aria-label="'+trDyn('Close')+'" onclick="closeModal()"><svg class="ki"><use href="#ki-close"/></svg></button>'
+    +html+'</div>';
   sweepTranslate(m, currentLang);
   requestAnimationFrame(()=>m.classList.add('show'));
 }
@@ -21958,8 +22040,12 @@ function submitNoteEditor(){
 function guideLink(sectionKey, i, style){
   const sec=(typeof GUIDE_SECTIONS!=='undefined') && GUIDE_SECTIONS.find(x=>x.key===sectionKey);
   if(!sec || !sec.articles[i]) return '';
-  return '<div style="'+(style||'')+'"><span class="guide-link" onclick="event.stopPropagation();openGuideArticle(\''+sectionKey+'\','+i+')">'
-    +'<svg class="ki"><use href="#ki-guide"/></svg>'+trDyn('Read in the Guide')+'</span></div>';
+  // Le lien nomme l'ARTICLE, pas le geste (retour terrain, 13 sept. : "le titre n'est pas clair").
+  // "Lire dans le Guide" disait ou on allait, jamais de quoi on allait parler — et le meme libelle
+  // apparaissait a cinq endroits pour cinq articles differents.
+  const titre = currentLang==='fr' ? sec.articles[i].tFr : sec.articles[i].tEn;
+  return '<div style="display:flex;'+(style||'')+'"><span class="guide-link" onclick="event.stopPropagation();openGuideArticle(\''+sectionKey+'\','+i+')">'
+    +'<svg class="ki"><use href="#ki-guide"/></svg><span data-notranslate>'+titre+'</span></span></div>';
 }
 function showInfoSheet(title, body, guideRef){
   const lien = guideRef ? guideLink(guideRef[0], guideRef[1], 'margin-top:2px;') : '';
