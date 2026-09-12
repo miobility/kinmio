@@ -848,6 +848,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 5.9a.9.9 0 0 1 1.36-.78l9.1 5.32a.75.75 0 0 1 0 1.3l-9.1 5.32A.9.9 0 0 1 8.4 16.4Z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.4" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/><rect x="13.1" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5a13 13 0 0 1 0 17"/><path d="M12 3.5a13 13 0 0 0 0 17"/></symbol>
   <symbol id="ki-stop-prog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="13" height="13" rx="2.5"/></symbol>
   <symbol id="ki-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/></symbol>
   <symbol id="ki-repeat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.6-5.7"/><path d="M20 12a8 8 0 0 1-13.6 5.7"/><path d="M17 3v4h-4"/><path d="M7 21v-4h4"/></symbol>
@@ -977,7 +978,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <button class="btn-ghost" style="color:var(--gray);font-size:13px;text-decoration:underline;" onclick="userParcours='B';go('ob_intro')">New here? Discover kinmio</button>
     </div>
     <div style="text-align:center;">
-      <button onclick="showLang()" id="langBtn" style="background:none;border:none;color:var(--gray);font-size:12px;font-weight:600;cursor:pointer;">EN</button>
+      <button onclick="showLang()" id="langBtn" style="background:none;border:none;color:var(--gray);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:10px 4px;"><svg class="ki" style="width:15px;height:15px;"></svg><span>English</span></button>
     </div>
   </div>
 </div>
@@ -3910,7 +3911,7 @@ document.addEventListener('DOMContentLoaded', function(){
 const EXERCICES = [
   // SANS BARRE (EX-S01 à EX-S11)
   {
-    id: "EX-S01", nom: "Shadow boxing",
+    id: "EX-S01", nom: "Shadow boxing", photo: "shadow.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Aucun",
@@ -3924,7 +3925,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S02", nom: "Scie alternée",
+    id: "EX-S02", nom: "Scie alternée", photo: "EX-S02.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Aucun",
@@ -3938,7 +3939,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S03", nom: "Bras de nage",
+    id: "EX-S03", nom: "Bras de nage", photo: "EX-S03.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Aucun",
@@ -3952,7 +3953,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S04", nom: "Bâton de ski",
+    id: "EX-S04", nom: "Bâton de ski", photo: "EX-S04.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Aucun",
@@ -3966,7 +3967,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S05", nom: "Windmill",
+    id: "EX-S05", nom: "Windmill", photo: "EX-S05.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Aucun",
@@ -3980,7 +3981,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S06", nom: "Mountain climber",
+    id: "EX-S06", nom: "Mountain climber", photo: "EX-S06.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Allongé"],
     equipement: "Aucun",
@@ -3994,7 +3995,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S07", nom: "Montée de genoux",
+    id: "EX-S07", nom: "Montée de genoux", photo: "EX-S07.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout"],
     equipement: "Aucun",
@@ -4008,7 +4009,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S08", nom: "Jumping jack",
+    id: "EX-S08", nom: "Jumping jack", photo: "EX-S08.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout"],
     equipement: "Aucun",
@@ -4022,7 +4023,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S09", nom: "Squat sauté",
+    id: "EX-S09", nom: "Squat sauté", photo: "EX-S09.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout"],
     equipement: "Aucun",
@@ -4036,7 +4037,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S10", nom: "Burpee",
+    id: "EX-S10", nom: "Burpee", photo: "EX-S10.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout"],
     equipement: "Aucun",
@@ -4050,7 +4051,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-S11", nom: "Pas de côté rapides",
+    id: "EX-S11", nom: "Pas de côté rapides", photo: "EX-S11.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout"],
     equipement: "Aucun",
@@ -4066,7 +4067,7 @@ const EXERCICES = [
 
   // BARRE SEULE (EX-B01 à EX-B12)
   {
-    id: "EX-B01", nom: "Kayak simulé",
+    id: "EX-B01", nom: "Kayak simulé", photo: "EX-B01.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Barre seule",
@@ -4080,7 +4081,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B02", nom: "Bâton de ski barre",
+    id: "EX-B02", nom: "Bâton de ski barre", photo: "EX-B02.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Barre seule",
@@ -4094,7 +4095,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B03", nom: "Rotation du tronc rapide",
+    id: "EX-B03", nom: "Rotation du tronc rapide", photo: "EX-B03.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Barre seule",
@@ -4108,7 +4109,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B04", nom: "Scie alternée barre",
+    id: "EX-B04", nom: "Scie alternée barre", photo: "EX-B04.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Barre seule",
@@ -4122,7 +4123,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B05", nom: "Windmill barre",
+    id: "EX-B05", nom: "Windmill barre", photo: "EX-B05.jpg",
     type: "Cardio", mode: "INTENSITE",
     positions: ["Debout","Assis"],
     equipement: "Barre seule",
@@ -4136,7 +4137,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B06", nom: "Squat",
+    id: "EX-B06", nom: "Squat", photo: "EX-B06.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre seule",
@@ -4150,7 +4151,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B07", nom: "Fentes avant",
+    id: "EX-B07", nom: "Fentes avant", photo: "EX-B07.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre seule",
@@ -4164,7 +4165,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B08", nom: "Fentes latérales",
+    id: "EX-B08", nom: "Fentes latérales", photo: "EX-B08.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre seule",
@@ -4178,7 +4179,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B09", nom: "Hip hinge",
+    id: "EX-B09", nom: "Hip hinge", photo: "EX-B09.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre seule",
@@ -4192,7 +4193,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B10", nom: "Crunch",
+    id: "EX-B10", nom: "Crunch", photo: "EX-B10.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Allongé"],
     equipement: "Barre seule",
@@ -4206,7 +4207,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B11", nom: "Russian twist",
+    id: "EX-B11", nom: "Russian twist", photo: "EX-B11.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Assis","Allongé"],
     equipement: "Barre seule",
@@ -4220,7 +4221,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-B12", nom: "Relevé de buste",
+    id: "EX-B12", nom: "Relevé de buste", photo: "EX-B12.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Allongé"],
     equipement: "Barre seule",
@@ -4236,7 +4237,7 @@ const EXERCICES = [
 
   // BARRE + ÉLASTIQUES (EX-E01 à EX-E26)
   {
-    id: "EX-E01", nom: "Curl biceps",
+    id: "EX-E01", nom: "Curl biceps", photo: "EX-E01.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4251,7 +4252,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E02", nom: "Rowing debout",
+    id: "EX-E02", nom: "Rowing debout", photo: "EX-E02.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4266,7 +4267,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E03", nom: "Élévations frontales",
+    id: "EX-E03", nom: "Élévations frontales", photo: "EX-E03.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4281,7 +4282,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E04", nom: "Upright row",
+    id: "EX-E04", nom: "Upright row", photo: "EX-E04.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4296,7 +4297,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E05", nom: "Shrug",
+    id: "EX-E05", nom: "Shrug", photo: "EX-E05.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4311,7 +4312,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E06", nom: "Squat résisté",
+    id: "EX-E06", nom: "Squat résisté", photo: "EX-E06.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4326,7 +4327,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E07", nom: "Thruster",
+    id: "EX-E07", nom: "Thruster", photo: "EX-E07.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4341,7 +4342,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E08", nom: "Squat + curl biceps",
+    id: "EX-E08", nom: "Squat + curl biceps", photo: "EX-E08.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4356,7 +4357,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E09", nom: "Élévations latérales assis",
+    id: "EX-E09", nom: "Élévations latérales assis", photo: "EX-E09.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Assis"],
     equipement: "Barre avec élastique",
@@ -4371,7 +4372,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E10", nom: "Développé militaire assis",
+    id: "EX-E10", nom: "Développé militaire assis", photo: "EX-E10.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Assis"],
     equipement: "Barre avec élastique",
@@ -4386,7 +4387,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E11", nom: "Curl biceps assis",
+    id: "EX-E11", nom: "Curl biceps assis", photo: "EX-E11.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Assis"],
     equipement: "Barre avec élastique",
@@ -4401,7 +4402,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E12", nom: "Press pectoraux",
+    id: "EX-E12", nom: "Press pectoraux", photo: "EX-E12.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Debout","Assis"],
     equipement: "Barre avec élastique",
@@ -4416,7 +4417,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E13", nom: "Fly pectoraux",
+    id: "EX-E13", nom: "Fly pectoraux", photo: "EX-E13.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout","Assis"],
     equipement: "Barre avec élastique",
@@ -4431,7 +4432,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E14", nom: "Press incliné",
+    id: "EX-E14", nom: "Press incliné", photo: "EX-E14.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Assis"],
     equipement: "Barre avec élastique",
@@ -4446,7 +4447,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E15", nom: "Tirage horizontal",
+    id: "EX-E15", nom: "Tirage horizontal", photo: "EX-E15.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Debout","Assis"],
     equipement: "Barre avec élastique",
@@ -4461,7 +4462,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E16", nom: "Tirage buste penché",
+    id: "EX-E16", nom: "Tirage buste penché", photo: "EX-E16.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4476,7 +4477,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E17", nom: "Face pull",
+    id: "EX-E17", nom: "Face pull", photo: "EX-E17.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4491,7 +4492,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E18", nom: "Rotation du tronc résistée",
+    id: "EX-E18", nom: "Rotation du tronc résistée", photo: "EX-E18.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4506,7 +4507,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E19", nom: "Chop diagonal",
+    id: "EX-E19", nom: "Chop diagonal", photo: "EX-E19.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4521,7 +4522,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E20", nom: "Reverse chop",
+    id: "EX-E20", nom: "Reverse chop", photo: "EX-E20.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4536,7 +4537,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E21", nom: "Press horizontal résisté",
+    id: "EX-E21", nom: "Press horizontal résisté", photo: "EX-E21.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4551,7 +4552,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E22", nom: "Tirage vertical",
+    id: "EX-E22", nom: "Tirage vertical", photo: "EX-E22.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Debout","Assis"],
     equipement: "Barre avec élastique",
@@ -4566,7 +4567,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E23", nom: "Extension triceps debout",
+    id: "EX-E23", nom: "Extension triceps debout", photo: "EX-E23.jpg",
     type: "Renforcement", mode: "MIXTE",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4581,7 +4582,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E24", nom: "Crunch résisté",
+    id: "EX-E24", nom: "Crunch résisté", photo: "EX-E24.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout","Assis"],
     equipement: "Barre avec élastique",
@@ -4596,7 +4597,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E25", nom: "Pull over debout",
+    id: "EX-E25", nom: "Pull over debout", photo: "EX-E25.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Debout"],
     equipement: "Barre avec élastique",
@@ -4611,7 +4612,7 @@ const EXERCICES = [
     }
   },
   {
-    id: "EX-E26", nom: "Extension triceps chaise",
+    id: "EX-E26", nom: "Extension triceps chaise", photo: "EX-E26.jpg",
     type: "Renforcement", mode: "AUTO_REPS",
     positions: ["Assis"],
     equipement: "Barre avec élastique",
@@ -8847,7 +8848,11 @@ const EXO_PHOTO_POOL = { Cardio: [1,2,3,4,5,6,7,8,9,10], Renforcement: [11,12,13
 // Bibliothèque interne de photos — pas d'upload possible dans ce proto (aucun backend), donc on
 // choisit parmi les assets déjà là plutôt que de les subir automatiquement (thème/pool). Le choix
 // est stocké sur l'entrée créée (photo:) et prime toujours sur la logique automatique.
-const EXO_STOCK_PHOTOS = Array.from({length:20},(_,i)=>'exercise-'+String(i+1).padStart(2,'0')+'.jpg').concat(['shadow.jpg']);
+// Un fichier par exercice (12 sept. 2026) : les 20 photos du pool etaient toutes IDENTIQUES et
+// distribuees par hachage d'id, donc 49 exercices partageaient une seule image. Chacun pointe
+// desormais sur son propre fichier, nomme d'apres son id — les visuels definitifs se remplacent un
+// par un apres la seance photo, sans toucher une ligne de code.
+const EXO_STOCK_PHOTOS = EXERCICES.map(e=>e.photo).filter((v,i,a)=>v && a.indexOf(v)===i).concat(['shadow.jpg']).filter((v,i,a)=>a.indexOf(v)===i);
 const THEME_STOCK_PHOTOS = ['programme-cardio.jpg','programme-renforcement.jpg','programme-mobilite.jpg','programme-entretien.jpg','shadow.jpg'];
 function openPhotoPicker(photos, current, onPickFn){
   const grid=photos.map(ph=>'<div onclick="'+onPickFn+'(\''+ph+'\');closeModal();" style="aspect-ratio:1;border-radius:12px;background-image:url(\''+ph+'\');background-size:cover;background-position:center;cursor:pointer;'+(ph===current?'outline:3px solid var(--orange);outline-offset:2px;':'')+'"></div>').join('');
@@ -13493,10 +13498,20 @@ function setLang(lang){
     // dictionnaire : sans ce rappel elle resterait dans la langue du dernier rendu.
     if(document.getElementById('progPeriodView')) renderProgPeriod(progActivePeriod);
   }catch(e){}
-  const flags = {fr:'FR', en:'EN', de:'DE'};
+  // Pas de drapeaux, et plus de code ISO non plus (12 sept. 2026). Un drapeau designe un PAYS, pas une
+  // langue : le drapeau francais dit a un Belge, un Suisse, un Quebecois ou un Senegalais que ce n'est
+  // pas pour lui — et kinmio part en B2B dans des centres, ou ce genre d'imprecision se remarque.
+  // Mais « FR » etait un code, pas un mot : le bouton porte desormais un globe et le nom de la langue
+  // DANS SA PROPRE LANGUE, ce qui est a la fois plus visuel qu'un drapeau miniature illisible a 15 px,
+  // et juste. Les noms existaient deja dans le menu deroulant (flagsFull) — seul le bouton compact
+  // retombait sur l'abreviation.
   const flagsFull = {fr:'Français', en:'English', de:'Deutsch'};
   const btn = document.getElementById('langBtn');
-  if(btn) btn.textContent = flags[lang] || flags.en;
+  if(btn){
+    const nom = flagsFull[lang] || flagsFull.en;
+    btn.innerHTML = '<svg class="ki" style="width:15px;height:15px;"><use href="#ki-globe"/></svg><span data-notranslate="1">'+nom+'</span>';
+    btn.setAttribute('aria-label', nom);
+  }
   document.querySelectorAll('.lang-row-label').forEach(el=>{ el.textContent = flagsFull[lang] || flagsFull.en; });
   document.querySelectorAll('#langPopup [data-lang]').forEach(row=>{
     row.querySelectorAll('.lang-check').forEach(mark=>mark.remove());
