@@ -498,6 +498,11 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 
 /* ===== HOME V2 (refonte) ===== */
 .zone-lbl{font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;margin:20px 20px 12px;}
+/* Pastille d'info : le glyphe fait 14 px, soit le tiers du seuil de 44 px — et il y en a jusqu'à six
+   sur un même écran (audit Progrès). On agrandit la ZONE, pas le DESSIN : un ::after transparent et
+   centré porte la cible tactile sans rien déplacer dans la mise en page ni grossir le pictogramme. */
+.info-i{position:relative;}
+.info-i::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
 
 /* ===== PROGRAMME ===== */
 .prog-hero{padding:24px 20px 20px;flex-shrink:0;}
@@ -9192,7 +9197,11 @@ function getWeekDayBars(sessions){
   const bars=[];
   for(let i=6;i>=0;i--){
     const dayStart=Math.floor(Date.now()/HIST_DAY)-i;
-    const label=new Date(dayStart*HIST_DAY).toLocaleDateString('en-US',{weekday:'narrow'});
+    // Locale figee sur 'en-US' : la frise affichait S M T W T F S sous l'interface francaise, alors que
+    // la grille du calendrier, elle, disait bien L M M J V S D (audit Progres — meme famille que les
+    // libelles de mois). Les etiquettes portent data-notranslate, elles ne pouvaient pas etre rattrapees
+    // par le dictionnaire : c'est ici qu'il faut localiser.
+    const label=new Date(dayStart*HIST_DAY).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{weekday:'narrow'});
     bars.push({l:label, v:sessions.filter(h=>Math.floor(h.date/HIST_DAY)===dayStart).length});
   }
   return bars;
@@ -9261,6 +9270,33 @@ function renderProgBadges(elId){
   sweepTranslate(el, currentLang);
 }
 function getPeriodLabel(periodKey){ return periodKey==='semaine'?'7 days':periodKey==='mois'?'30 days':'90 days'; }
+// Fenêtre réelle de l'onglet, en clair — "7 jours" ne disait jamais depuis quand (audit Progrès).
+// data-notranslate : la chaîne est déjà composée dans la bonne langue par toLocaleDateString.
+function periodWindowLabel(periodKey){
+  const days=PROG_PERIOD_DAYS[periodKey];
+  const to=new Date(), from=new Date(Date.now()-(days-1)*HIST_DAY);
+  const loc = currentLang==='fr' ? 'fr-FR' : 'en-US';
+  const sameMonth = from.getMonth()===to.getMonth() && from.getFullYear()===to.getFullYear();
+  // Dans un meme mois, le mois ne s'ecrit qu'une fois — mais pas du meme cote : le francais le place
+  // apres le quantieme ("6 -> 12 sept."), l'anglais avant ("Sep 6 -> 12"). Le porter toujours sur la
+  // borne de droite donnait "6 -> Sep 12" en anglais.
+  const full={day:'numeric', month:'short'}, bare={day:'numeric'};
+  if(sameMonth && currentLang!=='fr') return from.toLocaleDateString(loc, full)+' → '+to.toLocaleDateString(loc, bare);
+  return from.toLocaleDateString(loc, sameMonth ? bare : full)+' → '+to.toLocaleDateString(loc, full);
+}
+// Verdict de régularité sur la période — remplace le pourcentage, qui répétait la fraction affichée
+// juste en dessous. Cinq états exprimés en RYTHME et non en nombre de jours manquants : sur 90 jours,
+// "34 jours sous l'objectif" est un chiffre qui accable sans rien apprendre. Seuls les deux états
+// atteints portent l'émeraude ; les autres restent neutres — Progrès est un bilan, pas une alerte.
+function periodRegularityState(days, goal){
+  if(!goal) return {label:trDyn('No goal set'), color:'var(--gray2)'};
+  const r=days/goal;
+  if(r>1) return {label:trDyn('Goal exceeded'), color:'var(--brand-fixed)'};
+  if(r>=1) return {label:trDyn('Goal met'), color:'var(--brand-fixed)'};
+  if(r>=.7) return {label:trDyn('Close to your goal'), color:'var(--gray2)'};
+  if(r>=.4) return {label:trDyn('Below your usual rhythm'), color:'var(--gray2)'};
+  return {label:trDyn('Rhythm to rebuild'), color:'var(--gray2)'};
+}
 // Vue période unifiée (Semaine/Mois/Année) : 3 blocs à logique claire (Assiduité, Tendance,
 // Équilibre) au lieu des 8 cartes précédentes — remplace renderProgWeek/Month/Year.
 function renderProgPeriod(periodKey){
@@ -9307,30 +9343,55 @@ function renderProgPeriod(periodKey){
   const effortDelta = (effortPct!=null && prevSessions.length) ? ptsDelta(effortPct, effortPctPrev||0) : null;
   const zonePct=computeZonePct(sessions);
   let html='';
+  // Fenêtre datée (audit Progrès, sept. 2026) : les onglets disent "7 jours" sans jamais dire DEPUIS
+  // QUAND. Une glissante depuis aujourd'hui, mais rien ne le disait — impossible de savoir si lundi
+  // dernier est dedans ou dehors en comparant avec son calendrier. Composée à l'affichage, donc
+  // renderProgPeriod est rappelée depuis setLang (sinon la date reste dans la langue du dernier rendu).
+  html+='<div style="font-size:11px;color:var(--gray2);margin:0 0 14px;" data-notranslate="1">'+periodWindowLabel(periodKey)+'</div>';
   // ---- Bloc 1 : Regularity (même nom que Home, ex-"Consistency" — un seul mot pour la même métrique
   // sur les 2 écrans, cf discussion) — est-ce que je m'entraîne assez souvent ? ----
-  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over the last '+getPeriodLabel(periodKey)+', versus your goal for that window. Attendance rate = the same ratio read as a percentage. Best streak = your longest run of consecutive training days in that window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+  // Le héros portait "100%" avec "3/3" treize pixels plus bas : le MÊME calcul en deux notations (le
+  // commentaire de l'ancien code l'admettait). Audit Progrès : la fraction monte en héros — elle dit
+  // l'objectif ET l'atteinte, là où le % ne dit ni l'un ni l'autre et se plafonne (5 jours sur un
+  // objectif de 3 s'affichaient aussi "100%"). La place libérée prend le VERDICT, comme la carte
+  // Objectif de l'Accueil. Effet secondaire voulu : passer de 7 à 90 jours ne fait plus chuter le héros
+  // de 100% à 13% sans raison — 3/3 → 5/39 montre son dénominateur et explique sa propre chute.
+  const regState=periodRegularityState(daysThis, goalRounded);
+  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over the last '+getPeriodLabel(periodKey)+', versus your goal for that window. All-time best = your longest run of consecutive training days since you started — that one is not limited to this window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
-    +'<div style="display:flex;align-items:baseline;gap:8px;min-width:0;margin-bottom:14px;">'
-    +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;flex-shrink:0;">'+assiduitePct+'%</div>'
-    +'<div style="font-size:13px;color:var(--gray2);">attendance rate</div>'
+    +'<div style="display:flex;align-items:baseline;gap:8px;min-width:0;">'
+    +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;flex-shrink:0;">'+daysThis+'/'+goalRounded+'</div>'
+    +'<div style="font-size:13px;color:var(--gray2);">training days</div>'
     +'</div>'
+    +'<div style="font-size:12.5px;font-weight:600;color:'+regState.color+';margin:7px 0 14px;">'+regState.label+'</div>'
     // Même structure sur les 3 onglets (7/30/90j) — seule la donnée change, jamais la mise en page.
     +'<div style="display:flex;gap:10px;">'
-      +'<div style="flex:1;text-align:center;"><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;"><div style="font-size:20px;font-weight:800;color:var(--white);">'+daysThis+'/'+goalRounded+'</div>'+(daysDelta!==0?'<span style="font-size:10px;font-weight:700;color:'+(daysDelta>0?'var(--teal)':'var(--red)')+';">'+(daysDelta>0?'↑+':'↓-')+Math.abs(daysDelta)+'d</span>':'')+'</div><div style="font-size:11px;color:var(--gray);">training days</div></div>'
-      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--white);">'+bestStreak+'d</div><div style="font-size:11px;color:var(--gray);">Best streak</div></div>'
+      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:'+(daysDelta!==0?'var(--white)':'var(--gray2)')+';">'+(daysDelta>0?'+'+daysDelta:daysDelta<0?daysDelta:'→')+(daysDelta!==0?'<span style="font-size:13px;font-weight:700;color:var(--gray2);">d</span>':'')+'</div><div style="font-size:11px;color:var(--gray2);">vs previous '+getPeriodLabel(periodKey)+'</div></div>'
+      // "Record absolu" et non "Meilleure série" : computeBestStreak() balaie TOUT l'historique et ne
+      // reçoit jamais la période — le même chiffre s'affichait sur 7, 30 et 90 jours sous une info-bulle
+      // qui promettait "sur cette période". Le libellé dit désormais ce que le calcul fait vraiment.
+      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--white);">'+bestStreak+'d</div><div style="font-size:11px;color:var(--gray2);">All-time best</div></div>'
       +'</div>'
+    // Le "0" au-dessus d'une barre vide répétait ce que la barre plate dit déjà — et c'était sa seule
+    // fonction. Neuf zéros alignés sur 90 jours. L'absence est le signal ; la hauteur de ligne est
+    // conservée pour que les barres restent alignées.
     +'<div class="bars" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'
-    +bars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'">'+b.v+'</div><div class="bar" style="height:'+(b.v?(18+Math.min(b.v,4)*8):18)+'px;background:'+(b.v?'var(--orange)':'var(--bg3)')+';"></div><div class="bar-l" data-notranslate="1">'+b.l+'</div></div>').join('')
+    +bars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'" style="'+(b.v===0?'visibility:hidden;':'')+'">'+b.v+'</div><div class="bar" style="height:'+(b.v?(18+Math.min(b.v,4)*8):18)+'px;background:'+(b.v?'var(--orange)':'var(--bg3)')+';"></div><div class="bar-l" data-notranslate="1">'+b.l+'</div></div>').join('')
     +'</div>'
     +'</div>';
 
   // ---- Bloc 2 : Volume (même nom que Home) — combien de temps/de séances, en brut ? ----
+  // Une baisse ne se peint plus en vigilance (audit Progrès) : toute la thèse de kinmio est que la carte
+  // d'ajustement sur signal ALLÈGE volontairement la séance quand la douleur monte ou que la charge
+  // dérape. L'utilisateur qui suit cette recommandation voyait ensuite Progrès la sanctionner en orange —
+  // deux écrans qui disent l'inverse de la même semaine. La flèche ↓ reste le marqueur non-coloré exigé
+  // par la charte ; l'orange est réservé au bloc Charge & Douleur, seul endroit où une variation appelle
+  // vraiment une décision.
   const volCell=(lbl,val,prev,cur)=>{
     const d=pctDelta(cur,prev);
-    const cc=d.dir==='up'?'var(--teal)':d.dir==='down'?'var(--vigilance)':'var(--gray)';
+    const cc=d.dir==='up'?'var(--teal)':'var(--gray2)';
     const ar=d.dir==='up'?'↑':d.dir==='down'?'↓':'→';
-    return '<div style="font-size:12px;color:var(--gray);margin-bottom:4px;">'+lbl+'</div>'
+    return '<div style="font-size:12px;color:var(--gray2);margin-bottom:4px;">'+lbl+'</div>'
       +'<div style="display:flex;align-items:baseline;gap:4px;"><div style="font-size:15px;font-weight:700;color:var(--gray2);">'+val+'</div>'
       +(prev ? '<div style="font-size:11px;font-weight:700;color:'+cc+';">'+(d.dir==='flat'?'–':ar+' '+d.pct+'%')+'</div>' : '')+'</div>';
   };
@@ -9340,9 +9401,9 @@ function renderProgPeriod(periodKey){
     +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">'
     +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;">'+dureeTotal+'</div>'
     +'<div style="font-size:13px;color:var(--gray2);">min</div>'
-    +(dureeTotalPrev ? '<span style="font-size:12px;font-weight:700;color:'+(dureeDelta.dir==='up'?'var(--teal)':dureeDelta.dir==='down'?'var(--vigilance)':'var(--gray)')+';margin-left:auto;">'+(dureeDelta.dir==='up'?'↑':dureeDelta.dir==='down'?'↓':'→')+' '+dureeDelta.pct+'%</span>' : '')
+    +(dureeTotalPrev ? '<span style="font-size:12px;font-weight:700;color:'+(dureeDelta.dir==='up'?'var(--teal)':'var(--gray2)')+';margin-left:auto;">'+(dureeDelta.dir==='up'?'↑':dureeDelta.dir==='down'?'↓':'→')+' '+dureeDelta.pct+'%</span>' : '')
     +'</div>'
-    +'<div style="font-size:11.5px;color:var(--gray);margin-bottom:14px;">'+sessions.length+' session'+(sessions.length!==1?'s':'')+(sessions.length?' · '+avgMinPerSession+' min avg/session':'')+'</div>'
+    +'<div style="font-size:11.5px;color:var(--gray2);margin-bottom:14px;">'+sessions.length+' session'+(sessions.length!==1?'s':'')+(sessions.length?' · '+avgMinPerSession+' min avg/session':'')+'</div>'
     +'<div style="display:flex;padding-top:14px;border-top:1px solid var(--border);">'
     +'<div style="flex:1;padding-right:14px;border-right:1px solid var(--border);">'+volCell('Exercises', exercicesTotal, exercicesPrevTotal, exercicesTotal)+'</div>'
     +'<div style="flex:1;padding-left:14px;padding-right:14px;border-right:1px solid var(--border);">'+volCell('Cardio min', Math.round(cardioMinTotal), cardioMinPrevTotal, cardioMinTotal)+'</div>'
@@ -9358,9 +9419,9 @@ function renderProgPeriod(periodKey){
     html+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;">'+effortPct+'%</div>'
-      +(effortDelta ? '<span style="font-size:12px;font-weight:700;color:'+(effortDelta.dir==='up'?'var(--teal)':effortDelta.dir==='down'?'var(--vigilance)':'var(--gray)')+';margin-left:auto;">'+(effortDelta.dir==='up'?'↑':effortDelta.dir==='down'?'↓':'→')+' '+effortDelta.pct+'pts</span>' : '')
+      +(effortDelta ? '<span style="font-size:12px;font-weight:700;color:'+(effortDelta.dir==='up'?'var(--teal)':'var(--gray2)')+';margin-left:auto;">'+(effortDelta.dir==='up'?'↑':effortDelta.dir==='down'?'↓':'→')+' '+effortDelta.pct+'pts</span>' : '')
       +'</div>'
-      +'<div style="font-size:11.5px;color:var(--gray);margin-top:6px;">vs your all-time best '+getPeriodLabel(periodKey)+' window</div>'
+      +'<div style="font-size:11.5px;color:var(--gray2);margin-top:6px;">vs your all-time best '+getPeriodLabel(periodKey)+' window</div>'
       +'</div>';
   }
 
@@ -9378,7 +9439,7 @@ function renderProgPeriod(periodKey){
       return ZONE_DONUT_COLORS[k]+' '+from+'% '+to+'%';
     }).join(', ');
     donutLegend = RADAR_ZONE_KEYS.filter(k=>zonePct[k]>0).sort((a,b)=>zonePct[b]-zonePct[a]).map(k=>
-      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;"><div style="width:7px;height:7px;border-radius:50%;background:'+ZONE_DONUT_COLORS[k]+';flex-shrink:0;"></div><div style="flex:1;font-size:11px;color:var(--gray2);">'+ZONE_LABELS_RADAR[k]+'</div><div style="font-size:11px;font-weight:700;color:var(--white);">'+zonePct[k]+'%</div></div>'
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;"><div style="width:8px;height:8px;border-radius:50%;background:'+ZONE_DONUT_COLORS[k]+';flex-shrink:0;"></div><div style="flex:1;font-size:11.5px;color:var(--gray2);">'+ZONE_LABELS_RADAR[k]+'</div><div style="font-size:11px;font-weight:700;color:var(--white);">'+zonePct[k]+'%</div></div>'
     ).join('');
   }
   html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">BODY ZONES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Body zones\',\'Where your training time actually goes, over the last '+getPeriodLabel(periodKey)+' — time spent per muscle group.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
@@ -9386,7 +9447,7 @@ function renderProgPeriod(periodKey){
     +(zonePct ? '<div style="display:flex;align-items:center;gap:20px;">'
       +'<div style="width:100px;height:100px;border-radius:50%;flex-shrink:0;background:conic-gradient('+donutGradient+');position:relative;"><div style="position:absolute;inset:22px;border-radius:50%;background:var(--bg2);"></div></div>'
       +'<div style="flex:1;">'+donutLegend+'</div>'
-      +'</div>' : '<div style="font-size:12px;color:var(--gray);margin:10px 0;">Complete a few sessions to see your body balance.</div>')
+      +'</div>' : '<div style="font-size:12px;color:var(--gray2);margin:10px 0;">Complete a few sessions to see your body balance.</div>')
     +'</div>';
 
   // ---- Bloc 5 : Exercices favoris (fréquence, tous types) — même style carte que Consistency/Effort/
@@ -9471,6 +9532,7 @@ function shiftProgCalendarMonth(delta){
   progCalMonth = new Date(progCalMonth.getFullYear(), progCalMonth.getMonth()+delta, 1);
   clearCalSelection();
   renderProgCalendar();
+  autoSelectCalDay();
 }
 // Retour direct à aujourd'hui, à la place de la flèche droite qui ne sert qu'une fois par mois (cf
 // audit calendrier, tâche 4).
@@ -9685,8 +9747,23 @@ function selectProgCalDay(year, month, day){
 // les badges + les notes perso, qui ne sont pas des métriques de période. L'ancienne section "Your
 // personal records" (PROG_RECORDS/PROG_RECORDS_MARC) était 100% inventée (aucun lien avec les vraies
 // séances) — retirée plutôt que déplacée.
+// Présélection du dernier jour entraîné du mois affiché (audit Progrès) : le panneau de détail restait
+// vide tant qu'on n'avait pas tapé une date, laissant ~250 px — 28 % de la hauteur — sans rien entre la
+// légende et la barre de navigation, et rien n'indiquait qu'il fallait taper. On ne présélectionne pas
+// AUJOURD'HUI, souvent vide : un jour rempli montre d'emblée à quoi ressemble le panneau, ce qui
+// enseigne le geste sans une ligne d'explication.
+function autoSelectCalDay(){
+  if(progCalSelectedDate!==null) return;
+  const y=progCalMonth.getFullYear(), m=progCalMonth.getMonth();
+  const inMonth=userSessionHistory.filter(h=>{ const d=new Date(h.date); return d.getFullYear()===y && d.getMonth()===m; });
+  if(!inMonth.length) return;
+  const last=inMonth.reduce((a,b)=>a.date>b.date?a:b);
+  const d=new Date(last.date);
+  selectProgCalDay(d.getFullYear(), d.getMonth(), d.getDate());
+}
 function renderProgRecords(){
   renderProgCalendar();
+  autoSelectCalDay();
   // Les notes perso sont un objet global, pas rattaché à un patient — jamais montrées côté coach
   // (même logique que la fuite Marc/patient déjà évitée sur cet écran, cf renderPatientHistoryList).
   const viaCoach = currentRole==='referent' && curPatient;
@@ -11445,6 +11522,19 @@ const EN_FR = {
   "INTENSITY": "INTENSITÉ",
   "VOLUME & INTENSITY": "VOLUME & INTENSITÉ",
   "vs your all-time best 7-day window": "vs ta meilleure fenêtre de 7 jours jamais atteinte",
+  "BODY ZONES": "ZONES DU CORPS",
+  "Goal met": "Objectif tenu",
+  "Close to your goal": "Proche de ton objectif",
+  "Below your usual rhythm": "En dessous de ton rythme",
+  "Rhythm to rebuild": "Rythme à reprendre",
+  "No goal set": "Pas d'objectif défini",
+  "All-time best": "Record absolu",
+  "vs previous 7 days": "vs les 7 jours précédents",
+  "vs previous 30 days": "vs les 30 jours précédents",
+  "vs previous 90 days": "vs les 90 jours précédents",
+  "How many days you trained over the last 7 days, versus your goal for that window. All-time best = your longest run of consecutive training days since you started — that one is not limited to this window.": "Le nombre de jours où tu t'es entraîné sur les 7 derniers jours, par rapport à ton objectif sur cette période. Record absolu = ta plus longue suite de jours d'entraînement consécutifs depuis le début — celui-là n'est pas limité à cette période.",
+  "How many days you trained over the last 30 days, versus your goal for that window. All-time best = your longest run of consecutive training days since you started — that one is not limited to this window.": "Le nombre de jours où tu t'es entraîné sur les 30 derniers jours, par rapport à ton objectif sur cette période. Record absolu = ta plus longue suite de jours d'entraînement consécutifs depuis le début — celui-là n'est pas limité à cette période.",
+  "How many days you trained over the last 90 days, versus your goal for that window. All-time best = your longest run of consecutive training days since you started — that one is not limited to this window.": "Le nombre de jours où tu t'es entraîné sur les 90 derniers jours, par rapport à ton objectif sur cette période. Record absolu = ta plus longue suite de jours d'entraînement consécutifs depuis le début — celui-là n'est pas limité à cette période.",
   "vs your all-time best 7 days window": "vs ta meilleure période de 7 jours jamais atteinte",
   "vs your all-time best 30 days window": "vs ta meilleure période de 30 jours jamais atteinte",
   "vs your all-time best 90 days window": "vs ta meilleure période de 90 jours jamais atteinte",
@@ -13179,6 +13269,9 @@ function setLang(lang){
     // « Prochain badge : Premier mois — 13 restantes » est une seule chaîne assemblée au rendu : les
     // libellés des cartes sont des clés de dictionnaire et suivaient la langue, pas cette ligne-là.
     if(document.getElementById('defisBadgesSection')) renderProgBadges('defisBadgesSection');
+    // La fenetre datee ("6 -> 12 sept.") est composee par toLocaleDateString, donc invisible du
+    // dictionnaire : sans ce rappel elle resterait dans la langue du dernier rendu.
+    if(document.getElementById('progPeriodView')) renderProgPeriod(progActivePeriod);
   }catch(e){}
   const flags = {fr:'FR', en:'EN', de:'DE'};
   const flagsFull = {fr:'Français', en:'English', de:'Deutsch'};
