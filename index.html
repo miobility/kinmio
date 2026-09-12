@@ -11051,6 +11051,17 @@ function renderProgCalendarView(){
   renderProgCalendar();
   autoSelectCalDay();
 }
+// Anatomie "je consulte" : nom a gauche, le chiffre qui resume a droite, rien d'autre. Une seule
+// fabrique pour l'historique, les favoris et les maitrises — trois listes voisines qui avaient trois
+// paddings et trois hauteurs. Pas de chevron : la ligne entiere est tapable, et l'historique n'en a
+// jamais eu.
+function ligneConsultation(nom, valeur, opts){
+  const o=opts||{};
+  return '<div'+(o.onclick?' onclick="'+o.onclick+'"':'')+' style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid var(--border);'+(o.onclick?'cursor:pointer;':'')+'">'
+    +'<span style="font-size:13.5px;font-weight:600;color:var(--white);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nom
+      +(o.marque?'<span style="color:var(--gray2);font-weight:400;"> · '+o.marque+'</span>':'')+'</span>'
+    +'<span style="font-size:11.5px;color:'+(o.couleur||'var(--gray2)')+';flex-shrink:0;font-variant-numeric:tabular-nums;white-space:nowrap;">'+valeur+'</span></div>';
+}
 function renderTopExercises(){
   const favSec=document.getElementById('progFavoritesSection'), favEl=document.getElementById('progFavoritesList');
   if(!favSec || !favEl) return;
@@ -11066,7 +11077,7 @@ function renderTopExercises(){
   // Favorites : fréquence pure, tous types mélangés — "qu'est-ce que j'aime faire", pas "à quel niveau".
   const favorites=entries.slice().sort((a,b)=>b.count-a.count).slice(0,5);
   favEl.innerHTML = favorites.length
-    ? favorites.map(e=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="openExerciceNouveau(\''+e.id+'\')"><span style="font-size:13px;color:var(--white);">'+(e.type==='Cardio'?TYPE_ICON_LIB.Cardio+' ':TYPE_ICON_LIB.Renforcement+' ')+e.nom+'</span><span style="font-size:12px;color:var(--gray2);">'+e.count+' session'+(e.count>1?'s':'')+' ›</span></div>').join('')
+    ? favorites.map(e=>ligneConsultation(e.nom, e.count+' session'+(e.count>1?'s':''), {onclick:"openExerciceNouveau('"+e.id+"')"})).join('')
     : '<div style="font-size:12px;color:var(--gray);padding:8px 0;">Not enough data yet</div>';
   favSec.style.display = favorites.length ? 'block' : 'none';
   sweepTranslate(favEl, currentLang);
@@ -11080,8 +11091,8 @@ function renderMasterySection(sectionId, periodKey){
   if(!byLevel.length){ sec.style.display='none'; return; }
   sec.style.display='block';
   listEl.innerHTML=byLevel.map(({jauge,top})=>
-    '<div style="font-size:12px;color:var(--gray);margin:10px 0 6px;">Level '+jauge+'</div>'
-    +top.map(({ex,pctAvg,levelDelta})=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="openExerciceNouveau(\''+ex.id+'\')"><span style="font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50vw;display:inline-block;vertical-align:middle;">'+TYPE_ICON_LIB.Cardio+' '+ex.nom+'</span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">'+(levelDelta ? '<span style="font-size:10px;font-weight:700;color:'+(levelDelta>0?'var(--teal)':'var(--red)')+';" title="Level change this period">'+(levelDelta>0?'↑+':'↓')+levelDelta+'</span>' : '')+'<span style="font-size:12px;font-weight:700;color:var(--teal);">'+pctAvg+'% in zone</span></span></div>').join('')
+    '<div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;">Level '+jauge+'</div>'
+    +top.map(({ex,pctAvg,levelDelta})=>ligneConsultation(ex.nom, pctAvg+'% '+trDyn('in the zone'), {onclick:"openExerciceNouveau('"+ex.id+"')", marque: levelDelta ? ((levelDelta>0?'↑+':'↓')+Math.abs(levelDelta)) : null})).join('')
   ).join('');
   sweepTranslate(listEl, currentLang);
 }
@@ -18207,23 +18218,20 @@ function renderProgHistoryList(){
     const d=new Date(h.date);
     const monthKey=d.getFullYear()+'-'+d.getMonth();
     const monthLbl=d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{month:'long',year:'numeric'});
-    const sep = monthKey!==lastMonthKey ? '<div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;">'+monthLbl+'</div>' : '';
+    const sep = monthKey!==lastMonthKey ? '<div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;">'+monthLbl+'</div>' : '';
     lastMonthKey=monthKey;
     const dateLbl=d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
     const kind=histKind(h);
     const tagHtml='<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--gray2);color:var(--gray2);padding:2px 8px;font-size:10px;">'+trDyn(KIND_TAG[kind].lbl)+'</span>';
-    const ligne=(droite, marque)=>'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid var(--border);cursor:pointer;">'
-      +'<span style="font-size:13.5px;font-weight:600;color:var(--white);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+trDyn(h.nom)
-        +(marque?'<span style="color:var(--gray2);font-weight:400;"> · '+marque+'</span>':'')+'</span>'
-      +'<span style="font-size:11.5px;color:var(--gray2);flex-shrink:0;font-variant-numeric:tabular-nums;">'+droite+'</span></div>';
+    const ligne=(droite, marque)=>ligneConsultation(trDyn(h.nom), droite, {marque, onclick:'openHistItem('+i+')'});
     if(kind==='programme'){
-      return sep+'<div onclick="openHistItem('+i+')">'+ligne(dateLbl, trDyn(KIND_TAG[kind].lbl))+'</div>';
+      return sep+ligne(dateLbl, trDyn(KIND_TAG[kind].lbl));
     }
     if(kind==='attempt'){
       // Un fait, pas un verdict : "Interrompue" plutôt que "Abandonnée" — même information, sans le mot-jugement.
       const doneOf = currentLang==='fr' ? (h.exercicesDone+' sur '+h.exercicesTotal+' exercices') : (h.exercicesDone+' of '+h.exercicesTotal+' exercises');
       // "Interrompue" reste sur la ligne : c'est la seule chose que le nom ne dit pas.
-      return sep+'<div onclick="openHistItem('+i+')">'+ligne(dateLbl+' · '+trDyn(h.dureeReelle+' min'), trDyn(KIND_TAG[kind].lbl))+'</div>';
+      return sep+ligne(dateLbl+' · '+trDyn(h.dureeReelle+' min'), trDyn(KIND_TAG[kind].lbl));
     }
     // "Fait en 6 min pour 30 prevues" reste la seule marque qui merite la ligne : elle signale au
     // referent une seance qui n'a pas pu avoir lieu comme prevu. Le reste (effort, douleur, source
@@ -18231,7 +18239,7 @@ function renderProgHistoryList(){
     const fast = viaCoach && h.dureeAttendue && h.duree < h.dureeAttendue*0.5;
     // Seance : le nom et la duree. Le reste — exercices, reps, effort, douleur — vit dans le detail,
     // qu'un tap ouvre, et la tendance de douleur a desormais son bloc dans Progres.
-    return sep+'<div onclick="openHistItem('+i+')">'+ligne(dateLbl+' · '+trDyn(h.duree+' min'), fast?trDyn('Short'):null)+'</div>';
+    return sep+ligne(dateLbl+' · '+trDyn(h.duree+' min'), fast?trDyn('Short'):null);
   }).join('');
   window._histRenderedItems = items;   // pour openHistItem(i), évite de refaire le tri/filtre au clic
   sweepTranslate(el, currentLang);
