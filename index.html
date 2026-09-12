@@ -1988,7 +1988,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div id="sessWithRefBadge" style="display:none;text-align:center;padding:8px 16px;background:rgba(var(--teal-rgb),.12);color:var(--teal);font-size:12px;font-weight:700;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Session with Martin Dupont</div>
   <div class="sess-top">
     <div style="display:flex;align-items:center;gap:10px;">
-      <div class="sess-prog">Exercise 2 / 7</div>
+      <div class="sess-prog"></div>
       <div id="sessHR" class="hr-badge" style="display:none;"><span class="hr-beat">❤️</span><span id="sessHRval">--</span></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -2487,7 +2487,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= INTERSTITIEL — EXERCICE SUIVANT (repos) ================= -->
 <div class="screen" id="next_exercise">
   <div class="sess-top">
-    <div class="sess-prog">Exercise 3 / 7</div>
+    <div class="sess-prog"></div>
     <button class="sess-stop" onclick="toggleNextExoPause()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,4v16 /><path d=M16,4v16 /></svg> Pause</button>
   </div>
   <div class="sess-pbar"><div class="sess-pfill" style="width:42%;"></div></div>
@@ -6272,7 +6272,16 @@ function go(id){
   if(id==='programme') setTimeout(()=>{
     preselectSessNouveau();
     if(progEntryToSessions){ progEntryToSessions=false; showProgSessionsStandalone(); }
-    else renderProgProgrammesView();
+    // Sinon : le catalogue de programmes, AFFICHE. renderProgProgrammesView() remplit la vue mais ne
+    // la montre pas — la bascule qui s'en chargeait est partie avec Mon plan lors de la fusion du
+    // 12 sept., et l'ecran est reste vide quel que soit le point d'entree.
+    else {
+      const mon=document.getElementById('progMonView'); if(mon) mon.style.display='none';
+      const sess=document.getElementById('progSessionsView'); if(sess) sess.style.display='none';
+      const progs=document.getElementById('progProgrammesView'); if(progs) progs.style.display='flex';
+      const t=document.getElementById('programmeTopTitle'); if(t) t.textContent=trDyn('Programmes');
+      renderProgProgrammesView();
+    }
   }, 20);
   if(id==='home') currentRole='user';
   if(id==='login'){
@@ -8868,7 +8877,7 @@ function renderHomeObjectifRing(prefix, profile){
   // programme est ce qui produit "3 jours par semaine", c'est la qu'on va pour changer la promesse.
   // Et il tient dans la moitie droite vide de la ligne de titre, donc a cout nul en hauteur — la
   // zone tapable, elle, descend a 44 px par le padding (on agrandit la zone, pas le dessin).
-  const progLink='<span role="button" tabindex="0" onclick="event.stopPropagation();go(\'programme\')" '
+  const progLink='<span role="button" tabindex="0" onclick="event.stopPropagation();showProgMonView()" '
     +'style="font-size:11.5px;font-weight:700;color:var(--gray2);text-transform:none;letter-spacing:0;'
     +'cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:16px 0 16px 16px;margin:-16px 0;">'
     +trDyn('My programme')+'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-fwd"/></svg></span>';
@@ -9502,7 +9511,7 @@ function renderWeekStripHtml(strip){
       // Les jours a venir gardent la fiche : la, c'est bien ce qu'on veut voir.
       const dayClick = (d.statut==='fait' && d.date) ? "openCalSessionRecap("+d.date+")"
         : (d.today || d.statut==='prevu' || d.statut==='planned') ? "openSessionDetail(getSessionDuJour().id)"
-        : "go('programme')";
+        : "showProgMonView()";   // un jour sans seance renvoyait vers un ecran vide
       return '<div style="text-align:center;cursor:pointer;padding:4px 0;" onclick="'+dayClick+'">'
         +'<div style="font-size:10px;'+lblStyle+'text-transform:uppercase;margin-bottom:6px;">'+d.j+'</div>'
         +'<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;'+dotStyle+'">'+dotContent+'</div>'
@@ -11304,7 +11313,7 @@ function applyExerciseLevelUp(exId){
 function renderNextExercise(){
   const isLast = sessCurrent>=sessTotal;
   const nextIdx = Math.min(sessCurrent+1, sessTotal);
-  const sp=document.querySelector('#next_exercise .sess-prog'); if(sp) sp.textContent='Exercise '+nextIdx+' / '+sessTotal;
+  const sp=document.querySelector('#next_exercise .sess-prog'); if(sp) sp.textContent=(currentLang==='fr'?'Exercice ':'Exercise ')+nextIdx+' / '+sessTotal;
   const preview=document.getElementById('nextExoPreview');
   const nextEx = !isLast && currentProgram ? currentProgram.exercices[nextIdx-1] : null;
   if(nextEx){
@@ -11462,9 +11471,13 @@ function announceCountdown(sec){
 function updateSetLabel(){
   const exo = currentProgram && currentProgram.exercices[sessCurrent-1];
   const sp=document.querySelector('#session .sess-prog'); if(!sp) return;
-  let txt='Exercise '+sessCurrent+'/'+sessTotal;
+  // Chaine assemblee au rendu : elle ne matche aucune cle du dictionnaire, donc elle restait en
+  // anglais pendant TOUTE la seance — l'ecran le plus vu de l'app. Composee dans la langue courante,
+  // comme partout ailleurs ou un nombre variable entre dans une phrase.
+  const fr=currentLang==='fr';
+  let txt=(fr?'Exercice ':'Exercise ')+sessCurrent+'/'+sessTotal;
   if(exo && exo.mode) txt += ' · '+exo.nom;
-  if(exSetTotal>1) txt += ' · Set '+exSetCurrent+'/'+exSetTotal;
+  if(exSetTotal>1) txt += ' · '+(fr?'Série ':'Set ')+exSetCurrent+'/'+exSetTotal;
   sp.textContent=txt;
 }
 // CTA principal : "exercice suivant" seulement s'il y en a un vrai, sinon "Terminer" (solo ou dernier de la séance).
