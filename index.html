@@ -2176,7 +2176,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      dans les séances. Ce n'est pas une incohérence, c'est la distinction. -->
 <div class="screen" id="catalogue_programmes">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Programmes</div><div class="topnav-r"></div></div>
-  <div class="px" style="padding-bottom:10px;flex-shrink:0;display:flex;gap:7px;overflow-x:auto;" id="catProgChips"></div>
+  <div class="px" style="padding-bottom:10px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;" id="catProgChips"></div>
   <div class="scroll" id="catProgList" style="padding:0 20px 24px;"></div>
 </div>
 
@@ -2354,8 +2354,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="defisCatalogue"></div>
 
     <div class="zone-lbl" style="margin-top:22px;">DUELS</div>
-    <div class="card-sm" style="margin:0 20px 0;border-color:rgba(var(--red-rgb),.30);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiAmi()">
-      <div style="width:38px;height:38px;border-radius:12px;background:rgba(var(--red-rgb),.10);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
+    <div class="card-sm" style="margin:0 20px 0;border-color:rgba(var(--orange-rgb),.30);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiAmi()">
+      <div style="width:38px;height:38px;border-radius:12px;background:rgba(var(--orange-rgb),.10);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:14px;font-weight:700;color:var(--white);">Challenge a friend</div>
         <div style="font-size:11.5px;color:var(--gray);margin-top:1px;">One move, two screens, same minute</div>
@@ -8610,7 +8610,7 @@ function objectifCardLabel(state, scope){
   // un cap et pas une ardoise, comme les trois autres verdicts de cette fonction qui sont déjà des
   // verdicts sans chiffre. (Testé "N jours pour retrouver le rythme" : 170 px là où le slot en offre
   // ~180 avec son pictogramme et son chevron, et c'était un second nombre à 20 px du premier.)
-  if(scope==='cycle') return trDyn('Get back on track');
+  if(scope==='cycle') return trDyn('Catch up');
   return currentLang==='fr'
     ? `${r} jour${r>1?'s':''} à rattraper`
     : `${r} day${r>1?'s':''} to catch up`;
@@ -8715,18 +8715,16 @@ function openObjectifPaceInfo(scope){
     if(state.kind==='exceeded') body = currentLang==='fr' ? 'Envie d\'une séance bonus ?' : 'Feeling like a bonus session?';
     else if(state.kind==='covered') body = trDyn('All your days are planned!');
     else if(state.kind==='inprogress' || state.kind==='ontrack') body = currentLang==='fr'
-      ? `${state.remaining} séance${state.remaining>1?'s':''} restante${state.remaining>1?'s':''} cette semaine.`
-      : `${state.remaining} session${state.remaining>1?'s':''} left this week.`;
+      ? `Il te reste ${state.remaining} jour${state.remaining>1?'s':''} à faire cette semaine.`
+      : `${state.remaining} day${state.remaining>1?'s':''} left to do this week.`;
     else {
-      // Avant, le corps répétait mot pour mot le libellé qu'on venait de taper. Il nomme désormais
-      // les jours réellement manqués — la seule information que la carte ne porte pas (cf audit).
-      const missed=weekStrip.filter(d=>d.statut==='manque').map(d=>d.j);
-      const jours = missed.length
-        ? (currentLang==='fr' ? `${missed.join(', ')} ${missed.length>1?'sont passés':'est passé'}.` : `${missed.join(', ')} ${missed.length>1?'have':'has'} gone by.`)
-        : '';
-      body = (currentLang==='fr'
+      // La phrase nommait les jours "passés" — en anglais (computeWeekStrip coupe des noms anglais),
+      // et surtout elle listait les jours d'ENTRAINEMENT deja passes, pas les jours manques : mardi
+      // et jeudi etaient faits et se retrouvaient cites. Une information fausse dans une langue qui
+      // n'est pas celle de la frise juste au-dessus. Il reste ce qui compte, et rien d'autre.
+      body = currentLang==='fr'
         ? `Il te reste ${state.remaining} jour${state.remaining>1?'s':''} à faire cette semaine.`
-        : `${state.remaining} day${state.remaining>1?'s':''} left to do this week.`) + (jours?' '+jours:'');
+        : `${state.remaining} day${state.remaining>1?'s':''} left to do this week.`;
     }
     // Jours tapables pour se replanifier soi-même — seulement s'il existe un vrai jour Manqué (cf audit
     // "si j'ai pas de séance manquée, je peux pas avoir de séance à rattraper") : proposer de "rattraper"
@@ -8760,7 +8758,12 @@ function openObjectifPaceInfo(scope){
     else if(state.kind==='inprogress' || state.kind==='ontrack') body = currentLang==='fr'
       ? `Il te reste ${state.remaining} jour${state.remaining>1?'s':''} à faire dans ce cycle.`
       : `${state.remaining} day${state.remaining>1?'s':''} left to do in this cycle.`;
-    else body = objectifCardLabel(state,'cycle');
+    else {
+      const resteCycle=Math.max(0, daysInCycle-daysIntoCycle);
+      body = currentLang==='fr'
+        ? `Il te reste ${resteCycle} jour${resteCycle>1?'s':''} dans ce cycle.`
+        : `${resteCycle} day${resteCycle>1?'s':''} left in this cycle.`;
+    }
   }
   const title=objectifStateTitle(state.kind);
   // Cycle en retard : pas de sélecteur de jour ici (jusqu'à 8 semaines, trop pour une petite modale) —
@@ -12631,6 +12634,7 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "All goals": "Tous les objectifs",
   "Accent colour": "Couleur d’accent",
   "Training sessions": "Séances",
   "Of the": "Sur les",
@@ -12864,7 +12868,7 @@ const EN_FR = {
   "Catch-up session planned for": "Rattrapage planifié le",
   "Session removed from": "Séance retirée du",
   "Goal exceeded": "Objectif dépassé",
-  "Get back on track": "Retrouver le rythme",
+  "Catch up": "Rattraper le retard",
   "Week covered": "Semaine couverte",
   "Cycle covered": "Cycle couvert",
   "On pace": "Dans le rythme",
@@ -18114,6 +18118,9 @@ function openCatalogueProgrammes(obj){
   go('catalogue_programmes');
   setTimeout(renderCatalogueProgrammes, 20);
 }
+// Depuis la modale on POSE la valeur ; le toggle de setCatProgObjectif ferait decocher une ligne
+// deja cochee qu'on retape, ce qui est faux quand la coche est visible.
+function setCatProgObjectifDirect(k){ catProgObjectif=k; renderCatalogueProgrammes(); }
 function setCatProgObjectif(k){ catProgObjectif = (catProgObjectif===k) ? null : k; renderCatalogueProgrammes(); }
 function programmeCardHtml(x, actif){
   return '<div class="card-sm" style="display:flex;align-items:center;gap:12px;margin-bottom:9px;cursor:pointer;'+(actif?'border-color:var(--brand-fixed);':'')+'" onclick="openProgrammeDetail(\''+x.id+'\')">'
@@ -18126,12 +18133,30 @@ function programmeCardHtml(x, actif){
     +'</div>'
     +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>';
 }
+// Selection unique, appliquee et fermee au tap — meme patron que le filtre de l'historique, et pas
+// un formulaire avec un bouton Appliquer pour un seul critere.
+function openCatProgFilterModal(){
+  let html='<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+trDyn('Filters')+'</div>';
+  const ligne=(on, txt, sous, onclick)=>'<div onclick="'+onclick+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 4px;border-bottom:1px solid var(--border);cursor:pointer;'+(on?'color:var(--orange);':'color:var(--white);')+'">'
+    +'<span style="min-width:0;"><span style="display:block;font-size:14px;font-weight:600;">'+txt+'</span>'
+    +(sous?'<span style="display:block;font-size:11.5px;color:var(--gray2);font-weight:400;margin-top:1px;">'+sous+'</span>':'')+'</span>'
+    +(on?'<span style="font-size:15px;flex-shrink:0;">✓</span>':'')+'</div>';
+  html += ligne(!catProgObjectif, trDyn('All goals'), '', "setCatProgObjectifDirect(null);closeModal()");
+  html += PROGRAMME_OBJECTIFS.map(o=>ligne(catProgObjectif===o.key, trDyn(o.lbl), trDyn(o.sous), "setCatProgObjectifDirect('"+o.key+"');closeModal()")).join('');
+  html += '<button class="btn-ghost" style="margin-top:14px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>';
+  showModal(html);
+}
 function renderCatalogueProgrammes(){
   const chips=document.getElementById('catProgChips'), list=document.getElementById('catProgList');
   const tous=[...PROGRAMMES,...userProgrammes];
   if(chips){
-    chips.innerHTML = PROGRAMME_OBJECTIFS.map(o=>
-      '<button class="lib-chip'+(catProgObjectif===o.key?' on':'')+'" style="flex-shrink:0;" onclick="setCatProgObjectif(\''+o.key+'\')">'+trDyn(o.lbl)+'</button>').join('');
+    const o=catProgObjectif && PROGRAMME_OBJECTIFS.find(x=>x.key===catProgObjectif);
+    chips.innerHTML =
+      '<span style="font-size:12.5px;color:var(--gray2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+        + (o ? trDyn(o.lbl) : trDyn(tous.length+' programmes')) + '</span>'
+      + '<button class="lib-chip'+(catProgObjectif?' on':'')+'" style="flex-shrink:0;" onclick="openCatProgFilterModal()">'
+        + '<svg class="ki" style="width:13px;height:13px;"><use href="#ki-sliders"/></svg>' + trDyn('Filters')
+        + (catProgObjectif?' · 1':'') + '</button>';
     sweepTranslate(chips, currentLang);
   }
   if(!list) return;
