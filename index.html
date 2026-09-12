@@ -2700,17 +2700,22 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   </div>
   <div id="libTab_exercices" style="display:flex;flex-direction:column;flex:1;min-height:0;">
-    <div id="libSearchWrap" style="display:none;padding:0 20px 10px;flex-shrink:0;"><input id="libSearchInput" type="text" placeholder="Search an exercise…" oninput="renderLibNouveau()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
-    <div style="padding:0 20px 10px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;">
-      <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibNouveauFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libNouveauFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-      <button class="lib-chip" id="libChipFavoris" onclick="toggleLibFavorisChip()"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</button>
-      <button class="lib-chip" id="libChipMatchProfile" onclick="toggleLibMatchProfileChip()"><svg class="ki"><use href="#ki-spark"/></svg>For you</button>
-      <button class="lib-chip" id="libChipCoach" onclick="toggleLibCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button>
-    </div>
-    <div style="padding:0 20px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
+    <div id="libSearchWrap" style="display:none;padding:0 20px 10px;flex-shrink:0;"><input id="libSearchInput" type="text" placeholder="Search an exercise…" oninput="renderLibNouveau()" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--white);font-size:14px;font-family:inherit;"></div>
+    <!-- EN-TETE STRICTEMENT IDENTIQUE A CELUI DES SEANCES (13 sept. 2026). Il portait avant une rangee
+         de pastilles (Filtres / Favoris / Pour toi / Coach) PUIS une ligne de compteur — deux lignes la
+         ou Seances en tenait une, et "Pour toi" y existait en double : une pastille pre-cochee ET un
+         rayon plus bas, soit le meme mot pour deux mecaniques. Les pastilles disparaissent : Favoris et
+         Coach rejoignent le bloc "A toi", "Pour toi" devient le TRI du catalogue (cf renderLibNouveau),
+         et les circonstances (quinze minutes, sans materiel, renforcement) restent dans les Filtres,
+         ou elles etaient deja. Il ne reste que le compteur et un bouton. -->
+    <div class="px" style="padding-bottom:8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
       <div id="libNouveauCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 exercises</div>
-      <button class="btn-ghost" id="libResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibNouveauFilters()">Reset all</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <button class="btn-ghost" id="libResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibNouveauFilters()">Reset all</button>
+        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibNouveauFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libNouveauFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+      </div>
     </div>
+    <div id="libNouveauTri" style="padding:0 20px 8px;flex-shrink:0;font-size:10.5px;color:var(--gray);line-height:1.4;"></div>
     <div class="scroll" id="libListNouveau" style="padding:0 20px 96px 20px;"></div>
   </div>
   <div id="libTab_seances" style="display:none;flex-direction:column;flex:1;min-height:0;">
@@ -2722,6 +2727,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibSessFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libSessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
       </div>
     </div>
+    <div id="libSeancesTri" style="padding:0 20px 8px;flex-shrink:0;font-size:10.5px;color:var(--gray);line-height:1.4;"></div>
     <div class="scroll" id="libSeancesList" style="padding:0 20px 96px 20px;"></div>
   </div>
   <div id="libTab_programmes" style="display:none;flex-direction:column;flex:1;min-height:0;">
@@ -13299,6 +13305,10 @@ const EN_FR = {
   "Seated, if you prefer": "Assis, si tu préfères",
   "Done sitting down": "À faire en position assise",
   "My exercises": "Mes exercices",
+  "Yours": "\u00c0 TOI",
+  "Sorted for you: your position and equipment first": "Tri\u00e9s pour toi : ta position et ton mat\u00e9riel d'abord",
+  "Created": "Cr\u00e9\u00e9",
+  "Favourite": "Favori",
   "All exercises": "Tous les exercices",
   "I've got fifteen minutes": "J'ai quinze minutes",
   "Short sessions": "Les séances courtes",
@@ -16166,55 +16176,40 @@ function openLibProgFilterModal(){
 //
 // « Pour toi » ouvre toujours, parce que le rayon du haut est celui qu'on regarde : il est calé sur la
 // position et le matériel du profil, le même calcul que le chip « Pour toi ».
-const SEANCE_RAYONS = [
-  { titre:'For you',                  sous:'Matched to your position and equipment', test:(s)=>sessionMatchesProfile(s) },
-  { titre:"I've got fifteen minutes", sous:'Short sessions',                          test:(s)=>s.duree<=15 },
-  { titre:'Without taking anything out', sous:'Nothing to set up',                     test:(s)=>!sessionNeedsEquipment(s) },
-  { titre:'Build strength',           sous:'Strength work',                           test:(s)=>(s.objectif||[]).includes('Renforcement') }
-];
-const RAYON_MAX = 3;
+// Sert au TRI du catalogue (ce qui colle a la position et au materiel remonte en tete), et au chip
+// "Pour toi" de l'ecran Programme > Seances, qui lui existe toujours.
 function sessionMatchesProfile(s){
   const pos = userProfileData.position;
   if(pos && Array.isArray(s.positions) && !s.positions.includes(pos)) return false;
   return !sessionMissingEquipment(s);
-}
-function sessionNeedsEquipment(s){
-  const exos=[...EXERCICES,...userExercices];
-  return (s.exercices||[]).some(id=>{ const e=exos.find(x=>x.id===id); return e && e.equipement && e.equipement!=='Aucun'; });
-}
-function libSeanceRayonHtml(r, seances){
-  const sel=seances.filter(r.test).slice(0, RAYON_MAX);
-  if(sel.length<2) return '';   // un rayon d'une seule carte n'est pas un rayon
-  return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:22px 0 10px;">'
-    +'<div style="min-width:0;"><div style="font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.2px;">'+trDyn(r.titre)+'</div>'
-    +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(r.sous)+'</div></div>'
-    +'<span role="button" tabindex="0" style="font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;cursor:pointer;padding:4px 0 4px 10px;" onclick="openLibSessFilterModal()">'+trDyn('See all')+' ›</span>'
-    +'</div>'
-    + sel.map(s=>renderSessCard(s,'catalogue')).join('');
 }
 function renderLibSeances(){
   updateLibSessFilterBadge();
   const el=document.getElementById('libSeancesList'); if(!el) return;
   const main = libSessFilters.perso ? [] : SESSIONS.filter(filterLibSession);
   const mine = userSessions.filter(filterLibSession);
+  const favs = SESSIONS.filter(x=>isFavori('sessions', x.id) && filterLibSession(x));
   const total = main.length + mine.length;
   const count=document.getElementById('libSeancesCount');
-  if(count){ count.innerHTML=libCountLabel(total, [...SESSIONS,...userSessions].length, sessNouveauFilters.matchProfile, 'session'); sweepTranslate(count, currentLang); }
+  if(count){ count.innerHTML=libCountLabel(total, [...SESSIONS,...userSessions].length, false, 'session'); sweepTranslate(count, currentLang); }
+  // Meme ligne de tri que les exercices, au mot pres.
+  const triEl=document.getElementById('libSeancesTri');
+  if(triEl){ triEl.textContent = trDyn('Sorted for you: your position and equipment first'); }
   if(!total){
     el.innerHTML='<div class="lib-empty">No session matches these filters.<br><button class="btn-ghost" style="color:var(--orange);margin-top:8px;" onclick="resetLibSessFilters()">Reset all</button></div>';
     return;
   }
-  let html = mine.length ? libSectionLbl('My sessions') + mine.map(s=>renderSessCard(s, s.referent?'coach':'perso')).join('') : '';
-  // Les rayons ne s'affichent QUE sans filtre actif : filtrer, c'est déjà savoir ce qu'on cherche —
-  // les rayons servent à qui ne sait pas encore. Sinon on propose à quelqu'un qui a déjà choisi.
-  const filtreActif = libSessFilters.objectif.length || libSessFilters.intensite.length
-    || libSessFilters.position.length || libSessFilters.duree.length || libSessFilters.perso;
-  if(main.length && !filtreActif){
-    html += SEANCE_RAYONS.map(r=>libSeanceRayonHtml(r, main)).join('');
-    html += libSectionLbl('All sessions') + main.map(s=>renderSessCard(s,'catalogue')).join('');
-  } else if(main.length){
-    html += libSectionLbl('Catalogue') + main.map(s=>renderSessCard(s,'catalogue')).join('');
-  }
+  // Meme structure que les exercices : un bloc "A toi" qui disparait s'il est vide, puis le catalogue
+  // trie. Les rayons (Pour toi / Quinze minutes / Sans rien sortir / Gagner en force) sont retires :
+  // mesure du 13 sept., "Pour toi" et "J'ai quinze minutes" partageaient 2 cartes sur 3, et "Sans rien
+  // sortir" ne contenait que 2 seances sur 20 — un rayon de deux est une exception, pas un rayon.
+  const vus=new Set();
+  const aToi=[];
+  mine.forEach(x=>{ if(!vus.has(x.id)){ vus.add(x.id); aToi.push({s:x, origine:x.referent?'coach':'moi'}); } });
+  favs.forEach(x=>{ if(!vus.has(x.id)){ vus.add(x.id); aToi.push({s:x, origine:'favori'}); } });
+  let html = aToi.length ? libSectionLbl('Yours') + aToi.map(o=>renderSessCard(o.s, o.origine==='moi'?'perso':o.origine)).join('') : '';
+  const tries = [...main].sort((a,b)=>(sessionMatchesProfile(b)?1:0)-(sessionMatchesProfile(a)?1:0));
+  html += libSectionLbl('All sessions') + tries.map(x=>renderSessCard(x,'catalogue')).join('');
   el.innerHTML = html;
   sweepTranslate(el, currentLang);
 }
@@ -16457,7 +16452,18 @@ function libClearProfileFilter(){
   if(sessNouveauFilters.matchProfile){ sessNouveauFilters.matchProfile=false; applySessProfileMatch(); renderLibSeances(); return; }
   if(typeof progNouveauFilters!=='undefined' && progNouveauFilters.matchProfile){ progNouveauFilters.matchProfile=false; if(typeof applyProgProfileMatch==='function') applyProgProfileMatch(); renderLibProgrammes(); }
 }
-function renderLibExoCard(ex){
+// `origine` (optionnel) : 'moi' | 'coach' | 'favori'. Pose une pastille devant la metadonnee dans le
+// bloc "A toi", pour dire d'ou vient la carte sans couter une ligne. Absent ailleurs.
+const LIB_ORIGINE = {
+  moi:    {lbl:'Created', bg:'rgba(var(--brand-fixed-rgb),.16)', fg:'var(--brand-fixed)'},
+  coach:  {lbl:'Coach',   bg:'rgba(82,156,254,.16)',             fg:'#529CFE'},
+  favori: {lbl:'Favourite', bg:'rgba(232,94,232,.16)',           fg:'#E85EE8'}
+};
+function origPastille(origine){
+  const o = LIB_ORIGINE[origine]; if(!o) return '';
+  return '<span style="display:inline-block;font-size:9px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;padding:2px 6px;border-radius:5px;margin-right:5px;background:'+o.bg+';color:'+o.fg+';">'+trDyn(o.lbl)+'</span>';
+}
+function renderLibExoCard(ex, origine){
   const fav = isFavori('exercices', ex.id);
   // exoPhotoFor() couvre déjà les 20 exercices (pool par type + override EXO_MEDIA pour Shadow
   // boxing) — vérifier EXO_MEDIA seul ici faisait retomber 19/20 exercices sur un simple emoji.
@@ -16466,7 +16472,7 @@ function renderLibExoCard(ex){
     +thumb
     +'<div class="lib-body"><div class="lib-name">'+ex.nom+'</div>'
     +'<div style="margin:3px 0 5px;">'+exoPastille(ex)+'</div>'
-    +'<div class="lib-meta">'+(ex.equipement==='Aucun' ? trDyn('No equipment needed') : trDyn(ex.equipement))+'</div>'
+    +'<div class="lib-meta">'+origPastille(origine)+(ex.equipement==='Aucun' ? trDyn('No equipment needed') : trDyn(ex.equipement))+'</div>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;">'
     +'<button class="icon-btn" onclick="event.stopPropagation();toggleFavori(\'exercices\',\''+ex.id+'\');renderLibNouveau();" style="background:none;font-size:19px;">'+favHeart(fav)+'</button>'
@@ -16483,81 +16489,62 @@ function renderLibExoCard(ex){
 // filtre sur ton profil" quand Seances disait simplement "21 seances". Le meme mot, "Pour toi",
 // designait donc deux mecaniques a un onglet d'ecart : un rayon qu'on parcourt d'un cote, un filtre
 // qui avait deja cache 8 exercices de l'autre.
-// Meme regle de nommage que SEANCE_RAYONS : un rayon repond a une QUESTION qu'on se pose, jamais a une
-// categorie de la base. Les libelles sont ceux des seances la ou la question est la meme.
-const EXO_RAYONS = [
-  { titre:'For you',                     sous:'Matched to your position and equipment', test:(e)=>exerciceMatchesProfile(e) },
-  { titre:'Without taking anything out', sous:'Nothing to set up',                      test:(e)=>e.equipement==='Aucun' },
-  { titre:'Seated, if you prefer',       sous:'Done sitting down',                      test:(e)=>(e.positions||[]).includes('Assis') },
-  { titre:'Build strength',              sous:'Strength work',                          test:(e)=>e.type==='Renforcement' }
-];
+// RAYONS RETIRES (13 sept. 2026). Mesure qui les a condamnes : sur les quatre rayons d'exercices,
+// TROIS affichaient exactement les memes trois cartes (EX-S01, EX-S02, EX-S03) — chacun prenait les
+// trois premiers du catalogue range par identifiant, et les premiers exercices satisfaisaient la
+// plupart des tests. On deroulait trois blocs pour voir trois fois la meme chose. Cote seances,
+// "Pour toi" et "J'ai quinze minutes" partageaient 2 cartes sur 3.
+// exerciceMatchesProfile reste : elle sert desormais au TRI du catalogue, pas a un rayon.
+// Sert au TRI du catalogue d'exercices : ce qui colle a la position et au materiel remonte en tete.
+// Elle vivait dans le bloc des rayons, retire avec eux — mais c'est elle qui porte le "pour toi".
 function exerciceMatchesProfile(e){
   const pos = userProfileData.position;
   if(pos && Array.isArray(e.positions) && !e.positions.includes(pos)) return false;
   const eq = userProfileData.equipement || {};
   if(e.equipement==='Barre' && !eq.bar) return false;
-  if(e.equipement==='Barre avec élastique' && (!eq.bar || !eq.elastique)) return false;
+  if(e.equipement==='Barre avec \u00e9lastique' && (!eq.bar || !eq.elastique)) return false;
   return true;
-}
-function libExoRayonHtml(r, exos){
-  const sel=exos.filter(r.test).slice(0, RAYON_MAX);
-  if(sel.length<2) return '';   // meme regle que les seances : un rayon d'une seule carte n'est pas un rayon
-  return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:22px 0 10px;">'
-    +'<div style="min-width:0;"><div style="font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.2px;">'+trDyn(r.titre)+'</div>'
-    +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(r.sous)+'</div></div>'
-    +'<span role="button" tabindex="0" style="font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;cursor:pointer;padding:4px 0 4px 10px;" onclick="openLibNouveauFilterModal()">'+trDyn('See all')+' \u203a</span>'
-    +'</div>'
-    + sel.map(renderLibExoCard).join('');
 }
 function renderLibNouveau(){
   updateLibFilterBadgeNouveau();
-  const favChip=document.getElementById('libChipFavoris'), matchChip=document.getElementById('libChipMatchProfile');
-  if(favChip) favChip.classList.toggle('on', libNouveauFilters.favoris);
-  // "For you" (profil B2C) n'a pas de sens pour le référent ; "Coach" est réutilisé tel quel pour lui
-  // (même filtre ex.referent, déjà posé à la création — cf submitCreateExercise) mais relabellisé
-  // "Mes créations", puisque pour lui ça veut dire "ce que J'AI créé", pas "ce que mon coach m'a assigné".
-  const coachChip=document.getElementById('libChipCoach');
-  if(coachChip){
-    coachChip.classList.toggle('on', libNouveauFilters.coach);
-    coachChip.style.display = (currentRole==='user_centre' || currentRole==='referent') ? '' : 'none';
-    coachChip.innerHTML = currentRole==='referent' ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> My creations' : humanCoachIcon(16)+' Coach';
-  }
-  if(matchChip){ matchChip.classList.toggle('on', libNouveauFilters.matchProfile); matchChip.style.display = currentRole==='referent' ? 'none' : ''; }
   const list=document.getElementById('libListNouveau'); if(!list) return;
   const main = EXERCICES.filter(filterExerciceNouveau);
   const mine = userExercices.filter(filterExerciceNouveau);
+  const favs = EXERCICES.filter(e=>isFavori('exercices', e.id) && filterExerciceNouveau(e));
   const total = main.length + mine.length;
-  // Le catalogue arrivait filtré et le compteur annonçait « 41 exercices » là où la bibliothèque en
-  // contient 49 (audit Bibliothèque). Le pré-filtrage sur la position est voulu ; ce qui ne l'est pas,
-  // c'est de présenter un résultat filtré comme LE catalogue — quelqu'un qui cherche un exercice dont
-  // il se souvient et ne le trouve pas en conclut qu'il n'existe pas. Le compteur dit donc « X sur Y »
-  // dès qu'un filtre retire quelque chose, et nomme la cause quand c'est le profil qui la pose.
   const count=document.getElementById('libNouveauCount');
   if(count){
     const fond=[...EXERCICES,...userExercices].length;
-    count.innerHTML = libCountLabel(total, fond, libNouveauFilters.matchProfile, 'exercise');
+    count.innerHTML = libCountLabel(total, fond, false, 'exercise');
     sweepTranslate(count, currentLang);
   }
+  // "Pour toi" n'est plus un bloc, c'est le TRI (13 sept. 2026). Il contenait 41 exercices sur 49 :
+  // un rayon qui garde 84% du catalogue ne range rien, il le recopie. La ligne ci-dessous dit la meme
+  // chose en 11 px au lieu de 250, ne duplique aucune carte, et les 8 exercices qui ne collent pas au
+  // profil descendent en fin de liste au lieu d'etre caches.
+  const triEl=document.getElementById('libNouveauTri');
+  if(triEl){ triEl.textContent = trDyn('Sorted for you: your position and equipment first'); }
   if(!total){
     list.innerHTML='<div class="lib-empty">No exercise matches these filters.<br><button class="btn-ghost" style="color:var(--orange);margin-top:8px;" onclick="resetLibNouveauFilters()">Reset all</button></div>';
     return;
   }
-  // Meme ordre que les seances : ce qui m'appartient d'abord, les rayons ensuite, le catalogue entier
-  // a la fin. C'etait l'inverse — le catalogue ouvrait et "Vos exercices" fermait la marche.
-  let html = mine.length ? libSectionLbl('My exercises') + mine.map(renderLibExoCard).join('') : '';
-  const filtreActif = libNouveauFilters.type.length || libNouveauFilters.mode.length
-    || libNouveauFilters.position.length || libNouveauFilters.equipement.length
-    || libNouveauFilters.niveau.length || libNouveauFilters.zone.length
-    || libNouveauFilters.favoris || libNouveauFilters.coach;
-  if(main.length && !filtreActif){
-    html += EXO_RAYONS.map(r=>libExoRayonHtml(r, main)).join('');
-    html += libSectionLbl('All exercises') + main.map(renderLibExoCard).join('');
-  } else if(main.length){
-    html += libSectionLbl('Catalogue') + main.map(renderLibExoCard).join('');
-  }
+  // UN SEUL BLOC "A TOI" (13 sept. 2026). Creations, assignations du referent et favoris repondaient a
+  // la meme question — ce que j'ai deja touche — et faisaient trois titres pour une idee, tous les
+  // trois vides chez quelqu'un qui debute. Le bloc disparait s'il est vide : un titre suivi d'un vide
+  // occupe la meilleure place de l'ecran pour ne rien dire.
+  const vus=new Set();
+  const aToi=[];
+  mine.forEach(e=>{ if(!vus.has(e.id)){ vus.add(e.id); aToi.push({ex:e, origine:e.referent?'coach':'moi'}); } });
+  favs.forEach(e=>{ if(!vus.has(e.id)){ vus.add(e.id); aToi.push({ex:e, origine:'favori'}); } });
+  let html = aToi.length ? libSectionLbl('Yours') + aToi.map(o=>renderLibExoCard(o.ex, o.origine)).join('') : '';
+  // Le catalogue, trie : ce qui colle au profil d'abord. sort() est stable en JS moderne, donc l'ordre
+  // d'origine est conserve a l'interieur de chaque groupe.
+  const tries = [...main].sort((a,b)=>(exerciceMatchesProfile(b)?1:0)-(exerciceMatchesProfile(a)?1:0));
+  html += libSectionLbl('All exercises') + tries.map(e=>renderLibExoCard(e)).join('');
   list.innerHTML = html;
   sweepTranslate(list, currentLang);
 }
+
 // Transition "hero" : la photo d'une card d'exercice se transforme en continu vers le format plein
 // écran de sa fiche au lieu de disparaître puis réapparaître (cf discussion design) — réservé aux
 // entrées où un vrai visuel existe des deux côtés (bibliothèque, "Recommended for you"). Retombe sur
@@ -17415,7 +17402,8 @@ function openSessFilterModal(){
 function renderSessCard(s, origin){
   const fav = isFavori('sessions', s.id);
   const originPill = origin==='coach' ? '<span class="tag" style="background:rgba(var(--teal-rgb),.15);color:var(--teal);">Coach</span>'
-    : origin==='perso' ? '<span class="tag tag-g">Personal</span>' : '';
+    : origin==='perso' ? '<span class="tag tag-g">Personal</span>'
+    : origin==='favori' ? '<span class="tag" style="background:rgba(232,94,232,.16);color:#E85EE8;">Favourite</span>' : '';
   return '<div class="lib-card" onclick="openSessionDetail(\''+s.id+'\')">'
     +'<div class="lib-thumb" style="background-image:url(\''+sessionPhotoFor(s)+'\');background-size:cover;background-position:center;"></div>'
     +'<div class="lib-body"><div class="lib-name">'+s.nom_marketing+'</div>'
