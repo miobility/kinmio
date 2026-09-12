@@ -2493,6 +2493,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <button class="btn btn-outline" style="flex:1;padding:13px 10px;font-size:12.5px;margin:0;" onclick="openRejoindreParCode()">I have a code</button>
       <button class="btn btn-outline" style="flex:1;padding:13px 10px;font-size:12.5px;margin:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;" onclick="openCreerDefi()"><svg class="ki" style="width:13px;height:13px;"><use href="#ki-plus"/></svg>Create a challenge</button>
     </div>
+  </div>
   <div class="bnav">
     <button class="bnav-item" onclick="go(currentRole==='user_centre'?'home_centre':'home')"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.5a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bnav-label">Home</span></button>
     <button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9v6M17.5 9v6"/><rect x="3" y="10" width="3" height="4" rx="1"/><rect x="18" y="10" width="3" height="4" rx="1"/><path d="M6.5 12h11"/></svg></span><span class="bnav-label">Training</span></button>
@@ -2887,16 +2888,49 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= CRÉER UN EXERCICE — nouveau modèle (utilisateur B2C/centre) ================= -->
 <div class="screen" id="creer_exercice_nouveau">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create an exercise</div><div class="topnav-r"></div></div>
-  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+  <!-- GABARIT DE CREATION UNIQUE (13 sept. 2026, maquette "Un seul geste, cinq mises en scene").
+       Les deux ecrans "Creer un exercice" (referent et membre) ne partageaient que TROIS sections sur
+       neuf et sept, portaient exactement le meme titre, et le referent n'avait pas de photo. Les deux
+       roles arrivent desormais ICI (openCreateExercise ne route plus). Quatre blocs, toujours dans le
+       meme ordre sur les ecrans de creation : IDENTITE (ce qui nomme) -> CONTENU (ce dont c'est fait)
+       -> REGLAGES (ce qui parametre) -> AVANCES replies (ce que le referent a en plus).
+       Le membre ne regle plus series/reps a la creation : les reglages viennent a l'usage, dans la
+       fiche exercice ("Tes reglages"), qui les applique partout. Le referent les garde — il prescrit. -->
+  <div class="scroll px pt" style="display:flex;flex-direction:column;padding-bottom:0;">
+    <div class="zone-lbl" style="margin:4px 0 10px;">IDENTITY</div>
     <div class="ps-section">
       <div class="ps-title">Exercise name</div>
       <input type="text" id="cen_nom" class="pres-inp" style="text-align:left;" placeholder="e.g. Lateral raises">
     </div>
+    <div class="ps-section" id="cenDescSection" style="display:none;">
+      <div class="ps-title">Technical description</div>
+      <textarea id="cen_desc" class="pres-inp" style="text-align:left;min-height:64px;resize:vertical;" placeholder="e.g. Back straight, elbows close to the body"></textarea>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Photo</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="cenPhotoPreview" style="width:56px;height:56px;border-radius:14px;background:var(--bg2);background-size:cover;background-position:center;flex-shrink:0;"></div>
+        <button class="btn-outline" style="width:auto;flex:1;" onclick="openPhotoPicker(EXO_STOCK_PHOTOS, cenPhoto, 'setCenPhoto')">Choose a photo</button>
+      </div>
+    </div>
+
+    <div class="zone-lbl" style="margin:22px 0 10px;">CONTENT</div>
     <div class="ps-section">
       <div class="ps-title">Goal</div>
       <div class="ps-opts">
         <div class="ps-opt on" id="cen_type_cardio" onclick="setCenType('Cardio')">❤️ Cardio</div>
         <div class="ps-opt" id="cen_type_renfo" onclick="setCenType('Renforcement')">💪 Strength</div>
+      </div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Target zones</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;" id="cen_zones">
+        <button class="lib-chip" data-zone="Épaules" onclick="chipToggle(this)">Shoulders</button>
+        <button class="lib-chip" data-zone="Dos" onclick="chipToggle(this)">Back</button>
+        <button class="lib-chip" data-zone="Bras" onclick="chipToggle(this)">Arms</button>
+        <button class="lib-chip" data-zone="Jambes" onclick="chipToggle(this)">Legs</button>
+        <button class="lib-chip" data-zone="Abdos" onclick="chipToggle(this)">Abs</button>
+        <button class="lib-chip" data-zone="Corps entier" onclick="chipToggle(this)">Full body</button>
       </div>
     </div>
     <div class="ps-section">
@@ -2915,31 +2949,31 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="ps-opt" onclick="setCenEquip(this,'Barre avec élastique')">Bar + band</div>
       </div>
     </div>
+
+    <div id="cenReglagesBloc" style="display:none;">
+      <div class="zone-lbl" style="margin:22px 0 10px;">SETTINGS</div>
     <div class="ps-section">
-      <div class="ps-title">Target zones</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;" id="cen_zones">
-        <button class="lib-chip" data-zone="Épaules" onclick="chipToggle(this)">Shoulders</button>
-        <button class="lib-chip" data-zone="Dos" onclick="chipToggle(this)">Back</button>
-        <button class="lib-chip" data-zone="Bras" onclick="chipToggle(this)">Arms</button>
-        <button class="lib-chip" data-zone="Jambes" onclick="chipToggle(this)">Legs</button>
-        <button class="lib-chip" data-zone="Abdos" onclick="chipToggle(this)">Abs</button>
-        <button class="lib-chip" data-zone="Corps entier" onclick="chipToggle(this)">Full body</button>
-      </div>
-    </div>
-    <div class="ps-section">
-      <div class="ps-title">Photo</div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div id="cenPhotoPreview" style="width:56px;height:56px;border-radius:14px;background:var(--bg2);background-size:cover;background-position:center;flex-shrink:0;"></div>
-        <button class="btn-outline" style="width:auto;flex:1;" onclick="openPhotoPicker(EXO_STOCK_PHOTOS, cenPhoto, 'setCenPhoto')">Choose a photo</button>
-      </div>
-    </div>
-    <div class="ps-section">
-      <div class="ps-title">Your settings</div>
       <div id="cenParamsSection"></div>
     </div>
-    <div style="height:8px;"></div>
-    <button class="btn btn-orange" onclick="submitCreateExerciceNouveau()">Create the exercise</button>
-    <div style="height:24px;"></div>
+    </div>
+
+    <div id="cenAvancesBloc" style="display:none;margin:18px 0 0;">
+      <button class="btn-ghost" style="width:100%;justify-content:space-between;padding:13px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;color:var(--gray2);font-weight:700;font-size:13px;" onclick="toggleCenAvances()">
+        <span>Advanced settings</span><span id="cenAvancesChev">›</span>
+      </button>
+      <div id="cenAvancesContenu" style="display:none;padding:12px 2px 0;">
+        <div class="ps-title">Visibility</div>
+        <div class="ps-opts" id="cen_visibilite">
+          <div class="ps-opt on" onclick="setCenVisibilite(this,'prive')">Only me</div>
+          <div class="ps-opt" onclick="setCenVisibilite(this,'centre')">My centre</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:18px;flex-shrink:0;"></div>
+  </div>
+  <!-- Le bouton COLLE en bas : on n'a jamais a derouler pour trouver ou valider. -->
+  <div style="flex-shrink:0;padding:12px 20px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--bg);">
+    <button class="btn btn-orange" style="margin:0;" onclick="submitCreateExerciceNouveau()">Create the exercise</button>
   </div>
 </div>
 
@@ -2947,6 +2981,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="creer_session_nouveau">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="csnTopTitle">Create a session</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <!-- Gabarit de creation (13 sept. 2026) : memes blocs, meme ordre que l'exercice et le programme. -->
+    <div class="zone-lbl" style="margin:4px 0 10px;">IDENTITY</div>
     <div class="ps-section" id="csnNomSection">
       <div class="ps-title">Session name</div>
       <input type="text" id="csn_nom" class="pres-inp" style="text-align:left;" placeholder="e.g. My morning routine">
@@ -2958,6 +2994,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <button class="btn-outline" style="width:auto;flex:1;" onclick="openPhotoPicker(THEME_STOCK_PHOTOS, csnPhoto, 'setCsnPhoto')">Choose a photo</button>
       </div>
     </div>
+    <div class="zone-lbl" style="margin:22px 0 10px;">CONTENT</div>
     <div class="ps-section">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div class="ps-title" style="margin:0;">Exercises</div>
@@ -2989,6 +3026,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="creer_programme_nouveau">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create a programme</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <!-- Gabarit de creation (13 sept. 2026) : Identite -> Contenu -> Reglages. -->
+    <div class="zone-lbl" style="margin:4px 0 10px;">IDENTITY</div>
     <div class="ps-section">
       <div class="ps-title">Programme name</div>
       <input type="text" id="cpn_nom" class="pres-inp" style="text-align:left;" placeholder="e.g. My weekly routine">
@@ -3000,14 +3039,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <button class="btn-outline" style="width:auto;flex:1;" onclick="openPhotoPicker(THEME_STOCK_PHOTOS, cpnPhoto, 'setCpnPhoto')">Choose a photo</button>
       </div>
     </div>
-    <div class="ps-section">
-      <div class="ps-title">Sessions per week</div>
-      <div id="cpnFreqRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
-    </div>
-    <div class="ps-section">
-      <div class="ps-title">Duration</div>
-      <div id="cpnDureeRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
-    </div>
+    <div class="zone-lbl" style="margin:22px 0 10px;">CONTENT</div>
     <div class="ps-section">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div class="ps-title" style="margin:0;">Sessions</div>
@@ -3024,7 +3056,16 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div id="cpnSelectedList"></div>
       </div>
       <div id="cpnSessList"></div>
-      <div style="height:16px;"></div>
+      <div class="zone-lbl" style="margin:22px 0 10px;">SETTINGS</div>
+    <div class="ps-section">
+      <div class="ps-title">Sessions per week</div>
+      <div id="cpnFreqRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-title">Duration</div>
+      <div id="cpnDureeRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+    <div style="height:16px;"></div>
     </div>
     <div style="position:sticky;bottom:0;left:0;right:0;margin:0 -20px;padding:12px 20px;background:var(--bg);border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;">
       <div style="flex:1;min-width:0;">
@@ -3716,10 +3757,15 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= CRÉATION PROGRAMME (référent) ================= -->
 <div class="screen" id="creation_programme">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create a programme</div><div class="topnav-r"></div></div>
-  <div style="padding:0 20px 8px;flex-shrink:0;"><div style="font-size:12px;color:var(--gray);font-weight:600;" id="cprogStepLbl">Step 1 of 4</div></div>
+  <!-- Plus d'etapes (gabarit de creation, 13 sept. 2026) : un seul ecran sur cinq en utilisait, et un
+       programme n'est pas plus complexe qu'une seance. Les quatre etapes deviennent quatre blocs
+       visibles d'un coup, dans l'ordre du gabarit. L'etiquette "Etape N sur 4" est gardee, masquee,
+       pour ne pas casser setCprogStep. -->
+  <div style="display:none;"><div id="cprogStepLbl"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div id="cprog_step1">
-      <h3 class="gap12">Select the member</h3>
+      <div class="zone-lbl" style="margin:4px 0 10px;">IDENTITY</div>
+      <div class="ps-title">For whom</div>
       <div id="cprogUserList"></div>
       <div id="cprogProfile" style="display:none;margin:16px 0;padding:14px 16px;background:var(--bg2);border-radius:14px;border:1px solid var(--border);"></div>
       <div class="ps-title" style="margin:16px 0 8px;">Programme goal</div>
@@ -3730,8 +3776,16 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="lib-chip" data-val="Maintenir ma forme" onclick="selectSingleChip('cprogObjChips',this)">Maintain my fitness</div>
       </div>
     </div>
-    <div id="cprog_step2" style="display:none;">
-      <h3 class="gap12">Programme structure</h3>
+    <div id="cprog_step3">
+      <div class="zone-lbl" style="margin:22px 0 10px;">CONTENT</div>
+      <div class="ps-title">Exercises</div>
+      <p class="sub gap16">Selected based on the member's profile — add or remove from the library.</p>
+      <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:10px;" id="cprogExoCount">0 exercises selected</div>
+      <div id="cprogExoList"></div>
+    </div>
+    <div id="cprog_step2">
+      <div class="zone-lbl" style="margin:22px 0 10px;">SETTINGS</div>
+      
       <div class="ps-title" style="margin-bottom:6px;">Duration</div>
       <input type="text" id="cprog_duree" class="pres-inp" style="text-align:left;margin-bottom:16px;" placeholder="e.g. 6 weeks">
       <div class="ps-title" style="margin-bottom:6px;">Frequency</div>
@@ -3745,17 +3799,15 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="ps-title" style="margin-bottom:6px;">Suggested days <span style="color:var(--gray);font-weight:400;">(editable)</span></div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;" id="cprogJoursChips"></div>
     </div>
-    <div id="cprog_step3" style="display:none;">
-      <h3 class="gap8">Suggested exercises</h3>
-      <p class="sub gap16">Selected based on the member's profile — add or remove from the library.</p>
-      <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:10px;" id="cprogExoCount">0 exercises selected</div>
-      <div id="cprogExoList"></div>
-    </div>
-    <div id="cprog_step4" style="display:none;">
-      <h3 class="gap12">Summary</h3>
-      <div class="card-sm gap16" id="cprogRecap"></div>
-      <div class="ps-title" style="margin-bottom:6px;">Note for the member <span style="color:var(--gray);font-weight:400;">(optional)</span></div>
-      <textarea id="cprog_note" class="note-input" placeholder="e.g. progress gently for the first 2 weeks."></textarea>
+    <div id="cprog_step4" style="margin:18px 0 0;">
+      <button class="btn-ghost" style="width:100%;justify-content:space-between;padding:13px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;color:var(--gray2);font-weight:700;font-size:13px;" onclick="(function(){const c=document.getElementById('cprogAvances');c.style.display=c.style.display==='none'?'block':'none';})()">
+        <span>Advanced settings</span><span>\u203a</span>
+      </button>
+      <div id="cprogAvances" style="display:none;padding:12px 2px 0;">
+        <div class="card-sm gap16" id="cprogRecap" style="display:none;"></div>
+        <div class="ps-title" style="margin-bottom:6px;">Note for the member <span style="color:var(--gray);font-weight:400;">(optional)</span></div>
+        <textarea id="cprog_note" class="note-input" placeholder="e.g. progress gently for the first 2 weeks."></textarea>
+      </div>
     </div>
     <div style="height:24px;"></div>
   </div>
@@ -13814,6 +13866,14 @@ const EN_FR = {
   "Session with": "Séance avec",
   "AT YOUR OWN PACE": "À TON RYTHME",
   "IN PROGRESS": "EN COURS",
+  "For whom": "Pour qui",
+  "IDENTITY": "IDENTIT\u00c9",
+  "CONTENT": "CONTENU",
+  "SETTINGS": "R\u00c9GLAGES",
+  "Advanced settings": "R\u00e9glages avanc\u00e9s",
+  "Only me": "Moi seul",
+  "My centre": "Mon centre",
+  "e.g. Back straight, elbows close to the body": "ex. Dos droit, coudes pr\u00e8s du corps",
   "Your challenges moved": "Tes d\u00e9fis avancent",
   "CHALLENGE DONE": "D\u00c9FI RELEV\u00c9",
   "See the detail": "Voir le d\u00e9tail",
@@ -16036,7 +16096,22 @@ function openLibrary(){ go('bibliotheque'); }
 // Le FAB "+" de la bibliothèque route vers deux formulaires différents selon le rôle : le référent
 // garde l'ancien écran créer_exercice (seul à porter le réglage de visibilité privé/partagé réseau,
 // pas encore répliqué côté B2C) ; tout le monde écrit dans le même catalogue moderne au final.
-function openCreateExercise(){ go(currentRole==='referent' ? 'creer_exercice' : 'creer_exercice_nouveau'); }
+// Un seul ecran pour les deux roles (gabarit de creation, 13 sept. 2026). Le role n'ouvre plus un
+// autre ecran : il affiche ou non la description, les reglages et le bloc avance.
+function openCreateExercise(){ go('creer_exercice_nouveau'); }
+let cenVisibilite='prive';
+function setCenVisibilite(el, v){ cenVisibilite=v; document.querySelectorAll('#cen_visibilite .ps-opt').forEach(o=>o.classList.toggle('on', o===el)); }
+function toggleCenAvances(){
+  const c=document.getElementById('cenAvancesContenu'), ch=document.getElementById('cenAvancesChev');
+  const ouvert = c.style.display!=='none';
+  c.style.display = ouvert ? 'none' : 'block';
+  if(ch) ch.style.transform = ouvert ? '' : 'rotate(90deg)';
+}
+// Ce que chaque role voit du gabarit.
+function appliquerRoleCreationExo(){
+  const ref = currentRole==='referent';
+  ['cenDescSection','cenReglagesBloc','cenAvancesBloc'].forEach(id=>{ const e=document.getElementById(id); if(e) e.style.display = ref ? 'block' : 'none'; });
+}
 // Onglets Séances/Programmes de la bibliothèque — réutilisent tels quels les catalogues partagés
 // SESSIONS/PROGRAMMES (+ copies persos userSessions/userProgrammes) et les cartes renderSessCard/
 // renderProgCard déjà construites côté B2C, pas de nouvelle donnée inventée. Volontairement sans
@@ -16965,6 +17040,10 @@ function resetCenForm(){
   const ni=document.getElementById('cen_niveau_intermediaire'); if(ni) ni.classList.remove('on');
   const na=document.getElementById('cen_niveau_avance'); if(na) na.classList.remove('on');
   renderCenParams();
+  cenVisibilite='prive';
+  const d=document.getElementById('cen_desc'); if(d) d.value='';
+  const av=document.getElementById('cenAvancesContenu'); if(av) av.style.display='none';
+  appliquerRoleCreationExo();
 }
 function submitCreateExerciceNouveau(){
   const nomEl=document.getElementById('cen_nom');
@@ -16982,7 +17061,11 @@ function submitCreateExerciceNouveau(){
     positions, equipement: cenEquip, zones,
     niveau_difficulte: cenNiveau, contre_indications: [],
     params: { debutant: params, intermediaire: params, avance: params },
-    photo: cenPhoto
+    photo: cenPhoto,
+    // Champs du referent : lus seulement s'il les voit (sinon vides / prive par defaut).
+    description: currentRole==='referent' ? ((document.getElementById('cen_desc')||{}).value||'').trim() : '',
+    visibilite: currentRole==='referent' ? cenVisibilite : 'prive',
+    referent: currentRole==='referent'
   });
   showSuccessOverlay('✓', 'Exercise created', 'bibliotheque', 1200);
 }
@@ -21954,6 +22037,14 @@ function resetCprog(){
 }
 function selectCprogUser(id){
   cprogUserId=id;
+  // Sur une page unique, les pre-remplissages qui partaient a l'ouverture des etapes 2 et 3 (frequence,
+  // jours et duree lus sur le profil du membre ; exercices choisis d'apres ses zones) partent au choix
+  // du membre — c'est lui qui les determine. setTimeout : le profil s'affiche d'abord.
+  setTimeout(()=>{
+    const fq=document.querySelector('#cprogFreqChips .lib-chip.on'); if(fq) fq.classList.remove('on');
+    EXO_PICK_SEL.cprog={};
+    setCprogStep(2); setCprogStep(3); setCprogStep(1);
+  }, 30);
   const p=PATIENTS.find(x=>x.id===id); if(!p) return;
   document.querySelectorAll('#cprogUserList .pat-item').forEach(r=>r.style.background='');
   document.querySelectorAll('#cprogUserList [id^="cprogCheck_"]').forEach(c=>{ c.style.background='transparent'; c.style.borderColor='var(--border)'; c.textContent=''; });
@@ -21986,7 +22077,7 @@ function renderCprogJoursChips(freq){
 }
 function setCprogStep(n){
   cprogStep=n;
-  [1,2,3,4].forEach(i=>{ const d=document.getElementById('cprog_step'+i); if(d) d.style.display=(i===n)?'block':'none'; });
+  // Page unique : plus aucun bloc masque (gabarit de creation, 13 sept. 2026).
   const lbl=document.getElementById('cprogStepLbl'); if(lbl) lbl.textContent=trDyn('Step '+n+' of 4');
   if(n===2 && !document.querySelector('#cprogFreqChips .lib-chip.on')){
     const p=PATIENTS.find(x=>x.id===cprogUserId);
@@ -21999,9 +22090,16 @@ function setCprogStep(n){
   }
   if(n===3) preselectCprogExercices();
   if(n===4) renderCprogRecap();
-  const footer=document.getElementById('cprogFooter'); if(footer) footer.innerHTML = n<4
-    ? '<button class="btn btn-orange" onclick="nextCprogStep()">Continue</button>'
-    : '<button class="btn btn-orange" onclick="submitCprog()">Send →</button>';
+  // Un seul bouton, collant, qui valide tout d'un coup.
+  const footer=document.getElementById('cprogFooter'); if(footer) footer.innerHTML = '<button class="btn btn-orange" style="margin:0;" onclick="validerEtEnvoyerCprog()">Send →</button>';
+}
+function validerEtEnvoyerCprog(){
+  if(!cprogUserId){ toast('Select a user'); return; }
+  if(!cprogObjectif()){ toast('Select a goal'); return; }
+  const n=Object.keys(EXO_PICK_SEL.cprog).length; if(n<3){ toast('Select at least 3 exercises'); return; }
+  if(!(document.getElementById('cprog_duree').value||'').trim()){ toast('Enter a duration'); return; }
+  if(!cprogJoursSel().length){ toast('Select at least one day'); return; }
+  submitCprog();
 }
 function nextCprogStep(){
   if(cprogStep===1 && !cprogUserId){ toast('Select a user'); return; }
