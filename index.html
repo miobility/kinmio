@@ -611,6 +611,11 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
    sont inchangés, les rangées gagnent 8 px. */
 .p-tab,.k-tab{flex:1;padding:13px 9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
 .p-tab.active,.k-tab.active{border-color:var(--orange);color:var(--orange);background:rgba(var(--orange-rgb),.07);}
+/* Rangée d'Entraînement : quatre onglets dont « Programmes », le plus long. À 375 px il passait sur
+   deux lignes et toute la rangée montait à 57 px. On resserre le padding horizontal de cette rangée
+   seulement — la hauteur de 43 px (la cible tactile) est portée par le padding vertical, qui ne bouge
+   pas. nowrap pour que le débordement soit visible si un libellé grandit encore. */
+#libNouveauWrap > .p-tabs .p-tab{padding-left:5px;padding-right:5px;white-space:nowrap;}
 .chart-box,.muscle-box{margin:0 20px 16px;background:var(--bg2);border-radius:16px;padding:18px;border:1px solid var(--border);}
 .chart-t{font-size:14px;font-weight:700;color:var(--white);margin-bottom:16px;}
 .bars{display:flex;align-items:flex-end;gap:8px;height:100px;}
@@ -848,6 +853,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 5.9a.9.9 0 0 1 1.36-.78l9.1 5.32a.75.75 0 0 1 0 1.3l-9.1 5.32A.9.9 0 0 1 8.4 16.4Z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.4" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/><rect x="13.1" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-guide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2 2 0 0 1 6 3.5h5v17H6a2 2 0 0 0-2 2Z"/><path d="M20 5.5a2 2 0 0 0-2-2h-5v17h5a2 2 0 0 1 2 2Z"/></symbol>
   <symbol id="ki-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5a13 13 0 0 1 0 17"/><path d="M12 3.5a13 13 0 0 0 0 17"/></symbol>
   <symbol id="ki-stop-prog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="13" height="13" rx="2.5"/></symbol>
   <symbol id="ki-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/></symbol>
@@ -1257,6 +1263,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div onclick="go('infos_perso')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);">Personal information</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('mon_equipement')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);">My equipment</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('mon_profil_entrainement')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);">My training profile</span><span style="color:var(--gray);">›</span></div>
+        <div onclick="go('guide');setTimeout(renderLibGuide,20)" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg class="ki"><use href="#ki-guide"/></svg> Guide</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('sante')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M9,15l6,-6 /><path d=M8,12l-2.5,2.5a3.5,3.5,0,0,0,5,5L13,17 /><path d=M16,12l2.5,-2.5a3.5,3.5,0,0,0,-5,-5L11,7 /></svg> Health connections</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('mes_amis')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> My friends</span><span style="color:var(--gray);">›</span></div>
       </div>
@@ -1506,6 +1513,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div onclick="go('infos_perso')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);">Personal information</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('mon_equipement')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);">My equipment</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('mon_profil_entrainement')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);">My training profile</span><span style="color:var(--gray);">›</span></div>
+        <div onclick="go('guide');setTimeout(renderLibGuide,20)" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg class="ki"><use href="#ki-guide"/></svg> Guide</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('sante')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M9,15l6,-6 /><path d=M8,12l-2.5,2.5a3.5,3.5,0,0,0,5,5L13,17 /><path d=M16,12l2.5,-2.5a3.5,3.5,0,0,0,-5,-5L11,7 /></svg> Health connections</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('mes_amis')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> My friends</span><span style="color:var(--gray);">›</span></div>
       </div>
@@ -2119,6 +2127,16 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 
+<!-- ================= GUIDE =================
+     Sorti d'Entraînement (12 sept. 2026) : il y occupait un quart de la barre d'onglets pour un
+     contenu qu'on ne vient pas chercher en s'entraînant. Sa vraie porte d'entrée sera l'info-bulle —
+     on se demande « c'est quoi la jauge ? » au moment où on la voit, pas en parcourant un catalogue.
+     Reste une entrée depuis le profil, là où vivent déjà les autres écrans qu'on consulte à froid. -->
+<div class="screen" id="guide">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Guide</div><div class="topnav-r"></div></div>
+  <div class="scroll" id="libGuideList" style="padding:0 20px 24px;"></div>
+</div>
+
 <!-- ================= DÉTAIL D'UN DÉFI =================
      Même grammaire que programme_detail : c'est le même objet — un engagement daté avec un
      avancement. La différence tient au bloc « ce qui l'a fait avancer » : un défi doit montrer d'où
@@ -2424,11 +2442,18 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
        simple parcours (voir/ouvrir le détail) ; le branchement "utiliser ce modèle pour assigner"
        viendra dans une passe séparée. -->
   <div class="p-tabs" style="margin:0 20px 14px;gap:6px;flex-shrink:0;">
-    <div class="p-tab" id="libTopTab_plan" onclick="setLibTopTab('plan')">My plan</div>
+    <!-- « Mon plan » est redevenu « Mon programme » : l'app dit programme partout ailleurs, et un mot
+         de plus pour la même chose fait perdre le fil. Le Guide est parti dans le profil, ce qui libère
+         la place pour le catalogue de programmes — il était enterré dans une modale au bas d'un scroll,
+         et la question « où est-ce que je choisis un nouveau programme ? » n'avait pas de réponse. -->
+    <!-- L'onglet dit « En cours », pas « Mon programme » : à 375 px les quatre onglets débordaient et
+         le libellé passait sur deux lignes. Le mot « programme » n'est pas perdu — il est porté par le
+         titre de l'écran, et « En cours » est le mot que l'app employait déjà, qui s'apparie avec le
+         catalogue « Programmes » juste à côté. -->
+    <div class="p-tab" id="libTopTab_plan" onclick="setLibTopTab('plan')">Current</div>
+    <div class="p-tab" id="libTopTab_programmes" onclick="setLibTopTab('programmes')">Programmes</div>
     <div class="p-tab active" id="libTopTab_exercices" onclick="setLibTopTab('exercices')">Exercises</div>
     <div class="p-tab" id="libTopTab_seances" onclick="setLibTopTab('seances')">Sessions</div>
-    <div class="p-tab" id="libTopTab_programmes" onclick="setLibTopTab('programmes')">Programmes</div>
-    <div class="p-tab" id="libTopTab_guide" onclick="setLibTopTab('guide')">Guide</div>
   </div>
   <div id="libTab_plan" style="display:none;flex-direction:column;flex:1;min-height:0;">
     <div class="px" style="padding-bottom:10px;flex-shrink:0;">
@@ -2540,9 +2565,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
        repondre a "comment j'installe la barre" ou "pourquoi ma seance a change". Trou doublement
        couteux en B2B : un referent qui suit dix personnes a besoin d'un endroit ou les envoyer.
        Pas un 6e onglet de nav — la barre est deja pleine a cinq — mais un 4e onglet ici. -->
-  <div id="libTab_guide" style="display:none;flex-direction:column;flex:1;min-height:0;">
-    <div class="scroll" id="libGuideList" style="padding:0 20px 24px;"></div>
-  </div>
   <button class="fab" style="bottom:92px;" id="libFab" onclick="openCreateExercise()" title="Create an exercise">+</button>
   </div>
   <div class="bnav" id="libBnav"></div>
@@ -5610,6 +5632,7 @@ function go(id){
     if(mode==='edit') initCpnEditMode(); else resetCpn();
   }, 20);
   if(id==='session_detail') setTimeout(renderSessionDetail, 20);
+  if(id==='guide') setTimeout(renderLibGuide, 20);
   if(id==='bibliotheque'){
     // Même écran pour tous les rôles désormais (le référent utilisait avant un écran séparé avec un
     // catalogue legacy jamais mis à jour — cf discussion). preselectLibNouveau()/renderLibNouveau()
@@ -11856,6 +11879,7 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "My programme": "Mon programme",
   "Training": "Entraînement",
   "My plan": "Mon plan",
   "The challenge": "Le défi",
@@ -11982,7 +12006,6 @@ const EN_FR = {
   "Week covered": "Semaine couverte",
   "Cycle covered": "Cycle couvert",
   "On pace": "Dans le rythme",
-  "My programme": "Mon programme",
   "I'm warmed up →": "Je suis échauffé →",
   "On track": "Dans les temps",
   "Catching up": "À rattraper",
@@ -14425,7 +14448,10 @@ function openGuideArticle(sectionKey, i){
 // MAIS le coach n'a pas d'écran Programme : sa barre du bas est Accueil/Calendrier/Membres/Exercices/
 // Stats, et cette bibliothèque est son SEUL accès aux programmes. L'onglet ne disparaît donc que pour
 // les rôles qui ont l'écran dédié — vérifié avant de le retirer, sous peine d'aveugler le référent.
-function libHasProgrammesTab(){ return currentRole==='referent'; }
+// Le catalogue de programmes est désormais visible pour tous : il n'était atteignable que par
+// « Gérer mon programme », au bas d'un long scroll, dans une modale. Choisir un programme reste un
+// acte — mais un acte doit avoir une porte.
+function libHasProgrammesTab(){ return true; }
 // Fusion Bibliothèque + Programme (12 sept. 2026). Programme n'était dans AUCUNE barre de navigation :
 // son seul accès était un lien dans le titre d'une carte de l'Accueil, et on lui avait ajouté le
 // calendrier le matin même — un écran devenu important qu'on ne trouvait pas. Or Bibliothèque et
@@ -14461,14 +14487,14 @@ function setPlanScale(v){
 function setLibTopTab(key){
   if(key==='programmes' && !libHasProgrammesTab()) key='exercices';
   if(key==='plan' && !libHasPlanTab()) key='exercices';
-  ['plan','exercices','seances','programmes','guide'].forEach(k=>{
+  ['plan','exercices','seances','programmes'].forEach(k=>{
     const tab=document.getElementById('libTopTab_'+k); if(tab) tab.classList.toggle('active', k===key);
     const panel=document.getElementById('libTab_'+k); if(panel) panel.style.display = k===key ? 'flex' : 'none';
   });
   const titleEl=document.getElementById('libTopTitle');
   const fab=document.getElementById('libFab');
   if(key==='plan'){
-    if(titleEl) titleEl.textContent='My plan';
+    if(titleEl) titleEl.textContent='My programme';
     setPlanScale(planScale);
   } else if(key==='exercices'){
     if(titleEl) titleEl.textContent='Exercises';
@@ -14481,12 +14507,9 @@ function setLibTopTab(key){
     if(titleEl) titleEl.textContent='Programmes';
     if(fab){ fab.setAttribute('onclick',"go('creer_programme_nouveau')"); fab.title='Create a programme'; }
     renderLibProgrammes();
-  } else {
-    if(titleEl) titleEl.textContent='Guide';
-    renderLibGuide();
   }
-  // Rien a creer dans le Guide : le bouton flottant disparait plutot que de rester la sans cible.
-  if(fab) fab.style.display = (key==='guide'||key==='plan') ? 'none' : '';
+  // Rien a creer sur Mon programme : le bouton flottant disparait plutot que de rester la sans cible.
+  if(fab) fab.style.display = key==='plan' ? 'none' : '';
   sweepTranslate(document.getElementById('libNouveauWrap'), currentLang);
 }
 // Filtres dédiés à la bibliothèque référent (état séparé de sessNouveauFilters/progNouveauFilters
