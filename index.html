@@ -281,7 +281,10 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 .btn[disabled]{background:var(--bg3);color:var(--gray);border-color:var(--border);cursor:not-allowed;box-shadow:none;}
 .btn-danger{background:transparent;border:1.5px solid var(--border);color:var(--red);}
 .btn-ghost{background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
-.icon-btn{width:36px;height:36px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+/* 36 px dessinés, 44 px touchés : le ::after transparent porte la cible sans grossir le bouton ni
+   déplacer la mise en page (même remède que .info-i, audit Progrès). */
+.icon-btn{width:36px;height:36px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;position:relative;}
+.icon-btn::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%;}
 
 /* CARDS */
 .card{background:var(--bg2);border-radius:20px;padding:18px;border:1px solid var(--border);}
@@ -686,7 +689,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .lib-chip{flex-shrink:0;border:1.5px solid var(--border);background:var(--bg2);color:var(--gray2);border-radius:12px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
 .lib-chip.on{border-color:var(--orange);color:var(--orange);background:rgba(var(--orange-rgb),.08);}
 .lib-card{display:flex;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;}
-.lib-thumb{width:56px;height:56px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
+/* 72 × 90, soit le 4:5 de la charte image (audit Bibliothèque). La vignette faisait 56 × 56 — la
+   taille exacte du bouton flottant qui passait au-dessus d'elle, et la plus petite image de l'app sur
+   l'écran où l'on décide « est-ce que cet exercice est pour moi ». Rendu possible par la suppression
+   de la gouttière de 84 px : les cartes passent de 286 à 390 px, l'image peut grandir sans serrer le
+   texte. La règle 1:1 reste pour les cartes qui portent explicitement .r-1-1. */
+.lib-thumb{width:72px;height:90px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;background-size:cover;background-position:center;}
+.lib-thumb.r-1-1{height:72px;}
 .lib-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;}
 .lib-name{font-size:15px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .lib-meta{font-size:12px;color:var(--gray);}
@@ -839,6 +848,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 5.9a.9.9 0 0 1 1.36-.78l9.1 5.32a.75.75 0 0 1 0 1.3l-9.1 5.32A.9.9 0 0 1 8.4 16.4Z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.4" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/><rect x="13.1" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-add-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h11"/><path d="M3.5 12h8"/><path d="M3.5 17.5h8"/><path d="M17.5 14.5v6"/><path d="M14.5 17.5h6"/></symbol>
   <symbol id="ki-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.4v13.2"/><path d="M5.4 12h13.2"/></symbol>
   <symbol id="ki-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 6.6 17.4 17.4"/><path d="M17.4 6.6 6.6 17.4"/></symbol>
   <symbol id="ki-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 7h14.8"/><path d="M9.6 7V4.9h4.8V7"/><path d="M6.7 7l.95 12.1h8.7L17.3 7"/><path d="M10.4 10.6v5.6"/><path d="M13.6 10.6v5.6"/></symbol>
@@ -2444,7 +2454,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="libNouveauCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 exercises</div>
       <button class="btn-ghost" id="libResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibNouveauFilters()">Reset all</button>
     </div>
-    <div class="scroll" id="libListNouveau" style="padding:0 84px 24px 20px;"></div>
+    <div class="scroll" id="libListNouveau" style="padding:0 20px 96px 20px;"></div>
   </div>
   <div id="libTab_seances" style="display:none;flex-direction:column;flex:1;min-height:0;">
     <div style="padding:0 20px 10px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;">
@@ -2454,7 +2464,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="libSeancesCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 sessions</div>
       <button class="btn-ghost" id="libSessResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibSessFilters()">Reset all</button>
     </div>
-    <div class="scroll" id="libSeancesList" style="padding:0 84px 24px 20px;"></div>
+    <div class="scroll" id="libSeancesList" style="padding:0 20px 96px 20px;"></div>
   </div>
   <div id="libTab_programmes" style="display:none;flex-direction:column;flex:1;min-height:0;">
     <div style="padding:0 20px 10px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;">
@@ -2464,7 +2474,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="libProgCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 programmes</div>
       <button class="btn-ghost" id="libProgResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibProgFilters()">Reset all</button>
     </div>
-    <div class="scroll" id="libProgList" style="padding:0 84px 24px 20px;"></div>
+    <div class="scroll" id="libProgList" style="padding:0 20px 96px 20px;"></div>
   </div>
   <!-- Guide (benchmark SmartWorkout, sept. 2026) : ils consacrent un onglet entier de leur barre a
        l'education — contenu du pack, securite, les bases — et ils vendent une barre et des elastiques
@@ -5441,6 +5451,7 @@ function go(id){
     // correction équipement) sont déjà partagés et role-agnostic — seul l'affichage des onglets était en cause.
     const topTabs=document.querySelector('#libNouveauWrap .p-tabs');
     if(topTabs) topTabs.style.display = 'flex';
+    syncLibProgrammesTab();
     setLibTopTab('exercices');
     renderLibBnav();
     preselectLibNouveau(); renderLibNouveau();
@@ -11135,7 +11146,6 @@ const EN_FR = {
   "Standing": "Debout",
   "Seated": "Assis",
   "Lying down": "Allongé",
-  "All positions": "Toutes",
   "Continue": "Continuer",
   // ob2/ob3 (préhension de la barre) retirés du parcours (6 questions désormais) — ces 3 options
   // restent utilisées ailleurs (mon_equipement, mon_profil_entrainement), le reste a été purgé.
@@ -11629,6 +11639,8 @@ const EN_FR = {
   "VOLUME & INTENSITY": "VOLUME & INTENSITÉ",
   "vs your all-time best 7-day window": "vs ta meilleure fenêtre de 7 jours jamais atteinte",
   "BODY ZONES": "ZONES DU CORPS",
+  "filtered on your profile": "filtré sur ton profil",
+  "Add to a session": "Ajouter à une séance",
   "FORM & PAIN": "FORME & DOULEUR",
   "average pain": "douleur moyenne",
   "Form": "Forme",
@@ -11732,7 +11744,6 @@ const EN_FR = {
   "Chest": "Pectoraux",
   "Legs": "Jambes",
   "Core": "Gainage",
-  "Abs": "Abdominaux",
   "Neck": "Nuque",
   "Compatible positions": "Positions compatibles",
   "Equipment required": "Équipement requis",
@@ -11802,7 +11813,7 @@ const EN_FR = {
   "All": "Tous",
   "No equipment": "Sans équipement",
   "Bar + bands": "Barre + élastiques",
-  "No equipment needed": "Aucun",
+  "No equipment needed": "Sans matériel",
   "Bar only": "Barre seule",
   "Bar with band": "Barre avec élastique",
   "Full body": "Corps entier",
@@ -11872,7 +11883,6 @@ const EN_FR = {
   "Neck · Mobility": "Nuque · Mobilité",
   "Slow head rotations, side tilts. Hold each position for 5 seconds. Ideal for warm-up.": "Rotations lentes de la tête, inclinaisons latérales. Maintiens chaque position 5 secondes. Idéal en échauffement.",
   "Slow, gentle movements. Stop if you feel pain or dizziness.": "Mouvements lents et doux. Arrête-toi en cas de douleur ou de vertige.",
-  "Shoulder stretch": "Étirement de l'épaule",
   "Shoulders · Recovery": "Épaules · Récupération",
   "Bring one arm across your chest, hold with the other arm for 20 seconds. Alternate sides.": "Amène un bras devant la poitrine, maintiens avec l'autre bras pendant 20 secondes. Alterne les côtés.",
   "Don't force it. The stretch should be gentle and gradual.": "Ne force pas. L'étirement doit être doux et progressif.",
@@ -12192,11 +12202,9 @@ const EN_FR = {
   "Usual day": "Jour habituel",
   "SIGNALS": "SIGNAUX",
   "Session adjusted": "Séance ajustée",
-  "High pain": "Douleur élevée",
   "Load rising fast": "Charge en forte hausse",
   "Back after a break": "Reprise après une pause",
   "Today’s session is eased off.": "Ta séance du jour est allégée.",
-  "Intensity": "Intensité",
   "vs your record": "vs ton record",
   "rising fast": "en forte hausse",
   "below usual": "sous ton habitude",
@@ -12228,11 +12236,9 @@ const EN_FR = {
   "declined": "refusé",
   "My programme →": "Mon programme →",
   "Weekly volume challenge": "Défi de volume hebdomadaire",
-  "Warm-up": "Échauffement",
   "30 seconds before you start": "30 secondes avant de démarrer",
   "A few gentle moves, adapted to what you told us — skip anytime.": "Quelques mouvements doux, adaptés à ce que tu nous as dit — passe quand tu veux.",
   "Don't forget to clip your phone onto the bar": "N'oublie pas de clipser ton téléphone sur la barre",
-  "Start session →": "Démarrer la séance →",
   "Skip warm-up": "Passer l'échauffement",
   "Neck rolls": "Rotations du cou",
   "Slowly roll your head in a circle, both directions.": "Fais lentement rouler ta tête en cercle, dans les deux sens.",
@@ -12285,8 +12291,6 @@ const EN_FR = {
   "members need attention today": "membres nécessitent ton attention aujourd'hui",
   "All members are on track": "Tous les membres sont sur la bonne voie",
   "alert": "alerte",
-  "alerts": "alertes",
-  "to check": "à checker",
   "No alerts, nothing to check": "Aucune alerte, rien à checker",
   "Today's sessions": "Séances du jour",
   "vs last 7d": "vs 7j précédents",
@@ -12346,7 +12350,6 @@ const EN_FR = {
   "— (to assign)": "— (à désigner)",
   "GROUP": "GROUPE",
   "INDIVIDUAL": "INDIVIDUEL",
-  "PAIN": "DOULEUR",
   "INACTIVITY": "INACTIVITÉ",
   "ADHERENCE": "OBSERVANCE",
   "Accept": "Accepter",
@@ -12370,7 +12373,6 @@ const EN_FR = {
   "Adapted cardio": "Cardio adapté",
   "Knee rehab": "Rééducation genou",
   "Shoulder post-op": "Épaule post-op",
-  "Weekly check-in": "Bilan hebdomadaire",
   "Yesterday": "Hier",
   // Notes cliniques, messages, alertes (contenu narratif)
   "Increasing pain on elevation, keep an eye on it.": "Douleur qui augmente en élévation, à surveiller.",
@@ -12583,7 +12585,6 @@ const EN_FR = {
   "Controlled movement. Quality over quantity.": "Mouvement contrôlé. La qualité avant la quantité.",
   "⚡ Effort and energy": "⚡ Effort et énergie",
   "🏆 Best period": "🏆 Meilleure période",
-  "Yearly records": "Records annuels",
   "You're up +28% in volume this month. Solid. 💪": "Tu es en hausse de +28% de volume ce mois-ci. Solide. 💪",
   "Rotate your phone": "Tourne ton téléphone",
   "Place your phone in landscape on your kinmio bar to follow your session comfortably.": "Place ton téléphone en mode paysage sur ta barre kinmio pour suivre ta séance confortablement.",
@@ -12694,7 +12695,6 @@ const EN_FR = {
   "I'm short on time": "Je manque de temps",
   "Something else": "Autre chose",
   "Keep going": "Continuer la séance",
-  "Rest": "Repos",
   "Skip rest →": "Passer le repos →",
   "Resistance": "Résistance",
   "Auto": "Auto",
@@ -12756,7 +12756,6 @@ const EN_FR = {
   "Excluded": "Exclu",
   "Your exercises": "Tes exercices",
   "Reset to recommended": "Réinitialiser à la valeur recommandée",
-  "Add to a session": "Ajouter à une séance",
   "You don't have a custom session yet.": "Tu n'as pas encore de séance personnalisée.",
   "+ Create a new session": "+ Créer une nouvelle séance",
   "No session available yet.": "Aucune séance disponible pour l'instant.",
@@ -12849,14 +12848,11 @@ const EN_FR = {
   "🔥 Intensity": "🔥 Intensité",
   "🔥 Pace": "🔥 Rythme",
   "⚖️ Balance": "⚖️ Équilibre",
-  "Rhythm consistency": "Régularité du rythme",
   "🔥 Average intensity": "🔥 Intensité moyenne",
   "⚖️ Average balance": "⚖️ Équilibre moyen",
-  "Average rhythm consistency": "Régularité du rythme moyenne",
   "Session summary": "Résumé de la séance",
   "Accelerating — too easy": "Accélère — trop facile",
   "Slowing down progressively — good level": "Ralentit progressivement — bon niveau",
-  "Steady pace": "Rythme stable",
   "Not owned": "Non possédé",
   "Not connected — tap to mark as active": "Non connectée — appuie pour la marquer active",
   "Tap an item to update it — your suggested sessions adapt to what you actually have on hand.": "Touche un élément pour le modifier — tes séances suggérées s'adaptent à ce que tu as vraiment sous la main.",
@@ -12878,7 +12874,6 @@ const EN_FR = {
   "Flawless": "Sans faute",
   "📈 Trend": "📈 Tendance",
   "Kcal est.": "Kcal est.",
-  "Pain trend": "Tendance douleur",
   "↑ rising": "↑ en hausse",
   "→ stable": "→ stable",
   "CONSISTENCY": "RÉGULARITÉ",
@@ -12902,7 +12897,6 @@ const EN_FR = {
   "Replace this exercise": "Remplacer cet exercice",
   "Same muscle group": "Même groupe musculaire",
   "Mixed": "Mixte",
-  "Mode": "Mode",
   "No equivalent exercise (same mode) found for this session.": "Aucun exercice équivalent (même mode) trouvé pour cette séance.",
   // Tags de séance et accroche — nouvellement affichés (audit séance, badge/chips), jamais traduits
   // jusqu'ici puisque jamais montrés à l'écran.
@@ -12923,7 +12917,6 @@ const EN_FR = {
   "Under the feet, then high point": "Sous les pieds puis point haut",
   "Under the thighs, then mid point": "Sous les cuisses puis point milieu",
   // Retour au calme (chantier séance)
-  "Cool-down": "Retour au calme",
   "Nice work — take a minute": "Bien joué — prends une minute",
   "A few gentle moves to bring your heart rate down — skip anytime.": "Quelques mouvements doux pour faire redescendre ton rythme cardiaque — passe quand tu veux.",
   "Deep breathing": "Respiration profonde",
@@ -12973,6 +12966,10 @@ const EN_FR_PATTERNS = [
   [/^(\d+) sessions? · (\d+) min avg\/session$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} · ${m[2]} min moy./séance`],
   // Compteur de séances renseignées sous la frise de douleur (bloc Forme & douleur) — pluriel dynamique.
   [/^(\d+) sessions? rated$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} renseignée${Number(m[1])>1?'s':''}`],
+  // Compteur de la Bibliothèque : « 41 of 49 exercises » quand un filtre retire quelque chose.
+  [/^(\d+) of (\d+) exercises?$/, (m)=>`${m[1]} sur ${m[2]} exercices`],
+  [/^(\d+) of (\d+) sessions?$/, (m)=>`${m[1]} sur ${m[2]} séances`],
+  [/^(\d+) of (\d+) programmes?$/, (m)=>`${m[1]} sur ${m[2]} programmes`],
   // Générique pour tous les compteurs d'étape de wizard (csi/csc/cprog + détours) — posés en JS brut
   // via textContent, jamais captés par un balayage statique, donc jamais traduits sans ce pattern.
   [/^Step (\d+) of (\d+)$/, (m)=>`Étape ${m[1]} sur ${m[2]}`],
@@ -13148,6 +13145,9 @@ const FR_EN_PATTERNS = [
   // bloqué en français, découvert en vérifiant les nouveaux compteurs defiStepLbl/friendStepLbl.
   [/^Étape (\d+) sur (\d+)$/, (m)=>`Step ${m[1]} of ${m[2]}`],
   [/^(\d+) séances? renseignées?$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} rated`],
+  [/^(\d+) sur (\d+) exercices?$/, (m)=>`${m[1]} of ${m[2]} exercises`],
+  [/^(\d+) sur (\d+) séances?$/, (m)=>`${m[1]} of ${m[2]} sessions`],
+  [/^(\d+) sur (\d+) programmes?$/, (m)=>`${m[1]} of ${m[2]} programmes`],
   // Libellé de la carte séance (renderHomeSeance, cardLbl) — même problème que ci-dessus : sens forward
   // seul (EN_FR_PATTERNS) suffit pour un premier rendu FR, mais bloque en français sans re-rendu si on
   // repasse en anglais depuis un écran déjà affiché.
@@ -14110,7 +14110,25 @@ function openGuideArticle(sectionKey, i){
     +'<div style="max-height:52vh;overflow-y:auto;">'+corps+'</div>'
     +'<button class="btn btn-outline" style="width:100%;margin-top:16px;" onclick="closeModal()">'+trDyn('Got it')+'</button>');
 }
+// Les mêmes 5 programmes s'affichaient à deux endroits — Bibliothèque > Programmes ET
+// Programme > Programmes — avec deux habillages différents (l'un avec Filtres/Favoris/Pour toi et un
+// compteur, l'autre avec Filtres seul). Un programme n'est pas une brique qu'on consulte comme un
+// exercice ou une séance : c'est un engagement qu'on prend, qu'on suit et qu'on arrête, et les trois
+// verbes vivent dans l'écran Programme, à côté de « En cours ».
+// MAIS le coach n'a pas d'écran Programme : sa barre du bas est Accueil/Calendrier/Membres/Exercices/
+// Stats, et cette bibliothèque est son SEUL accès aux programmes. L'onglet ne disparaît donc que pour
+// les rôles qui ont l'écran dédié — vérifié avant de le retirer, sous peine d'aveugler le référent.
+function libHasProgrammesTab(){ return currentRole==='referent'; }
+function syncLibProgrammesTab(){
+  const tab=document.getElementById('libTopTab_programmes');
+  if(tab) tab.style.display = libHasProgrammesTab() ? '' : 'none';
+  if(!libHasProgrammesTab()){
+    const panel=document.getElementById('libTab_programmes');
+    if(panel && panel.style.display!=='none' && tab && tab.classList.contains('active')) setLibTopTab('exercices');
+  }
+}
 function setLibTopTab(key){
+  if(key==='programmes' && !libHasProgrammesTab()) key='exercices';
   ['exercices','seances','programmes','guide'].forEach(k=>{
     const tab=document.getElementById('libTopTab_'+k); if(tab) tab.classList.toggle('active', k===key);
     const panel=document.getElementById('libTab_'+k); if(panel) panel.style.display = k===key ? 'flex' : 'none';
@@ -14256,7 +14274,8 @@ function renderLibSeances(){
   const main = libSessFilters.perso ? [] : SESSIONS.filter(filterLibSession);
   const mine = userSessions.filter(filterLibSession);
   const total = main.length + mine.length;
-  const count=document.getElementById('libSeancesCount'); if(count) count.textContent=total+(total>1?' sessions':' session');
+  const count=document.getElementById('libSeancesCount');
+  if(count){ count.innerHTML=libCountLabel(total, [...SESSIONS,...userSessions].length, sessNouveauFilters.matchProfile, 'session'); sweepTranslate(count, currentLang); }
   if(!total){
     el.innerHTML='<div class="lib-empty">No session matches these filters.<br><button class="btn-ghost" style="color:var(--orange);margin-top:8px;" onclick="resetLibSessFilters()">Reset all</button></div>';
     return;
@@ -14272,7 +14291,8 @@ function renderLibProgrammes(){
   const main = libProgFilters.perso ? [] : PROGRAMMES.filter(filterLibProgramme);
   const mine = userProgrammes.filter(filterLibProgramme);
   const total = main.length + mine.length;
-  const count=document.getElementById('libProgCount'); if(count) count.textContent=total+(total>1?' programmes':' programme');
+  const count=document.getElementById('libProgCount');
+  if(count){ count.innerHTML=libCountLabel(total, [...PROGRAMMES,...userProgrammes].length, progNouveauFilters && progNouveauFilters.matchProfile, 'programme'); sweepTranslate(count, currentLang); }
   if(!total){
     el.innerHTML='<div class="lib-empty">No programme matches these filters.<br><button class="btn-ghost" style="color:var(--orange);margin-top:8px;" onclick="resetLibProgFilters()">Reset all</button></div>';
     return;
@@ -14489,6 +14509,21 @@ function exoPastille(ex){
     +'<span class="tag tag-g">'+exoPrimaryZone(ex)+'</span>'
     +'</div>';
 }
+// « 41 sur 49 · filtré sur ta position » quand le pré-filtrage retire quelque chose, « 49 exercices »
+// quand il ne retire rien. La cause est cliquable : c'est la sortie, pas une simple mention.
+function libCountLabel(affiches, fond, parProfil, mot){
+  const pluriel = affiches>1 ? mot+'s' : mot;
+  if(affiches>=fond) return affiches+' '+pluriel;
+  const base = trDyn(affiches+' of '+fond+' '+(fond>1?mot+'s':mot));
+  if(!parProfil) return base;
+  return base+' <span style="color:var(--orange);cursor:pointer;text-decoration:underline;" role="button" tabindex="0" onclick="event.stopPropagation();libClearProfileFilter()">'+trDyn('filtered on your profile')+'</span>';
+}
+// Lève le seul filtre posé par le profil, sans toucher à ceux que la personne a choisis elle-même.
+function libClearProfileFilter(){
+  if(libNouveauFilters.matchProfile){ toggleLibMatchProfileChip(); return; }
+  if(sessNouveauFilters.matchProfile){ sessNouveauFilters.matchProfile=false; applySessProfileMatch(); renderLibSeances(); return; }
+  if(typeof progNouveauFilters!=='undefined' && progNouveauFilters.matchProfile){ progNouveauFilters.matchProfile=false; if(typeof applyProgProfileMatch==='function') applyProgProfileMatch(); renderLibProgrammes(); }
+}
 function renderLibExoCard(ex){
   const fav = isFavori('exercices', ex.id);
   // exoPhotoFor() couvre déjà les 20 exercices (pool par type + override EXO_MEDIA pour Shadow
@@ -14498,11 +14533,14 @@ function renderLibExoCard(ex){
     +thumb
     +'<div class="lib-body"><div class="lib-name">'+ex.nom+'</div>'
     +'<div style="margin:3px 0 5px;">'+exoPastille(ex)+'</div>'
-    +'<div class="lib-meta">'+ex.equipement+'</div>'
+    +'<div class="lib-meta">'+(ex.equipement==='Aucun' ? trDyn('No equipment needed') : trDyn(ex.equipement))+'</div>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;">'
     +'<button class="icon-btn" onclick="event.stopPropagation();toggleFavori(\'exercices\',\''+ex.id+'\');renderLibNouveau();" style="background:none;font-size:19px;">'+(fav?'<svg class="ki"><use href="#ki-heart-fill"/></svg>':'<svg class="ki"><use href="#ki-heart"/></svg>')+'</button>'
-    +'<button class="icon-btn" onclick="event.stopPropagation();openAddToSessionModal(\''+ex.id+'\')" style="background:var(--bg3);color:var(--white);font-size:16px;line-height:1;">+</button>'
+    // Deux « + » cohabitaient sur le même écran : celui-ci range un exercice EXISTANT dans une séance,
+    // le bouton flottant en fabrique un NOUVEAU. Même signe, deux actions sans rapport — et le plus
+    // voyant était le moins utilisé. Celui de la carte dit désormais ce qu'il fait.
+    +'<button class="icon-btn" title="'+trDyn('Add to a session')+'" onclick="event.stopPropagation();openAddToSessionModal(\''+ex.id+'\')" style="background:var(--bg3);color:var(--white);font-size:15px;line-height:1;"><svg class="ki"><use href="#ki-add-list"/></svg></button>'
     +'</div>'
     +'</div>';
 }
@@ -14524,7 +14562,17 @@ function renderLibNouveau(){
   const main = EXERCICES.filter(filterExerciceNouveau);
   const mine = userExercices.filter(filterExerciceNouveau);
   const total = main.length + mine.length;
-  const count=document.getElementById('libNouveauCount'); if(count) count.textContent = total+(total>1?' exercises':' exercise');
+  // Le catalogue arrivait filtré et le compteur annonçait « 41 exercices » là où la bibliothèque en
+  // contient 49 (audit Bibliothèque). Le pré-filtrage sur la position est voulu ; ce qui ne l'est pas,
+  // c'est de présenter un résultat filtré comme LE catalogue — quelqu'un qui cherche un exercice dont
+  // il se souvient et ne le trouve pas en conclut qu'il n'existe pas. Le compteur dit donc « X sur Y »
+  // dès qu'un filtre retire quelque chose, et nomme la cause quand c'est le profil qui la pose.
+  const count=document.getElementById('libNouveauCount');
+  if(count){
+    const fond=[...EXERCICES,...userExercices].length;
+    count.innerHTML = libCountLabel(total, fond, libNouveauFilters.matchProfile, 'exercise');
+    sweepTranslate(count, currentLang);
+  }
   if(!total){
     list.innerHTML='<div class="lib-empty">No exercise matches these filters.<br><button class="btn-ghost" style="color:var(--orange);margin-top:8px;" onclick="resetLibNouveauFilters()">Reset all</button></div>';
     return;
