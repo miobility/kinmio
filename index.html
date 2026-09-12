@@ -5486,11 +5486,14 @@ let obObjectifsChoisis = [];
 function renderObObjectifs(){
   const el=document.getElementById('ob_objectif_opts'); if(!el) return;
   el.innerHTML = PROGRAMME_OBJECTIFS.map(o=>
-    '<div class="ob-opt multi'+(obObjectifsChoisis.includes(o.key)?' on':'')+'" onclick="toggleObObjectif(\''+o.key+'\')" data-val="'+o.key+'">'
+    // .sel, pas .on : c'est la classe que le CSS de l'onboarding style (bordure émeraude, fond teinté,
+    // coche remplie). Avec .on, choisir un objectif ne changeait RIEN à l'écran — le state changeait,
+    // l'interface restait muette.
+    '<div class="ob-opt multi'+(obObjectifsChoisis.includes(o.key)?' sel':'')+'" onclick="toggleObObjectif(\''+o.key+'\')" data-val="'+o.key+'">'
     +'<div class="ob-photo" style="background-image:url(\''+o.photo+'\');"></div>'
     +'<div style="flex:1"><div class="ob-label">'+trDyn(o.lbl)+'</div>'
     +'<div style="font-size:12px;color:var(--gray);margin-top:2px;line-height:1.35;">'+trDyn(o.sous)+'</div></div>'
-    +'<div class="ob-check"></div></div>').join('');
+    +'<div class="ob-check">'+(obObjectifsChoisis.includes(o.key)?'✓':'')+'</div></div>').join('');
   const btn=document.getElementById('obObjectifNext'); if(btn) btn.disabled = obObjectifsChoisis.length===0;
   sweepTranslate(document.getElementById('ob_objectif'), currentLang);
 }
