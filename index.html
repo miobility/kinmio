@@ -16577,13 +16577,21 @@ function renderSdPhases(){
   const s=[...SESSIONS,...userSessions].find(x=>x.id===window._curSessId); if(!s) return;
   const phasesEl=document.getElementById('sdPhases'); if(!phasesEl) return;
   const mins=arr=>Math.max(1, Math.round(arr.reduce((a,m)=>a+(m.dur||0),0)/60));
-  const wu=mins(getWarmupMoves()), cd=mins(getCooldownMoves()), core=s.duree||0;
+  // Le bloc lit maintenant le routage reel (shouldRunWarmup/shouldRunCooldown, livrees par DEV) :
+  // il n'annonce que les phases qui auront lieu pour CETTE seance et CE profil. Avant le branchement
+  // il annoncait les trois quoi qu'il arrive — c'etait vrai du comportement et faux de la donnee ;
+  // depuis le branchement ce serait faux des deux. Le total suit, donc la duree annoncee est
+  // exactement le temps engage.
+  const avecWu=shouldRunWarmup(s), avecCd=shouldRunCooldown(s);
+  const wu=avecWu?mins(getWarmupMoves()):0, cd=avecCd?mins(getCooldownMoves()):0, core=s.duree||0;
   const row=(lbl,val,fort)=>'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">'
     +'<span style="font-size:13.5px;color:'+(fort?'var(--white);font-weight:700;':'var(--gray2);')+'">'+trDyn(lbl)+'</span>'
     +'<span style="font-size:12.5px;color:'+(fort?'var(--brand-fixed)':'var(--gray)')+';font-variant-numeric:tabular-nums;'+(fort?'font-weight:700;':'')+'">'+val+' '+trDyn('min')+'</span></div>';
+  if(!avecWu && !avecCd){ phasesEl.style.display='none'; phasesEl.innerHTML=''; return; }
+  phasesEl.style.display='block';
   phasesEl.innerHTML='<div class="ex-sec-t" style="padding:0 0 4px;">'+trDyn('How it runs')+'</div>'
     +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:4px 14px;">'
-    +row('Warm-up', wu)+row('Session', core)+row('Cool-down', cd)
+    +(avecWu?row('Warm-up', wu):'')+row('Session', core)+(avecCd?row('Cool-down', cd):'')
     +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;"><span style="font-size:13.5px;color:var(--white);font-weight:700;">'+trDyn('Total')+'</span>'
     +'<span style="font-size:13.5px;color:var(--brand-fixed);font-weight:700;font-variant-numeric:tabular-nums;">'+(wu+core+cd)+' '+trDyn('min')+'</span></div>'
     +'</div>';
