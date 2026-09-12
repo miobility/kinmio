@@ -81,6 +81,9 @@ done
 
 # Une image par exercice (EX-*.jpg) : nommees d'apres l'id, elles arrivent et disparaissent au fil du
 # catalogue — les lister une par une dans FILES condamnerait a le maintenir a la main.
+for f in "$SRC"/ob-position-*.jpg; do
+  [ -f "$f" ] && cp "$f" "$REPO/$(basename "$f")"
+done
 for f in "$SRC"/EX-*.jpg; do
   [ -f "$f" ] && cp "$f" "$REPO/$(basename "$f")"
 done
