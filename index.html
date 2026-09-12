@@ -5224,7 +5224,13 @@ function initApresOnboarding() {
   if(!programStartDate) programStartDate = Date.now();   // même garde que trialStartDate : ne compte que le tout 1er passage, les deux parcours
   syncUserProfileDataFromOnboarding();
   // Suggère et active un programme
+  // programmeActifDepuis renseigné ICI aussi, pas seulement dans activerProgramme() : le programme
+  // reçu à l'onboarding n'en avait jamais, donc il restait null pour quiconque gardait son programme
+  // initial. Conséquence mesurée : isProgrammeBehindPace() lit weeksElapsed=0 et renvoie false même
+  // après six semaines SANS AUCUNE séance — l'alerte de retard ne pouvait pas se déclencher. Le récap
+  // de clôture (séances faites pendant ce programme) tombait lui aussi sur un tableau vide.
   programmeActif = getProgrammeSuggere();
+  programmeActifDepuis = Date.now();
   semaineActuelle = 1;
 
   // Met à jour la session du jour
@@ -15104,7 +15110,7 @@ function renderProgMonView(){
 // qu'on doit pouvoir faire les deux") plutôt qu'un seul lien direct vers le catalogue comme avant.
 function openChangeProgrammeSheet(){
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:14px;">Manage my programme</div>'
-    +'<button class="btn-outline" style="width:100%;margin-bottom:10px;text-align:left;padding:16px;" onclick="closeModal();setProgrammeTab(document.querySelector(\'.p-tabs .p-tab:nth-child(2)\'),\'programmes\')">'
+    +'<button class="btn-outline" style="width:100%;margin-bottom:10px;text-align:left;padding:16px;" onclick="closeModal();setProgrammeTab(document.querySelector(\'#programme .p-tabs .p-tab:nth-child(2)\'),\'programmes\')">'
       +'<div style="font-size:14.5px;font-weight:700;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> Switch to another programme</div>'
       +'<div style="font-size:12px;color:var(--gray);font-weight:400;margin-top:2px;">Browse the catalogue and activate a different one</div>'
     +'</button>'
