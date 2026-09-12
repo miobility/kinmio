@@ -2412,6 +2412,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="p-tab active" id="libTopTab_exercices" onclick="setLibTopTab('exercices')">Exercises</div>
     <div class="p-tab" id="libTopTab_seances" onclick="setLibTopTab('seances')">Sessions</div>
     <div class="p-tab" id="libTopTab_programmes" onclick="setLibTopTab('programmes')">Programmes</div>
+    <div class="p-tab" id="libTopTab_guide" onclick="setLibTopTab('guide')">Guide</div>
   </div>
   <div id="libTab_exercices" style="display:flex;flex-direction:column;flex:1;min-height:0;">
     <div id="libSearchWrap" style="display:none;padding:0 20px 10px;flex-shrink:0;"><input id="libSearchInput" type="text" placeholder="Search an exercise…" oninput="renderLibNouveau()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
@@ -2446,6 +2447,15 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <button class="btn-ghost" id="libProgResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibProgFilters()">Reset all</button>
     </div>
     <div class="scroll" id="libProgList" style="padding:0 84px 24px 20px;"></div>
+  </div>
+  <!-- Guide (benchmark SmartWorkout, sept. 2026) : ils consacrent un onglet entier de leur barre a
+       l'education — contenu du pack, securite, les bases — et ils vendent une barre et des elastiques
+       comme nous. Chez nous "Mon equipement" est une ligne dans le profil, et il n'y a nulle part ou
+       repondre a "comment j'installe la barre" ou "pourquoi ma seance a change". Trou doublement
+       couteux en B2B : un referent qui suit dix personnes a besoin d'un endroit ou les envoyer.
+       Pas un 6e onglet de nav — la barre est deja pleine a cinq — mais un 4e onglet ici. -->
+  <div id="libTab_guide" style="display:none;flex-direction:column;flex:1;min-height:0;">
+    <div class="scroll" id="libGuideList" style="padding:0 20px 24px;"></div>
   </div>
   <button class="fab" style="bottom:92px;" id="libFab" onclick="openCreateExercise()" title="Create an exercise">+</button>
   </div>
@@ -2705,6 +2715,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
          session_cooldown existent tous les deux depuis le chantier P0 securite, et la fiche n'en
          disait pas un mot : elle annoncait 15 min pour un engagement reel de 19. Pour un public qui
          compte son temps et sa fatigue, c'est exactement l'ecart qui fait qu'on ne lance pas. -->
+    <!-- La seule ligne de cette fiche qui ne peut pas s'ecrire a la main : elle depend de l'etat du
+         jour. Elle n'apparait que si la seance affichee EST celle du jour ET qu'un ajustement a
+         reellement ete applique — pas si le moteur l'a seulement propose. -->
+    <div id="sdAdjust" style="display:none;margin-bottom:16px;"></div>
     <div id="sdPhases" style="margin-bottom:18px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 4px;">
       <div class="ex-sec-t" style="padding:0;">Exercises</div>
@@ -11436,6 +11450,8 @@ const EN_FR = {
   "GOAL": "OBJECTIF",
   "Expected": "Attendu",
   "How it runs": "Le déroulé",
+  "Adjusted today": "Ajustée aujourd'hui",
+  "This session is eased off today.": "Cette séance est allégée aujourd'hui.",
   "Very easy": "Très facile",
   "5 in a row": "Série de 5",
   "Trained on a weekend": "Entraîné un week-end",
@@ -13811,8 +13827,78 @@ function renderLibBnav(){
       +'<button class="bnav-item" onclick="go(\'progression\')"><span class="bnav-icon">'+bnavIconSvg('stats','var(--gray)')+'</span><span class="bnav-label">Progress</span></button>';
   sweepTranslate(el, currentLang);
 }
+// ===== GUIDE (onglet Bibliotheque) =====
+// Trois rayons. Les deux premiers demandent une connaissance produit (contenu du pack, montage de la
+// barre) et une validation metier (securite) : leurs articles sont vides pour l'instant, et une
+// section sans article ne s'affiche pas — la structure existe dans la donnee, pas a l'ecran, plutot
+// que de livrer des cartes "a venir". Le troisieme explique des objets que l'app montre deja ; c'est
+// le moins cher a ecrire et le plus utile, et il contient le seul endroit ou l'on explique pourquoi
+// une seance s'allege — que personne n'explique nulle part aujourd'hui.
+// Les articles sont stockes en FR et EN plutot qu'en cles de dictionnaire : ce sont des paragraphes,
+// pas des libelles, et dix cles de 600 caracteres dans EN_FR le rendraient illisible.
+const GUIDE_SECTIONS = [
+  { key:'materiel', icon:'ki-grip', titleFr:'Ton matériel', titleEn:'Your equipment', articles:[] },
+  { key:'securite', icon:'ki-shield', titleFr:'Sécurité', titleEn:'Safety', articles:[] },
+  { key:'seance', icon:'ki-gauge', titleFr:'Comprendre ta séance', titleEn:'Understanding your session', articles:[
+    { icon:'ki-timer',
+      tFr:'Comment se déroule une séance', tEn:'How a session runs',
+      sFr:'Trois temps, et le repos qui compte autant que l’effort',
+      sEn:'Three phases, and the rest that matters as much as the effort',
+      bFr:'Une séance kinmio se déroule en trois temps.\n\nL’échauffement prépare les articulations que tu vas solliciter — deux minutes, filtrées par ce que tu nous as dit d’éviter. La séance enchaîne ensuite tes exercices, avec un temps de repos entre les séries : il est écrit sur chaque ligne de la fiche, et il compte autant que l’effort. Le retour au calme referme la séance en douceur.\n\nLa durée totale annoncée sur la fiche comprend les trois. Tu peux passer l’échauffement si tu es déjà chaud, mais c’est le moment le moins coûteux et le plus utile de la séance.',
+      bEn:'A kinmio session runs in three phases.\n\nThe warm-up prepares the joints you are about to use — two minutes, filtered by whatever you told us to avoid. The session itself runs through your exercises, with a rest between sets: it is written on every line of the sheet, and it counts as much as the effort. The cool-down closes the session gently.\n\nThe total duration on the sheet covers all three. You can skip the warm-up if you are already warm, but it is the cheapest and most useful part of the session.' },
+    { icon:'ki-gauge',
+      tFr:'La jauge', tEn:'The gauge',
+      sFr:'L’échelle d’intensité, de 1 à 5', sEn:'The intensity scale, 1 to 5',
+      bFr:'La jauge est l’échelle d’intensité de chaque exercice, de 1 à 5. Elle ne mesure pas ta performance : elle règle ce que l’exercice te demande — l’amplitude, la résistance, le rythme.\n\nTu peux la modifier toi-même depuis la fiche d’un exercice, dans « Tes réglages ». Et elle bouge parfois toute seule : quand tu tiens la zone plusieurs séances d’affilée, on te propose de monter d’un cran ; quand ta douleur remonte, on la baisse.',
+      bEn:'The gauge is the intensity scale of each exercise, from 1 to 5. It does not measure your performance: it sets what the exercise asks of you — range, resistance, pace.\n\nYou can change it yourself from an exercise sheet, under “Your settings”. And it sometimes moves on its own: hold the zone for several sessions in a row and we suggest moving up; if your pain rises, we bring it down.' },
+    { icon:'ki-threshold',
+      tFr:'La zone', tEn:'The zone',
+      sFr:'Ni trop mou, ni trop fort', sEn:'Neither too easy nor too hard',
+      bFr:'Pendant un exercice d’intensité, on mesure le temps que tu passes dans la bonne fourchette — ni trop mou, ni trop fort. C’est la zone.\n\n80 % de temps dans la zone, c’est le seuil à partir duquel on considère le niveau acquis. En dessous, ce n’est pas un échec : ça veut dire que le réglage n’est pas encore le bon. Au-dessus plusieurs fois de suite, on te propose de monter d’un cran.',
+      bEn:'During an intensity exercise, we measure the time you spend in the right band — neither too easy nor too hard. That is the zone.\n\n80% of time in the zone is the threshold at which we consider the level mastered. Below it, that is not a failure: it means the setting is not right yet. Above it several times in a row, we suggest moving up.' },
+    { icon:'ki-alert',
+      tFr:'Pourquoi ta séance s’allège parfois', tEn:'Why your session is sometimes eased off',
+      sFr:'Quatre raisons, jamais deux à la fois', sEn:'Four reasons, never two at once',
+      bFr:'Ta séance du jour n’est pas toujours celle du programme. Quatre choses peuvent la modifier, et une seule à la fois — jamais un cumul.\n\nTa douleur, déclarée à la fin de ta dernière séance. Ta charge, si elle a grimpé vite ces sept derniers jours. Ton retour, après une coupure. Et ton check-in du matin, si tu te déclares fatigué.\n\nDans tous les cas l’app te le dit avant que tu lances, avec la raison, et rien ne s’applique sans que tu confirmes. Une séance allégée n’est pas une séance ratée : c’est celle que ton corps peut faire aujourd’hui.',
+      bEn:'Your session for today is not always the one from the programme. Four things can change it, and only one at a time — never stacked.\n\nYour pain, reported at the end of your last session. Your load, if it has ramped up fast over the last seven days. Your return, after a break. And your morning check-in, if you say you are tired.\n\nIn every case the app tells you before you start, with the reason, and nothing applies until you confirm. An eased-off session is not a failed session: it is the one your body can do today.' },
+    { icon:'ki-ob-chart',
+      tFr:'Ta charge sur sept jours', tEn:'Your load over seven days',
+      sFr:'Un écart à toi-même, jamais aux autres', sEn:'A gap against yourself, never against others',
+      bFr:'La charge compare ce que tu as fait sur les sept derniers jours à ton habitude des quatre dernières semaines.\n\nÀ 1,0× tu es sur ton rythme. Entre 0,8 et 1,3, tout va bien. Bien au-dessus, tu as accéléré vite — c’est là que le risque monte, même quand on se sent en forme. Bien en dessous, tu as levé le pied, ce qui est parfois exactement ce qu’il faut.\n\nC’est une mesure d’écart à toi-même. Jamais une comparaison avec quelqu’un d’autre.',
+      bEn:'Load compares what you did over the last seven days with your usual pace over the last four weeks.\n\nAt 1.0× you are on your own rhythm. Between 0.8 and 1.3, all is well. Well above, you have ramped up fast — that is where the risk rises, even when you feel fine. Well below, you have eased off, which is sometimes exactly right.\n\nIt is a measure of the gap against yourself. Never a comparison with anyone else.' }
+  ]}
+];
+function renderLibGuide(){
+  const el=document.getElementById('libGuideList'); if(!el) return;
+  const fr=currentLang==='fr';
+  el.innerHTML = GUIDE_SECTIONS.filter(sec=>sec.articles.length).map(sec=>
+    '<div class="lib-flabel" style="margin:18px 0 8px;display:flex;align-items:center;gap:7px;"><svg class="ki" style="width:13px;height:13px;"><use href="#'+sec.icon+'"/></svg>'+(fr?sec.titleFr:sec.titleEn)+'</div>'
+    + sec.articles.map((a,i)=>
+        '<div class="lib-card" style="align-items:center;" onclick="openGuideArticle(\''+sec.key+'\','+i+')">'
+        +'<div class="lib-thumb" style="background:var(--bg3);color:var(--gray2);"><svg class="ki" style="width:22px;height:22px;"><use href="#'+a.icon+'"/></svg></div>'
+        // .lib-name est en nowrap+ellipse : bon pour un nom d'exercice, mauvais pour un titre d'article,
+        // qui se faisait couper (« Pourquoi ta séance s'allège … »). Un titre tronqué ne sert a rien.
+        +'<div class="lib-body"><div class="lib-name" style="white-space:normal;overflow:visible;line-height:1.3;">'+(fr?a.tFr:a.tEn)+'</div>'
+        +'<div class="lib-meta" style="margin-top:3px;">'+(fr?a.sFr:a.sEn)+'</div></div>'
+        +'<svg class="ki" style="width:14px;height:14px;color:var(--gray);flex-shrink:0;align-self:center;"><use href="#ki-fwd"/></svg>'
+        +'</div>').join('')
+  ).join('');
+}
+// Article en feuille modale, pas en ecran : c'est de la lecture ponctuelle, on y entre et on en sort.
+// Meme patron showModal que le reste de l'app, avec un corps qui defile si le texte est long.
+function openGuideArticle(sectionKey, i){
+  const sec=GUIDE_SECTIONS.find(x=>x.key===sectionKey); if(!sec) return;
+  const a=sec.articles[i]; if(!a) return;
+  const fr=currentLang==='fr';
+  const corps=(fr?a.bFr:a.bEn).split('\n\n').map(par=>'<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:var(--gray2);">'+par+'</p>').join('');
+  showModal('<div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;color:var(--brand-fixed);"><svg class="ki" style="width:17px;height:17px;"><use href="#'+a.icon+'"/></svg>'
+    +'<span style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">'+(fr?sec.titleFr:sec.titleEn)+'</span></div>'
+    +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:12px;font-family:var(--font-head);letter-spacing:-.2px;">'+(fr?a.tFr:a.tEn)+'</div>'
+    +'<div style="max-height:52vh;overflow-y:auto;">'+corps+'</div>'
+    +'<button class="btn btn-outline" style="width:100%;margin-top:16px;" onclick="closeModal()">'+trDyn('Got it')+'</button>');
+}
 function setLibTopTab(key){
-  ['exercices','seances','programmes'].forEach(k=>{
+  ['exercices','seances','programmes','guide'].forEach(k=>{
     const tab=document.getElementById('libTopTab_'+k); if(tab) tab.classList.toggle('active', k===key);
     const panel=document.getElementById('libTab_'+k); if(panel) panel.style.display = k===key ? 'flex' : 'none';
   });
@@ -13825,11 +13911,16 @@ function setLibTopTab(key){
     if(titleEl) titleEl.textContent='Sessions';
     if(fab){ fab.setAttribute('onclick',"go('creer_session_nouveau')"); fab.title='Create a session'; }
     renderLibSeances();
-  } else {
+  } else if(key==='programmes'){
     if(titleEl) titleEl.textContent='Programmes';
     if(fab){ fab.setAttribute('onclick',"go('creer_programme_nouveau')"); fab.title='Create a programme'; }
     renderLibProgrammes();
+  } else {
+    if(titleEl) titleEl.textContent='Guide';
+    renderLibGuide();
   }
+  // Rien a creer dans le Guide : le bouton flottant disparait plutot que de rester la sans cible.
+  if(fab) fab.style.display = key==='guide' ? 'none' : '';
   sweepTranslate(document.getElementById('libNouveauWrap'), currentLang);
 }
 // Filtres dédiés à la bibliothèque référent (état séparé de sessNouveauFilters/progNouveauFilters
@@ -15239,6 +15330,27 @@ function renderSessionDetail(){
   if(noteBlock){ noteBlock.style.display = s.coachNote ? 'flex' : 'none'; if(noteTxt) noteTxt.textContent = s.coachNote||''; }
   // Durees calculees sur les VRAIS mouvements retenus pour ce profil (getWarmupMoves/getCooldownMoves
    // filtrent par zones_eviter) — pas une constante affichee au hasard.
+  // Ajustement du jour. Deux sources possibles, toutes deux marquees comme APPLIQUEES : le check-in
+  // valide (todaySessionAdjust) et la carte de signal confirmee (signalAdjustDone). Le moteur peut
+  // recommander sans qu'on ait confirme — dans ce cas la seance n'est pas modifiee et la fiche ne
+  // doit rien annoncer. La raison reprend ASSISTANT_REASON_FR, la meme phrase que la carte d'accueil.
+  const adjEl=document.getElementById('sdAdjust');
+  if(adjEl){
+    const estSeanceDuJour = s.id===getSessionDuJour().id;
+    const applique = !!todaySessionAdjust || !!signalAdjustDone.home || !!signalAdjustDone.homeCentre;
+    const rec = estSeanceDuJour && applique ? recommendedIntensityLevel() : null;
+    if(!rec){ adjEl.style.display='none'; adjEl.innerHTML=''; }
+    else {
+      const raison = (currentLang==='fr' && ASSISTANT_REASON_FR[rec.reason]) ? ASSISTANT_REASON_FR[rec.reason] : trDyn(rec.reason);
+      adjEl.style.display='block';
+      adjEl.innerHTML='<div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--brand-fixed);border-radius:0 14px 14px 0;padding:12px 14px;">'
+        +'<div style="display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--brand-fixed);">'
+        +'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-gauge"/></svg>'+trDyn('Adjusted today')+'</div>'
+        +'<div style="font-size:13px;color:var(--white);margin-top:6px;line-height:1.45;">'+trDyn('This session is eased off today.')+'</div>'
+        +'<div style="font-size:11.5px;color:var(--gray);margin-top:3px;line-height:1.4;">'+raison.charAt(0).toUpperCase()+raison.slice(1)+'.</div>'
+        +'</div>';
+    }
+  }
   const phasesEl=document.getElementById('sdPhases');
   if(phasesEl){
     const mins=arr=>Math.max(1, Math.round(arr.reduce((a,m)=>a+(m.dur||0),0)/60));
