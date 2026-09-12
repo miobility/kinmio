@@ -317,19 +317,16 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 .ob-opt{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .15s,background .15s;}
 .ob-opt.sel{border-color:var(--brand-fixed);background:rgba(var(--brand-fixed-rgb),.07);}
 .ob-icon{width:44px;height:44px;border-radius:14px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-/* Vignette photo d'option (onboarding, 12 sept. 2026) : réservée aux deux questions où VOIR change la
-   décision — la position (« est-ce que c'est faisable pour moi ? ») et l'objectif (deux abstractions
-   qu'une image rend concrètes). Nulle part ailleurs : une image qui décore coûte sa place, comme un
-   badge qui décore. Les fichiers de position sont des doublons en attendant la séance photo. */
-.ob-photo{width:56px;height:70px;border-radius:12px;background:var(--bg3) center/cover no-repeat;flex-shrink:0;}
-/* "Toutes les positions" etait la SEULE option de cette question sans photo — et c'est celle qu'on
-   choisit par defaut (retour terrain, 12 sept.) : elle paraissait de second rang alors qu'elle est la
-   plus frequente. Montage des trois vignettes en trois bandes, plutot que d'emprunter l'une d'elles,
-   qui aurait dit "debout" pour une option qui dit "les trois". */
-.ob-photo-all{width:56px;height:70px;border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;gap:1px;background:var(--bg3);}
-.ob-photo-all i{flex:1;min-height:0;background:var(--bg3) center/cover no-repeat;display:block;}
-.ob-opt.sel .ob-photo-all{box-shadow:0 0 0 1.5px var(--brand-fixed);}
-.ob-opt.sel .ob-photo{box-shadow:0 0 0 1.5px var(--brand-fixed);}
+/* PLUS AUCUNE PHOTO DANS L'ONBOARDING (12 sept. 2026, le soir). Les vignettes ne survivaient plus que
+   sur la question des positions, et la verification les a condamnees : AUCUNE des trois ne montrait la
+   position qu'elle nommait. « Debout » montrait une femme ASSISE sur un velo d'appartement, « Assis »
+   un homme sur un RAMEUR avec un cable de machine, « Allonge » un GAINAGE torse decolle. Aucune ne
+   montrait la barre kinmio, et deux sur trois montraient des machines de salle — l'equipement que
+   kinmio remplace. Une photo qui dit autre chose que son etiquette est pire qu'une icone : elle est
+   fausse, et a 56x70 px on ne voit pas assez pour s'en apercevoir, on enregistre juste « salle de
+   sport ». L'argument « la photo enseigne la position » tombe donc de lui-meme.
+   Regle : SIX questions, UN seul traitement, jamais de photographie dans une liste d'options. Si de la
+   photo revient un jour, ce sera en plein ecran, ou une image a la surface de dire quelque chose. */
 .ob-opt.sel .ob-icon{background:rgba(var(--brand-fixed-rgb),.12);}
 .ob-label{font-size:15px;font-weight:600;color:var(--white);}
 .ob-desc{font-size:12px;color:var(--gray);margin-top:2px;line-height:1.4;}
@@ -1107,10 +1104,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <h2 class="gap8">Which position(s) do you train in?</h2>
     <p class="sub gap20">Multiple choices possible — your sessions adapt.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;" id="pos_opts">
-      <div class="ob-opt multi" onclick="toggleAllPositions(this)" data-val="toutes"><div class="ob-photo-all"><i style="background-image:url('ob-position-debout.jpg');"></i><i style="background-image:url('ob-position-assis.jpg');"></i><i style="background-image:url('ob-position-allonge.jpg');"></i></div><div style="flex:1"><div class="ob-label">All positions</div></div><div class="ob-check"></div></div>
-      <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="debout"><div class="ob-photo" style="background-image:url('ob-position-debout.jpg');"></div><div style="flex:1"><div class="ob-label">Standing</div></div><div class="ob-check"></div></div>
-      <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="assis"><div class="ob-photo" style="background-image:url('ob-position-assis.jpg');"></div><div style="flex:1"><div class="ob-label">Seated</div></div><div class="ob-check"></div></div>
-      <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="allonge"><div class="ob-photo" style="background-image:url('ob-position-allonge.jpg');"></div><div style="flex:1"><div class="ob-label">Lying down</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt multi" onclick="toggleAllPositions(this)" data-val="toutes"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-all"/></svg></div><div style="flex:1"><div class="ob-label">All positions</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="debout"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-standing"/></svg></div><div style="flex:1"><div class="ob-label">Standing</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="assis"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-seated"/></svg></div><div style="flex:1"><div class="ob-label">Seated</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="allonge"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-lying"/></svg></div><div style="flex:1"><div class="ob-label">Lying down</div></div><div class="ob-check"></div></div>
     </div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
