@@ -512,6 +512,11 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
    centré porte la cible tactile sans rien déplacer dans la mise en page ni grossir le pictogramme. */
 .info-i{position:relative;}
 .info-i::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
+/* Lien vers un article du Guide. Une info-bulle dit CE QU'EST un chiffre, l'article dit POURQUOI ça
+   marche comme ça : le lien se met là où la bulle s'arrête. Le texte fait 12 px mais la ligne porte
+   44 px de haut — même arbitrage que .info-i, on agrandit la zone, pas le dessin. */
+.guide-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;box-sizing:border-box;font-size:12px;color:var(--gray2);cursor:pointer;line-height:1.3;}
+.guide-link svg{width:13px;height:13px;flex-shrink:0;color:var(--brand-fixed);}
 
 /* ===== PROGRAMME ===== */
 .prog-hero{padding:24px 20px 20px;flex-shrink:0;}
@@ -7858,7 +7863,7 @@ function buildLoadPainHtml(pad, compact, only){
   const painArrowColor = pain.trend==='hausse' ? 'var(--red)' : pain.trend==='baisse' ? 'var(--teal)' : 'var(--gray)';
   const painComment = pain.level==null ? '' : pain.trend==='hausse' ? 'Rising over your last 3 sessions' : pain.trend==='baisse' ? 'Easing over your last 3 sessions' : 'Stable over your last 3 sessions';
   const loadTip = fatigue.level==='high'?'Load rising fast — consider a lighter session':fatigue.level==='low'?'Load lower than usual — good time to build back up':'Load steady and manageable';
-  const loadInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'ACWR\',\'How hard you\\\'ve trained recently vs your usual pace (Acute:Chronic Workload Ratio). Calculation: your average daily load over the last 7 days, divided by your average daily load over the last 28 days. Load itself = your own effort rating right after each session (easy/moderate/intense/max) × session duration — a recognized sports-science method (session-RPE), not a device measurement. 0.8–1.3× is a healthy zone — much higher means you\\\'re ramping up fast (injury risk), much lower means you could safely do more.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+  const loadInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Load\',\'How hard you have trained over the last 7 days compared with your usual pace over 28 days. Between 0.8 and 1.3 is a healthy zone — much higher means you are ramping up fast.\',[\'seance\',4])" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
   const painInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'Your self-reported pain level, from your last sessions where you answered the pain question. Calculation: level = your most recent answer (out of 10). Trend = that value minus your answer from up to 3 sessions ago (skipped sessions don\\\'t count against you) — only shown as rising or easing if the change is 2 points or more, so small day-to-day noise isn\\\'t flagged as a real trend.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
 
   if(compact){
@@ -8360,7 +8365,7 @@ function renderHomeKpiZone(prefix, profile){
   // gardent les trois marqueurs de la charte via leur arete gauche ; celles du haut n'en ont pas,
   // parce qu'un volume n'est ni bon ni mauvais, c'est une mesure.
   const infoIcon='style="cursor:pointer;margin-left:0;padding:16px;margin:-16px -12px -16px 0;color:var(--gray);font-size:13px;display:inline-flex;align-items:center;flex-shrink:0;"';
-  const info=(title,body)=>'<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\''+title+'\',\''+body+'\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+  const info=(title,body,ref)=>'<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\''+title+'\',\''+body+'\''+(ref?',[\''+ref[0]+'\','+ref[1]+']':'')+')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
   const pic=name=>'<span class="kt-ic"><svg class="ki"><use href="#ki-'+name+'"/></svg></span>';
 
   // --- rangee 1 : EFFORT ---
@@ -8413,7 +8418,7 @@ function renderHomeKpiZone(prefix, profile){
     // coche etait un cinquieme marqueur muet, et elle decorait l'ecran des jours ou tout va bien, si
     // bien qu'une vraie alerte arrivait dans un decor deja decore. L'absence de badge dit "rien a
     // signaler" ; le ⚠ redevient visible parce qu'il est seul.
-    +'<div class="kt-l">'+trDyn('Load')+info('Load','How hard you have trained over the last 7 days compared with your usual pace over 28 days. Between 0.8 and 1.3 is a healthy zone — much higher means you are ramping up fast.')
+    +'<div class="kt-l">'+trDyn('Load')+info('Load','How hard you have trained over the last 7 days compared with your usual pace over 28 days. Between 0.8 and 1.3 is a healthy zone — much higher means you are ramping up fast.',['seance',4])
       +(loadAlert?'<span style="color:'+loadTone+';display:contents;">'+pic('alert')+'</span>':'')+'</div>'
     +(fatigue.acwr==null
       ? '<div class="kt-c" style="margin-top:0;">'+trDyn('Not enough data yet')+'</div>'
@@ -8657,6 +8662,8 @@ function renderSignalAdjust(prefix){
     +'<div style="font-size:12.5px;font-weight:700;color:var(--white);margin-top:10px;line-height:1.4;">'+trDyn('Today’s session is eased off.')+'</div>'
     +'<div style="font-size:11px;font-weight:400;color:var(--gray);margin-top:6px;line-height:1.45;">'+reasonFr.charAt(0).toUpperCase()+reasonFr.slice(1)+'.'+(d?' '+trDyn('Intensity')+' '+d.before+' → <b style="color:var(--gray2);font-weight:700;">'+d.after+'</b>':'')+'</div>'
     +'<button class="btn btn-outline" style="margin-top:12px;padding:13px;font-size:13.5px;border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="confirmSignalAdjust(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
+    // La carte demande une decision : le lien arrive APRES le bouton, jamais a sa place.
+    + guideLink('seance',3,'margin-top:-4px;')
     +'</div>';
   sweepTranslate(el, currentLang);
 }
@@ -9933,7 +9940,7 @@ function renderProgPeriod(periodKey){
   // niveau) — liste complète groupée par niveau, plus de Top cardio/renfo par effort ni d'évolution par
   // exercice (retirés, cf discussion "je dégage tout ça, je garde juste exercice maîtrisé").
   html+='<div id="progMasterySection" style="display:none;">'
-    +'<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">MASTERED EXERCISES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Mastered exercises\',\'≥75% time in zone, last 3 sessions at this level.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>'
+    +'<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">MASTERED EXERCISES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Mastered exercises\',\'≥75% time in zone, last 3 sessions at this level.\',[\'seance\',2])" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>'
     +'<div class="card-sm" style="margin-bottom:16px;"><div id="progMasteryList"></div></div>'
     +'</div>';
 
@@ -11930,7 +11937,6 @@ const EN_FR = {
   "Strength": "Renforcement",
   "Strength reps": "Reps de renfo",
   "Got it": "Compris",
-  "How hard you've trained recently vs your usual pace (Acute:Chronic Workload Ratio). Calculation: your average daily load over the last 7 days, divided by your average daily load over the last 28 days. Load itself = your own effort rating right after each session (easy/moderate/intense/max) × session duration — a recognized sports-science method (session-RPE), not a device measurement. 0.8–1.3× is a healthy zone — much higher means you're ramping up fast (injury risk), much lower means you could safely do more.": "À quel point tu t'es entraîné intensément récemment, comparé à ton rythme habituel (Acute:Chronic Workload Ratio). Calcul : ta charge moyenne quotidienne sur les 7 derniers jours, divisée par ta charge moyenne quotidienne sur les 28 derniers jours. La charge elle-même = ton propre ressenti d'effort juste après chaque séance (facile/modéré/intense/maximal) × la durée de la séance — une méthode reconnue en sciences du sport (session-RPE), pas une mesure d'appareil. 0,8–1,3× est une zone saine — beaucoup plus haut signifie que tu montes en charge trop vite (risque de blessure), beaucoup plus bas signifie que tu pourrais faire plus sans risque.",
   "Your self-reported pain level, from your last sessions where you answered the pain question. Calculation: level = your most recent answer (out of 10). Trend = that value minus your answer from up to 3 sessions ago (skipped sessions don't count against you) — only shown as rising or easing if the change is 2 points or more, so small day-to-day noise isn't flagged as a real trend.": "Ton niveau de douleur déclaré, à partir de tes dernières séances où tu as répondu à la question douleur. Calcul : le niveau = ta réponse la plus récente (sur 10). La tendance = cette valeur moins ta réponse d'il y a jusqu'à 3 séances (les séances sautées ne comptent pas contre toi) — affichée en hausse ou en baisse seulement si le changement est de 2 points ou plus, pour ne pas signaler une petite variation comme une vraie tendance.",
   "How intense your training has been lately, compared to your own peak. Calculation: your effort score for the last 7 rolling days, divided by your single best 7-day window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you're matching your all-time best week.": "À quel point ton entraînement a été intense récemment, comparé à ton propre pic. Calcul : ton score d'effort sur les 7 derniers jours glissants, divisé par ta meilleure fenêtre de 7 jours jamais enregistrée — cardio et renforcement sont chacun notés par temps/reps × niveau d'intensité, puis combinés. 100% veut dire que tu égales ta meilleure semaine de tous les temps.",
   "How intense your training has been over the last 7 days, compared to your own peak. Calculation: your effort score over this window, divided by your single best 7 days window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you're matching your all-time best window of this length.": "À quel point ton entraînement a été intense sur les 7 derniers jours, comparé à ton propre pic. Calcul : ton score d'effort sur cette période, divisé par ta meilleure période de 7 jours jamais enregistrée — cardio et renforcement sont chacun notés par temps/reps × niveau d'intensité, puis combinés. 100% veut dire que tu égales ta meilleure période de cette durée, tous temps confondus.",
@@ -13155,6 +13161,7 @@ const EN_FR = {
   "FAVORITE EXERCISES": "EXERCICES FAVORIS",
   "MASTERED EXERCISES": "EXERCICES MAÎTRISÉS",
   "Mastered exercises": "Exercices maîtrisés",
+  "Read in the Guide": "Lire dans le Guide",
   "≥75% time in zone, last 3 sessions at this level.": "≥75% du temps dans la zone, sur les 3 dernières séances à ce niveau.",
   "My notes": "Mes notes",
   "Next exercise": "Exercice suivant",
@@ -14604,8 +14611,8 @@ const GUIDE_SECTIONS = [
     { icon:'ki-ob-chart',
       tFr:'Ta charge sur sept jours', tEn:'Your load over seven days',
       sFr:'Un écart à toi-même, jamais aux autres', sEn:'A gap against yourself, never against others',
-      bFr:'La charge compare ce que tu as fait sur les sept derniers jours à ton habitude des quatre dernières semaines.\n\nÀ 1,0× tu es sur ton rythme. Entre 0,8 et 1,3, tout va bien. Bien au-dessus, tu as accéléré vite — c’est là que le risque monte, même quand on se sent en forme. Bien en dessous, tu as levé le pied, ce qui est parfois exactement ce qu’il faut.\n\nC’est une mesure d’écart à toi-même. Jamais une comparaison avec quelqu’un d’autre.',
-      bEn:'Load compares what you did over the last seven days with your usual pace over the last four weeks.\n\nAt 1.0× you are on your own rhythm. Between 0.8 and 1.3, all is well. Well above, you have ramped up fast — that is where the risk rises, even when you feel fine. Well below, you have eased off, which is sometimes exactly right.\n\nIt is a measure of the gap against yourself. Never a comparison with anyone else.' }
+      bFr:'La charge compare ce que tu as fait sur les sept derniers jours à ton habitude des quatre dernières semaines.\n\nÀ 1,0× tu es sur ton rythme. Entre 0,8 et 1,3, tout va bien. Bien au-dessus, tu as accéléré vite — c’est là que le risque monte, même quand on se sent en forme. Bien en dessous, tu as levé le pied, ce qui est parfois exactement ce qu’il faut.\n\nLe calcul : ta charge moyenne par jour sur sept jours, divisée par ta charge moyenne par jour sur vingt-huit. La charge d’une séance, c’est l’effort que tu déclares juste après — facile, modéré, intense, maximal — multiplié par sa durée. Une méthode reconnue en sciences du sport, pas une mesure d’appareil : c’est toi qui la donnes.\n\nC’est une mesure d’écart à toi-même. Jamais une comparaison avec quelqu’un d’autre.',
+      bEn:'Load compares what you did over the last seven days with your usual pace over the last four weeks.\n\nAt 1.0× you are on your own rhythm. Between 0.8 and 1.3, all is well. Well above, you have ramped up fast — that is where the risk rises, even when you feel fine. Well below, you have eased off, which is sometimes exactly right.\n\nThe calculation: your average daily load over seven days, divided by your average daily load over twenty-eight. A session’s load is the effort you report right after it — easy, moderate, intense, max — multiplied by its duration. A recognized sports-science method, not a device measurement: you are the one who gives it.\n\nIt is a measure of the gap against yourself. Never a comparison with anyone else.' }
   ]}
 ];
 function renderLibGuide(){
@@ -15369,9 +15376,12 @@ function renderExParams(ex){
   const p = getParamsExercice(ex);
   const hasOverride = !!userParamsOverrides[ex.id];
   const rows = EX_PARAM_FIELDS.map(f => exParamStepperRow(f, p[f.key])).join('');
+  // L'article "La jauge" dit expressement qu'on la regle "depuis la fiche d'un exercice, dans Tes
+  // reglages" : c'est ici, et nulle part ailleurs, que la question se pose.
   wrap.innerHTML = '<div class="ex-sec-t" style="padding:0 0 8px;">Your settings</div>'
     + rows
-    + (hasOverride ? '<div style="text-align:center;margin-top:10px;"><span style="color:var(--gray);font-size:13px;cursor:pointer;" onclick="resetExParam(\''+ex.id+'\')">Reset to recommended</span></div>' : '');
+    + (hasOverride ? '<div style="text-align:center;margin-top:10px;"><span style="color:var(--gray);font-size:13px;cursor:pointer;" onclick="resetExParam(\''+ex.id+'\')">Reset to recommended</span></div>' : '')
+    + guideLink('seance',1);
   sweepTranslate(wrap, currentLang);
 }
 function adjustExParam(field, delta, min, max){
@@ -16311,6 +16321,7 @@ function renderSessionDetail(){
         +'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-gauge"/></svg>'+trDyn('Adjusted today')+'</div>'
         +'<div style="font-size:13px;color:var(--white);margin-top:6px;line-height:1.45;">'+trDyn('This session is eased off today.')+'</div>'
         +'<div style="font-size:11.5px;color:var(--gray);margin-top:3px;line-height:1.4;">'+raison.charAt(0).toUpperCase()+raison.slice(1)+'.</div>'
+        + guideLink('seance',3,'margin-top:-6px;')
         +'</div>';
     }
   }
@@ -16334,7 +16345,12 @@ function renderSessionDetail(){
         +'<div class="exo-prev-body"><div class="exo-prev-name">'+ex.nom+'</div><div class="exo-prev-meta">'+meta+'</div></div>'
         +'<button onclick="event.stopPropagation();removeExoFromSession(\''+exId+'\')" style="width:26px;height:26px;border-radius:50%;background:var(--bg3);border:none;color:var(--gray2);font-size:14px;cursor:pointer;line-height:1;flex-shrink:0;">×</button>'
         +'</div>';
-    }).join('') + '</div>';
+    }).join('') + '</div>'
+    // Le lien va au BAS de la liste, pas dans le bloc "Comment ca se deroule" : ce bloc disparait
+    // quand la seance n'a ni echauffement ni retour au calme, et il est colle a la carte
+    // d'ajustement, qui porte deja un lien. Ici il est toujours la, et il tombe juste sous les
+    // "35s de repos" qu'il explique.
+    + guideLink('seance',0);
   }
   // Contrairement au premier rendu (go() sweep la vue 110ms après), un re-rendu déclenché par une
   // action (remplacer/retirer/ajuster un exercice) court-circuite ce sweep automatique — le texte
@@ -20582,10 +20598,22 @@ function submitNoteEditor(){
 }
 // Détail d'une métrique (nom + explication en langage simple + mode de calcul) — remplace les ⓘ qui
 // n'ouvraient qu'un toast de 2,4s (illisible pour une vraie explication). Un seul patron réutilisable.
-function showInfoSheet(title, body){
+// Cinq articles au Guide, cinq ancres dans l'app. La bulle repond a "c'est quoi ce chiffre" ;
+// l'article repond a "pourquoi ca marche comme ca". Le lien ne se met donc pas partout ou le mot
+// apparait, mais la ou la bulle s'arrete — et showModal reutilise le meme #kmModal, donc l'article
+// remplace la bulle dans la meme carte, sans empilement de modales.
+function guideLink(sectionKey, i, style){
+  const sec=(typeof GUIDE_SECTIONS!=='undefined') && GUIDE_SECTIONS.find(x=>x.key===sectionKey);
+  if(!sec || !sec.articles[i]) return '';
+  return '<div style="'+(style||'')+'"><span class="guide-link" onclick="event.stopPropagation();openGuideArticle(\''+sectionKey+'\','+i+')">'
+    +'<svg class="ki"><use href="#ki-guide"/></svg>'+trDyn('Read in the Guide')+'</span></div>';
+}
+function showInfoSheet(title, body, guideRef){
+  const lien = guideRef ? guideLink(guideRef[0], guideRef[1], 'margin-top:2px;') : '';
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
-    +'<button class="btn btn-outline" style="width:100%;margin-top:20px;" onclick="closeModal()">Got it</button>');
+    + lien
+    +'<button class="btn btn-outline" style="width:100%;margin-top:'+(lien?'8px':'20px')+';" onclick="closeModal()">Got it</button>');
 }
 function renderSubBlock(){
   const el=document.getElementById('subBlock'); if(!el) return;
