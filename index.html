@@ -9228,10 +9228,23 @@ function getMonthWeekBars(sessions){
   }
   return bars;
 }
+// Fenêtre glissante de 90j (PROG_PERIOD_DAYS.annee), pas une année calendaire — 'annee' est un nom de
+// clé hérité de l'époque où ce 3e onglet valait une vraie année (le multiplicateur d'objectif avait
+// été corrigé depuis, pas ces barres : elles listaient Jan→Déc sur l'année civile, avec 9 mois
+// structurellement hors fenêtre et donc à zéro quoi qu'il arrive, cf audit Progrès/90 jours). Même
+// construction que getMonthWeekBars, en buckets de 30j. Libellés composés selon currentLang (pas de
+// clé dictionnaire, même raison que getWeekDayBars : recalculés à chaque rendu, jamais rattrapables
+// par sweepTranslate).
 function getYearMonthBars(sessions){
-  const labels=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const now=new Date();
-  return labels.map((l,idx)=>({l, v: sessions.filter(h=>{ const d=new Date(h.date); return d.getFullYear()===now.getFullYear() && d.getMonth()===idx; }).length}));
+  const bars=[], bucket=30, nBuckets=Math.ceil(PROG_PERIOD_DAYS.annee/bucket);
+  for(let i=nBuckets-1;i>=0;i--){
+    const to=Date.now()-i*bucket*HIST_DAY, from=to-bucket*HIST_DAY;
+    const label = i===0
+      ? (currentLang==='fr' ? 'Ce mois-ci' : 'This month')
+      : (currentLang==='fr' ? 'Il y a '+(i+1)+' mois' : (i+1)+' months ago');
+    bars.push({l:label, v: sessions.filter(h=>h.date>=from && h.date<to).length});
+  }
+  return bars;
 }
 function getPeriodBars(periodKey, sessions){
   if(periodKey==='semaine') return getWeekDayBars(sessions);
