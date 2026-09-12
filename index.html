@@ -2625,10 +2625,19 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
        même phrase, et les cinq actions du calendrier modifient toutes l'exécution du programme.
        Conséquence côté Progrès : Historique perd ses sous-onglets et redevient une liste unique. -->
   <div id="progCalView" class="scroll px" style="padding-top:4px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
-        <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
-        <div id="progCalNextSlot" style="min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+      <!-- La fleche droite avait ete retiree ("elle ne sert qu'une fois par mois") et remplacee par un
+           lien Aujourd'hui. Consequence : depuis septembre, octobre etait inatteignable — dans l'ecran
+           qui sert a planifier, alors qu'un programme court sur 4 a 12 semaines. On recule pour relire,
+           on avance pour planifier. La fleche revient ; Aujourd'hui descend sous le nom du mois et ne
+           s'affiche que lorsqu'on n'y est pas (avant, sur le mois courant, c'etait un span vert non
+           tapable a la place exacte d'un bouton). -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;">
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;flex-shrink:0;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
+        <div style="flex:1;min-width:0;text-align:center;">
+          <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
+          <div id="progCalTodayLink" style="min-height:0;"></div>
+        </div>
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;flex-shrink:0;" onclick="shiftProgCalendarMonth(1)"><svg class="ki"><use href="#ki-fwd"/></svg></button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
@@ -10837,16 +10846,16 @@ function renderProgCalendar(){
   labelEl.textContent = progCalMonth.toLocaleDateString(locale, {month:'long', year:'numeric'});
   const weekdayLabels = currentLang==='fr' ? ['L','M','M','J','V','S','D'] : ['M','T','W','T','F','S','S'];
   wdEl.innerHTML = weekdayLabels.map(l=>'<div style="text-align:center;font-size:10.5px;color:var(--gray);font-weight:700;">'+l+'</div>').join('');
-  // Retour direct à aujourd'hui à la place de la flèche droite, qui ne sert qu'une fois par mois (cf
-  // audit calendrier, tâche 4) — étiquette simple quand on y est déjà, bouton cliquable sinon.
-  const nextSlot=document.getElementById('progCalNextSlot');
-  if(nextSlot){
+  // Retour a aujourd'hui : sous le nom du mois, et SEULEMENT quand on n'y est pas. Sur le mois courant
+  // il n'y a rien a dire — avant, un span vert non tapable occupait la place d'un bouton et se lisait
+  // comme une commande.
+  const todayLink=document.getElementById('progCalTodayLink');
+  if(todayLink){
     const realNow=new Date();
     const onCurrentMonth = progCalMonth.getFullYear()===realNow.getFullYear() && progCalMonth.getMonth()===realNow.getMonth();
-    nextSlot.innerHTML = onCurrentMonth
-      ? '<span style="font-size:10px;color:var(--brand-fixed);font-weight:700;">'+trDyn('Today')+'</span>'
-      : '<button class="btn-ghost" style="padding:0;font-size:10px;color:var(--brand-fixed);font-weight:700;" onclick="jumpToCurrentMonth()">'+trDyn('Today')+'</button>';
-    sweepTranslate(nextSlot, currentLang);
+    todayLink.innerHTML = onCurrentMonth ? ''
+      : '<span role="button" tabindex="0" onclick="jumpToCurrentMonth()" style="display:inline-block;font-size:10.5px;color:var(--orange);font-weight:700;cursor:pointer;padding:5px 10px;margin:-2px 0;">'+trDyn('Back to today')+'</span>';
+    sweepTranslate(todayLink, currentLang);
   }
 
   const year=progCalMonth.getFullYear(), month=progCalMonth.getMonth();
@@ -10871,12 +10880,14 @@ function renderProgCalendar(){
     const ring = isToday ? 'outline:1.5px solid var(--white);outline-offset:2px;' : '';
     // Le passé est acquis, il n'appelle pas d'action — atténué pour que le futur garde son poids plein
     // (cf audit calendrier, tâche 4).
-    const fade = (dateObj.getTime()<today0.getTime()) ? 'opacity:.55;' : '';
-    // Jour sélectionné (cf discussion "je ne vois pas que j'ai cliqué dessus") — box-shadow, pas outline
-    // (déjà pris par "aujourd'hui" ci-dessus) : les deux peuvent se cumuler sans se remplacer si le jour
-    // sélectionné est aussi aujourd'hui.
-    const sel = (progCalSelectedDate!==null && dateObj.getTime()===progCalSelectedDate) ? 'box-shadow:0 0 0 2px var(--white);' : '';
-    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+bg+ring+fade+sel+'">'+d+dotInner+'</div>';
+    const fade = (dateObj.getTime()<today0.getTime()) ? 'opacity:.7;' : '';
+    // Jour selectionne : un FOND plein neutre, pas un second anneau. Avant, "aujourd'hui" et "le jour
+    // que je viens de taper" etaient deux anneaux clairs — a l'ecran on ne savait pas lequel disait
+    // quoi (audit calendrier). Une forme differente, pas une teinte de plus. Les deux se cumulent
+    // toujours quand le jour selectionne est aussi aujourd'hui : fond plein + anneau blanc.
+    const estSel = (progCalSelectedDate!==null && dateObj.getTime()===progCalSelectedDate);
+    const sel = estSel ? 'background:var(--bg3);' : '';
+    html+='<div onclick="selectProgCalDay('+year+','+month+','+d+')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;'+sel+bg+ring+fade+'">'+d+dotInner+'</div>';
   }
   gridEl.innerHTML = html;
   // Même légende que la frise d'accueil, par la même fonction : trois états, mêmes pastilles, mêmes
@@ -12822,6 +12833,7 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "Back to today": "Revenir à aujourd’hui",
   "Short": "Écourtée",
   "Ramping up fast": "En hausse rapide",
   "Below your usual pace": "Sous ton rythme habituel",
