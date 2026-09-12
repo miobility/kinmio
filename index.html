@@ -1053,7 +1053,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <!-- PREUVE SOCIALE : interstitiel de confiance entre ob1 et ob6 (pas une question, pas de barre de progression) -->
-<div class="screen ob-light" id="preuve_sociale" style="--ob-x:24%;">
+<div class="screen ob-light" id="preuve_sociale" style="--ob-x:90%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:center;flex:1;">
     <div style="text-align:center;margin-bottom:24px;">
@@ -1064,7 +1064,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="display:flex;justify-content:center;gap:6px;margin-top:18px;" id="testimonialDots"></div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;">
-    <button class="btn btn-brand-fixed" onclick="go('ob6')">Continue →</button>
+    <button class="btn btn-brand-fixed" onclick="go('ob_commit')">Continue →</button>
   </div>
 </div>
 
@@ -1076,8 +1076,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Do you have an area to protect?</h2>
-    <p class="sub gap20">Your exercises will adapt.</p>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;" id="zone_opts">
+    <p class="sub gap20">We will never ask you to push through it.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;" id="zone_opts">
       <div class="ob-opt multi sel" onclick="toggleZone(this)" data-val="none"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-all"/></svg></div><div style="flex:1"><div class="ob-label">No specific area</div></div><div class="ob-check">✓</div></div>
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="epaule"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-shoulder"/></svg></div><div style="flex:1"><div class="ob-label">Shoulder(s)</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="dos"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-back"/></svg></div><div style="flex:1"><div class="ob-label">Back / lower back</div></div><div class="ob-check"></div></div>
@@ -1085,6 +1085,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="poignet"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-wrist"/></svg></div><div style="flex:1"><div class="ob-label">Wrist(s) / arms</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="sauts"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-nojump"/></svg></div><div style="flex:1"><div class="ob-label">Avoid jumping</div></div><div class="ob-check"></div></div>
     </div>
+    <!-- Accusé de réception (audit onboarding, 12 sept. 2026). Déclarer une épaule à ménager est la
+         chose la plus intime de tout le parcours, et l'écran n'y répondait QUE par une coche : mesuré,
+         la seule différence dans le DOM entre avant et après le clic était l'apparition d'un « ✓ ». Le
+         sous-titre promettait « tes exercices s'adaptent » — au futur, en général, écrit avant même
+         qu'on ait répondu. On dit désormais ce qui change, concrètement, et seulement après la réponse. -->
+    <div id="ob6Echo" style="display:none;margin-bottom:22px;"></div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" onclick="renderObDaysChips();go('ob7')">Continue →</button>
@@ -1140,7 +1146,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
-    <button class="btn btn-brand-fixed" id="ob8next" disabled onclick="go('ob_commit')">Continue →</button>
+    <button class="btn btn-brand-fixed" id="ob8next" disabled onclick="go('preuve_sociale');renderTestimonialCarousel(0);">Continue →</button>
   </div>
 </div>
 
@@ -11968,6 +11974,15 @@ const EN_FR = {
   "MY CHALLENGES": "MES DÉFIS",
   "See my whole programme": "Voir tout mon programme",
   "Cardio endurance": "Endurance cardio",
+  "Noted.": "Noté.",
+  "We will never ask you to push through it.": "On ne te demandera jamais de forcer dessus.",
+  "Your shoulders": "Les épaules",
+  "the exercises that pull on it are left out, and the gauge starts one notch lower on those that involve it a little.": "les exercices qui tirent dessus sont écartés, et la jauge démarre un cran plus bas sur ceux qui la sollicitent un peu.",
+  "You can change this at any time.": "Tu pourras changer à tout moment.",
+  "Your back": "Le dos",
+  "Your knees": "Les genoux",
+  "Your wrists": "Les poignets",
+  "Jumping": "Les sauts",
   "What do you want to get out of it?": "Qu'est-ce que tu veux en retirer ?",
   "One or two — your programme is picked from this.": "Un ou deux — c'est là-dessus qu'on choisit ton programme.",
   "Hold out longer, get your breath back": "Tenir plus longtemps, le souffle qui revient",
@@ -13936,8 +13951,11 @@ function toggleAllPositions(el){
   const btn = document.getElementById('ob1next');
   if(btn) btn.disabled = posSelections.size === 0;
 }
+// La preuve sociale arrivait en 4e position, au milieu du tunnel, là où l'on n'a encore rien investi.
+// Un témoignage convainc quand on hésite à s'engager : elle est passée juste avant l'horizon
+// d'engagement, le seul moment du parcours où l'on demande vraiment quelque chose (audit onboarding).
 function nextIfOb1(){
-  if(posSelections.size > 0){ go('preuve_sociale'); renderTestimonialCarousel(0); }
+  if(posSelections.size > 0){ go('ob6'); }
 }
 
 // Démo/prise en main de la barre (P1) — 3 étapes réellement navigables (tap sur la vidéo ou le
@@ -14048,6 +14066,40 @@ function renderTestimonialCarousel(idx){
 }
 
 // Q6 zone à protéger
+// Ce qui change VRAIMENT quand on déclare une zone — pas « tes exercices s'adaptent », mais lesquels
+// et comment. Les deux mécanismes nommés existent réellement : sessionHasContraindication écarte les
+// exercices qui sollicitent la zone, et le niveau de jauge de départ descend d'un cran.
+const ZONE_ECHO = {
+  epaule:  'Your shoulders',
+  dos:     'Your back',
+  genou:   'Your knees',
+  poignet: 'Your wrists',
+  sauts:   'Jumping'
+};
+function renderOb6Echo(){
+  const el=document.getElementById('ob6Echo'); if(!el) return;
+  const sel=[...document.querySelectorAll('#zone_opts .ob-opt.sel')].map(o=>o.getAttribute('data-val')).filter(v=>v!=='none');
+  if(!sel.length){ el.style.display='none'; el.innerHTML=''; return; }
+  const noms = sel.map(v=>trDyn(ZONE_ECHO[v]||v)).join(' · ');
+  el.style.display='';
+  el.innerHTML = '<div style="background:rgba(var(--brand-fixed-rgb),.10);border:1px solid rgba(var(--brand-fixed-rgb),.28);border-radius:12px;padding:12px 14px;">'
+    +'<div style="font-size:13px;font-weight:800;color:var(--brand-fixed);margin-bottom:4px;">'+trDyn('Noted.')+'</div>'
+    +'<div style="font-size:12.5px;line-height:1.5;color:var(--gray2);"><b style="color:var(--white);">'+noms+'</b> — '
+    +trDyn('the exercises that pull on it are left out, and the gauge starts one notch lower on those that involve it a little.')+'</div>'
+    +'<div style="font-size:11.5px;color:var(--gray);margin-top:7px;">'+trDyn('You can change this at any time.')+'</div>'
+    +'</div>';
+  sweepTranslate(el, currentLang);
+  // Mesuré : l'accusé apparaissait 187 px sous la ligne de flottaison, donc invisible sans scroller —
+  // ce qui annulait exactement ce qu'il venait corriger. On l'amène dans le champ de vision.
+  // scrollIntoView ne déplaçait pas le conteneur .scroll (testé) : on le fait défiler nous-mêmes.
+  if(!renderOb6Echo._vu){
+    renderOb6Echo._vu=true;
+    const sl=el.closest('.scroll');
+    // scrollTo({behavior:'smooth'}) restait sans effet ici (testé, scrollTop restait à 0) : affectation
+    // directe, qui marche partout et n'a pas besoin d'animation pour rendre le bloc visible.
+    if(sl) setTimeout(()=>{ sl.scrollTop = sl.scrollHeight; }, 80);
+  }
+}
 function toggleZone(el){
   const val = el.getAttribute('data-val');
   const opts = document.querySelectorAll('#zone_opts .ob-opt');
@@ -14069,6 +14121,7 @@ function toggleZone(el){
       const c = el.querySelector('.ob-check'); if(c) c.textContent = '✓';
     }
   }
+  renderOb6Echo();
 }
 
 // Fréquence Q7
