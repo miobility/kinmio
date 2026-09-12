@@ -507,7 +507,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .exo-prev-meta{font-size:12px;color:var(--gray);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.35;}
 
 /* ===== HOME V2 (refonte) ===== */
-.zone-lbl{font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.8px;text-transform:uppercase;margin:20px 20px 12px;}
+.zone-lbl{font-size:11px;font-weight:700;color:var(--gray2);letter-spacing:.8px;text-transform:uppercase;margin:20px 20px 12px;}
 /* Pastille d'info : le glyphe fait 14 px, soit le tiers du seuil de 44 px — et il y en a jusqu'à six
    sur un même écran (audit Progrès). On agrandit la ZONE, pas le DESSIN : un ::after transparent et
    centré porte la cible tactile sans rien déplacer dans la mise en page ni grossir le pictogramme. */
@@ -700,7 +700,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 /* ===== BIBLIOTHÈQUE ===== */
 .lib-frow{padding:0 20px;margin-bottom:8px;}
-.lib-flabel{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.lib-flabel{font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
 .lib-fchips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
 .lib-fchips::-webkit-scrollbar{display:none;}
 .lib-chip{position:relative;flex-shrink:0;border:1.5px solid var(--border);background:var(--bg2);color:var(--gray2);border-radius:12px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
@@ -5795,6 +5795,25 @@ function refreshHomeSeanceZones(){
   if(document.getElementById('homeCentreObjectifZone')) renderHomeObjectifRing('homeCentre', userProfileCentre);
   if(document.getElementById('homeSeanceZone')) renderHomeSeance('home', homeData);
   if(document.getElementById('homeCentreSeanceZone')) renderHomeSeance('homeCentre', homeDataCentre);
+  ordonnerZonesAccueil('home'); ordonnerZonesAccueil('homeCentre');
+}
+// L'Accueil repond a "qu'est-ce que je fais aujourd'hui" : la seance du jour est la reponse, l'objectif
+// n'est que le contexte — d'ou l'ordre habituel. MAIS une fois la seance faite, la carte devient un
+// rappel et c'est l'objectif qui porte la vraie information ("2/3 jours, il t'en reste un"). Les deux
+// zones s'echangent ce jour-la, et seulement ce jour-la.
+function seanceDuJourFaite(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  return userSessionHistory.some(h=>{ const d=new Date(h.date); d.setHours(0,0,0,0); return d.getTime()===today.getTime(); });
+}
+function ordonnerZonesAccueil(prefix){
+  const seance=document.getElementById(prefix+'SeanceZone');
+  const objectif=document.getElementById(prefix+'ObjectifZone');
+  if(!seance||!objectif||!seance.parentElement) return;
+  const faite=seanceDuJourFaite();
+  const parent=seance.parentElement;
+  const premier = faite ? objectif : seance;
+  const second  = faite ? seance   : objectif;
+  if(premier.nextElementSibling!==second) parent.insertBefore(premier, second);
 }
 // « Commencé il y a 3 jours » / « il y a 2 semaines » — une durée écoulée, pas une durée promise.
 function programmeDepuisLabel(){
@@ -9245,8 +9264,8 @@ function renderCheckinPreview(prefix,val){
     const sess=getSessionDuJour(), pv=previewCheckinImpact(val);
     const lighter = (pv.duree||sess.duree) < sess.duree || pv.exCount < sess.exercices.length;
     const head = currentLang==='fr'
-      ? (lighter?'Séance allégée':'Séance renforcée')+' : '+pv.exCount+' exercices, '+pv.duree+' min'
-      : (lighter?'Lighter session':'Stronger session')+': '+pv.exCount+' exercises, '+pv.duree+' min';
+      ? (lighter?'Séance allégée':'Séance renforcée')
+      : (lighter?'Lighter session':'Stronger session');
     body = '<span style="color:var(--white);font-weight:700;">'+head+'</span>'
       +'<span style="display:block;font-size:11px;font-weight:400;color:var(--gray);margin-top:6px;line-height:1.45;">'+parts+'</span>';
   }
@@ -9282,6 +9301,9 @@ function renderCheckinDone(prefix,val){
 function selCheckinHome(el,val,prefix){
   todayCheckin=val;
   renderCheckinPreview(prefix,val);
+  // La carte de seance doit suivre immediatement : c'est elle qui dit ce que sera la seance, le
+  // panneau ne fait qu'expliquer ce qui change.
+  refreshHomeSeanceZones();
 }
 // Applique réellement l'ajustement (jauge par exercice, même source que le moteur de séance live) puis
 // fait "monter" l'émoji dans l'en-tête (cf discussion "sinon c'est la data qui ne sert à rien") et
@@ -9609,7 +9631,12 @@ function renderHomeSeance(prefix, data){
     // filtré, seul ce qu'il faut vraiment aller chercher). Il répond ici à la question qui se pose le
     // plus tôt — "de quoi j'ai besoin ?" — au lieu d'attendre l'écran suivant. L'intensité moyenne
     // laisse la place : c'est une conséquence du réglage, pas une condition pour s'y mettre.
-    +'<div class="today-sub">'+(todaySessionAdjust?todaySessionAdjust.exCount:realSess.exercices.length)+' exercises · '+(todaySessionAdjust?todaySessionAdjust.duree:realSess.duree)+' min'+(priorityMuscle?' · '+priorityMuscle:'')+(avgSessionJauge(realSess)!=null?' · '+trDyn('avg intensity')+' '+avgSessionJauge(realSess):'')+'</div>'
+    +(function(){
+      const propose = (!todaySessionAdjust && todayCheckin && CHECKIN_IMPACT[todayCheckin]) ? previewCheckinImpact(todayCheckin) : null;
+      const ex = todaySessionAdjust ? todaySessionAdjust.exCount : (propose ? propose.exCount : realSess.exercices.length);
+      const du = todaySessionAdjust ? todaySessionAdjust.duree   : (propose ? propose.duree   : realSess.duree);
+      return '<div class="today-sub">'+ex+' exercises · '+du+' min'+(priorityMuscle?' · '+priorityMuscle:'')+(avgSessionJauge(realSess)!=null?' · '+trDyn('avg intensity')+' '+avgSessionJauge(realSess):'')+'</div>'
+    })()
     +cta
     // "Mon programme →" est remonté dans la ligne de titre OBJECTIF (renderHomeObjectifRing) : il
     // menait hors de la séance du jour depuis l'intérieur de la carte qui la décrit, alors que c'est
@@ -10134,8 +10161,8 @@ function computeLoadInPeriod(sessions){ return sessions.reduce((s,h)=>s+computeS
 // indiscernables pour le calcul, pas de traitement spécial pour l'un ou l'autre).
 const TRAINING_GAP_DAYS = 14;
 const ACWR_MIN_SESSIONS = 3;
-function computeACWR(){
-  const now = Date.now();
+function computeACWR(asOf){
+  const now = asOf || Date.now();
   const acute = userSessionHistory.filter(h=>h.date>=now-7*HIST_DAY);
   const chronic = userSessionHistory.filter(h=>h.date>=now-28*HIST_DAY);
   // Moins de 3 séances sur 28 jours = base trop bruitée pour un ratio fiable (une seule séance pèserait
@@ -10157,6 +10184,21 @@ function computeACWR(){
   const chronicAvg = computeLoadInPeriod(activeChronic)/chronicSpanDays;
   if(!chronicAvg) return null;
   return (computeLoadInPeriod(acute)/7) / chronicAvg;
+}
+// Serie de charge sur une periode (retour Benjamin, 12 sept.) : la charge etait le seul indicateur de
+// l'app qu'on ne pouvait voir QU'AUJOURD'HUI — impossible de savoir si elle montait depuis trois
+// semaines. L'Accueil garde la valeur du jour, qui sert a decider ; Progres recoit la tendance, que
+// l'Accueil ne saura jamais montrer. Meme deplacement que la douleur, passee de valeur a tendance.
+function getPeriodLoadSeries(periodKey){
+  const days=PROG_PERIOD_DAYS[periodKey];
+  const pas = days<=7 ? 1 : days<=30 ? 2 : 6;
+  const out=[];
+  for(let d=days-1; d>=0; d-=pas){
+    const t=Date.now()-d*HIST_DAY;
+    const v=computeACWR(t);
+    if(v!=null) out.push({date:t, v});
+  }
+  return out;
 }
 // Vrai s'il s'est écoulé un vrai trou (pause ou arrêt naturel) depuis la dernière séance enregistrée —
 // même seuil que computeACWR(), pour rester cohérent entre "le ratio ACWR est masqué" et "on te
@@ -10260,6 +10302,92 @@ function getPeriodBars(periodKey, sessions){
 // Cockpit (verdict agrégé sur 14j fixes) retiré — dupliquait le verdict "regress" déjà montré dans le
 // coach-tip par période (lui scope sur la période active, 7/30/90j), sur une fenêtre différente qui
 // n'a jamais correspondu à aucun des 3 onglets. Les états "stay"/générique n'apportaient rien de plus.
+// ===== FICHE D'UN BADGE (retour Benjamin, 12 sept.) =====
+// Les cartes de badge n'avaient AUCUN gestionnaire de clic : ce n'est pas la fiche qui manquait,
+// c'est le geste. Ce qu'on veut savoir d'un badge acquis, c'est QUAND on l'a eu, et pour ceux qui se
+// regagnent, COMBIEN DE FOIS. Tout se recalcule sur l'historique — rien de nouveau a stocker.
+function joursEntraines(){
+  return [...new Set(userSessionHistory.map(h=>Math.floor(h.date/HIST_DAY)))].sort((a,b)=>a-b);
+}
+function badgeStats(k){
+  const hist=[...userSessionHistory].sort((a,b)=>a.date-b.date);
+  const jours=joursEntraines();
+  if(k==='streak'){
+    let cur=0, prev=null, fois=0, date=null, marque=false;
+    jours.forEach(d=>{ cur=(prev!==null && d===prev+1)?cur+1:1; prev=d;
+      if(cur>=5 && !marque){ fois++; marque=true; if(!date) date=d*HIST_DAY; }
+      if(cur<5) marque=false; });
+    return {date, fois};
+  }
+  if(k==='month' || k==='long'){
+    const n=(k==='month')?18:50;
+    return hist.length>=n ? {date:hist[n-1].date, fois:1} : {date:null, fois:0};
+  }
+  if(k==='hours'){
+    let cum=0, date=null;
+    for(const h of hist){ cum+=(h.duree||0); if(cum>=300){ date=h.date; break; } }
+    return {date, fois:date?1:0};
+  }
+  if(k==='weekend'){
+    const we=hist.filter(h=>{ const d=new Date(h.date).getDay(); return d===0||d===6; });
+    return {date: we.length?we[0].date:null, fois:we.length};
+  }
+  if(k==='months'){
+    const mois=[...new Set(hist.map(h=>{ const d=new Date(h.date); return d.getFullYear()+'-'+d.getMonth(); }))];
+    if(mois.length<3) return {date:null, fois:0};
+    const troisieme=mois[2];
+    const premier=hist.find(h=>{ const d=new Date(h.date); return d.getFullYear()+'-'+d.getMonth()===troisieme; });
+    return {date: premier?premier.date:null, fois:1};
+  }
+  if(k==='week'){
+    // Combien de semaines calendaires ou l'objectif a ete tenu — compte des SEANCES, comme la
+    // condition du badge (weekSessions.length >= goal), pas des jours distincts.
+    const goal=getWeeklyGoal(), parSemaine={};
+    hist.forEach(h=>{ const dt=new Date(h.date); const lundi=new Date(dt); lundi.setDate(dt.getDate()-((dt.getDay()+6)%7)); lundi.setHours(0,0,0,0);
+      const cle=lundi.getTime(); parSemaine[cle]=(parSemaine[cle]||0)+1; });
+    const ok=Object.entries(parSemaine).filter(([,n])=>n>=goal).map(([t])=>+t).sort((a,b)=>a-b);
+    return {date: ok.length?ok[ok.length-1]:null, fois:ok.length};
+  }
+  if(k==='zone'){
+    let date=null;
+    Object.values(exerciseZoneHistory).forEach(h=>h.forEach(e=>{ if(e.pctZone>=80 && (!date||e.date<date)) date=e.date; }));
+    return {date, fois:date?1:0};
+  }
+  // 'clean' : demande le verdict de progression semaine par semaine, qu'on ne rejoue pas sur
+  // l'historique. On l'assume : la fiche montre la condition, pas une date inventee.
+  return {date:null, fois:0};
+}
+function openBadgeDetail(k){
+  const b=getRealBadges().find(x=>x.k===k); if(!b) return;
+  const st=badgeStats(k);
+  const loc=currentLang==='fr'?'fr-FR':'en-US';
+  const dateTxt = st.date ? new Date(st.date).toLocaleDateString(loc,{day:'numeric',month:'long',year:'numeric'}) : null;
+  const total=userSessionHistory.length, totalMin=userSessionHistory.reduce((s,h)=>s+(h.duree||0),0);
+  const avance = b.target ? (k==='hours'?totalMin:total) : null;
+  let corps='';
+  if(b.unlocked){
+    corps += dateTxt
+      ? '<div style="font-size:14px;color:var(--white);">'+trDyn('Earned on')+' <b>'+dateTxt+'</b></div>'
+      : '<div style="font-size:14px;color:var(--white);">'+trDyn('Earned')+'</div>';
+    if(st.fois>1) corps += '<div style="font-size:13px;color:var(--gray2);margin-top:5px;">'
+      + (currentLang==='fr' ? st.fois+' fois depuis le début' : st.fois+' times so far') + '</div>';
+  } else {
+    corps += '<div style="font-size:14px;color:var(--gray2);">'+trDyn('Not earned yet')+'</div>';
+    if(b.target && avance!=null){
+      const pct=Math.min(100, Math.round(avance/b.target*100));
+      corps += '<div style="height:6px;border-radius:4px;background:var(--bg3);overflow:hidden;margin-top:10px;"><div style="height:100%;width:'+pct+'%;background:var(--orange);border-radius:4px;"></div></div>'
+        + '<div style="font-size:12px;color:var(--gray2);margin-top:5px;font-variant-numeric:tabular-nums;">'+avance+' / '+b.target+'</div>';
+    }
+  }
+  showModal('<div style="display:flex;align-items:center;gap:13px;margin-bottom:12px;">'
+    +'<div style="width:44px;height:44px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;'
+      +(b.unlocked?'background:var(--brand-fixed);color:var(--ink-on-accent);':'border:1.5px dashed var(--dim);color:var(--dim);')+'">'
+      +'<svg class="ki" style="width:24px;height:24px;"><use href="#'+b.ic+'"/></svg></div>'
+    +'<div style="min-width:0;"><div style="font-size:17px;font-weight:800;color:var(--white);">'+trDyn(b.t)+'</div>'
+      +'<div style="font-size:12.5px;color:var(--gray2);margin-top:2px;">'+trDyn(b.d)+'</div></div></div>'
+    + corps
+    +'<button class="btn btn-outline" style="width:100%;margin-top:18px;" onclick="closeModal()">'+trDyn('Got it')+'</button>');
+}
 function getRealBadges(){
   const total=userSessionHistory.length, best=computeBestStreak(), weekSessions=getSessionsInPeriod('semaine'), goal=getWeeklyGoal();
   const weekHadRegress = getExerciseVerdictsForPeriod(weekSessions).some(v=>v.verdict==='regress');
@@ -10274,15 +10402,15 @@ function getRealBadges(){
   // etaient des cliches importes d'un registre de performance qu'on evite. Effet secondaire voulu :
   // ces libelles-la se traduisent sans gene, la ou "Devoue" ou "Irreprochable" sonneraient faux.
   return [
-    {ic:'ki-bg-streak',  t:'5 in a row',     d:'5 days in a row', unlocked: best>=5},
-    {ic:'ki-bg-week',    t:'Week completed', d:goal+' sessions this week', unlocked: weekSessions.length>=goal},
-    {ic:'ki-bg-month',   t:'First month',    d:'18 sessions', unlocked: total>=18, target:18},
-    {ic:'ki-bg-long',    t:'Long road',      d:'50 sessions', unlocked: total>=50, target:50},
-    {ic:'ki-bg-months',  t:'Three months',   d:'3 months active', unlocked: computeActiveMonthsCount()>=3},
-    {ic:'ki-bg-clean',   t:'No setback',     d:'A week with no setback', unlocked: weekSessions.length>=goal && !weekHadRegress},
-    {ic:'ki-bg-weekend', t:'Weekend',        d:'Trained on a weekend', unlocked: weekendActive},
-    {ic:'ki-bg-hours',   t:'Five hours',     d:'300 min cumulated', unlocked: totalMinutes>=300, target:300},
-    {ic:'ki-bg-zone',    t:'In the zone',    d:'80%+ time on target', unlocked: zoneMastered80}
+    {k:'streak',  ic:'ki-bg-streak',  t:'5 in a row',     d:'5 days in a row', unlocked: best>=5},
+    {k:'week',    ic:'ki-bg-week',    t:'Week completed', d:goal+' sessions this week', unlocked: weekSessions.length>=goal},
+    {k:'month',   ic:'ki-bg-month',   t:'First month',    d:'18 sessions', unlocked: total>=18, target:18},
+    {k:'long',    ic:'ki-bg-long',    t:'Long road',      d:'50 sessions', unlocked: total>=50, target:50},
+    {k:'months',  ic:'ki-bg-months',  t:'Three months',   d:'3 months active', unlocked: computeActiveMonthsCount()>=3},
+    {k:'clean',   ic:'ki-bg-clean',   t:'No setback',     d:'A week with no setback', unlocked: weekSessions.length>=goal && !weekHadRegress},
+    {k:'weekend', ic:'ki-bg-weekend', t:'Weekend',        d:'Trained on a weekend', unlocked: weekendActive},
+    {k:'hours',   ic:'ki-bg-hours',   t:'Five hours',     d:'300 min cumulated', unlocked: totalMinutes>=300, target:300},
+    {k:'zone',    ic:'ki-bg-zone',    t:'In the zone',    d:'80%+ time on target', unlocked: zoneMastered80}
   ];
 }
 function renderProgBadges(elId){
@@ -10295,7 +10423,7 @@ function renderProgBadges(elId){
   const nbOk=badges.filter(b=>b.unlocked).length;
   el.innerHTML='<div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 20px 10px;"><span style="font-size:11.5px;color:var(--gray2);">'+(currentLang==='fr' ? nbOk+' sur '+badges.length : nbOk+' of '+badges.length)+'</span></div>'
     +'<div class="badges-grid">'
-    +badges.map(b=>'<div class="badge-card'+(b.unlocked?'':' lock')+'"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div></div>').join('')
+    +badges.map(b=>'<div class="badge-card'+(b.unlocked?'':' lock')+'" style="cursor:pointer;" onclick="openBadgeDetail(\''+b.k+'\')"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div></div>').join('')
     +'</div>'
     +(next ? '<div style="margin-top:12px;font-size:13px;color:var(--white);display:flex;align-items:center;gap:7px;"><span style="color:var(--gray2);display:inline-flex;"><svg class="ki" style="width:15px;height:15px;"><use href="#'+next.ic+'"/></svg></span><span>'+trDyn('Next badge')+' : '+trDyn(next.t)+' — '+(next.target-total)+' '+trDyn('to go')+'</span></div>'
       +'<div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:6px;"><div style="height:100%;width:'+Math.round(total/next.target*100)+'%;background:var(--orange);border-radius:3px;"></div></div>'
@@ -10421,7 +10549,12 @@ function renderProgPeriod(periodKey){
   // intensité) et le ressenti est la CONSÉQUENCE, pas le titre. Ouvrir sur la douleur, c'est ouvrir un
   // dossier médical ; ouvrir sur la régularité, c'est ouvrir un carnet d'entraînement. Il se construit
   // donc ici (les données sont calculées avec le reste) mais s'insère après Intensité.
-  let blocFormeDouleur='';
+  // Deux blocs, pas un (retour Benjamin, 12 sept.). "FORME & DOULEUR" mettait un seul titre sur deux
+  // objets, et surtout le desequilibre etait flagrant : la douleur avait un grand chiffre, un verdict,
+  // une frise et un compte ; la forme avait UNE ligne — un emoji, un mot, une fleche. D'ou "je ne
+  // comprends pas l'evolution de la forme" : elle n'etait pas dessinee. Elle recoit le meme
+  // traitement, sur la meme donnee (userCheckinHistory est deja une serie datee).
+  let blocDouleur='', blocForme='';
   const painAvg=avgPain(sessions), painAvgPrev=avgPain(prevSessions);
   const painSeries=getPeriodPainSeries(sessions);
   if(painAvg!=null){
@@ -10433,34 +10566,46 @@ function renderProgPeriod(periodKey){
     // redire le même seuil. Une douleur à 0 garde un trait de 3 px : une barre absente se lirait comme
     // une séance manquante plutôt que comme une séance sans douleur.
     const spark='<div style="display:flex;align-items:flex-end;gap:3px;height:34px;">'
-      +painSeries.map(x=>'<div style="flex:1;min-width:3px;border-radius:2px;height:'+Math.max(3, Math.round(x.v/maxPain*34))+'px;background:'+(x.v<=3?'var(--brand-fixed)':x.v<=6?'var(--vigilance)':'var(--red)')+';"></div>').join('')
+      +painSeries.map(x=>'<div style="flex:1;min-width:3px;border-radius:2px;height:'+Math.max(3, Math.round(x.v/maxPain*34))+'px;background:var(--gray2);"></div>').join('')
       +'</div>';
-    const cks=getPeriodCheckins(periodKey);
-    let formRow='';
-    if(cks.length){
-      const ord=cks.map(c=>CHECKIN_ORDINAL[c.val]||3);
-      const recent=ord[0], older=ord[ord.length-1];
-      const fd = cks.length<2 ? 0 : recent-older;
-      const fArrow = fd>=1 ? '↑' : fd<=-1 ? '↓' : '→';
-      const fCol = fd>=1 ? 'var(--brand-fixed)' : fd<=-1 ? 'var(--vigilance)' : 'var(--gray2)';
-      formRow='<div style="display:flex;align-items:center;gap:9px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'
-        +'<div style="font-size:12px;color:var(--gray2);flex-shrink:0;">'+trDyn('Form')+'</div>'
-        +'<div style="font-size:19px;line-height:1;">'+checkinEmoji(cks[0].val)+'</div>'
-        +'<div style="font-size:12.5px;color:var(--white);font-weight:600;flex:1;min-width:0;">'+checkinLabel(cks[0].val)+'</div>'
-        +'<div style="font-size:13px;font-weight:700;color:'+fCol+';">'+fArrow+'</div>'
-        +'</div>';
-    }
-    blocFormeDouleur+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">FORM &amp; PAIN<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Form &amp; pain\',\'The two things you report yourself, over the last '+getPeriodLabel(periodKey)+'. Pain = the average of what you declared after each session in this window, and the bars show each of those sessions in order. The verdict compares that average with the previous '+getPeriodLabel(periodKey)+' — rising or easing only from 1 point of difference. Form = your daily check-in, most recent first, with its direction over the window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
-    blocFormeDouleur+='<div class="card-sm" style="margin-bottom:16px;">'
+    blocDouleur+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">PAIN<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'The average of what you declared after each session over this window, and the bars show each of those sessions in order. The verdict compares that average with the previous window — rising or easing only from 1 point of difference.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+    blocDouleur+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
-      +'<div style="font-size:32px;font-weight:800;color:'+painCol+';line-height:1;flex-shrink:0;">'+painShown+'<span style="font-size:17px;color:var(--gray2);font-weight:700;">/10</span></div>'
+      +'<div style="font-size:32px;font-weight:800;color:'+painCol+';line-height:1;flex-shrink:0;">'+painShown+'<span style="font-size:15px;font-weight:600;color:var(--gray2);">/10</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);">average pain</div>'
       +'</div>'
       +'<div style="font-size:12.5px;font-weight:600;color:'+painState.color+';margin:7px 0 0;">'+painState.label+'</div>'
       +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'+spark
       +'<div style="font-size:11px;color:var(--gray2);margin-top:6px;">'+painSeries.length+' session'+(painSeries.length!==1?'s':'')+' rated</div>'
       +'</div>'
-      +formRow
+      +'</div>';
+  }
+  // ---- FORME : meme anatomie que la douleur, sur les check-ins de la periode ----
+  const cks=getPeriodCheckins(periodKey);
+  if(cks.length){
+    // getPeriodCheckins renvoie du plus recent au plus ancien ; une frise se lit dans le sens du
+    // temps, comme celle de la douleur juste au-dessus.
+    const serie=[...cks].reverse();
+    const ord=serie.map(c=>CHECKIN_ORDINAL[c.val]||3);
+    const recent=ord[ord.length-1], older=ord[0];
+    const fd = ord.length<2 ? 0 : recent-older;
+    const fState = fd>=1 ? {lbl:trDyn('Improving over this window'), col:'var(--brand-fixed)'}
+                 : fd<=-1 ? {lbl:trDyn('Dipping over this window'),  col:'var(--vigilance)'}
+                          : {lbl:trDyn('Steady over this window'),   col:'var(--gray2)'};
+    const fSpark='<div style="display:flex;align-items:flex-end;gap:3px;height:34px;">'
+      +ord.map(v=>'<div style="flex:1;min-width:3px;border-radius:2px;height:'+Math.max(3, Math.round(v/5*34))+'px;background:var(--gray2);"></div>').join('')
+      +'</div>';
+    blocForme+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">FORM<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Form\',\'Your daily check-in over this window, oldest on the left. Five levels, from exhausted to great. The verdict compares your most recent answer with the oldest one in the window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+    blocForme+='<div class="card-sm" style="margin-bottom:16px;">'
+      +'<div style="display:flex;align-items:center;gap:10px;">'
+      +'<div style="font-size:30px;line-height:1;flex-shrink:0;">'+checkinEmoji(cks[0].val)+'</div>'
+      +'<div style="min-width:0;"><div style="font-size:17px;font-weight:800;color:var(--white);line-height:1.2;">'+checkinLabel(cks[0].val)+'</div>'
+      +'<div style="font-size:12.5px;color:var(--gray2);margin-top:1px;">today</div></div>'
+      +'</div>'
+      +'<div style="font-size:12.5px;font-weight:600;color:'+fState.col+';margin:9px 0 0;">'+fState.lbl+'</div>'
+      +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'+fSpark
+      +'<div style="font-size:11px;color:var(--gray2);margin-top:6px;">'+ord.length+' check-in'+(ord.length!==1?'s':'')+' logged</div>'
+      +'</div>'
       +'</div>';
   }
 
@@ -10558,7 +10703,39 @@ function renderProgPeriod(periodKey){
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;"><div style="width:8px;height:8px;border-radius:50%;background:'+ZONE_DONUT_COLORS[k]+';flex-shrink:0;"></div><div style="flex:1;font-size:11.5px;color:var(--gray2);">'+ZONE_LABELS_RADAR[k]+'</div><div style="font-size:11px;font-weight:700;color:var(--white);">'+zonePct[k]+'%</div></div>'
     ).join('');
   }
-  html+=blocFormeDouleur;
+  html+=blocDouleur+blocForme;
+
+  // ---- CHARGE : la tendance, pas la valeur du jour (qui vit sur l'Accueil) ----
+  const loadSerie=getPeriodLoadSeries(periodKey);
+  if(loadSerie.length>=2){
+    const cur=loadSerie[loadSerie.length-1].v, first=loadSerie[0].v;
+    const diff=cur-first;
+    const etat = cur>=1.5 ? {lbl:trDyn('Ramping up fast'), col:'var(--red)'}
+               : cur<0.8  ? {lbl:trDyn('Below your usual pace'), col:'var(--vigilance)'}
+                          : {lbl:trDyn('In a healthy zone'), col:'var(--brand-fixed)'};
+    const tend = Math.abs(diff)<0.15 ? trDyn('Steady over this window')
+               : diff>0 ? trDyn('Rising over this window') : trDyn('Easing over this window');
+    // La zone saine 0,8-1,3 est dessinee en fond : sans elle, une barre haute et une barre basse se
+    // ressemblent, alors que l'une est un signal et l'autre pas. L'echelle est plafonnee a 2,0, la
+    // meme que la jauge de l'Accueil.
+    const H=40, maxV=2;
+    const barres=loadSerie.map(p2=>{
+      const h=Math.max(3, Math.round(Math.min(p2.v,maxV)/maxV*H));
+      const col = p2.v>=1.5 ? 'var(--red)' : p2.v<0.8 ? 'var(--vigilance)' : 'var(--gray2)';
+      return '<div style="flex:1;min-width:3px;border-radius:2px;height:'+h+'px;background:'+col+';"></div>';
+    }).join('');
+    html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">LOAD<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Load\',\'How hard you have trained over the last 7 days compared with your usual pace over 28 days. Between 0.8 and 1.3 is a healthy zone — much higher means you are ramping up fast.\',[\'seance\',4])" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+    html+='<div class="card-sm" style="margin-bottom:16px;">'
+      +'<div style="display:flex;align-items:baseline;gap:8px;">'
+      +'<div style="font-size:32px;font-weight:800;color:'+etat.col+';line-height:1;flex-shrink:0;">'+cur.toFixed(1)+'<span style="font-size:15px;font-weight:600;color:var(--gray2);">×</span></div>'
+      +'<div style="font-size:13px;color:var(--gray2);">'+trDyn('vs your usual pace')+'</div></div>'
+      +'<div style="font-size:12.5px;font-weight:600;color:'+etat.col+';margin:7px 0 0;">'+etat.lbl+'</div>'
+      +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);position:relative;">'
+        +'<div style="position:absolute;left:0;right:0;bottom:20px;height:'+Math.round((1.3-0.8)/maxV*H)+'px;transform:translateY(-'+Math.round(0.8/maxV*H)+'px);background:rgba(var(--brand-fixed-rgb),.08);border-radius:2px;"></div>'
+        +'<div style="display:flex;align-items:flex-end;gap:3px;height:'+H+'px;position:relative;">'+barres+'</div>'
+        +'<div style="font-size:11px;color:var(--gray2);margin-top:6px;">'+tend+'</div>'
+      +'</div></div>';
+  }
 
   html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">BODY ZONES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Body zones\',\'Where your training time actually goes, over the last '+getPeriodLabel(periodKey)+' — time spent per muscle group.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
@@ -12634,6 +12811,20 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "Ramping up fast": "En hausse rapide",
+  "Below your usual pace": "Sous ton rythme habituel",
+  "In a healthy zone": "Dans une zone saine",
+  "Rising over this window": "En hausse sur cette période",
+  "Easing over this window": "En baisse sur cette période",
+  "vs your usual pace": "vs ton rythme habituel",
+  "FORM": "FORME",
+  "Improving over this window": "En hausse sur cette période",
+  "Dipping over this window": "En baisse sur cette période",
+  "Steady over this window": "Stable sur cette période",
+  "today": "aujourd'hui",
+  "Earned on": "Obtenu le",
+  "Earned": "Obtenu",
+  "Not earned yet": "Pas encore obtenu",
   "All goals": "Tous les objectifs",
   "Accent colour": "Couleur d’accent",
   "Training sessions": "Séances",
@@ -14129,6 +14320,8 @@ const EN_FR_PATTERNS = [
   [/^(\d+) sessions? · (\d+) min avg\/session$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} · ${m[2]} min moy./séance`],
   // Compteur de séances renseignées sous la frise de douleur (bloc Forme & douleur) — pluriel dynamique.
   [/^(\d+) sessions? rated$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} renseignée${Number(m[1])>1?'s':''}`],
+  // Meme compteur pour la frise de forme, qui compte des check-ins et non des seances.
+  [/^(\d+) check-ins? logged$/, (m)=>`${m[1]} check-in${Number(m[1])>1?'s':''} enregistré${Number(m[1])>1?'s':''}`],
   // Compteur de la Bibliothèque : « 41 of 49 exercises » quand un filtre retire quelque chose.
   [/^(\d+) of (\d+) exercises?$/, (m)=>`${m[1]} sur ${m[2]} exercices`],
   [/^(\d+) of (\d+) sessions?$/, (m)=>`${m[1]} sur ${m[2]} séances`],
@@ -14324,6 +14517,7 @@ const FR_EN_PATTERNS = [
   // bloqué en français, découvert en vérifiant les nouveaux compteurs defiStepLbl/friendStepLbl.
   [/^Étape (\d+) sur (\d+)$/, (m)=>`Step ${m[1]} of ${m[2]}`],
   [/^(\d+) séances? renseignées?$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} rated`],
+  [/^(\d+) check-ins? enregistrés?$/, (m)=>`${m[1]} check-in${Number(m[1])>1?'s':''} logged`],
   [/^(\d+) sur (\d+) exercices?$/, (m)=>`${m[1]} of ${m[2]} exercises`],
   [/^(\d+) sur (\d+) séances?$/, (m)=>`${m[1]} of ${m[2]} sessions`],
   [/^(\d+) sur (\d+) programmes?$/, (m)=>`${m[1]} of ${m[2]} programmes`],
@@ -14553,6 +14747,7 @@ function setLang(lang){
     // sweepTranslate ne sait traduire qu'un noeud texte entier et les laissait dans la langue du
     // dernier rendu.
     if(document.getElementById('homeKpiZone')) renderHomeKpiZone('home', userProfile);
+    ordonnerZonesAccueil('home');
     if(document.getElementById('homeCentreKpiZone')) renderHomeKpiZone('homeCentre', userProfileCentre);
     // Idem pour la carte d'ajustement : "Intensite 2 -> 1" est un seul noeud texte compose au rendu.
     if(document.getElementById('homeSignalAdjustZone')) renderSignalAdjust('home');
