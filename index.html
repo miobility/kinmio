@@ -10140,7 +10140,38 @@ function togglePause(){
     }
   }
 }
+// Demande la raison avant de quitter pour de bon (retour benchmark : "le signal le plus fort qu'on
+// reçoive, le seul qu'on jette" — on savait qu'un exercice était fait et pas les 4 suivants, jamais
+// pourquoi). Pas de raison à collecter pour un exercice seul : aucun abandon n'y est loggé (inchangé).
 function quitSession(){
+  const exo = currentProgram && currentProgram.exercices[sessCurrent-1];
+  if(sessTotal<=1 && exo && exo.mode){ finalizeQuitSession(null); return; }
+  openQuitReasonSheet();
+}
+// Quatre raisons, un tap chacune — aucun bouton ne cherche à retenir (à l'inverse d'un "termine comme
+// les 92% qui vont au bout" : ici on VEUT que la personne s'arrête si son corps le demande). La feuille
+// reste au-dessus de l'overlay pause (z-index modal > pause) ; "Continuer" ne fait que la refermer, rien
+// n'a encore été touché à cet instant.
+function openQuitReasonSheet(){
+  const opts=[
+    {val:'pain', lbl:'I feel pain somewhere'},
+    {val:'hard', lbl:'Too hard today'},
+    {val:'time', lbl:"I'm short on time"},
+    {val:'other', lbl:'Something else'}
+  ];
+  const rows=opts.map((o,i)=>
+    '<div onclick="finalizeQuitSession(\''+o.val+'\')" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 4px;'+(i<opts.length-1?'border-bottom:1px solid var(--border);':'')+'cursor:pointer;">'
+    +'<span style="font-size:14.5px;color:var(--white);line-height:1.4;">'+trDyn(o.lbl)+'</span>'
+    +'<svg class="ki" style="width:14px;height:14px;color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg>'
+    +'</div>'
+  ).join('');
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:4px;">'+trDyn('Stopping already?')+'</div>'
+    +'<div style="font-size:13px;color:var(--gray);margin-bottom:6px;line-height:1.4;">'+trDyn('No pressure — this just helps us adjust your next session.')+'</div>'
+    +rows
+    +'<button class="btn-ghost" style="margin-top:14px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Keep going')+'</button>');
+}
+function finalizeQuitSession(reason){
+  closeModal();
   sessionPaused=false;
   const ov=document.getElementById('sessPauseOverlay'); if(ov) ov.style.display='none';
   const exo = currentProgram && currentProgram.exercices[sessCurrent-1];
@@ -10148,27 +10179,28 @@ function quitSession(){
   // re-tombe sur "session" (ou une autre étape live) au lieu de l'écran d'avant l'entraînement.
   const trainingScreens=['session','next_exercise','feedback','resume','exercice_detail'];
   while(hist.length>1 && trainingScreens.includes(hist[hist.length-1])) hist.pop();
-  if(sessTotal<=1 && exo && exo.mode){ openExerciceNouveau(exo.id); }   // exercice seul : retour sur sa fiche
-  else {
-    // Vérifiabilité (retour utilisateur) : contrairement à avant, un abandon laisse une trace — pas
-    // dans userSessionHistory (qui reste "fait", lu par ACWR/streaks), juste dans userSessionAttempts.
-    if(currentProgram && currentProgram.exercices && currentProgram.exercices.length){
-      const elapsedMs = sessionStartTime ? Date.now()-sessionStartTime : 0;
-      userSessionAttempts.unshift({
-        date: Date.now(),
-        nom: currentProgram.titre,
-        sessionId: sessionActuelle ? sessionActuelle.id : null,
-        status: 'abandoned',
-        exercicesDone: Math.max(0, sessCurrent-1),
-        exercicesTotal: currentProgram.exercices.length,
-        dureeReelle: Math.max(0, Math.round(elapsedMs/60000)),
-        dureeAttendue: sessionActuelle ? sessionActuelle.duree : (currentProgram.duree||0),
-        repSource: sessionRepSource(),
-        demoGatesSkipped: demoSkipGates
-      });
-    }
-    go('home');   // vraie séance : retour à l'accueil
+  if(sessTotal<=1 && exo && exo.mode){ openExerciceNouveau(exo.id); return; }   // exercice seul : retour sur sa fiche
+  // Vérifiabilité (retour utilisateur) : contrairement à avant, un abandon laisse une trace — pas
+  // dans userSessionHistory (qui reste "fait", lu par ACWR/streaks), juste dans userSessionAttempts.
+  // La raison 'pain' est relue par recommendedIntensityLevel() — un signal du MILIEU de la séance,
+  // que la seule douleur déclarée APRÈS coup ne captait pas.
+  if(currentProgram && currentProgram.exercices && currentProgram.exercices.length){
+    const elapsedMs = sessionStartTime ? Date.now()-sessionStartTime : 0;
+    userSessionAttempts.unshift({
+      date: Date.now(),
+      nom: currentProgram.titre,
+      sessionId: sessionActuelle ? sessionActuelle.id : null,
+      status: 'abandoned',
+      reason: reason || null,
+      exercicesDone: Math.max(0, sessCurrent-1),
+      exercicesTotal: currentProgram.exercices.length,
+      dureeReelle: Math.max(0, Math.round(elapsedMs/60000)),
+      dureeAttendue: sessionActuelle ? sessionActuelle.duree : (currentProgram.duree||0),
+      repSource: sessionRepSource(),
+      demoGatesSkipped: demoSkipGates
+    });
   }
+  go('home');   // vraie séance : retour à l'accueil
 }
 
 // ===== Séries multiples sur un même exercice (nouveau modèle) : boucle travail → repos → travail, sur place =====
@@ -10557,8 +10589,15 @@ function renderIntensityBanner(){
   const lvl = currentProgram._sessIntensityLevel || 2;
   const LABELS={1:'Light',2:'Moderate',4:'Intense'};
   const val=document.getElementById('sessIntensityVal'); if(val) val.textContent=trDyn(LABELS[lvl]||'Moderate');
+  // Raison composée au rendu, jamais couverte par une clé de dictionnaire : sweepTranslate ne pouvait
+  // pas la traduire (même mécanisme que les 3 bugs i18n déjà corrigés cette semaine sur ce schéma).
+  // ASSISTANT_REASON_FR est déjà la traduction de référence pour ces raisons (cf réponse Coach IA).
   const reasonEl=document.getElementById('sessIntensityReason');
-  if(reasonEl) reasonEl.textContent = currentProgram._sessIntensityReason ? (trDyn('Lowered')+' — '+currentProgram._sessIntensityReason) : '';
+  if(reasonEl){
+    const r=currentProgram._sessIntensityReason;
+    const reasonTxt = r ? (currentLang==='fr' && ASSISTANT_REASON_FR[r] ? ASSISTANT_REASON_FR[r] : trDyn(r)) : '';
+    reasonEl.textContent = r ? (trDyn('Lowered')+' — '+reasonTxt) : '';
+  }
   const iconEl=document.getElementById('sessIntensityIcon');
   if(iconEl) iconEl.style.display = currentProgram._sessIntensityReason ? 'flex' : 'none';
 }
@@ -12354,6 +12393,13 @@ const EN_FR = {
   "Paused": "En pause",
   "Resume": "Reprendre",
   "Quit workout": "Quitter la séance",
+  "Stopping already?": "Tu arrêtes déjà ?",
+  "No pressure — this just helps us adjust your next session.": "Pas de pression — ça nous aide juste à ajuster ta prochaine séance.",
+  "I feel pain somewhere": "J'ai mal quelque part",
+  "Too hard today": "Trop dur aujourd'hui",
+  "I'm short on time": "Je manque de temps",
+  "Something else": "Autre chose",
+  "Keep going": "Continuer la séance",
   "Rest": "Repos",
   "Skip rest →": "Passer le repos →",
   "Resistance": "Résistance",
@@ -19270,12 +19316,23 @@ let painBefore=4, painAfter=0, feedbackEffort='modere';
 // intensity"), null = pas de recommandation. Retourne aussi la raison, affichée à la personne dans le
 // bandeau d'intensité en début de séance. Même logique que le mini-bloc ACWR de Home (getFatigueSignal) —
 // un chiffre qu'on affichait sans jamais s'en servir ailleurs (cf discussion).
+// Le dernier événement réel est un abandon pour douleur, plus récent que la dernière séance complétée
+// (sinon une séance terminée depuis remplacerait déjà ce signal via getPainSignal) — cf discussion
+// "la raison d'abandon, le meilleur retour du benchmark". userSessionAttempts et userSessionHistory
+// sont tous deux en unshift() : index 0 = le plus récent des deux.
+function lastEventWasPainQuit(){
+  const a=userSessionAttempts[0];
+  if(!a || a.status!=='abandoned' || a.reason!=='pain') return false;
+  const lastDone=userSessionHistory[0];
+  return !lastDone || a.date>lastDone.date;
+}
 function recommendedIntensityLevel(){
   // Source unique pour la douleur (cf arbitrage "derniere valeur") : la meme que celle affichee dans
   // la tuile Signaux — getPainSignal().level, c'est-a-dire la derniere douleur declaree dans
   // l'historique. Avant, la cascade lisait la variable lastSessionPain pendant que la tuile lisait
   // l'historique : deux sources pour une meme notion, qui pouvaient se contredire a l'ecran.
   const painNow = (getPainSignal().level!=null) ? getPainSignal().level : lastSessionPain;
+  if(lastEventWasPainQuit()) return {level:1, reason:'you stopped early last time due to pain'};
   if(painNow>=6 || lastFeedbackEffort==='maximum') return {level:1, reason:'your pain was high last time'};
   if(isReturningFromGap()) return {level:1, reason:"you're returning after a break — let's ease back in"};
   if(getFatigueSignal().level==='high') return {level:1, reason:'your training load has ramped up fast recently'};
@@ -19594,6 +19651,7 @@ const ASSISTANT_QUESTIONS=[
 // Raisons de recommendedIntensityLevel() traduites — cette fonction reste en anglais en interne
 // (signal technique, jamais montré tel quel ailleurs), donc pas de trDyn ici, juste ce mapping local.
 const ASSISTANT_REASON_FR={
+  'you stopped early last time due to pain': "tu as arrêté ta dernière séance à cause de la douleur",
   'your pain was high last time': "ta douleur était élevée la dernière fois",
   "you're returning after a break — let's ease back in": "tu reprends après une pause, on y va doucement",
   'your training load has ramped up fast recently': "ta charge d'entraînement a beaucoup augmenté récemment",
