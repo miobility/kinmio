@@ -848,6 +848,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 5.9a.9.9 0 0 1 1.36-.78l9.1 5.32a.75.75 0 0 1 0 1.3l-9.1 5.32A.9.9 0 0 1 8.4 16.4Z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.4" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/><rect x="13.1" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-stop-prog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="13" height="13" rx="2.5"/></symbol>
   <symbol id="ki-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/></symbol>
   <symbol id="ki-repeat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.6-5.7"/><path d="M20 12a8 8 0 0 1-13.6 5.7"/><path d="M17 3v4h-4"/><path d="M7 21v-4h4"/></symbol>
   <symbol id="ki-body" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.6" r="2.1"/><path d="M12 8v6"/><path d="M7.5 9.5 12 8l4.5 1.5"/><path d="M12 14l-2.5 6M12 14l2.5 6"/></symbol>
@@ -2193,13 +2194,15 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         </div>
       </div>
       <div class="px pt">
+        <div id="progMonEmpty" style="display:none;"></div>
+        <div id="progMonDone" style="display:none;"></div>
         <div id="progMonPauseBanner" style="display:none;"></div>
         <div id="progMonSeanceWrap">
           <div class="ex-sec-t" style="padding:0 0 8px;">Today's session</div>
           <div id="progMonSeanceCard"></div>
         </div>
       </div>
-      <div class="px pt pb">
+      <div class="px pt pb" id="progMonWeeksBlock">
         <div class="ex-sec-t" style="padding:0 0 8px;">This week's sessions</div>
         <div id="progMonWeekList"></div>
         <div id="progMonUpcomingWrap" style="display:none;margin-top:14px;">
@@ -5035,6 +5038,44 @@ function refreshHomeSeanceZones(){
   if(document.getElementById('homeCentreObjectifZone')) renderHomeObjectifRing('homeCentre', userProfileCentre);
   if(document.getElementById('homeSeanceZone')) renderHomeSeance('home', homeData);
   if(document.getElementById('homeCentreSeanceZone')) renderHomeSeance('homeCentre', homeDataCentre);
+}
+// « Commencé il y a 3 jours » / « il y a 2 semaines » — une durée écoulée, pas une durée promise.
+function programmeDepuisLabel(){
+  if(!programmeActifDepuis) return '';
+  const j=Math.max(0, Math.floor((Date.now()-programmeActifDepuis)/HIST_DAY));
+  if(j<1) return trDyn('Started today');
+  if(j<7) return trDyn('Started '+j+' day'+(j>1?'s':'')+' ago');
+  const sem=Math.floor(j/7);
+  return trDyn('Started '+sem+' week'+(sem>1?'s':'')+' ago');
+}
+// Arrêter son programme — il n'existait que Pause et Reprendre. La seule sortie était d'en activer un
+// autre, ce qui n'est pas la même intention : quelqu'un qui veut souffler sans s'engager ailleurs
+// n'avait nulle part où aller. L'archivage dans userProgrammeHistory réutilise exactement le récap de
+// clôture déjà écrit par activerProgramme() — mêmes bornes, même calcul, pas un second chemin.
+function arreterProgramme(){
+  if(!programmeActif) return;
+  const p=programmeActif;
+  const pr=getProgrammeProgress(p);
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:6px;">'+trDyn('Stop this programme?')+'</div>'
+    +'<div style="font-size:13.5px;line-height:1.5;color:var(--gray2);margin-bottom:16px;">'+trDyn('It goes into your history with what you did. You can pick it up again, or choose another, whenever you want.')+'</div>'
+    +'<div class="card-sm" style="margin-bottom:16px;"><div style="font-size:12px;color:var(--gray2);">'+p.nom_marketing+'</div>'
+      +'<div style="font-size:20px;font-weight:800;color:var(--white);margin-top:2px;">'+trDyn(Math.min(pr.completedCount, pr.totalSessions)+'/'+pr.totalSessions+' sessions')+'</div>'
+      +'<div style="font-size:11.5px;color:var(--gray2);margin-top:2px;">'+programmeDepuisLabel()+'</div></div>'
+    +'<button class="btn btn-outline" style="width:100%;margin-bottom:10px;color:var(--red);border-color:var(--red);" onclick="confirmArreterProgramme()">'+trDyn('Stop this programme')+'</button>'
+    +'<button class="btn-ghost" style="width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Cancel')+'</button>');
+}
+function confirmArreterProgramme(){
+  const p=programmeActif; if(!p) return;
+  const sessDuring = programmeActifDepuis!==null ? userSessionHistory.filter(h=>h.date>=programmeActifDepuis) : [];
+  userProgrammeHistory.unshift({
+    date: Date.now(), nom: p.nom_marketing, id: p.id,
+    sessionsCount: sessDuring.length,
+    dureeTotal: sessDuring.reduce((s,h)=>s+(h.duree||0),0)
+  });
+  programmeActif=null; programmeActifDepuis=null; semaineActuelle=1;
+  closeModal();
+  toast(trDyn('Programme stopped'));
+  go('programme'); setTimeout(showProgMonView, 30);
 }
 function pauseProgramme(){
   if(!programmeActif || programmeActif.pausedAt) return;
@@ -11674,6 +11715,21 @@ const EN_FR = {
   "BODY ZONES": "ZONES DU CORPS",
   "filtered on your profile": "filtré sur ton profil",
   "The weeks": "Les semaines",
+  "Started today": "Commencé aujourd'hui",
+  "Programme completed": "Programme terminé",
+  "Programme activated": "programme activé",
+  "No programme right now": "Pas de programme en ce moment",
+  "Your sessions stay available in the library — what you are missing is the thread that links them week after week.": "Tes séances restent accessibles dans la bibliothèque — ce qui te manque, c'est le fil qui les relie semaine après semaine.",
+  "Choose a programme": "Choisir un programme",
+  "Do it again": "Le refaire",
+  "Choose another programme": "Choisir un autre programme",
+  "minutes": "minutes",
+  "weeks": "semaines",
+  "Stop this programme?": "Arrêter ce programme ?",
+  "Stop this programme": "Arrêter ce programme",
+  "It goes into your history with what you did. You can pick it up again, or choose another, whenever you want.": "Il rejoint ton historique avec ce que tu as fait. Tu pourras le reprendre, ou en choisir un autre, quand tu veux.",
+  "It goes into your history — you can pick it up again later": "Il rejoint ton historique — tu pourras le reprendre plus tard",
+  "Programme stopped": "Programme arrêté",
   "sessions done": "séances faites",
   "Started on": "Commencé le",
   "in progress": "en cours",
@@ -13014,6 +13070,9 @@ const EN_FR_PATTERNS = [
   // Fiche programme : durée et rythme composés à l'affichage.
   [/^(\d+) weeks?$/, (m)=>`${m[1]} semaine${Number(m[1])>1?'s':''}`],
   [/^(\d+) sessions?\/week$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''}/semaine`],
+  [/^Started (\d+) days? ago$/, (m)=>`Commencé il y a ${m[1]} jour${Number(m[1])>1?'s':''}`],
+  [/^Started (\d+) weeks? ago$/, (m)=>`Commencé il y a ${m[1]} semaine${Number(m[1])>1?'s':''}`],
+  [/^(\d+)\/(\d+) sessions$/, (m)=>`${m[1]}/${m[2]} séances`],
   // Générique pour tous les compteurs d'étape de wizard (csi/csc/cprog + détours) — posés en JS brut
   // via textContent, jamais captés par un balayage statique, donc jamais traduits sans ce pattern.
   [/^Step (\d+) of (\d+)$/, (m)=>`Étape ${m[1]} sur ${m[2]}`],
@@ -13194,6 +13253,9 @@ const FR_EN_PATTERNS = [
   [/^(\d+) sur (\d+) programmes?$/, (m)=>`${m[1]} of ${m[2]} programmes`],
   [/^(\d+) semaines?$/, (m)=>`${m[1]} week${Number(m[1])>1?'s':''}`],
   [/^(\d+) séances?\/semaine$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''}/week`],
+  [/^Commencé il y a (\d+) jours?$/, (m)=>`Started ${m[1]} day${Number(m[1])>1?'s':''} ago`],
+  [/^Commencé il y a (\d+) semaines?$/, (m)=>`Started ${m[1]} week${Number(m[1])>1?'s':''} ago`],
+  [/^(\d+)\/(\d+) séances$/, (m)=>`${m[1]}/${m[2]} sessions`],
   // Libellé de la carte séance (renderHomeSeance, cardLbl) — même problème que ci-dessus : sens forward
   // seul (EN_FR_PATTERNS) suffit pour un premier rendu FR, mais bloque en français sans re-rendu si on
   // repasse en anglais depuis un écran déjà affiché.
@@ -15083,13 +15145,51 @@ function goSessions(){
 }
 
 function renderProgMonView(){
-  if(!programmeActif) initApresOnboarding();
+  // « Pas de programme » est désormais un état LÉGITIME — c'est pourquoi il n'y avait pas d'arrêt
+  // possible : cette ligne rappelait initApresOnboarding() dès que programmeActif tombait à null, et en
+  // réassignait un dans la seconde. Le filet de sécurité reste, mais seulement pour ce qu'il visait
+  // vraiment : quelqu'un qui n'a jamais fait l'onboarding et n'a donc jamais reçu de programme.
+  if(!programmeActif && !programStartDate) initApresOnboarding();
   const p = programmeActif;
+  const vide=document.getElementById('progMonEmpty');
+  const heroEl=document.querySelector('#progMonView .prog-hero');
+  const weeksBlock=document.getElementById('progMonWeeksBlock');
+  if(vide){
+    if(!p){
+      // Ce qu'on perd en n'ayant plus de programme, dit sans dramatiser : les séances restent
+      // accessibles, c'est le fil qui manque. Une seule porte, vers le catalogue.
+      vide.style.display='';
+      if(heroEl) heroEl.style.display='none';
+      const wrap=document.getElementById('progMonSeanceWrap'); if(wrap) wrap.style.display='none';
+      if(weeksBlock) weeksBlock.style.display='none';
+      const doneZ=document.getElementById('progMonDone'); if(doneZ){ doneZ.style.display='none'; doneZ.innerHTML=''; }
+      vide.innerHTML='<div class="card-sm" style="text-align:center;padding:28px 20px;">'
+        +'<div style="width:52px;height:52px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--gray2);"><svg class="ki" style="width:22px;height:22px;"><use href="#ki-calendar"/></svg></div>'
+        +'<div style="font-size:16px;font-weight:800;color:var(--white);margin-bottom:6px;">'+trDyn('No programme right now')+'</div>'
+        +'<div style="font-size:13px;line-height:1.5;color:var(--gray2);margin-bottom:18px;">'+trDyn('Your sessions stay available in the library — what you are missing is the thread that links them week after week.')+'</div>'
+        +'<button class="btn btn-brand-fixed" style="width:100%;" onclick="setProgrammeTab(document.querySelector(\'#programme .p-tabs .p-tab:nth-child(2)\'),\'programmes\')">'+trDyn('Choose a programme')+'</button>'
+        +'</div>';
+      sweepTranslate(vide, currentLang);
+      const pb=document.getElementById('progMonPauseBanner'); if(pb){ pb.style.display='none'; pb.innerHTML=''; }
+      const eb=document.getElementById('progMonEditBtn'); if(eb) eb.style.display='none';
+      const pz=document.getElementById('progMonPauseBtn'); if(pz) pz.style.display='none';
+      return;
+    }
+    vide.style.display='none'; vide.innerHTML='';
+    if(heroEl) heroEl.style.display='';
+    if(weeksBlock) weeksBlock.style.display='';
+    const eb=document.getElementById('progMonEditBtn'); if(eb) eb.style.display='';
+  }
   if(p) semaineActuelle = getProgrammeProgress(p).weekIndex;   // recalculé avant lecture, jamais lu périmé
   const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
   set('progMon_title', p ? p.nom_marketing : '—');
   set('progMon_obj', p ? p.objectif.join(' · ') : '—');
-  set('progMon_semaine', p ? ('Week '+semaineActuelle+'/'+p.duree_semaines) : '—');
+  // « Semaine 1/4 » promettait une fin qui n'existe pas : la progression avance aux SÉANCES FAITES,
+  // pas au calendrier (weekIndex = ⌊faites ÷ fréquence⌋ + 1). Quelqu'un qui fait une séance par semaine
+  // met trois mois et l'écran affichait toujours « /4 ». Ce choix — ne punir personne pour une semaine
+  // creuse — est le bon ; il fallait juste arrêter de l'habiller en durée. La ligne dit désormais depuis
+  // quand ça dure, ce qui est vrai, et le vrai compteur (séances) est déjà juste en dessous.
+  set('progMon_semaine', p ? programmeDepuisLabel() : '—');
   // Barre de progression réelle (séances faites/total), pas juste "Week X/Y" en texte — même source
   // que getProgrammeProgress() qui pilote déjà la rotation des séances, donc jamais désynchronisée.
   const progressBar=document.getElementById('progMon_progressBar'), progressCount=document.getElementById('progMon_progressCount');
@@ -15097,9 +15197,36 @@ function renderProgMonView(){
     const prog=getProgrammeProgress(p);
     const pct=prog.totalSessions>0 ? Math.round(prog.completedCount/prog.totalSessions*100) : 0;
     progressBar.style.width=pct+'%';
-    progressCount.textContent=prog.completedCount+'/'+prog.totalSessions+' sessions';
+    progressCount.textContent=trDyn(Math.min(prog.completedCount, prog.totalSessions)+'/'+prog.totalSessions+' sessions');
   } else if(progressBar && progressCount){
     progressBar.style.width='0%'; progressCount.textContent='—';
+  }
+  // Fin de programme. Le moment le plus fort du parcours n'était traité que par une ligne de coach-tip
+  // (« Programme complete — nice work! 🎉 ») : aucun bilan, aucune suite proposée. La carte bascule
+  // donc en état de clôture — ce qui a été fait pendant CE programme (mêmes bornes que le récap
+  // d'archivage), et deux portes : le refaire, ou en choisir un autre. Le reste de l'écran (séance du
+  // jour, semaine en cours, semaines à venir) n'a plus de sens une fois le programme terminé.
+  const doneEl=document.getElementById('progMonDone');
+  const estTermine = p ? getProgrammeProgress(p).done : false;
+  if(doneEl){
+    if(estTermine){
+      const pr=getProgrammeProgress(p);
+      const sess = programmeActifDepuis!==null ? userSessionHistory.filter(h=>h.date>=programmeActifDepuis) : [];
+      const minutes = sess.reduce((t,h)=>t+(h.duree||0),0);
+      const semaines = programmeActifDepuis ? Math.max(1, Math.round((Date.now()-programmeActifDepuis)/(7*HIST_DAY))) : p.duree_semaines;
+      const cel=(v,l)=>'<div style="flex:1;text-align:center;"><div style="font-size:22px;font-weight:800;color:var(--white);">'+v+'</div><div style="font-size:11px;color:var(--gray2);">'+l+'</div></div>';
+      doneEl.style.display='';
+      doneEl.innerHTML='<div class="card-sm" style="border-color:var(--brand-fixed);margin-bottom:16px;">'
+        +'<div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--brand-fixed);margin-bottom:6px;">'+trDyn('Programme completed')+'</div>'
+        +'<div style="font-size:18px;font-weight:800;color:var(--white);margin-bottom:12px;">'+p.nom_marketing+'</div>'
+        +'<div style="display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">'
+          +cel(Math.min(pr.completedCount, pr.totalSessions), trDyn('sessions'))+cel(minutes, trDyn('minutes'))+cel(semaines, trDyn('weeks'))
+        +'</div>'
+        +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:14px;" onclick="activerProgramme(\''+p.id+'\')">'+trDyn('Do it again')+'</button>'
+        +'<button class="btn btn-outline" style="width:100%;margin-top:10px;" onclick="setProgrammeTab(document.querySelector(\'#programme .p-tabs .p-tab:nth-child(2)\'),\'programmes\')">'+trDyn('Choose another programme')+'</button>'
+        +'</div>';
+    } else { doneEl.style.display='none'; doneEl.innerHTML=''; }
+    if(weeksBlock) weeksBlock.style.display = estTermine ? 'none' : '';
   }
   const thumb=document.getElementById('progMon_thumb');
   if(thumb){
@@ -15123,7 +15250,9 @@ function renderProgMonView(){
         +'</div>';
     } else {
       pauseBanner.style.display='none';
-      seanceWrap.style.display='block';
+      // Programme terminé : plus de séance du jour ni de semaines à venir — la carte de clôture
+      // (progMonDone) tient seule l'écran, avec ses deux portes.
+      seanceWrap.style.display = estTermine ? 'none' : 'block';
     }
   }
 
@@ -15211,6 +15340,10 @@ function openChangeProgrammeSheet(){
     +'<button class="btn-outline" style="width:100%;margin-bottom:10px;text-align:left;padding:16px;" onclick="openEditProgrammeSessions()">'
       +'<div style="font-size:14.5px;font-weight:700;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,20l.8-3.8L15.5,5.5a1.8,1.8,0,0,1,2.5,0l.5,.5a1.8,1.8,0,0,1,0,2.5L7.8,19.2,4,20Z /><path d=M13.5,7.5l3,3 /></svg> Edit sessions in this programme</div>'
       +'<div style="font-size:12px;color:var(--gray);font-weight:400;margin-top:2px;">Add, remove or reorder this programme\'s sessions</div>'
+    +'</button>'
+    +'<button class="btn-outline" style="width:100%;margin-bottom:10px;text-align:left;padding:16px;" onclick="arreterProgramme()">'
+      +'<div style="font-size:14.5px;font-weight:700;color:var(--red);"><svg class="ki"><use href="#ki-stop-prog"/></svg> '+trDyn('Stop this programme')+'</div>'
+      +'<div style="font-size:12px;color:var(--gray);font-weight:400;margin-top:2px;">'+trDyn('It goes into your history — you can pick it up again later')+'</div>'
     +'</button>'
     +'<button class="btn-ghost" style="width:100%;color:var(--gray2);" onclick="closeModal()">Cancel</button>');
 }
@@ -16750,7 +16883,7 @@ function renderProgrammeDetail(){
       prog.style.display='';
       prog.innerHTML='<div class="card-sm">'
         +'<div style="display:flex;align-items:baseline;gap:8px;">'
-          +'<div style="font-size:26px;font-weight:800;color:var(--white);line-height:1;">'+pr.completedCount+'/'+pr.totalSessions+'</div>'
+          +'<div style="font-size:26px;font-weight:800;color:var(--white);line-height:1;">'+Math.min(pr.completedCount, pr.totalSessions)+'/'+pr.totalSessions+'</div>'
           +'<div style="font-size:13px;color:var(--gray2);">'+trDyn('sessions done')+'</div>'
         +'</div>'
         +(depuis?'<div style="font-size:11.5px;color:var(--gray2);margin-top:6px;" data-notranslate="1">'+trDyn('Started on')+' '+depuis+'</div>':'')
@@ -16842,7 +16975,7 @@ function activerProgramme(id){
   semaineActuelle = 1;
   sessionActuelle = getSessionDuJour();
   closeModal();
-  toast('✓ '+p.nom_marketing+' activated');
+  toast('✓ '+p.nom_marketing+' — '+trDyn('Programme activated'));
   const monTab = document.querySelector('#programme .p-tabs .p-tab:first-child');
   if(monTab) setProgrammeTab(monTab,'mon');
 }
