@@ -339,6 +339,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 .bnav{height:76px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;padding-bottom:10px;}
 .bnav-item{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:none;background:transparent;padding:8px 2px;}
 .bnav-icon{font-size:22px;line-height:1;}
+.bnav-item{color:var(--gray);}
 .bnav-label{font-size:10px;font-weight:600;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .bnav-item.active .bnav-label{color:var(--orange);}
 .bnav-item .bnav-icon svg{display:block;stroke:var(--gray);}
@@ -5493,7 +5494,7 @@ function renderDefiPartage(){
   // porte que les faits qu'elle seule peut dire. Et "14 jours restants · 14 jours" disait deux fois la
   // meme chose au premier jour : la duree totale part, il reste ce qu'il reste.
   set('dpHead', '<div class="card-sm" style="margin:0;">'
-    + (dp.origine ? '<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--brand-fixed);margin-bottom:5px;">'+libelleCadence(dp.cadence)+'</div>' : '')
+    + (dp.origine ? '<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange);margin-bottom:5px;">'+libelleCadence(dp.cadence)+'</div>' : '')
     +'<div style="font-size:13px;color:var(--white);font-weight:700;">'
       +(fini ? trDyn('Finished') : trDyn(restants+' day'+(restants>1?'s':'')+' left'))
       +'<span style="color:var(--gray2);font-weight:400;"> · '+(function(){
@@ -5729,7 +5730,7 @@ function apercuDefiDate(modeleId){
   const nom=d.cible+' '+uniteLbl(d.unite, d.cible);
   const commence=Date.now()>=d.debut;
   const jours=Math.max(0, Math.ceil((d.fin-Date.now())/HIST_DAY));
-  showModal('<div style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--brand-fixed);">'+libelleCadence(d.cadence)+'</div>'
+  showModal('<div style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--orange);">'+libelleCadence(d.cadence)+'</div>'
     +'<div style="font-size:19px;font-weight:800;color:var(--white);margin-top:4px;">'+nom+'</div>'
     +'<div style="font-size:13.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'
       + trDyn(commence ? 'Everyone is counted from the same day — it has already started.'
@@ -6744,7 +6745,7 @@ function renderProgBnav(viaCoach){
       +'<button class="bnav-item" onclick="go(\'bibliotheque\')"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Exercises')+'</span></button>'
       +'<button class="bnav-item" onclick="setRefView(\'stats\');go(\'dashboard_referent\')"><span class="bnav-icon">'+bnavIconSvg('stats','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Stats')+'</span></button>'
     : '<button class="bnav-item" onclick="go(currentRole===\'user_centre\'?\'home_centre\':\'home\')"><span class="bnav-icon">'+bnavIconSvg('home','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Home')+'</span></button>'
-      +'<button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Library')+'</span></button>'
+      +'<button class="bnav-item" onclick="openLibrary()"><span class="bnav-icon">'+bnavIconSvg('exercises','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Training')+'</span></button>'
       +'<button class="bnav-item" onclick="initAssistantIa();go(\'assistant_ia\')"><span class="bnav-icon" style="position:relative;">'+aiSparkleIcon(22,'var(--gray)')+'<span class="coachIaBadgeDot" style="display:none;position:absolute;top:-1px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg2);"></span></span><span class="bnav-label">'+trDyn('AI Coach')+'</span></button>'
       +'<button class="bnav-item" onclick="go(\'defis\')"><span class="bnav-icon">'+bnavIconSvg('defis','var(--gray)')+'</span><span class="bnav-label">'+trDyn('Challenges')+'</span></button>'
       +'<button class="bnav-item active"><span class="bnav-icon">'+bnavIconSvg('stats','var(--orange)')+'</span><span class="bnav-label" style="color:var(--orange);">'+trDyn('Progress')+'</span></button>';
@@ -9885,7 +9886,7 @@ function defiPartageCardHtml(dp){
   const restants=dpJoursRestants(dp), fini=!dpEnCours(dp);
   return '<div class="card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiPartage(\''+dp.id+'\')">'
     +'<div style="flex:1;min-width:0;">'
-      + (dp.origine ? '<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--brand-fixed);margin-bottom:3px;">'+libelleCadence(dp.cadence)+'</div>' : '')
+      + (dp.origine ? '<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange);margin-bottom:3px;">'+libelleCadence(dp.cadence)+'</div>' : '')
       +'<div style="font-size:14px;font-weight:700;color:var(--white);">'+dpNom(dp)+'</div>'
       +'<div style="font-size:11.5px;color:var(--gray2);margin-top:3px;">'
         // Un classement d'une seule personne n'est pas un classement : tant qu'on est seul, la carte
@@ -9927,7 +9928,11 @@ function renderDefisScreen(){
     }
     // "Creer un defi" vit dans le titre et non sur une carte : une porte n'a pas besoin de 70 px pour
     // dire qu'elle est une porte, et la zone tapable descend a 44 px par le padding.
-    const act=(txt,onclick,ic)=>'<span role="button" tabindex="0" onclick="'+onclick+'" style="font-size:11.5px;font-weight:700;color:var(--brand-fixed);letter-spacing:0;text-transform:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:15px 0 15px 14px;margin-top:-15px;margin-bottom:-15px;">'
+    // --brand-fixed dit "ca va" : un signal, un seuil atteint, une valeur dans la zone. Sa couleur
+    // porte un SENS, elle ne suit donc pas l'accent choisi par la personne. --orange est l'accent :
+    // c'est ce sur quoi on peut appuyer. Ces deux liens sont des actions — ils prenaient l'emeraude
+    // fixe, donc ils restaient verts quand tout le reste de la barre passait a l'orchidee.
+    const act=(txt,onclick,ic)=>'<span role="button" tabindex="0" onclick="'+onclick+'" style="font-size:11.5px;font-weight:700;color:var(--orange);letter-spacing:0;text-transform:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:15px 0 15px 14px;margin-top:-15px;margin-bottom:-15px;">'
       +(ic?'<svg class="ki" style="width:12px;height:12px;"><use href="#'+ic+'"/></svg>':'')+trDyn(txt)+'</span>';
     // Le code d'un defi existait des sa creation, mais aucune porte ne le recevait : on pouvait le
     // partager, jamais s'en servir.
@@ -9942,7 +9947,7 @@ function renderDefisScreen(){
       ? '<div style="margin:15px 20px 8px;font-size:13px;font-weight:800;color:var(--white);letter-spacing:-.1px;">'+trDyn('On a fixed date')+'</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
         + dates.map(d=>'<div class="card-sm" style="margin:0;padding:11px 12px;cursor:pointer;border-color:rgba(var(--brand-fixed-rgb),.32);" onclick="apercuDefiDate(\''+d.modeleId+'\')">'
-            +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--brand-fixed);">'+libelleCadence(d.cadence)+'</div>'
+            +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange);">'+libelleCadence(d.cadence)+'</div>'
             +'<div style="font-size:13px;font-weight:700;color:var(--white);line-height:1.22;margin-top:4px;">'+d.cible+' '+uniteLbl(d.unite, d.cible)+'</div>'
             +'<div style="font-size:10.5px;color:var(--gray2);margin-top:5px;font-variant-numeric:tabular-nums;">'+defiDateFenetreLbl(d)+'</div>'
             +'</div>').join('') + '</div>'
@@ -16550,7 +16555,7 @@ function renderProgMonView(){
   if(seeAll){
     seeAll.innerHTML = p
       ? '<div class="card-sm" style="display:flex;align-items:center;gap:11px;cursor:pointer;border-color:rgba(var(--brand-fixed-rgb),.35);" onclick="openProgrammeDetail(\''+p.id+'\')">'
-        +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--brand-fixed);">'+trDyn('See my whole programme')+'</div>'
+        +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--orange);">'+trDyn('See my whole programme')+'</div>'
         +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(p.duree_semaines+' weeks')+' · '+trDyn((p.frequence*p.duree_semaines)+' sessions')+'</div></div>'
         +'<svg class="ki" style="color:var(--brand-fixed);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>'
       : '';
@@ -16574,7 +16579,7 @@ function renderProgMonView(){
     cat.innerHTML = '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn(p?'What comes next':'Choose a programme')+'</div>'
       + sugg.map(x=>programmeCardHtml(x, false)).join('')
       + '<div class="card-sm" style="display:flex;align-items:center;gap:11px;cursor:pointer;border-color:rgba(var(--brand-fixed-rgb),.3);" onclick="openCatalogueProgrammes()">'
-        +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--brand-fixed);">'+trDyn('All programmes')+'</div>'
+        +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--orange);">'+trDyn('All programmes')+'</div>'
         +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn('Browse by goal')+'</div></div>'
         +'<svg class="ki" style="color:var(--brand-fixed);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>';
     sweepTranslate(cat, currentLang);
