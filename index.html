@@ -2854,7 +2854,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="hero-glow bleed" style="margin:0 -20px 14px;">
       <div id="sdHero" class="kimg r-16-9" style="background-color:#1E1D26;">
         <span id="sdHeroBadge" style="position:absolute;top:14px;left:14px;z-index:2;font-size:11px;font-weight:800;letter-spacing:.3px;padding:5px 11px;border-radius:8px;text-transform:uppercase;"></span>
-        <button id="sdFavBtn" class="icon-btn" onclick="toggleSessionDetailFavori()" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.14);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.18);font-size:17px;"><svg class="ki"><use href="#ki-heart"/></svg></button>
+        <button id="sdFavBtn" class="icon-btn" onclick="toggleSessionDetailFavori()" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.14);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.18);font-size:17px;"><svg class="ki" style="color:var(--ink-on-media);"><use href="#ki-heart"/></svg></button>
         <div id="sdHeroTitle" style="position:absolute;left:16px;right:16px;bottom:14px;z-index:2;font-size:20px;font-weight:800;letter-spacing:-.4px;color:#fff;"></div>
       </div>
     </div>
@@ -5167,6 +5167,24 @@ const DEFIS_CATALOGUE = [
   { id:'DEF-07', nom:'Sixty days of training',sousTitre:'The long one. Two months, no rush.',        unite:'jours',   cible:60,  fenetreJours:120, ic:'ki-bg-months', centreId:null, expedition:true },
   { id:'DEF-08', nom:'Ten hours',             sousTitre:'Six hundred minutes over three months',     unite:'minutes', cible:600, fenetreJours:90, ic:'ki-bg-long',    centreId:null, expedition:true }
 ];
+// Huit défis alignés à plat sous « Rejoindre un défi » : on lisait huit cartes sans savoir laquelle
+// était pour soi. Le réflexe aurait été de ranger par `unite` (minutes / séances / jours / points /
+// zone) — c'est-à-dire par colonne de la base, exactement l'erreur qu'on vient de corriger sur les
+// filtres de l'historique. Un rayon répond à une intention, pas à une unité de mesure.
+// PARTITION et non rayons : contrairement aux séances (20+ cartes, où un rayon montre un échantillon
+// puis « Toutes les séances » liste tout), il n'y en a que huit. Les répéter en dessous ferait 17
+// cartes pour 8 défis. Chaque défi apparaît donc UNE fois, sous la première intention qui le prend —
+// le nombre de cartes ne bouge pas, ce qui change c'est qu'on peut sauter un groupe entier d'un coup.
+const DEFI_RAYONS = [
+  { titre:'Getting back into it', sous:'Short, and reachable',
+    test:(d)=>!d.expedition && d.cible<=10 && (d.unite==='seances' || d.unite==='jours') },
+  { titre:'A month, one goal',    sous:'Long enough to count, short enough to hold',
+    test:(d)=>!d.expedition },
+  { titre:'The long haul',        sous:'Measured in months',
+    test:()=>true }
+];
+// En dessous de ce seuil, grouper coûte plus de titres que ça n'économise de lecture.
+const DEFI_RAYON_MIN = 4;
 let userDefis = [];   // { id, joinedAt, closedAt|null, faitFinal|null } — un défi rejoint
 
 function getDefi(id){ return DEFIS_CATALOGUE.find(d=>d.id===id) || null; }
@@ -9302,9 +9320,22 @@ function renderDefisScreen(){
   }
   if(cat){
     const libres = DEFIS_CATALOGUE.filter(d=>!getUserDefi(d.id));
+    let corps='';
+    if(libres.length>=DEFI_RAYON_MIN){
+      const reste=[...libres];
+      corps = DEFI_RAYONS.map(r=>{
+        const sel=[]; for(let i=reste.length-1;i>=0;i--){ if(r.test(reste[i])) sel.unshift(reste.splice(i,1)[0]); }
+        if(!sel.length) return '';
+        return '<div style="margin:22px 20px 10px;">'
+          +'<div style="font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.2px;">'+trDyn(r.titre)+'</div>'
+          +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(r.sous)+'</div></div>'
+          + sel.map(d=>defiCardHtml(d,null)).join('');
+      }).join('');
+    } else {
+      corps = libres.map(d=>defiCardHtml(d,null)).join('');
+    }
     cat.innerHTML = libres.length
-      ? '<div class="zone-lbl" style="margin-top:'+(userDefis.length?'22':'18')+'px;">JOIN A CHALLENGE</div>'
-        + libres.map(d=>defiCardHtml(d,null)).join('')
+      ? '<div class="zone-lbl" style="margin-top:'+(userDefis.length?'22':'18')+'px;">JOIN A CHALLENGE</div>' + corps
       : '';
     sweepTranslate(cat, currentLang);
   }
@@ -13185,6 +13216,15 @@ const EN_FR = {
   "View my session": "Voir ma séance",
   "Not enough data yet": "Pas encore assez de données",
   "Filters": "Filtres",
+  "The ones I didn't finish": "Que je n'ai pas finies",
+  "Where it hurt": "Où j'ai eu mal",
+  "Everything": "Tout",
+  "Measured in months": "Ça se compte en mois",
+  "Long enough to count, short enough to hold": "Assez long pour compter, assez court pour tenir",
+  "Short, and reachable": "Court, et atteignable",
+  "The long haul": "Le long cours",
+  "A month, one goal": "Un mois, un objectif",
+  "Getting back into it": "Je m'y remets",
   "No exercise matches these filters.": "Aucun exercice ne correspond à ces filtres.",
   "Try a different combination.": "Essaie une autre combinaison.",
   "Custom": "Personnalisé",
@@ -15125,7 +15165,7 @@ function renderLibExoCard(ex){
     +'<div class="lib-meta">'+(ex.equipement==='Aucun' ? trDyn('No equipment needed') : trDyn(ex.equipement))+'</div>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;">'
-    +'<button class="icon-btn" onclick="event.stopPropagation();toggleFavori(\'exercices\',\''+ex.id+'\');renderLibNouveau();" style="background:none;font-size:19px;">'+(fav?'<svg class="ki"><use href="#ki-heart-fill"/></svg>':'<svg class="ki"><use href="#ki-heart"/></svg>')+'</button>'
+    +'<button class="icon-btn" onclick="event.stopPropagation();toggleFavori(\'exercices\',\''+ex.id+'\');renderLibNouveau();" style="background:none;font-size:19px;">'+favHeart(fav)+'</button>'
     // Deux « + » cohabitaient sur le même écran : celui-ci range un exercice EXISTANT dans une séance,
     // le bouton flottant en fabrique un NOUVEAU. Même signe, deux actions sans rapport — et le plus
     // voyant était le moins utilisé. Celui de la carte dit désormais ce qu'il fait.
@@ -15510,12 +15550,23 @@ function toggleFavori(type, id){
   if(idx >= 0) arr.splice(idx, 1); else arr.push(id);
   updateFavoriUI(type, id);
 }
+// Le coeur favori etait le seul pictogramme de l'app sans couleur : ses boutons ne fixent que
+// background/border/font-size, si bien que le SVG resolvait sur noir pur — invisible sur le fond
+// #0A0A0F, sur quatre ecrans (Exercices, Seances, fiche seance, Programmes). Une seule fabrique pour
+// les six emplacements, et deux etats qui suivent la charte : gris tant que ce n'est pas choisi,
+// emeraude une fois choisi — la meme couleur que partout ailleurs ou l'app marque un choix.
+// surMedia : le coeur de la fiche seance est pose sur la photo du hero, ou --gray2 n'a plus de
+// contraste garanti. Il prend l'encre claire fixe des scrims, comme les autres marqueurs sur media.
+function favHeart(on, surMedia){
+  const col = on ? 'var(--brand-fixed)' : (surMedia ? 'var(--ink-on-media)' : 'var(--gray2)');
+  return '<svg class="ki" style="color:'+col+';"><use href="#ki-heart'+(on?'-fill':'')+'"/></svg>';
+}
 function isFavori(type, id){
   return userFavoris[type].includes(id);
 }
 function updateFavoriUI(type, id){
   document.querySelectorAll('[data-favori-type="'+type+'"][data-favori-id="'+id+'"]').forEach(el=>{
-    el.innerHTML = isFavori(type, id) ? '<svg class="ki"><use href="#ki-heart-fill"/></svg>' : '<svg class="ki"><use href="#ki-heart"/></svg>';
+    el.innerHTML = favHeart(isFavori(type, id));
   });
 }
 
@@ -16017,7 +16068,7 @@ function renderSessCard(s, origin){
     +'<div class="lib-tags">'+originPill+'<span class="tag tag-g">'+sessionBadgeLabel(s)+'</span><span class="tag tag-g">'+s.intensite+'</span><span class="tag tag-g">'+s.duree+' min</span></div>'
     +'<div class="lib-meta">'+s.exercices.length+' exercises</div></div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;">'
-    +'<button onclick="event.stopPropagation();toggleFavori(\'sessions\',\''+s.id+'\');renderProgSessionsView();" style="background:none;border:none;font-size:19px;cursor:pointer;">'+(fav?'<svg class="ki"><use href="#ki-heart-fill"/></svg>':'<svg class="ki"><use href="#ki-heart"/></svg>')+'</button>'
+    +'<button onclick="event.stopPropagation();toggleFavori(\'sessions\',\''+s.id+'\');renderProgSessionsView();" style="background:none;border:none;font-size:19px;cursor:pointer;">'+favHeart(fav)+'</button>'
     +'<button onclick="event.stopPropagation();openAddToProgrammeModal(\''+s.id+'\')" style="width:22px;height:22px;border-radius:50%;background:var(--bg3);border:none;color:var(--white);font-size:14px;cursor:pointer;line-height:1;">+</button>'
     +'</div>'
     +'</div>';
@@ -16265,7 +16316,7 @@ function renderSessionDetail(){
       + (s.accroche && s.accroche!=='Sans accroche' ? chip(SD_ICON_BARBELL, s.accroche) : '')
       + extraTags.map(t=>chip('', t)).join('');
   }
-  const favBtn=document.getElementById('sdFavBtn'); if(favBtn){ favBtn.innerHTML = isFavori('sessions', s.id) ? '<svg class="ki"><use href="#ki-heart-fill"/></svg>' : '<svg class="ki"><use href="#ki-heart"/></svg>'; favBtn.style.display = sessionPickMode ? 'none' : 'flex'; }
+  const favBtn=document.getElementById('sdFavBtn'); if(favBtn){ favBtn.innerHTML = favHeart(isFavori('sessions', s.id), true); favBtn.style.display = sessionPickMode ? 'none' : 'flex'; }
   const delBtn=document.getElementById('sdDeleteBtn'); if(delBtn) delBtn.style.display = (isCatalogSession(s.id)||sessionPickMode) ? 'none' : 'block';
   const noteBtn=document.getElementById('sdNoteBtn'); if(noteBtn) noteBtn.style.display = (currentRole==='referent'&&!sessionPickMode) ? 'block' : 'none';
   const startBtn=document.getElementById('sdStartBtn'); if(startBtn) startBtn.style.display = (currentRole==='referent'||sessionPickMode) ? 'none' : 'block';
@@ -16446,7 +16497,7 @@ function onSdDescInput(){
 }
 function toggleSessionDetailFavori(){
   toggleFavori('sessions', window._curSessId);
-  const favBtn=document.getElementById('sdFavBtn'); if(favBtn) favBtn.innerHTML = isFavori('sessions', window._curSessId) ? '<svg class="ki"><use href="#ki-heart-fill"/></svg>' : '<svg class="ki"><use href="#ki-heart"/></svg>';
+  const favBtn=document.getElementById('sdFavBtn'); if(favBtn) favBtn.innerHTML = favHeart(isFavori('sessions', window._curSessId), true);
 }
 function startSessionFromDetail(){ demarrerSessionNouveau(window._curSessId); }
 // Référent : "Assigner cette séance" utilise le modèle (thème/durée/exercices) comme point de départ
@@ -17148,7 +17199,7 @@ function renderProgCard(p, origin){
     +'<div class="lib-tags">'+freqTag+originPill+'<span class="tag tag-g">'+p.niveau+'</span><span class="tag tag-g">'+p.duree_semaines+' weeks</span></div>'
     +'<div class="lib-meta">'+p.objectif+' · '+p.progression+'</div>'
     +'<div style="font-size:12.5px;font-weight:700;color:'+(active?'var(--brand-fixed)':'var(--gray2)')+';margin-top:7px;">'+trDyn(active?'Resume →':'Discover →')+'</div></div>'
-    +'<button onclick="event.stopPropagation();toggleFavori(\'programmes\',\''+p.id+'\');renderProgProgrammesView();" style="background:none;border:none;font-size:19px;cursor:pointer;align-self:center;flex-shrink:0;">'+(fav?'<svg class="ki"><use href="#ki-heart-fill"/></svg>':'<svg class="ki"><use href="#ki-heart"/></svg>')+'</button>'
+    +'<button onclick="event.stopPropagation();toggleFavori(\'programmes\',\''+p.id+'\');renderProgProgrammesView();" style="background:none;border:none;font-size:19px;cursor:pointer;align-self:center;flex-shrink:0;">'+favHeart(fav)+'</button>'
     +'</div>';
 }
 function renderProgProgrammesView(){
@@ -17187,7 +17238,21 @@ const EFFORT_LABELS_HIST = {tres_facile:'Very easy', facile:'Easy', modere:'Mode
 // montré à la personne elle-même, ça se lit comme une accusation plutôt qu'un signal.
 const REP_SOURCE_LABEL={motion:'Auto-detected', manual:'Self-reported', simulated:'Estimated', mixed:'Mixed', none:null};
 let histFilter = 'all';
-const HIST_FILTER_OPTIONS = [{val:'all',label:'All'},{val:'session',label:'Sessions'},{val:'exercice',label:'Exercises'},{val:'programme',label:'Programmes'},{val:'attempt',label:'Interrupted'}];
+// Les filtres etaient Tous / Seances / Exercices / Programmes / Interrompue : quatre sur cinq sont des
+// types d'objet, et chaque ligne de l'historique porte deja son type ecrit en toutes lettres au-dessus
+// du nom. Ce qu'on cherche dans un historique n'est pas "montre-moi les lignes de type Exercice", c'est
+// une question qu'on se pose — meme regle que les rayons de Seances : un filtre repond a une question,
+// jamais a une colonne de la base. Et comme c'est un bouton qu'on presse, il se dit a la premiere
+// personne (cf registre je/tu).
+const HIST_FILTER_OPTIONS = [{val:'all',label:'Everything'},{val:'month',label:'This month'},{val:'pain',label:'Where it hurt'},{val:'attempt',label:"The ones I didn't finish"}];
+const HIST_FILTER_TEST = {
+  all: ()=>true,
+  month: (h)=>{ const d=new Date(); d.setDate(1); d.setHours(0,0,0,0); return h.date>=d.getTime(); },
+  // Seuil a 4 : la charte peint la douleur en vert jusqu'a 3 inclus. "J'ai eu mal" commence la ou
+  // l'app cesse de dire que tout va bien, pas a un chiffre choisi a part.
+  pain: (h)=>h.douleur!=null && h.douleur>=4,
+  attempt: (h)=>h.kind==='attempt'
+};
 function setHistFilter(val){
   histFilter = val;
   updateHistFilterBadge();
@@ -17240,7 +17305,7 @@ function renderProgHistoryList(){
     window._histRenderedItems=[];
     return;
   }
-  if(histFilter!=='all') items=items.filter(h=>histKind(h)===histFilter);
+  if(histFilter!=='all'){ const test=HIST_FILTER_TEST[histFilter]||(()=>true); items=items.filter(test); }
   if(!items.length){
     el.innerHTML='<div class="lib-empty">'+trDyn('Nothing here yet.')+'</div>';
     window._histRenderedItems=[];
