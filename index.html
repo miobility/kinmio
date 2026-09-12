@@ -602,11 +602,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 
 /* ===== PROGRESSION ===== */
 .p-tabs{display:flex;gap:6px;margin:0 20px 16px;}
-/* 43 px de haut au lieu de 35 (audit Progrès) : le seuil tactile de kinmio est à 44 et cette classe
-   porte les onglets de Progrès, Programme, Bibliothèque, Coach IA et tout l'espace coach/directeur.
-   On agrandit la ZONE, pas le DESSIN — seul le padding vertical bouge, la typo et le gabarit horizontal
-   sont inchangés, les rangées gagnent 8 px. */
-.p-tab,.k-tab{flex:1;padding:13px 9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.p-tab,.k-tab{flex:1;padding:9px;background:var(--bg2);border-radius:10px;font-size:12px;font-weight:600;color:var(--gray);text-align:center;cursor:pointer;border:1.5px solid transparent;}
 .p-tab.active,.k-tab.active{border-color:var(--orange);color:var(--orange);background:rgba(var(--orange-rgb),.07);}
 .chart-box,.muscle-box{margin:0 20px 16px;background:var(--bg2);border-radius:16px;padding:18px;border:1px solid var(--border);}
 .chart-t{font-size:14px;font-weight:700;color:var(--white);margin-bottom:16px;}
@@ -1696,10 +1692,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div id="dirFicheFull" style="display:none;">
       <div class="p-tabs" style="margin-top:4px;gap:5px;">
-        <div class="p-tab active" data-key="semaine" style="font-size:11px;padding:14px 4px;" onclick="setDirFicheStatsTab(this,'semaine')">Week</div>
-        <div class="p-tab" data-key="mois" style="font-size:11px;padding:14px 4px;" onclick="setDirFicheStatsTab(this,'mois')">Month</div>
-        <div class="p-tab" data-key="trimestre" style="font-size:11px;padding:14px 4px;" onclick="setDirFicheStatsTab(this,'trimestre')">Quarter</div>
-        <div class="p-tab" data-key="annee" style="font-size:11px;padding:14px 4px;" onclick="setDirFicheStatsTab(this,'annee')">Year</div>
+        <div class="p-tab active" data-key="semaine" style="font-size:11px;padding:9px 4px;" onclick="setDirFicheStatsTab(this,'semaine')">Week</div>
+        <div class="p-tab" data-key="mois" style="font-size:11px;padding:9px 4px;" onclick="setDirFicheStatsTab(this,'mois')">Month</div>
+        <div class="p-tab" data-key="trimestre" style="font-size:11px;padding:9px 4px;" onclick="setDirFicheStatsTab(this,'trimestre')">Quarter</div>
+        <div class="p-tab" data-key="annee" style="font-size:11px;padding:9px 4px;" onclick="setDirFicheStatsTab(this,'annee')">Year</div>
       </div>
       <div class="px" style="display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px;">
         <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setDirFicheStatsNav(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
@@ -2337,10 +2333,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="refv_stats" style="display:none;">
       <div class="topnav"><button class="btn-back" onclick="setRefView('accueil')"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Stats</div><div class="topnav-r"></div></div>
       <div class="p-tabs" style="margin-top:4px;gap:5px;">
-        <div class="p-tab active" style="font-size:11px;padding:14px 4px;" onclick="setRefStatsTab(this,'semaine')">Week</div>
-        <div class="p-tab" style="font-size:11px;padding:14px 4px;" onclick="setRefStatsTab(this,'mois')">Month</div>
-        <div class="p-tab" style="font-size:11px;padding:14px 4px;" onclick="setRefStatsTab(this,'trimestre')">Quarter</div>
-        <div class="p-tab" style="font-size:11px;padding:14px 4px;" onclick="setRefStatsTab(this,'annee')">Year</div>
+        <div class="p-tab active" style="font-size:11px;padding:9px 4px;" onclick="setRefStatsTab(this,'semaine')">Week</div>
+        <div class="p-tab" style="font-size:11px;padding:9px 4px;" onclick="setRefStatsTab(this,'mois')">Month</div>
+        <div class="p-tab" style="font-size:11px;padding:9px 4px;" onclick="setRefStatsTab(this,'trimestre')">Quarter</div>
+        <div class="p-tab" style="font-size:11px;padding:9px 4px;" onclick="setRefStatsTab(this,'annee')">Year</div>
       </div>
       <div class="px" style="display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px;">
         <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setRefStatsNav(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
@@ -3588,10 +3584,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <!-- STATS -->
     <div id="dirv_stats" style="display:none;">
       <div class="p-tabs" style="margin-top:4px;gap:5px;">
-        <div class="p-tab active" data-key="semaine" style="font-size:11px;padding:14px 4px;" onclick="setDirStatsTab(this,'semaine')">Week</div>
-        <div class="p-tab" data-key="mois" style="font-size:11px;padding:14px 4px;" onclick="setDirStatsTab(this,'mois')">Month</div>
-        <div class="p-tab" data-key="trimestre" style="font-size:11px;padding:14px 4px;" onclick="setDirStatsTab(this,'trimestre')">Quarter</div>
-        <div class="p-tab" data-key="annee" style="font-size:11px;padding:14px 4px;" onclick="setDirStatsTab(this,'annee')">Year</div>
+        <div class="p-tab active" data-key="semaine" style="font-size:11px;padding:9px 4px;" onclick="setDirStatsTab(this,'semaine')">Week</div>
+        <div class="p-tab" data-key="mois" style="font-size:11px;padding:9px 4px;" onclick="setDirStatsTab(this,'mois')">Month</div>
+        <div class="p-tab" data-key="trimestre" style="font-size:11px;padding:9px 4px;" onclick="setDirStatsTab(this,'trimestre')">Quarter</div>
+        <div class="p-tab" data-key="annee" style="font-size:11px;padding:9px 4px;" onclick="setDirStatsTab(this,'annee')">Year</div>
       </div>
       <div class="px" style="display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px;">
         <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="setDirStatsNav(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
@@ -9051,14 +9047,8 @@ function computeRealStreak(){
   while(days.has(day)){ streak++; day--; }
   return streak;
 }
-// Sans argument : le record absolu sur tout l'historique — c'est ce dont les badges ont besoin
-// (« 5 jours d'affilée » ne se gagne pas deux fois). Avec une liste de séances : la meilleure série
-// DANS cette fenêtre, pour la carte Régularité, dont tous les autres chiffres sont déjà scopés à la
-// période (audit Progrès : un chiffre tous-temps au milieu d'une carte de période est une rupture de
-// catégorie, et l'info-bulle promettait justement « sur cette période »).
-function computeBestStreak(sessions){
-  const src = sessions || userSessionHistory;
-  const days=[...new Set(src.map(h=>Math.floor(h.date/HIST_DAY)))].sort((a,b)=>a-b);
+function computeBestStreak(){
+  const days=[...new Set(userSessionHistory.map(h=>Math.floor(h.date/HIST_DAY)))].sort((a,b)=>a-b);
   let best=0, cur=0, prev=null;
   days.forEach(d=>{ cur=(prev!==null && d===prev+1) ? cur+1 : 1; best=Math.max(best,cur); prev=d; });
   return best;
@@ -9238,23 +9228,10 @@ function getMonthWeekBars(sessions){
   }
   return bars;
 }
-// Fenêtre glissante de 90j (PROG_PERIOD_DAYS.annee), pas une année calendaire — 'annee' est un nom de
-// clé hérité de l'époque où ce 3e onglet valait une vraie année (le multiplicateur d'objectif avait
-// été corrigé depuis, pas ces barres : elles listaient Jan→Déc sur l'année civile, avec 9 mois
-// structurellement hors fenêtre et donc à zéro quoi qu'il arrive, cf audit Progrès/90 jours). Même
-// construction que getMonthWeekBars, en buckets de 30j. Libellés composés selon currentLang (pas de
-// clé dictionnaire, même raison que getWeekDayBars : recalculés à chaque rendu, jamais rattrapables
-// par sweepTranslate).
 function getYearMonthBars(sessions){
-  const bars=[], bucket=30, nBuckets=Math.ceil(PROG_PERIOD_DAYS.annee/bucket);
-  for(let i=nBuckets-1;i>=0;i--){
-    const to=Date.now()-i*bucket*HIST_DAY, from=to-bucket*HIST_DAY;
-    const label = i===0
-      ? (currentLang==='fr' ? 'Ce mois-ci' : 'This month')
-      : (currentLang==='fr' ? 'Il y a '+(i+1)+' mois' : (i+1)+' months ago');
-    bars.push({l:label, v: sessions.filter(h=>h.date>=from && h.date<to).length});
-  }
-  return bars;
+  const labels=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now=new Date();
+  return labels.map((l,idx)=>({l, v: sessions.filter(h=>{ const d=new Date(h.date); return d.getFullYear()===now.getFullYear() && d.getMonth()===idx; }).length}));
 }
 function getPeriodBars(periodKey, sessions){
   if(periodKey==='semaine') return getWeekDayBars(sessions);
@@ -9379,7 +9356,7 @@ function renderProgPeriod(periodKey){
   // (semaines/an), reliquat de l'époque où ce 3e onglet représentait une année complète plutôt
   // qu'une fenêtre de 90 jours (cf discussion : gonflait l'objectif à ×52 au lieu de ×90/7).
   const goalRounded=Math.round(getWeeklyGoal()*(periodKey==='semaine'?1:periodKey==='mois'?4.33:90/7));
-  const bestStreak=computeBestStreak(sessions);
+  const bestStreak=computeBestStreak();
   // Régularité en JOURS distincts, pas en séances brutes (même principe que Home) — sinon 4 séances le
   // même jour + 0 + 8 un autre jour se lirait comme "12 séances", alors que ça ne fait que 2 vrais jours
   // d'entraînement. Delta en différence absolue de jours (pas en %, trompeur sur un petit nombre entier).
@@ -9471,7 +9448,7 @@ function renderProgPeriod(periodKey){
   // Objectif de l'Accueil. Effet secondaire voulu : passer de 7 à 90 jours ne fait plus chuter le héros
   // de 100% à 13% sans raison — 3/3 → 5/39 montre son dénominateur et explique sa propre chute.
   const regState=periodRegularityState(daysThis, goalRounded);
-  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over the last '+getPeriodLabel(periodKey)+', versus your goal for that window. Best streak = your longest run of consecutive training days in that window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over the last '+getPeriodLabel(periodKey)+', versus your goal for that window. All-time best = your longest run of consecutive training days since you started — that one is not limited to this window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +'<div style="display:flex;align-items:baseline;gap:8px;min-width:0;">'
     +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;flex-shrink:0;">'+daysThis+'/'+goalRounded+'</div>'
@@ -9481,10 +9458,10 @@ function renderProgPeriod(periodKey){
     // Même structure sur les 3 onglets (7/30/90j) — seule la donnée change, jamais la mise en page.
     +'<div style="display:flex;gap:10px;">'
       +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:'+(daysDelta!==0?'var(--white)':'var(--gray2)')+';">'+(daysDelta>0?'+'+daysDelta:daysDelta<0?daysDelta:'→')+(daysDelta!==0?'<span style="font-size:13px;font-weight:700;color:var(--gray2);">d</span>':'')+'</div><div style="font-size:11px;color:var(--gray2);">vs previous '+getPeriodLabel(periodKey)+'</div></div>'
-      // Scopée à la période depuis l'audit : computeBestStreak() balayait TOUT l'historique et ne
-      // recevait jamais la fenêtre — le même chiffre s'affichait sur 7, 30 et 90 jours, sous une
-      // info-bulle qui promettait déjà « sur cette période ». C'est le calcul qui a rejoint la promesse.
-      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--white);">'+bestStreak+'d</div><div style="font-size:11px;color:var(--gray2);">Best streak</div></div>'
+      // "Record absolu" et non "Meilleure série" : computeBestStreak() balaie TOUT l'historique et ne
+      // reçoit jamais la période — le même chiffre s'affichait sur 7, 30 et 90 jours sous une info-bulle
+      // qui promettait "sur cette période". Le libellé dit désormais ce que le calcul fait vraiment.
+      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--white);">'+bestStreak+'d</div><div style="font-size:11px;color:var(--gray2);">All-time best</div></div>'
       +'</div>'
     // Le "0" au-dessus d'une barre vide répétait ce que la barre plate dit déjà — et c'était sa seule
     // fonction. Neuf zéros alignés sur 90 jours. L'absence est le signal ; la hauteur de ligne est
@@ -11635,9 +11612,13 @@ const EN_FR = {
   "Below your usual rhythm": "En dessous de ton rythme",
   "Rhythm to rebuild": "Rythme à reprendre",
   "No goal set": "Pas d'objectif défini",
+  "All-time best": "Record absolu",
   "vs previous 7 days": "vs les 7 jours précédents",
   "vs previous 30 days": "vs les 30 jours précédents",
   "vs previous 90 days": "vs les 90 jours précédents",
+  "How many days you trained over the last 7 days, versus your goal for that window. All-time best = your longest run of consecutive training days since you started — that one is not limited to this window.": "Le nombre de jours où tu t'es entraîné sur les 7 derniers jours, par rapport à ton objectif sur cette période. Record absolu = ta plus longue suite de jours d'entraînement consécutifs depuis le début — celui-là n'est pas limité à cette période.",
+  "How many days you trained over the last 30 days, versus your goal for that window. All-time best = your longest run of consecutive training days since you started — that one is not limited to this window.": "Le nombre de jours où tu t'es entraîné sur les 30 derniers jours, par rapport à ton objectif sur cette période. Record absolu = ta plus longue suite de jours d'entraînement consécutifs depuis le début — celui-là n'est pas limité à cette période.",
+  "How many days you trained over the last 90 days, versus your goal for that window. All-time best = your longest run of consecutive training days since you started — that one is not limited to this window.": "Le nombre de jours où tu t'es entraîné sur les 90 derniers jours, par rapport à ton objectif sur cette période. Record absolu = ta plus longue suite de jours d'entraînement consécutifs depuis le début — celui-là n'est pas limité à cette période.",
   "vs your all-time best 7 days window": "vs ta meilleure période de 7 jours jamais atteinte",
   "vs your all-time best 30 days window": "vs ta meilleure période de 30 jours jamais atteinte",
   "vs your all-time best 90 days window": "vs ta meilleure période de 90 jours jamais atteinte",
@@ -20335,7 +20316,7 @@ function renderCoachThemeFilters(){
   // 42 px de haut : un cran sous les 44 du standard, mais c'est la hauteur de .p-tab partout ailleurs
   // dans l'app, et une rangée de segments jointifs n'a pas de zone morte entre les cibles.
   const seg=(active,label,onclick)=>'<div class="p-tab'+(active?' active':'')
-    +'" style="padding:14px 4px;font-size:11.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" role="button" tabindex="0" onclick="'+onclick+'">'+label+'</div>';
+    +'" style="padding:12px 4px;font-size:11.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" role="button" tabindex="0" onclick="'+onclick+'">'+label+'</div>';
   el.innerHTML = seg(!coachThreadFilter, trDyn('All'), 'setCoachThreadFilter(null)')
     + Object.keys(COACH_THEME_META).map(k=>
         seg(coachThreadFilter===k, trDyn(COACH_THEME_META[k].label), "setCoachThreadFilter('"+k+"')")
