@@ -86,7 +86,11 @@ button,input,select,textarea{font-family:inherit;}
 /* Police des titres/métriques/gros chiffres — Inter reste la police de corps partout ailleurs.
    Voir .topnav-title/.ex-sec-t/.pat-n/.rstat-v/.kstat-v/.ps-title/.h2-hero + le logo texte. */
 --font-head:'Plus Jakarta Sans',sans-serif;
---gray:#7C7B8A;
+/* AUDIT GLOBAL, 13 sept. 2026 — mesure du fond REEL derriere chaque texte. --gray passait le seuil AA
+   sur le fond de page (4,76:1) et ECHOUAIT des qu'il entrait dans une carte : 4,37:1 sur --bg2,
+   4,02:1 sur --bg3. 150 textes sur 298 etaient donc sous le seuil, pour la MEME couleur et le meme
+   mot, selon qu'il y avait une carte derriere. #8F8E9E donne 6,14 / 5,64 / 5,19 — au-dessus partout. */
+--gray:#8F8E9E;
 --gray2:#A8A7B8;
 --border:#2A2935;
 /* Assombri : L65→58%, même hue/saturation donc mêmes marges (23,2° du corail, 45,8° de la
@@ -128,7 +132,9 @@ button,input,select,textarea{font-family:inherit;}
 --bg2:#FFFFFF;
 --bg3:#FCFBF9;
 --white:#16151C;
---gray:#6E6D7A;
+/* Meme defaut, inverse, en theme clair : 4,41:1 sur le fond de page (le plus sombre des trois ici),
+   5,08 sur une carte blanche. #63626F donne 5,20 / 5,99 / 5,79. */
+--gray:#63626F;
 --gray2:#9897A3;
 --border:#E4E2DC;
 --navy:#E8E8F5;
@@ -189,7 +195,8 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 /* ===== MODE PAYSAGE — FLUX D'ENTRAÎNEMENT EN PLEIN ÉCRAN ===== */
 /* Le téléphone est posé en paysage sur la barre : session/next_exercise/feedback/resume passent plein écran. */
 /* Puce détection reps (Auto / Manuel) */
-.detect-chip{border:none;border-radius:12px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--gray2);white-space:nowrap;}
+.detect-chip{position:relative;border:none;border-radius:12px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--gray2);white-space:nowrap;}
+.detect-chip::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 .detect-chip.on{background:rgba(var(--teal-rgb),.15);color:var(--teal);}
 
 @media (orientation:landscape){
@@ -268,6 +275,10 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 /* BUTTONS */
 .btn{width:100%;padding:17px;border:none;border-radius:13px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.2px;transition:opacity .12s;display:flex;align-items:center;justify-content:center;gap:9px;}
 .btn:active{opacity:.82;}
+/* Deuxieme taille declaree (audit global, 13 sept. 2026) : la variante compacte des fenetres et des
+   cartes etait recopiee en style EN LIGNE a chaque usage (font-size:13px;padding:11px), ce qui faisait
+   autant de rendus differents que d'endroits. Une classe, une valeur. */
+.btn-sm{padding:11px;font-size:13px;border-radius:12px;}
 .btn-orange{background:var(--orange-btn);color:#fff;box-shadow:0 8px 16px -8px rgba(var(--orange-rgb),.28),0 2px 5px rgba(var(--orange-rgb),.1);}
 .btn-teal{background:var(--teal-btn);color:#fff;}
 /* Pour les CTA des écrans avant que l'utilisateur ait sa propre plateforme (splash, entrée,
@@ -280,7 +291,8 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
    l'un de l'autre dans cet etat (cf audit onboarding). */
 .btn[disabled]{background:var(--bg3);color:var(--gray);border-color:var(--border);cursor:not-allowed;box-shadow:none;}
 .btn-danger{background:transparent;border:1.5px solid var(--border);color:var(--red);}
-.btn-ghost{background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+.btn-ghost{position:relative;background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+.btn-ghost::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 /* 36 px dessinés, 44 px touchés : le ::after transparent porte la cible sans grossir le bouton ni
    déplacer la mise en page (même remède que .info-i, audit Progrès). */
 .icon-btn{width:36px;height:36px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;position:relative;}
@@ -399,7 +411,7 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .splash-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,.25) 0%,rgba(10,10,15,.15) 40%,rgba(10,10,15,.5) 100%);z-index:1;}
 .splash-cta{position:relative;padding:0 28px 44px;z-index:2;}
 .social-row{display:flex;gap:10px;margin-top:12px;}
-.social-btn{flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.social-btn{flex:1;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:13px;   /* 14px : derive d'un pixel sur le rayon de .btn */font-size:14px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 @keyframes pulse-bar{0%,100%{opacity:.9}50%{opacity:.6}}
 
 /* ===== FORK ===== */
@@ -549,7 +561,8 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .ps-section{margin-bottom:22px;}
 .ps-title{font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;font-family:var(--font-head);}
 .ps-opts{display:flex;gap:8px;flex-wrap:wrap;}
-.ps-opt{padding:8px 13px;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;color:var(--gray2);cursor:pointer;transition:all .15s;}
+.ps-opt{position:relative;padding:8px 13px;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;color:var(--gray2);cursor:pointer;transition:all .15s;}
+.ps-opt::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 .ps-opt.on{border-color:var(--teal);color:var(--teal);background:rgba(var(--teal-rgb),.07);}
 .pain-wrap{background:var(--bg2);border-radius:14px;padding:14px 16px;border:1px solid var(--border);}
 .pain-val{font-size:26px;font-weight:800;color:var(--white);text-align:center;margin-bottom:10px;}
@@ -561,7 +574,8 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 /* ===== SESSION ===== */
 .sess-top{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .sess-prog{font-size:13px;color:var(--gray);font-weight:600;}
-.sess-stop{background:var(--bg2);border:none;border-radius:10px;padding:8px 14px;color:var(--gray);font-size:13px;font-weight:600;cursor:pointer;}
+.sess-stop{position:relative;background:var(--bg2);border:none;border-radius:10px;padding:8px 14px;color:var(--gray);font-size:13px;font-weight:600;cursor:pointer;}
+.sess-stop::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 .sess-pbar{height:3px;background:var(--bg3);margin:0 20px 0;flex-shrink:0;border-radius:2px;overflow:hidden;}
 .sess-pfill{height:100%;width:25%;background:var(--orange);border-radius:2px;}
 .sess-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:safe center;padding:20px;overflow-y:auto;}
@@ -717,6 +731,15 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .lib-fchips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
 .lib-fchips::-webkit-scrollbar{display:none;}
 .lib-chip{position:relative;flex-shrink:0;border:1.5px solid var(--border);background:var(--bg2);color:var(--gray2);border-radius:12px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+/* AUDIT GLOBAL, 13 sept. 2026 — la cible tactile de 44 px, posee systematiquement.
+   Mesure : 51 elements interactifs sous 40 px de hauteur reelle (et non 88 : mon premier comptage
+   ignorait que .lib-chip porte deja cette extension depuis un audit precedent, d'ou 37 faux positifs).
+   Cinq classes en couvraient 20 ; le reste etait des boutons NUS avec padding:0 en ligne, ecrits un
+   par un. Plutot que de les chasser, agrandirCiblesTactiles() pose .tap44 sur tout ce qui est encore
+   trop petit a l'entree d'un ecran — les cas d'aujourd'hui et ceux de demain.
+   Le pseudo-element est absolu : il etend la zone tapable sans deplacer un seul pixel du dessin. */
+.tap44{position:relative;}
+.tap44::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 .lib-chip::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 .lib-chip.on{border-color:var(--orange);color:var(--orange);background:rgba(var(--orange-rgb),.08);}
 .lib-card{display:flex;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;}
@@ -2064,7 +2087,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <div class="screen" id="session">
-  <div id="sessWithRefBadge" style="display:none;text-align:center;padding:8px 16px;background:rgba(var(--teal-rgb),.12);color:var(--teal);font-size:12px;font-weight:700;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Session with Martin Dupont</div>
+  <div id="sessWithRefBadge" style="display:none;text-align:center;padding:8px 16px;background:rgba(var(--teal-rgb),.12);color:var(--teal);font-size:12px;font-weight:700;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> <span>Session with</span> <span data-notranslate>Martin Dupont</span></div>
   <div class="sess-top">
     <div style="display:flex;align-items:center;gap:10px;">
       <div class="sess-prog"></div>
@@ -2097,7 +2120,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div id="sessReadyOverlay" style="display:none;position:absolute;inset:0;background:var(--bg);z-index:56;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0 30px;text-align:center;">
     <div style="font-size:22px;font-weight:800;color:var(--white);">Ready to start?</div>
-    <div id="sessReadySub" style="font-size:14px;color:var(--gray2);">Exercise 1/6</div>
+    <div id="sessReadySub" style="font-size:14px;color:var(--gray2);"></div>
     <button class="btn btn-orange" style="min-width:200px;margin-top:10px;" onclick="confirmSessionReady()">Start →</button>
   </div>
   <div class="sess-main" id="sessRestLayout" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
@@ -6529,6 +6552,7 @@ function go(id){
   if(id==='notifications') setTimeout(syncBell, 30);
   if(id==='home' || id==='home_centre') setTimeout(syncBell, 30);
   setTimeout(syncDefiDot, 30);   // la barre du bas est recopiee par ecran : on repose le point a chaque entree
+  setTimeout(()=>agrandirCiblesTactiles(id), 120);   // apres le rendu de l'ecran
   // Notif "séance planifiée aujourd'hui" (chantier calendrier/auto-assignation) — vérifiée à chaque
   // entrée sur Home, idempotente via _notified (pas de spam si on navigue plusieurs fois dans la journée).
   if(id==='home' || id==='home_centre') checkPlannedNotifToday();
@@ -11446,7 +11470,7 @@ function selectProgCalDay(year, month, day){
     if(statut==='manque'){
       el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
         +'<div style="font-size:13px;color:var(--vigilance);margin-top:4px;font-weight:700;">'+trDyn('Missed')+'</div>'
-        +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:10px;padding:11px;font-size:13px;" onclick="startCatchUpFromCalendar()">'+trDyn('Catch it up →')+'</button>'
+        +'<button class="btn btn-brand-fixed btn-sm" style="width:100%;margin-top:10px;" onclick="startCatchUpFromCalendar()">'+trDyn('Catch it up →')+'</button>'
         +'</div>';
       return;
     }
@@ -11481,7 +11505,7 @@ function selectProgCalDay(year, month, day){
           +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="unassignPlannedDay('+dateObj.getTime()+')">'+trDyn('Remove')+'</button>'
         +'</div>'
       : '<div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div>'
-        +'<button class="btn btn-brand-fixed" style="width:100%;margin-top:10px;padding:11px;font-size:13px;" onclick="assignPlannedDay('+dateObj.getTime()+',\'self\')">'+trDyn('Plan a session here')+'</button>')
+        +'<button class="btn btn-brand-fixed btn-sm" style="width:100%;margin-top:10px;" onclick="assignPlannedDay('+dateObj.getTime()+',\'self\')">'+trDyn('Plan a session here')+'</button>')
     +'</div>';
 }
 // Historique unifié (self ET coach) : voir renderProgHistoryList() plus bas, qui a fusionné cette
@@ -13780,6 +13804,8 @@ const EN_FR = {
   "Inactivity": "Inactivité",
   "High pain": "Douleur élevée",
   "Mild pain": "Douleur légère",
+  "Free trial in progress": "Essai gratuit en cours",
+  "Session with": "Séance avec",
   "AT YOUR OWN PACE": "À TON RYTHME",
   "IN PROGRESS": "EN COURS",
   "Your challenges moved": "Tes d\u00e9fis avancent",
@@ -22437,6 +22463,21 @@ function setResumeCoachMsg(){
 // ecran — un seul endroit a maintenir plutot que vingt.
 let defiBouge = false;
 function marquerDefiBouge(){ defiBouge=true; syncDefiDot(); }
+function agrandirCiblesTactiles(ecran){
+  const racine = ecran ? document.getElementById(ecran) : document;
+  if(!racine) return;
+  racine.querySelectorAll('button, [onclick], [role="button"]').forEach(e=>{
+    if(e.classList.contains('tap44')) return;
+    const r=e.getBoundingClientRect();
+    if(!(r.height>0 && r.width>0) || r.height>=40) return;
+    // On ne touche pas a ce qui porte deja son extension (.lib-chip, .ps-opt, .btn-ghost...).
+    const a=getComputedStyle(e,'::after');
+    if(a && a.content && a.content!=='none' && a.position==='absolute' && parseFloat(a.height)>=40) return;
+    // Ni aux conteneurs : une carte entiere cliquable n'a pas besoin d'etre "agrandie".
+    if(e.children.length>2) return;
+    e.classList.add('tap44');
+  });
+}
 function syncDefiDot(){
   document.querySelectorAll('.screen .bnav .bnav-item').forEach(b=>{
     const lbl=b.querySelector('.bnav-label');
@@ -22480,7 +22521,7 @@ function renderResumeDefis(){
         +'<div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;">'+trDyn('in')+' '+jours+' '+trDyn(jours>1?'days':'day')+' '+trDyn('of')+' '+a.d.fenetreJours+'</div>'
       +'</div>'
       +'<div style="padding:13px 15px;background:var(--bg2);">'
-        +'<button class="btn btn-brand-fixed" style="width:100%;margin:0;padding:11px;font-size:13px;" onclick="openDefiDetail(\''+a.d.id+'\')">'+trDyn('See the detail')+'</button>'
+        +'<button class="btn btn-brand-fixed btn-sm" style="width:100%;margin:0;" onclick="openDefiDetail(\''+a.d.id+'\')">'+trDyn('See the detail')+'</button>'
       +'</div></div>';
   }
   if(lignes.length || atteints.length) marquerDefiBouge();
