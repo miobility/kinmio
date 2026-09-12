@@ -2106,6 +2106,27 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="p-tabs" id="progPTabs" style="flex-shrink:0;">
     <div class="p-tab active" onclick="setProgrammeTab(this,'mon')">Current</div>
     <div class="p-tab" onclick="setProgrammeTab(this,'programmes')">Programmes</div>
+    <div class="p-tab" id="progCalTab" onclick="setProgrammeTab(this,'calendrier')">Calendar</div>
+  </div>
+  <!-- Calendrier déplacé depuis Progrès (audit Progrès, sept. 2026) : ce n'est pas une VUE, c'est
+       l'outil de planification — le seul endroit de toute la plateforme où l'on peut planifier une
+       séance sur un jour libre, déplacer un jour planifié ou un jour de programme, retirer une
+       planification, rattraper un jour manqué. Il vivait à Progrès > Historique > Mois, deux taps dans
+       un onglet dont le nom veut dire « le passé ». Or Programme est l'écran de l'avenir : « mon
+       programme dit 3 fois par semaine » et « le calendrier dit lundi, mercredi, vendredi » sont la
+       même phrase, et les cinq actions du calendrier modifient toutes l'exécution du programme.
+       Conséquence côté Progrès : Historique perd ses sous-onglets et redevient une liste unique. -->
+  <div id="progCalView" class="scroll px" style="display:none;padding-top:4px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
+        <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
+        <div id="progCalNextSlot" style="min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
+      <div id="progCalLegend"></div>
+      <div id="progCalDayDetail" style="margin-top:16px;"></div>
+      <div style="height:84px;"></div>
   </div>
   <div id="progMonView" class="scroll">
       <div class="prog-hero">
@@ -2248,32 +2269,15 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="scroll">
     <div id="progPeriodView" class="px"></div>
-    <div id="progHistSubNav" class="px" style="display:none;padding-bottom:12px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <div class="p-tabs" style="margin:0;max-width:150px;">
-          <div class="p-tab active" id="progHistSubList" onclick="setProgHistSubView('liste')">List</div>
-          <div class="p-tab" id="progHistSubCal" onclick="setProgHistSubView('mois')">Month</div>
-        </div>
-        <button id="progHistFilterBtn" style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openHistFilterModal()"><svg class="ki"><use href="#ki-sliders"/></svg> Filters<span id="histFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
-      </div>
+    <div id="progHistFilterRow" class="px" style="display:none;padding-bottom:12px;text-align:right;">
+      <button id="progHistFilterBtn" style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;" onclick="openHistFilterModal()"><svg class="ki"><use href="#ki-sliders"/></svg> Filters<span id="histFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
     </div>
-    <div id="progRecordsView" class="px" style="display:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <button class="btn-back" style="width:32px;height:32px;font-size:14px;" onclick="shiftProgCalendarMonth(-1)"><svg class="ki"><use href="#ki-back"/></svg></button>
-        <div style="font-size:15px;font-weight:800;" id="progCalMonthLabel">—</div>
-        <div id="progCalNextSlot" style="min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;" id="progCalWeekdays"></div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="progCalGrid"></div>
-      <div id="progCalLegend"></div>
-      <div id="progCalDayDetail" style="margin-top:16px;"></div>
+    <div id="progHistoryView" class="px" style="display:none;">
+      <div id="progHistoryList" style="margin-top:0;"></div>
       <div id="progNotesSection" style="display:none;margin-top:16px;">
         <div class="pt"><h3 class="gap4">My notes</h3></div>
         <div id="progNotesList"></div>
       </div>
-    </div>
-    <div id="progHistoryView" class="px" style="display:none;">
-      <div id="progHistoryList" style="margin-top:0;"></div>
     </div>
     <div style="height:84px;"></div>
   </div>
@@ -7776,9 +7780,12 @@ function weekStripLegendHtml(){
 // Ouvre Progression directement sur son onglet Calendrier. setProgTab est differe apres le setup par
 // defaut de go('progression') (setTimeout(renderProgPeriod,20)), sinon celui-ci ecrase l'onglet — meme
 // precaution que le lien calendrier des modales de rythme.
+// Menait à Progrès > Historique, et comme progHistSubView valait 'liste' par défaut, un lien intitulé
+// « Calendrier » atterrissait en fait sur la LISTE au premier chargement (bug trouvé pendant l'audit).
+// Le calendrier vit maintenant dans Programme, et le lien y va directement.
 function goToCalendar(){
-  go('progression');
-  setTimeout(()=>{ const t=document.getElementById('progTab4'); if(t) t.click(); }, 40);
+  go('programme');
+  setTimeout(()=>{ const t=document.getElementById('progCalTab'); if(t) t.click(); }, 40);
 }
 // Alerte de rythme rendue actionnable au tap (cf discussion "proposerais-tu une reco en cliquant sur
 // l'alerte ?") — réutilise le patron showModal existant (même famille que showInfoSheet) plutôt qu'un
@@ -7863,7 +7870,7 @@ function openObjectifPaceInfo(scope){
     // id==='progression' : setTimeout(renderProgPeriod, 20)) — sinon celui-ci écrase l'onglet Calendrier
     // qu'on vient de sélectionner, 20ms plus tard, et on retombe sur l'onglet période par défaut. Bug
     // trouvé en testant le bouton, pas supposé.
-    ? '<button class="btn-ghost" style="width:100%;margin-top:10px;color:var(--brand-fixed);font-weight:700;" onclick="closeModal();go(\'progression\');setTimeout(()=>setProgTab(document.getElementById(\'progTab4\'),\'records\'),40);">'+trDyn('Plan it on my calendar')+'</button>'
+    ? '<button class="btn-ghost" style="width:100%;margin-top:10px;color:var(--brand-fixed);font-weight:700;" onclick="closeModal();goToCalendar();">'+trDyn('Plan it on my calendar')+'</button>'
     : '';
   const sess=getSessionDuJour();
   const sessBtnLabel = state.kind==='exceeded' ? trDyn('Do a bonus session') : trDyn('View my session');
@@ -9556,24 +9563,21 @@ function renderProgPeriod(periodKey){
   }, 20);
   sweepTranslate(el, currentLang);
 }
-// Historique et calendrier fusionnés (11 sept. 2026) : un seul onglet "Historique", même pour le
-// coach (qui gardait avant un 4e onglet séparé, cf discussion "le calendrier et l'historique sont
-// la même donnée sous deux formes"). progHistSubView choisit laquelle des deux vues s'affiche.
-let progHistSubView='liste';
+// Historique : un seul onglet, une seule liste, pour les deux rôles. Le calendrier a d'abord été
+// fusionné ici (11 sept. 2026, "le calendrier et l'historique sont la même donnée sous deux formes"),
+// puis déplacé dans Programme (audit Progrès) — c'est un outil de planification, pas une relecture du
+// passé, et il n'avait rien à faire dans un onglet qui regarde en arrière.
 function setProgTab(el,view){
   el.closest('.p-tabs').querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   const isHistory = view==='historique';
-  const periodEl=document.getElementById('progPeriodView'), subNav=document.getElementById('progHistSubNav');
+  const periodEl=document.getElementById('progPeriodView'), filterRow=document.getElementById('progHistFilterRow');
+  const histEl=document.getElementById('progHistoryView');
   if(periodEl) periodEl.style.display = isHistory ? 'none' : 'block';
-  if(subNav) subNav.style.display = isHistory ? 'block' : 'none';
+  if(filterRow) filterRow.style.display = isHistory ? 'block' : 'none';
+  if(histEl) histEl.style.display = isHistory ? 'block' : 'none';
   if(isHistory) renderProgHistTab();
-  else {
-    const recEl=document.getElementById('progRecordsView'), histEl=document.getElementById('progHistoryView');
-    if(recEl) recEl.style.display='none';
-    if(histEl) histEl.style.display='none';
-    renderProgPeriod(view);
-  }
+  else renderProgPeriod(view);
   // Charge & Douleur retirées de tout l'onglet Historique, Liste comme Mois (cf audit : ~170px avant
   // d'arriver au contenu, alors que la carte appartient aux onglets 7/30/90j) — reste affichée pour
   // les trois autres onglets.
@@ -9582,20 +9586,14 @@ function setProgTab(el,view){
 }
 // Bascule Liste/Mois à l'intérieur de l'onglet Historique — même donnée (userSessionHistory), deux
 // affichages (cf discussion "pas deux fonctionnalités, un affichage à deux réglages").
-function setProgHistSubView(v){
-  progHistSubView=v;
-  const listT=document.getElementById('progHistSubList'), calT=document.getElementById('progHistSubCal');
-  if(listT) listT.classList.toggle('active', v==='liste');
-  if(calT) calT.classList.toggle('active', v==='mois');
-  const filterBtn=document.getElementById('progHistFilterBtn'); if(filterBtn) filterBtn.style.display = v==='liste' ? 'inline-flex' : 'none';
-  renderProgHistTab();
-}
+// Un seul contenu désormais : la liste. Le calendrier est parti dans Programme (cf commentaire du DOM),
+// donc plus de bascule Liste/Mois — les notes perso restent ici, au pied de la liste : ce sont des
+// traces de ce qui a été fait, pas un outil de planification.
 function renderProgHistTab(){
-  const recEl=document.getElementById('progRecordsView'), histEl=document.getElementById('progHistoryView');
-  const isListe = progHistSubView==='liste';
-  if(recEl) recEl.style.display = isListe ? 'none' : 'block';
-  if(histEl) histEl.style.display = isListe ? 'block' : 'none';
-  if(isListe) renderProgHistoryList(); else renderProgRecords();
+  renderProgHistoryList();
+  const viaCoach = currentRole==='referent' && curPatient;
+  if(viaCoach){ const sec=document.getElementById('progNotesSection'); if(sec) sec.style.display='none'; }
+  else renderPersonalNotes();
 }
 // Calendrier mensuel (remplace l'ancien 4e onglet "Badges" — les badges vivent désormais uniquement
 // dans Défis, cf discussion). Utilise getDayStatus() (cf computeWeekStrip) — mêmes 5 états que la
@@ -9845,14 +9843,9 @@ function autoSelectCalDay(){
   const d=new Date(last.date);
   selectProgCalDay(d.getFullYear(), d.getMonth(), d.getDate());
 }
-function renderProgRecords(){
+function renderProgCalendarView(){
   renderProgCalendar();
   autoSelectCalDay();
-  // Les notes perso sont un objet global, pas rattaché à un patient — jamais montrées côté coach
-  // (même logique que la fuite Marc/patient déjà évitée sur cet écran, cf renderPatientHistoryList).
-  const viaCoach = currentRole==='referent' && curPatient;
-  if(viaCoach){ const sec=document.getElementById('progNotesSection'); if(sec) sec.style.display='none'; }
-  else renderPersonalNotes();
 }
 function renderTopExercises(){
   const favSec=document.getElementById('progFavoritesSection'), favEl=document.getElementById('progFavoritesList');
@@ -14902,8 +14895,8 @@ function programmePhotoFor(p){ return p.photo || THEME_PHOTOS[objectifDisplayKey
 function setProgrammeTab(el, view){
   el.closest('.p-tabs').querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  const views={mon:'progMonView', programmes:'progProgrammesView'};
-  const displayType={mon:'block', programmes:'flex'};
+  const views={mon:'progMonView', programmes:'progProgrammesView', calendrier:'progCalView'};
+  const displayType={mon:'block', programmes:'flex', calendrier:'block'};
   Object.keys(views).forEach(v=>{ const e=document.getElementById(views[v]); if(e) e.style.display=(v===view)?displayType[v]:'none'; });
   const sessView=document.getElementById('progSessionsView'); if(sessView) sessView.style.display='none';
   const pTabs=document.getElementById('progPTabs'); if(pTabs) pTabs.style.display='';
@@ -14915,10 +14908,11 @@ function setProgrammeTab(el, view){
   // programme" semblait envoyer au mauvais endroit, alors que c'était juste un scroll non réinitialisé).
   // Chaque vue a désormais son propre conteneur .scroll (barre de filtres fixe au-dessus) — on cible
   // celui de la vue qui vient de s'afficher, plus le seul .scroll partagé d'avant la restructuration.
-  const scrollIds={mon:'progMonView', programmes:'progProgrammesScroll'};
+  const scrollIds={mon:'progMonView', programmes:'progProgrammesScroll', calendrier:'progCalView'};
   const scrollEl=document.getElementById(scrollIds[view]); if(scrollEl) scrollEl.scrollTop=0;
   if(view==='mon') renderProgMonView();
   else if(view==='programmes') renderProgProgrammesView();
+  else if(view==='calendrier') renderProgCalendarView();
 }
 function showProgMonView(){
   const monTab=document.querySelector('#programme .p-tabs .p-tab:first-child');
