@@ -745,6 +745,33 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 /* Interrupteur des phases de seance (fiche seance, 12 sept. 2026) — le geste iOS : gris a gauche,
    emeraude a droite. --brand-fixed et pas --orange : allumer une phase n'est pas une signaletique
    personnalisable, c'est un etat. */
+/* COUVERTURES DE DEFI (audit Defis, 12 sept. 2026). L'onglet ne portait AUCUNE image — mesure : 0
+   photo, 0 illustration sur 1227 px. Et il n'existe aucune photo faite pour un defi : emprunter une
+   photo de seance creerait la meme fausse promesse que les objectifs d'onboarding (on croit choisir
+   ce qu'on voit), alors qu'une photo de boxe ne raconte rien de "300 minutes en 30 jours".
+   Un defi n'a pas de visage : il a un nombre, une duree, et parfois des gens. C'est ca qu'on dessine.
+   Une teinte par UNITE de mesure — on reconnait le type de defi a la couleur avant de lire. Ce sont
+   les teintes de personnalisation de la charte employees comme MARQUEURS DE CATEGORIE, jamais comme
+   signal d'etat (qui reste emeraude / vigilance / rouge, et ne bouge pas). */
+.dcov{border-radius:14px;overflow:hidden;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:11px 12px;min-height:104px;cursor:pointer;border:1px solid var(--border);}
+.dcov .dn{font-size:26px;font-weight:800;line-height:1;letter-spacing:-.02em;color:#fff;font-family:var(--font-head);}
+.dcov .du{font-size:11px;font-weight:700;color:rgba(255,255,255,.84);margin-top:2px;line-height:1.25;}
+.dcov .dw{font-size:10px;color:rgba(255,255,255,.62);margin-top:5px;font-variant-numeric:tabular-nums;}
+.u-minutes{background:linear-gradient(145deg,#1B6B4A,#26C57B);}
+.u-seances{background:linear-gradient(145deg,#1D4E86,#529CFE);}
+.u-jours  {background:linear-gradient(145deg,#4B2E8A,#A87EFD);}
+.u-serie  {background:linear-gradient(145deg,#6B2A6B,#E85EE8);}
+.u-points {background:linear-gradient(145deg,#7A6413,#B69F2B);}
+.u-zone   {background:linear-gradient(145deg,#126166,#42CFD7);}
+/* Carte large d'un defi date : le rendez-vous merite plus de place que le compteur personnel. */
+.dbig{border-radius:16px;overflow:hidden;border:1px solid var(--border);background:var(--bg2);margin:0 20px 10px;cursor:pointer;}
+.dbig .dtop{display:flex;align-items:flex-end;padding:12px 14px 14px;}
+.dbig .deyeb{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.88);}
+.dbig .dbot{padding:11px 13px 13px;}
+.dbig .dbign{display:block;font-size:34px;font-weight:800;line-height:1;letter-spacing:-.025em;color:#fff;font-family:var(--font-head);margin-top:5px;}
+.dbig .dbigu{display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,.86);margin-top:2px;}
+.dbig .dmeta{font-size:11.5px;color:var(--gray2);margin-top:3px;font-variant-numeric:tabular-nums;}
+.dav{width:24px;height:24px;border-radius:50%;border:2px solid var(--bg2);font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;color:#0A0A0F;margin-right:-7px;flex-shrink:0;}
 .ph-sw{width:47px;height:28px;border-radius:14px;background:var(--bg3);border:1px solid var(--border);position:relative;flex-shrink:0;cursor:pointer;padding:0;transition:background .22s,border-color .22s;}
 .ph-sw::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--white);transition:transform .22s cubic-bezier(.3,.9,.4,1);}
 .ph-sw[aria-checked="true"]{background:var(--brand-fixed);border-color:var(--brand-fixed);}
@@ -2373,9 +2400,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
          un DUEL a une heure, un BADGE n'a ni l'un ni l'autre. L'ordre suit ce qu'on vient y faire :
          ce que j'ai en cours, ce que je peux relever, ce que je lance maintenant, ce que j'ai gagne. -->
     <div id="defisMes"></div>
-    <!-- Le defi de volume hebdo remonte ici : c'est un defi EN COURS, pas une porte d'entree. Il vivait
-         au milieu du bloc social, 1 100 px plus bas, entre une rangee d'avatars et les badges. -->
-    <div id="defisVolumeChallenge" class="card-sm" style="margin:0 20px 0;padding:18px;border-radius:18px;"></div>
     <div id="defisCatalogue"></div>
 
     <div class="zone-lbl" style="margin-top:22px;">DUELS</div>
@@ -5299,16 +5323,6 @@ const DEFIS_CATALOGUE = [
 // puis « Toutes les séances » liste tout), il n'y en a que huit. Les répéter en dessous ferait 17
 // cartes pour 8 défis. Chaque défi apparaît donc UNE fois, sous la première intention qui le prend —
 // le nombre de cartes ne bouge pas, ce qui change c'est qu'on peut sauter un groupe entier d'un coup.
-const DEFI_RAYONS = [
-  { titre:'Getting back into it', 
-    test:(d)=>!d.expedition && d.cible<=10 && (d.unite==='seances' || d.unite==='jours') },
-  { titre:'A month, one goal',    
-    test:(d)=>!d.expedition },
-  { titre:'The long haul',        
-    test:()=>true }
-];
-// En dessous de ce seuil, grouper coûte plus de titres que ça n'économise de lecture.
-const DEFI_RAYON_MIN = 4;
 let userDefis = [];   // { id, joinedAt, closedAt|null, faitFinal|null } — un défi rejoint
 
 function getDefi(id){ return DEFIS_CATALOGUE.find(d=>d.id===id) || null; }
@@ -5354,6 +5368,26 @@ function leaveDefi(id){
 // on classe ET on dit qui l'a atteinte. Un seul objet pour les deux formes.
 let defisPartages = [];
 let dpSeq = 0;
+// BUG CORRIGE LE 12 SEPT. 2026 (audit Defis). L'onglet affichait "Aucun defi rejoint pour l'instant"
+// JUSTE AU-DESSUS d'un defi en cours : deux moteurs cohabitaient. Le "defi de volume hebdomadaire"
+// etait une carte CODEE EN DUR, anterieure au moteur de defis, rendue dans son propre element et
+// toujours affichee ; l'etat vide, lui, ne regardait que userDefis et defisPartages, tous deux vides.
+// Chacun avait raison dans son coin. Or cette carte EST un defi partage date — meme fenetre, meme
+// classement — que defisPartages sait deja modeliser. Elle rejoint donc le moteur, et il n'en reste
+// qu'un. Seede une seule fois au demarrage, sur la semaine calendaire en cours.
+function seedDefiVolumeHebdo(){
+  if(defisPartages.some(x=>x.origine==='VOL-HEBDO')) return;
+  const ami=FRIENDS.find(f=>f.statut==='actif');
+  const debut=lundiDeLaSemaine();
+  defisPartages.push({
+    id:'DP-'+(++dpSeq), unite:'minutes', cible:null, debut:debut, fin:debut+7*HIST_DAY, jours:7,
+    createurId:'kinmio', origine:'VOL-HEBDO', cadence:'semaine',
+    participants:[
+      {id:'me', nom:trDyn('You'), ini:'M', couleur:'var(--brand-fixed)', statut:'in'}
+    ].concat(ami ? [{id:ami.id, nom:ami.nom, ini:ami.ini, couleur:'#529CFE', statut:'in'}] : []),
+    code:(typeof genDefiCode==='function' ? genDefiCode() : 'VOLHEB')
+  });
+}
 
 // Les amis n'ont aujourd'hui aucune donnee d'entrainement (id, nom, ini, statut, online). Meme
 // procede que simulatedFriendWeeklyMinutes, etendu : une graine stable par ami et par unite, pour que
@@ -10011,17 +10045,65 @@ function defiCardHtml(d, entry){
 // Ce qui tombe : le sous-titre (il descend dans la fiche du defi, qui l'affiche deja) et le chevron
 // (la tuile entiere est tapable). Ce qui reste : le nom, et la cible avec sa fenetre — un catalogue
 // dit ce que c'est et ce que ca coute ; le pourquoi s'ouvre quand on hesite.
+// Le NOMBRE devient le heros (audit Defis, 12 sept. 2026). Mesure : SIX titres sur huit ecrivaient la
+// cible en toutes lettres puis la repetaient en chiffres juste dessous — "Trois cents minutes" /
+// "300 minutes · 30 jours". Un defi EST un nombre dans une fenetre de temps ; l'ecrire deux fois n'en
+// fait pas un nom. Le nom litteral disparait de la tuile (il reste sur la fiche, ou il a sa place).
 function defiTileHtml(d){
-  const u=DEFI_UNITES[d.unite]||{lbl:''};
-  return '<div class="card-sm" style="margin:0;padding:11px 12px;cursor:pointer;" onclick="openDefiDetail(\''+d.id+'\')">'
-    // Le pictogramme occupait sa propre ligne : 33 px par rangee, quatre rangees, 132 px — pour un
-    // glyphe pris a la planche des badges, le meme air pour les huit. Il decore, il ne distingue pas.
-    // Il redescend sur la ligne de la cible, ou il coute sa seule hauteur de texte.
-    +'<div style="font-size:13px;font-weight:700;color:var(--white);line-height:1.22;">'+trDyn(d.nom)+'</div>'
-    +'<div style="display:flex;align-items:center;gap:5px;margin-top:6px;font-size:10.5px;color:var(--gray2);font-variant-numeric:tabular-nums;">'
-      +'<svg class="ki" style="width:13px;height:13px;flex-shrink:0;"><use href="#'+d.ic+'"/></svg>'
-      +'<span>'+d.cible+' '+uniteLbl(d.unite, d.cible)+' · '+trDyn(d.fenetreJours+' days')+'</span></div>'
+  return '<div class="dcov u-'+d.unite+'" onclick="openDefiDetail(\''+d.id+'\')">'
+    +'<span class="dn">'+d.cible+'</span>'
+    +'<span class="du">'+uniteLbl(d.unite, d.cible)+'</span>'
+    +'<span class="dw">'+trDyn(d.fenetreJours+' days')+'</span>'
     +'</div>';
+}
+// Qui est deja dans un defi date. Prototype : pas de serveur, donc la liste est DETERMINISTE — meme
+// defi, memes visages a chaque ouverture (friendSeed, deja utilise pour le rythme et le volume des
+// amis). Ne tire que parmi les amis actifs : on ne montre jamais d'inconnu, le cercle reste ferme
+// (cf lot E non fait, decision produit).
+function dpParticipantsProbables(d){
+  const actifs = FRIENDS.filter(f=>f.statut==='actif');
+  return actifs.filter(f=>friendSeed(f, 'date|'+d.modeleId) > 0.35);
+}
+// Version compacte : une pastille teintee par l'unite tient lieu de couverture. Meme information,
+// une ligne — la couleur suffit a dire de quoi il s'agit, c'est tout l'interet d'avoir une teinte
+// par unite plutot qu'une photo.
+function defiDateRowHtml(d){
+  const parts = dpParticipantsProbables(d);
+  return '<div class="card-sm" style="margin:0 20px 9px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="apercuDefiDate(\''+d.modeleId+'\')">'
+    +'<span class="u-'+d.unite+'" style="width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">'
+      +'<span style="font-size:15px;font-weight:800;line-height:1;font-family:var(--font-head);">'+d.cible+'</span></span>'
+    +'<span style="flex:1;min-width:0;">'
+      +'<span style="display:block;font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange);">'+libelleCadence(d.cadence)+'</span>'
+      +'<span style="display:block;font-size:13.5px;font-weight:700;color:var(--white);margin-top:2px;">'+d.cible+' '+uniteLbl(d.unite, d.cible)+'</span>'
+      +'<span style="display:block;font-size:10.5px;color:var(--gray2);margin-top:2px;font-variant-numeric:tabular-nums;">'+defiDateFenetreLbl(d)
+        +(parts.length?' \u00b7 '+parts.length+' '+trDyn(parts.length>1?'people in':'person in'):'')+'</span>'
+    +'</span>'
+    +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg>'
+    +'</div>';
+}
+// Carte large d'un defi date : cover teintee par l'unite, la cible en titre, la fenetre et le monde
+// qui est dedans. Le classement se lit AVANT le tap — c'est ce qui transforme une liste en rendez-vous.
+function defiDateCardHtml(d){
+  const parts = dpParticipantsProbables(d);
+  const initiales = (n)=>n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const COUL=['#26C57B','#529CFE','#A87EFD','#B69F2B','#42CFD7'];
+  const av = parts.slice(0,3).map((f,i)=>'<span class="dav" style="background:'+COUL[i%COUL.length]+';">'+initiales(f.nom)+'</span>').join('')
+    + (parts.length>3 ? '<span class="dav" style="background:var(--bg3);color:var(--gray2);">+'+(parts.length-3)+'</span>' : '');
+  const qui = parts.length
+    ? '<div style="display:flex;align-items:center;margin-top:10px;"><span style="display:flex;">'+av+'</span>'
+      +'<span style="font-size:11px;color:var(--gray2);margin-left:14px;">'+parts.length+' '+trDyn(parts.length>1?'people in':'person in')+'</span></div>'
+    : '<div style="font-size:11px;color:var(--gray2);margin-top:10px;">'+trDyn('Be the first in')+'</div>';
+  return '<div class="dbig" onclick="apercuDefiDate(\''+d.modeleId+'\')">'
+    +'<div class="dtop u-'+d.unite+'">'
+      +'<span style="flex:1;min-width:0;">'
+        +'<span class="deyeb" style="display:block;">'+libelleCadence(d.cadence)+'</span>'
+        +'<span class="dbign">'+d.cible+'</span>'
+        +'<span class="dbigu">'+uniteLbl(d.unite, d.cible)+'</span>'
+      +'</span></div>'
+    +'<div class="dbot">'
+      +'<div class="dmeta" style="margin:0;">'+defiDateFenetreLbl(d)+'</div>'
+      + qui
+    +'</div></div>';
 }
 // Carte d'un defi partage : ce qu'on veut savoir d'un coup d'oeil, c'est OU J'EN SUIS par rapport aux
 // autres et COMBIEN DE TEMPS il reste — pas la cible, qui est dans la fiche.
@@ -10044,87 +10126,69 @@ function defiPartageCardHtml(dp){
     +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg>'
     +'</div>';
 }
+// REFONTE DU 12 SEPT. 2026 (audit Defis). Mesure avant : 54% de l'onglet etait UNE liste de onze
+// cartes au meme dessin (70 a 88 px), melangeant deux familles qui n'ont rien a voir — trois
+// rendez-vous DATES avec du monde dedans et un classement, huit compteurs personnels GLISSANTS qu'on
+// porte seul. Rien a l'ecran ne les distinguait. La structure et le vocabulaire (defi/duel/badge,
+// quatre sections, glissant sans echec) sont bons et tranches : seul le dessin change.
+let defisVoirTout = false;   // "A ton rythme" se replie a 4 sur 8 — repli, pas suppression
+function toggleDefisVoirTout(){ defisVoirTout=!defisVoirTout; renderDefisScreen(); }
 function renderDefisScreen(){
+  seedDefiVolumeHebdo();   // un seul moteur : la vieille carte codee en dur est devenue une entree
   const mes=document.getElementById('defisMes'), cat=document.getElementById('defisCatalogue');
   if(mes){
-    // Le titre ne depend plus de userDefis : le defi de volume hebdomadaire le suit toujours, et un
-    // bloc sans titre juste au-dessus d'un autre titre se lisait comme sa legende.
-    const vide = !userDefis.length && !defisPartages.length;
-    mes.innerHTML = '<div class="zone-lbl" style="margin-top:18px;">MY CHALLENGES</div>'
-      + defisPartages.map(defiPartageCardHtml).join('')
-      + userDefis.map(u=>{ const d=getDefi(u.id); return d?defiCardHtml(d,u):''; }).join('')
-      + (vide ? '<div style="margin:0 20px 10px;font-size:12px;color:var(--gray);">'+trDyn('No challenge joined yet.')+'</div>' : '');
+    // "MES DEFIS" devient "EN COURS", et la section DISPARAIT quand elle est vide : un titre suivi
+    // d'une phrase d'absence occupait la premiere place de l'ecran pour dire qu'il n'y a rien. Quand
+    // rien n'est en cours, "Cette semaine, avec les autres" prend la tete — ce qu'on veut faire faire.
+    const enCours = defisPartages.length + userDefis.length;
+    mes.innerHTML = enCours
+      ? '<div class="zone-lbl" style="margin-top:18px;">IN PROGRESS</div>'
+        + defisPartages.map(defiPartageCardHtml).join('')
+        + userDefis.map(u=>{ const d=getDefi(u.id); return d?defiCardHtml(d,u):''; }).join('')
+      : '';
     sweepTranslate(mes, currentLang);
   }
   if(cat){
-    const libres = DEFIS_CATALOGUE.filter(d=>!getUserDefi(d.id));
-    let corps='';
-    if(libres.length>=DEFI_RAYON_MIN){
-      const reste=[...libres];
-      corps = DEFI_RAYONS.map(r=>{
-        const sel=[]; for(let i=reste.length-1;i>=0;i--){ if(r.test(reste[i])) sel.unshift(reste.splice(i,1)[0]); }
-        if(!sel.length) return '';
-        return '<div style="margin:15px 20px 8px;font-size:13px;font-weight:800;color:var(--white);letter-spacing:-.1px;">'+trDyn(r.titre)+'</div>'
-          +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
-          + sel.map(defiTileHtml).join('') + '</div>';
-      }).join('');
-    } else {
-      corps = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
-        + libres.map(defiTileHtml).join('') + '</div>';
-    }
-    // "Creer un defi" vit dans le titre et non sur une carte : une porte n'a pas besoin de 70 px pour
-    // dire qu'elle est une porte, et la zone tapable descend a 44 px par le padding.
-    // --brand-fixed dit "ca va" : un signal, un seuil atteint, une valeur dans la zone. Sa couleur
-    // porte un SENS, elle ne suit donc pas l'accent choisi par la personne. --orange est l'accent :
-    // c'est ce sur quoi on peut appuyer. Ces deux liens sont des actions — ils prenaient l'emeraude
-    // fixe, donc ils restaient verts quand tout le reste de la barre passait a l'orchidee.
+    // --brand-fixed dit "ca va" : un signal. --orange est l'accent, ce sur quoi on peut appuyer.
+    // Ces deux liens sont des ACTIONS, donc l'accent.
     const act=(txt,onclick,ic)=>'<span role="button" tabindex="0" onclick="'+onclick+'" style="font-size:11.5px;font-weight:700;color:var(--orange);letter-spacing:0;text-transform:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:15px 0 15px 14px;margin-top:-15px;margin-bottom:-15px;">'
       +(ic?'<svg class="ki" style="width:12px;height:12px;"><use href="#'+ic+'"/></svg>':'')+trDyn(txt)+'</span>';
-    // Le code d'un defi existait des sa creation, mais aucune porte ne le recevait : on pouvait le
-    // partager, jamais s'en servir.
     const creer='<span style="margin-left:auto;display:inline-flex;align-items:center;">'
       + act('I have a code','openRejoindreParCode()',null)
       + act('Create a challenge','openCreerDefi()','ki-plus') + '</span>';
-    // Les dates passent DEVANT les glissants : ils ont une echeance, et un rendez-vous qu'on decouvre
-    // apres coup n'est plus un rendez-vous. Ceux qu'on a deja rejoints disparaissent d'ici — ils sont
-    // remontes dans "Mes defis".
+
+    // RAYON 1 — les dates. Rendez-vous : fenetre commune, du monde dedans, ca tourne chaque semaine.
+    // Cartes larges, une par ligne : elles ont plus a dire qu'un compteur personnel.
     const dates=defisDatesProposes().filter(d=>!defiDateDejaRejoint(d));
     const blocDates = dates.length
-      ? '<div style="margin:15px 20px 8px;font-size:13px;font-weight:800;color:var(--white);letter-spacing:-.1px;">'+trDyn('On a fixed date')+'</div>'
-        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
-        + dates.map(d=>'<div class="card-sm" style="margin:0;padding:11px 12px;cursor:pointer;border-color:rgba(var(--brand-fixed-rgb),.32);" onclick="apercuDefiDate(\''+d.modeleId+'\')">'
-            +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange);">'+libelleCadence(d.cadence)+'</div>'
-            +'<div style="font-size:13px;font-weight:700;color:var(--white);line-height:1.22;margin-top:4px;">'+d.cible+' '+uniteLbl(d.unite, d.cible)+'</div>'
-            +'<div style="font-size:10.5px;color:var(--gray2);margin-top:5px;font-variant-numeric:tabular-nums;">'+defiDateFenetreLbl(d)+'</div>'
-            +'</div>').join('') + '</div>'
+      // La PREMIERE en grand, les suivantes en ligne compacte. Trois cartes larges faisaient monter
+      // l'onglet de 1227 a 1466 px — mesure faite, et l'inverse de ce qu'on cherche. Une seule mise en
+      // avant suffit a dire "c'est un rendez-vous" ; les autres se lisent en une ligne.
+      ? '<div class="zone-lbl" style="margin:22px 0 10px;display:flex;align-items:center;">'+trDyn('WITH OTHERS')+creer+'</div>'
+        + defiDateCardHtml(dates[0])
+        + dates.slice(1).map(defiDateRowHtml).join('')
       : '';
-    cat.innerHTML = '<div class="zone-lbl" style="margin-top:22px;display:flex;align-items:center;">'+trDyn('TO TAKE ON')+creer+'</div>'
-      + blocDates + (libres.length ? corps : '');
+
+    // RAYON 2 — les glissants. On est seul, la fenetre demarre au moment ou on rejoint. Grille de
+    // deux, repliee a 4 : huit tuiles font quatre rangees, quatre en font deux.
+    const libres = DEFIS_CATALOGUE.filter(d=>!getUserDefi(d.id));
+    const montres = defisVoirTout ? libres : libres.slice(0,4);
+    const blocSolo = libres.length
+      ? '<div class="zone-lbl" style="margin:22px 0 10px;display:flex;align-items:center;justify-content:space-between;">'
+          + trDyn('AT YOUR OWN PACE')
+          + (dates.length ? '' : creer)
+        + '</div>'
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
+        + montres.map(defiTileHtml).join('') + '</div>'
+        + (libres.length>4
+            ? '<div style="text-align:center;margin-top:11px;"><span role="button" tabindex="0" onclick="toggleDefisVoirTout()" style="font-size:12.5px;font-weight:700;color:var(--orange);cursor:pointer;padding:12px 16px;display:inline-block;">'
+              + (defisVoirTout ? trDyn('Show less') : trDyn('See all')+' '+libres.length+' \u203a') + '</span></div>'
+            : '')
+      : '';
+    cat.innerHTML = blocDates + blocSolo;
     sweepTranslate(cat, currentLang);
   }
   renderProgBadges('defisBadgesSection');
-  renderDefiVolumeChallenge();
-}
-function renderDefiVolumeChallenge(){
-  const el=document.getElementById('defisVolumeChallenge'); if(!el) return;
-  const friend=FRIENDS.find(f=>f.statut==='actif') || {id:'demo', nom:'Léa Martin'};
-  const you=getUserWeeklyMinutes(), them=simulatedFriendWeeklyMinutes(friend);
-  const max=Math.max(you, them, 1);
-  const daysLeft=getChallengeDaysLeft();
-  // 161 px pour comparer deux nombres : un pictogramme decoratif, deux barres empilees chacune avec son
-  // nom au-dessus et sa valeur a droite, et un titre sur deux lignes. La meme regle que les tuiles du
-  // catalogue s'applique — deux barres superposees disent l'ecart aussi bien quand elles sont fines et
-  // collees, et le nom peut vivre SUR la ligne plutot qu'au-dessus. Le pictogramme part : il ne
-  // distinguait rien, c'etait le seul objet de l'ecran a en porter un.
-  const ligne=(nom, val, pct, couleur, fort)=>'<div style="display:flex;align-items:center;gap:9px;margin-top:7px;">'
-    +'<span style="font-size:12px;'+(fort?'font-weight:700;color:var(--white);':'color:var(--gray2);')+'width:76px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nom+'</span>'
-    +'<span style="flex:1;height:6px;border-radius:4px;background:var(--border);overflow:hidden;"><span style="display:block;width:'+pct+'%;height:100%;border-radius:4px;background:'+couleur+';"></span></span>'
-    +'<span style="font-size:11.5px;color:var(--gray2);width:46px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;">'+val+' min</span></div>';
-  el.innerHTML = '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;">'
-      +'<span style="font-size:13.5px;font-weight:700;color:var(--white);">'+trDyn('Weekly volume challenge')+'</span>'
-      +'<span style="font-size:11px;color:var(--gray);flex-shrink:0;">'+trDyn(daysLeft+' day'+(daysLeft>1?'s':'')+' left')+'</span></div>'
-    + ligne(trDyn('You'), you, Math.round(you/max*100), 'var(--brand-fixed)', true)
-    + ligne(trDyn(friend.nom), them, Math.round(them/max*100), '#529CFE', false);
 }
 // Score Kinmio du jour — même formule que l'Intensity% (minutes×jauge / reps×résistance), juste à
 // l'échelle de la séance plutôt que de la fenêtre 7/30/90j : l'objectif du jour = le score que donnerait
@@ -10572,6 +10636,8 @@ function getRealBadges(){
     {k:'zone',    ic:'ki-bg-zone',    t:'In the zone',    d:'80%+ time on target', unlocked: zoneMastered80}
   ];
 }
+let badgesVoirTout = false;
+function toggleBadgesVoirTout(){ badgesVoirTout=!badgesVoirTout; renderProgBadges('defisBadgesSection'); }
 function renderProgBadges(elId){
   const el=document.getElementById(elId); if(!el) return;
   const badges0=getRealBadges(), total=userSessionHistory.length;
@@ -10580,10 +10646,20 @@ function renderProgBadges(elId){
   // en rangee defilante les premiers sont les seuls vus sans geste.
   const badges=[...badges0].sort((a,b)=>(b.unlocked?1:0)-(a.unlocked?1:0));
   const nbOk=badges.filter(b=>b.unlocked).length;
+  // Sur l'onglet Defis, la planche se replie a 4 (audit 12 sept. : il fallait derouler DEUX ecrans
+  // pour voir les 2 badges gagnes sur 9). Les acquis sont deja en tete du tri, donc ce sont eux qu'on
+  // voit sans geste — un badge gagne est une recompense, elle ne se merite pas une deuxieme fois en
+  // deroulant. Sur Progres, la planche reste entiere : c'est une vitrine, on vient pour la voir.
+  const replie = (elId==='defisBadgesSection') && !badgesVoirTout && badges.length>4;
+  const montres = replie ? badges.slice(0,4) : badges;
   el.innerHTML='<div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 20px 10px;"><span style="font-size:11.5px;color:var(--gray2);">'+(currentLang==='fr' ? nbOk+' sur '+badges.length : nbOk+' of '+badges.length)+'</span></div>'
     +'<div class="badges-grid">'
-    +badges.map(b=>'<div class="badge-card'+(b.unlocked?'':' lock')+'" style="cursor:pointer;" onclick="openBadgeDetail(\''+b.k+'\')"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div></div>').join('')
+    +montres.map(b=>'<div class="badge-card'+(b.unlocked?'':' lock')+'" style="cursor:pointer;" onclick="openBadgeDetail(\''+b.k+'\')"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div></div>').join('')
     +'</div>'
+    +((elId==='defisBadgesSection' && badges.length>4)
+      ? '<div style="text-align:center;margin-top:9px;"><span role="button" tabindex="0" onclick="toggleBadgesVoirTout()" style="font-size:12.5px;font-weight:700;color:var(--orange);cursor:pointer;padding:12px 16px;display:inline-block;">'
+        + (badgesVoirTout ? trDyn('Show less') : trDyn('See all')+' '+badges.length+' \u203a') + '</span></div>'
+      : '')
     +(next ? '<div style="margin-top:12px;font-size:13px;color:var(--white);display:flex;align-items:center;gap:7px;"><span style="color:var(--gray2);display:inline-flex;"><svg class="ki" style="width:15px;height:15px;"><use href="#'+next.ic+'"/></svg></span><span>'+trDyn('Next badge')+' : '+trDyn(next.t)+' — '+(next.target-total)+' '+trDyn('to go')+'</span></div>'
       +'<div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:6px;"><div style="height:100%;width:'+Math.round(total/next.target*100)+'%;background:var(--orange);border-radius:3px;"></div></div>'
       +'<div style="font-size:11px;color:var(--gray);margin-top:4px;">'+total+'/'+next.target+'</div>' : '');
@@ -13514,6 +13590,13 @@ const EN_FR = {
   "Inactivity": "Inactivité",
   "High pain": "Douleur élevée",
   "Mild pain": "Douleur légère",
+  "WITH OTHERS": "AVEC LES AUTRES",
+  "AT YOUR OWN PACE": "À TON RYTHME",
+  "IN PROGRESS": "EN COURS",
+  "Show less": "Voir moins",
+  "people in": "personnes dedans",
+  "person in": "personne dedans",
+  "Be the first in": "Sois le premier dedans",
   "level": "niveau",
   "outside the zone": "hors de la zone",
   "day outside the zone": "jour hors de la zone",
@@ -14611,7 +14694,7 @@ const EN_FR_PATTERNS = [
   [/^Suggested level (\d+) on $/, (m)=>`Niveau ${m[1]} proposé sur `],
   [/^Moved to (\d+)x\/week on $/, (m)=>`Passé à ${m[1]}x/semaine sur `],
   [/^Suggested (\d+)x\/week on $/, (m)=>`${m[1]}x/semaine proposé sur `],
-  // Défi de volume hebdo (Défis, renderDefiVolumeChallenge).
+  // Défis — "N min" et "N jours restants", composés au rendu dans les cartes de défi partagé.
   [/^(\d+) min$/, (m)=>`${m[1]} min`],
   [/^(\d+) days? left$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''} restant${Number(m[1])>1?'s':''}`],
   // Résumé "N coaches · avg M members/coach" (onglet Coaches, direction) — "coach" traduit en "référent"
