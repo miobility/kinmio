@@ -8685,12 +8685,20 @@ function renderProgSafetyBlock(elId){
 function getTrainDays(){ return (Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]); }
 // Compte les jours "Manqué" entre deux dates (utilisé pour le cycle, qui n'a pas de weekStrip tout fait
 // comme la semaine — un simple passage jour par jour, jamais plus de 8×7=56 itérations).
+// Compte les jours REELLEMENT manques sur une fenetre : une seance faite hors jour choisi efface le
+// manque le plus recent qui la precede (cf appliquerDeplacements). Avant, cette fonction jugeait chaque
+// jour seul et annonçait donc, sur un cycle de 4 semaines, autant de manques qu'il y avait de jours
+// choisis sans seance — meme quand toutes les seances avaient ete faites, simplement d'autres jours.
+const NOMS_JOURS_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 function countManqueInWindow(start, end, trainDays){
-  let count=0;
+  const liste=[], noms=[];
   for(let t=start.getTime(); t<end.getTime(); t+=HIST_DAY){
-    if(getDayStatus(new Date(t), trainDays).statut==='manque') count++;
+    const d=new Date(t);
+    liste.push({statut:getDayStatus(d, trainDays).statut});
+    noms.push(NOMS_JOURS_EN[d.getDay()]);
   }
-  return count;
+  appliquerDeplacements(liste, noms, trainDays);
+  return liste.filter(x=>x.statut==='manque').length;
 }
 // Classification unique, réutilisée par la carte (label court) ET la modale (texte long) — jamais deux
 // formules qui pourraient diverger (cf bug déjà rencontré sur ce même bloc). "covered" = jours faits +
@@ -9553,12 +9561,41 @@ function computeWeekStrip(){
   const now=new Date();
   const monday=new Date(now); monday.setDate(now.getDate()-((now.getDay()+6)%7)); monday.setHours(0,0,0,0);
   const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
-  return dayNames.map((name,i)=>{
+  const strip = dayNames.map((name,i)=>{
     const d=new Date(monday); d.setDate(monday.getDate()+i);
     const isToday=d.toDateString()===now.toDateString();
     const {statut, sessionId}=getDayStatus(d, trainDays);
     return {j:name.slice(0,3), statut, today:isToday, sessionId, date:d.getTime()};
   });
+  // UNE SEANCE DEPLACEE N'EST PAS UNE SEANCE MANQUEE (13 sept. 2026).
+  // getDayStatus juge chaque jour SEUL : un jour d'entrainement passe sans seance est "manque", et un
+  // jour ou l'on s'est entraine est "fait" ou qu'il tombe. Consequence mesuree : jours choisis
+  // lundi/mercredi/vendredi, seances faites mardi et jeudi => 3 manques ET 2 faits, soit CINQ marques
+  // pour un objectif de TROIS jours. Les deux compteurs ne parlaient pas la meme langue, et la frise
+  // annoncait trois manques au-dessus d'un "1 jour a rattraper" — qui, lui, etait juste (objectif 3,
+  // faits 2, reste 1).
+  // La correction se fait ici, au niveau de la SEMAINE, parce qu'elle demande de voir tous les jours a
+  // la fois : chaque seance faite hors jour choisi efface le manque le plus recent qui la precede.
+  // Mardi absout lundi, jeudi absout mercredi, vendredi reste vraiment manque. Resultat : 2 faits +
+  // 1 manque = 3 = l'objectif, et "a rattraper" colle enfin au nombre de manques affiches.
+  // Le jour absous retombe sur "libre" — neutre, rien a signaler : la seance n'a pas ete perdue.
+  appliquerDeplacements(strip, dayNames, trainDays);
+  return strip;
+}
+// La regle ci-dessus, isolee pour que la semaine (frise de l'Accueil) et le CYCLE (countManqueInWindow)
+// comptent pareil. Les deux appelaient getDayStatus jour par jour, donc les deux surcomptaient les
+// manques de la meme facon — corriger un seul des deux aurait cree une nouvelle divergence entre la
+// carte "cette semaine" et la carte "cycle", posees l'une sous l'autre dans le meme bloc.
+// `liste` : tableau d'objets {statut}. `noms` : le nom complet du jour a chaque index.
+function appliquerDeplacements(liste, noms, trainDays){
+  liste.forEach((jour,i)=>{
+    if(jour.statut!=='fait') return;
+    if(trainDays.includes(noms[i])) return;   // fait un jour choisi : il n'absout personne
+    for(let k=i-1;k>=0;k--){
+      if(liste[k].statut==='manque'){ liste[k].statut='libre'; return; }
+    }
+  });
+  return liste;
 }
 // Auto-assignation (chantier calendrier, cf discussion) — un seul point d'écriture pour les 2 entrées
 // (alerte de rattrapage Home, calendrier Progress), pour que la frise et le calendrier restent
@@ -11163,11 +11200,23 @@ function renderProgCalendar(){
   const trainDays=(Array.isArray(profile.jours)&&profile.jours.length)?profile.jours:(FREQ_DAYS_EN[profile.freq||3]||FREQ_DAYS_EN[3]);
   const todayD=new Date();
   const today0=new Date(todayD.getFullYear(), todayD.getMonth(), todayD.getDate());
+  // Le calendrier applique la MEME regle que la frise de l'Accueil (cf appliquerDeplacements) : une
+  // seance faite hors jour choisi efface le manque le plus recent qui la precede. Sans ca, l'Accueil
+  // aurait annonce un seul manque pendant que le calendrier, juste a cote, en aurait dessine trois —
+  // on aurait remplace une incoherence par une autre. Le mois entier est evalue d'un coup, puis lu
+  // jour par jour.
+  const etats=[], nomsJ=[];
+  for(let d=1; d<=daysInMonth; d++){
+    const dj=new Date(year,month,d);
+    etats.push({statut:getDayStatus(dj, trainDays).statut});
+    nomsJ.push(NOMS_JOURS_EN[dj.getDay()]);
+  }
+  appliquerDeplacements(etats, nomsJ, trainDays);
   let html='';
   for(let i=0;i<startOffset;i++) html+='<div></div>';
   for(let d=1; d<=daysInMonth; d++){
     const dateObj=new Date(year,month,d);
-    const {statut}=getDayStatus(dateObj, trainDays);
+    const statut=etats[d-1].statut;
     const isToday = todayD.getFullYear()===year && todayD.getMonth()===month && todayD.getDate()===d;
     let bg='color:var(--gray);', dotInner='';
     if(statut==='fait') bg='background:var(--brand-fixed);color:var(--ink-on-accent);font-weight:800;';
@@ -11193,10 +11242,7 @@ function renderProgCalendar(){
   const legEl=document.getElementById('progCalLegend');
   if(legEl){
     const present=[];
-    for(let d=1; d<=daysInMonth; d++){
-      const st=getDayStatus(new Date(year,month,d), trainDays).statut;
-      if(present.indexOf(st)<0) present.push(st);
-    }
+    etats.forEach(e=>{ if(present.indexOf(e.statut)<0) present.push(e.statut); });
     legEl.innerHTML=weekStripLegendHtml(present);
     sweepTranslate(legEl, currentLang);
   }
