@@ -3427,7 +3427,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      Cf discussion : un seul écran générique, paramétré par pendingInvite.kind, plutôt que deux flows
      séparés — réutilise le même moteur defiConfig/battle_countdown/defi_live que Défi référent/ami. -->
 <div class="screen" id="invite_recue">
-  <div class="topnav"><button class="btn-back" onclick="declineInvite()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Invite</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Invite</div><div class="topnav-r"></div></div>
   <div class="scroll" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:50px 30px 0;flex:1;">
     <div id="inviteRecueAvatar" style="margin-bottom:16px;"></div>
     <div style="font-size:17px;font-weight:800;margin-bottom:4px;" data-notranslate="1" id="inviteRecueNom">—</div>
@@ -8034,6 +8034,13 @@ function objectifCardLabel(state, scope){
   if(state.kind==='inprogress') return currentLang==='fr'
     ? `${r} jour${r>1?'s':''} à caler`
     : `${r} day${r>1?'s':''} to slot in`;
+  // "N jours à rattraper" n'a de sens que sur la SEMAINE : il reste des jours pour le faire, le nombre
+  // est actionnable. Sur le cycle (jusqu'à 8 semaines), c'est une dette qu'on ne remboursera pas —
+  // vrai et inutilisable, affiché en orange sur l'accueil, la pire combinaison. Le cycle reçoit donc
+  // un cap et pas une ardoise, comme les trois autres verdicts de cette fonction qui sont déjà des
+  // verdicts sans chiffre. (Testé "N jours pour retrouver le rythme" : 170 px là où le slot en offre
+  // ~180 avec son pictogramme et son chevron, et c'était un second nombre à 20 px du premier.)
+  if(scope==='cycle') return trDyn('Get back on track');
   return currentLang==='fr'
     ? `${r} jour${r>1?'s':''} à rattraper`
     : `${r} day${r>1?'s':''} to catch up`;
@@ -8183,7 +8190,7 @@ function openObjectifPaceInfo(scope){
     else if(state.kind==='inprogress' || state.kind==='ontrack') body = currentLang==='fr'
       ? `Il te reste ${state.remaining} jour${state.remaining>1?'s':''} à faire dans ce cycle.`
       : `${state.remaining} day${state.remaining>1?'s':''} left to do in this cycle.`;
-    else body = objectifCardLabel(state);
+    else body = objectifCardLabel(state,'cycle');
   }
   const title=objectifStateTitle(state.kind);
   // Cycle en retard : pas de sélecteur de jour ici (jusqu'à 8 semaines, trop pour une petite modale) —
@@ -8368,41 +8375,11 @@ function renderHomeKpiZone(prefix, profile){
   const info=(title,body,ref)=>'<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\''+title+'\',\''+body+'\''+(ref?',[\''+ref[0]+'\','+ref[1]+']':'')+')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
   const pic=name=>'<span class="kt-ic"><svg class="ki"><use href="#ki-'+name+'"/></svg></span>';
 
-  // --- rangee 1 : EFFORT ---
-  const week=getWeekDaysTrained();
-  const dayIdx=(new Date().getDay()+6)%7;   // lundi = 0, meme convention que le bloc Objectif
-  const volTarget=week.objectif*(userProfileData.duree_seance||30);
-  const volPct=volTarget ? Math.min(100, Math.round(week.minutes/volTarget*100)) : 0;
-  // Volume etait la seule tuile d'EFFORT sans evolution : elle disait ou on en est du but de la semaine
-  // (40 %) mais pas si c'est mieux ou moins bien que d'habitude. getPreviousWeekStats existait deja et
-  // decoupe la semaine calendaire exactement comme getWeekDaysTrained — pas une fenetre glissante, donc
-  // "lundi a maintenant" compare a "lundi a dimanche derniers", ce qui est defavorable en debut de
-  // semaine : on ne montre le delta qu'a partir du jeudi (dayIdx>=3), sinon il annonce une chute qui
-  // n'en est pas une. Le pourcentage d'objectif redescend en 4e ligne, avec la cible qu'il commente.
-  const prevWeek=getPreviousWeekStats();
-  const volD = (prevWeek && prevWeek.minutes>0 && dayIdx>=3) ? (week.minutes-prevWeek.minutes) : null;
-  const volumeCell='<div class="kt">'
-    +'<div class="kt-l">'+trDyn('Volume')+info('Volume','Minutes trained this week versus your weekly target — your training days multiplied by your preferred session length. The change compares with the same point of last week.')+'</div>'
-    +'<div class="kt-v">'+week.minutes+'<span class="kt-u"> min</span></div>'
-    +'<div class="kt-d" style="color:'+(volD==null?'var(--dim)':volD>0?'var(--teal)':volD<0?'var(--vigilance)':'var(--gray)')+';">'+(volD==null?'—':(volD>0?'↑ ':volD<0?'↓ ':'→ ')+Math.abs(volD)+' min')+'</div>'
-    +'<div class="kt-c">'+(currentLang==='fr' ? volPct+'% de '+volTarget+' min' : volPct+'% of '+volTarget+' min')+'</div>'
-  +'</div>';
-
-  const sessions=getSessionsInPeriod('semaine'), prevSessions=getPreviousPeriodSessions('semaine');
-  const pct=computeEffortScorePct(sessions);
-  let intensityCell='';
-  if(pct!=null){
-    const pctPrev=computeEffortScorePct(prevSessions);
-    const d = pctPrev==null ? null : ptsDelta(pct, pctPrev);
-    // Le titre dit QUOI, pas QUAND : la tuile s'appelle "Intensite", la fenetre glissante redescend
-    // dans l'infobulle (avant, le titre etait "7 jours glissants" — une periode, pas un indicateur).
-    intensityCell='<div class="kt">'
-      +'<div class="kt-l">'+trDyn('Intensity')+info('Intensity','How intense your training has been over the last 7 rolling days, compared to your own best 7-day window ever recorded. 100% means you are matching your all-time best week.')+'</div>'
-      +'<div class="kt-v">'+pct+'<span class="kt-u">%</span></div>'
-      +'<div class="kt-d" style="color:'+(d?(d.dir==='up'?'var(--teal)':d.dir==='down'?'var(--vigilance)':'var(--gray)'):'var(--dim)')+';">'+(d?(d.dir==='up'?'↑':d.dir==='down'?'↓':'→')+' '+d.pct+'pts':'—')+'</div>'
-      +'<div class="kt-c">'+trDyn('vs your record')+'</div>'
-    +'</div>';
-  }
+  // Rangee EFFORT (Volume + Intensite) retiree : les deux tuiles etaient reprises telles quelles
+  // dans Progres, ou elles ont leur periode et leur historique. L'Accueil repond a "qu'est-ce que
+  // je fais aujourd'hui", Progres a "ou j'en suis" — un chiffre n'a sa place ici que s'il change
+  // la decision du jour. Un volume et une intensite sur sept jours ne la changent pas ; la charge
+  // et la douleur si, ce sont elles qui declenchent l'allegement. SIGNAUX reste donc seul.
 
   // --- rangee 2 : SIGNAUX ---
   const fatigue=getFatigueSignal();
@@ -8447,9 +8424,7 @@ function renderHomeKpiZone(prefix, profile){
   // margin-top:0 sur EFFORT collait le titre sous la carte seance — 0 px d'ecart, si bien qu'il se
   // lisait comme sa legende et non comme le titre de la section suivante. Les cinq ecarts de la page
   // valaient 16 / 20 / 20 / 0 / 22 ; ils valent 20 partout (audit home, sept. 2026).
-  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('EFFORT')+'</div>'
-    +'<div class="kgrid" style="margin-bottom:18px;">'+volumeCell+intensityCell+'</div>'
-    +'<div class="zone-lbl" style="margin-top:20px;">'+trDyn('SIGNALS')+'</div>'
+  let out = '<div class="zone-lbl" style="margin-top:0;">'+trDyn('SIGNALS')+'</div>'
     +'<div class="kgrid" style="padding-bottom:20px;">'+loadCell+painCell+'</div>';
   el.innerHTML = out;
   sweepTranslate(el, currentLang);
@@ -9784,7 +9759,13 @@ function renderProgPeriod(periodKey){
   // dernier est dedans ou dehors en comparant avec son calendrier. Composée à l'affichage, donc
   // renderProgPeriod est rappelée depuis setLang (sinon la date reste dans la langue du dernier rendu).
   html+='<div style="font-size:11px;color:var(--gray2);margin:0 0 14px;" data-notranslate="1">'+periodWindowLabel(periodKey)+'</div>';
-  // ---- Bloc 0 : Forme & douleur — comment je l'ai VÉCU, avant combien j'ai fait ----
+  // ---- Forme & douleur ----
+  // Ce bloc ouvrait l'onglet : on entrait dans Progrès par la douleur. C'était le mauvais ordre — une
+  // revue de période se lit dans l'ordre de ce qui s'est passé (suis-je venu, combien, à quelle
+  // intensité) et le ressenti est la CONSÉQUENCE, pas le titre. Ouvrir sur la douleur, c'est ouvrir un
+  // dossier médical ; ouvrir sur la régularité, c'est ouvrir un carnet d'entraînement. Il se construit
+  // donc ici (les données sont calculées avec le reste) mais s'insère après Intensité.
+  let blocFormeDouleur='';
   const painAvg=avgPain(sessions), painAvgPrev=avgPain(prevSessions);
   const painSeries=getPeriodPainSeries(sessions);
   if(painAvg!=null){
@@ -9813,8 +9794,8 @@ function renderProgPeriod(periodKey){
         +'<div style="font-size:13px;font-weight:700;color:'+fCol+';">'+fArrow+'</div>'
         +'</div>';
     }
-    html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">FORM &amp; PAIN<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Form &amp; pain\',\'The two things you report yourself, over the last '+getPeriodLabel(periodKey)+'. Pain = the average of what you declared after each session in this window, and the bars show each of those sessions in order. The verdict compares that average with the previous '+getPeriodLabel(periodKey)+' — rising or easing only from 1 point of difference. Form = your daily check-in, most recent first, with its direction over the window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
-    html+='<div class="card-sm" style="margin-bottom:16px;">'
+    blocFormeDouleur+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">FORM &amp; PAIN<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Form &amp; pain\',\'The two things you report yourself, over the last '+getPeriodLabel(periodKey)+'. Pain = the average of what you declared after each session in this window, and the bars show each of those sessions in order. The verdict compares that average with the previous '+getPeriodLabel(periodKey)+' — rising or easing only from 1 point of difference. Form = your daily check-in, most recent first, with its direction over the window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+    blocFormeDouleur+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:'+painCol+';line-height:1;flex-shrink:0;">'+painShown+'<span style="font-size:17px;color:var(--gray2);font-weight:700;">/10</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);">average pain</div>'
@@ -9921,12 +9902,22 @@ function renderProgPeriod(periodKey){
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;"><div style="width:8px;height:8px;border-radius:50%;background:'+ZONE_DONUT_COLORS[k]+';flex-shrink:0;"></div><div style="flex:1;font-size:11.5px;color:var(--gray2);">'+ZONE_LABELS_RADAR[k]+'</div><div style="font-size:11px;font-weight:700;color:var(--white);">'+zonePct[k]+'%</div></div>'
     ).join('');
   }
+  html+=blocFormeDouleur;
+
   html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">BODY ZONES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Body zones\',\'Where your training time actually goes, over the last '+getPeriodLabel(periodKey)+' — time spent per muscle group.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +(zonePct ? '<div style="display:flex;align-items:center;gap:20px;">'
       +'<div style="width:100px;height:100px;border-radius:50%;flex-shrink:0;background:conic-gradient('+donutGradient+');position:relative;"><div style="position:absolute;inset:22px;border-radius:50%;background:var(--bg2);"></div></div>'
       +'<div style="flex:1;">'+donutLegend+'</div>'
       +'</div>' : '<div style="font-size:12px;color:var(--gray2);margin:10px 0;">Complete a few sessions to see your body balance.</div>')
+    +'</div>';
+
+  // ---- Bloc 6 : Exercices maîtrisés (cardio, ≥75% dans la zone sur les 3 dernières séances à ce
+  // niveau) — liste complète groupée par niveau, plus de Top cardio/renfo par effort ni d'évolution par
+  // exercice (retirés, cf discussion "je dégage tout ça, je garde juste exercice maîtrisé").
+  html+='<div id="progMasterySection" style="display:none;">'
+    +'<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">MASTERED EXERCISES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Mastered exercises\',\'≥75% time in zone, last 3 sessions at this level.\',[\'seance\',2])" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>'
+    +'<div class="card-sm" style="margin-bottom:16px;"><div id="progMasteryList"></div></div>'
     +'</div>';
 
   // ---- Bloc 5 : Exercices favoris (fréquence, tous types) — même style carte que Consistency/Effort/
@@ -9936,14 +9927,6 @@ function renderProgPeriod(periodKey){
     +'<div class="zone-lbl" style="margin:22px 0 12px;">FAVORITE EXERCISES</div>'
     +'<div class="card-sm" style="margin-bottom:16px;"><div id="progFavoritesList"></div></div>'
     +'</div>';
-  // ---- Bloc 6 : Exercices maîtrisés (cardio, ≥75% dans la zone sur les 3 dernières séances à ce
-  // niveau) — liste complète groupée par niveau, plus de Top cardio/renfo par effort ni d'évolution par
-  // exercice (retirés, cf discussion "je dégage tout ça, je garde juste exercice maîtrisé").
-  html+='<div id="progMasterySection" style="display:none;">'
-    +'<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">MASTERED EXERCISES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Mastered exercises\',\'≥75% time in zone, last 3 sessions at this level.\',[\'seance\',2])" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>'
-    +'<div class="card-sm" style="margin-bottom:16px;"><div id="progMasteryList"></div></div>'
-    +'</div>';
-
   el.innerHTML=html;
   setTimeout(()=>{
     renderTopExercises();
@@ -12161,6 +12144,7 @@ const EN_FR = {
   "Catch-up session planned for": "Rattrapage planifié le",
   "Session removed from": "Séance retirée du",
   "Goal exceeded": "Objectif dépassé",
+  "Get back on track": "Retrouver le rythme",
   "Week covered": "Semaine couverte",
   "Cycle covered": "Cycle couvert",
   "On pace": "Dans le rythme",
@@ -19631,9 +19615,11 @@ function friendJoined(){
   defiMode=true; battleMode=false; soloWaitMode=false;
   go('battle_countdown');
 }
+// La fleche renvoyait a l'accueil : on venait de Defis, on se retrouvait sur l'Accueil. Une fleche
+// retour revient d'ou l'on vient — l'attente s'annule (le timer est coupe), la navigation non.
 function cancelFriendWait(){
   clearTimeout(friendInviteJoinTimer);
-  go('home');
+  back();
 }
 
 // ===== COMMUNAUTÉ / MES AMIS (membre) =====
