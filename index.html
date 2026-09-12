@@ -7633,8 +7633,15 @@ function buildLoadPainHtml(pad, compact, only){
 
   return out;
 }
+// Charge/Douleur/Forme en trois cartes au-dessus des onglets : réservées au COACH depuis l'audit
+// Progrès. Côté utilisateur, Charge et Douleur sont déjà sur l'Accueil à un tap d'ici, et la douleur
+// comme la forme reviennent plus bas sous forme de TENDANCE de période (bloc Forme & douleur). Le
+// coach, lui, ouvre une fiche sans jamais passer par l'Accueil : c'est son seul accès à ces trois-là.
+function progSafetyBlockVisible(){ return currentRole==='referent' && !!curPatient; }
 function renderProgSafetyBlock(elId){
   const el=document.getElementById(elId); if(!el) return;
+  if(!progSafetyBlockVisible()){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='';
   el.innerHTML = buildLoadPainHtml(false, true);
   sweepTranslate(el, currentLang);
 }
@@ -9270,6 +9277,40 @@ function renderProgBadges(elId){
   sweepTranslate(el, currentLang);
 }
 function getPeriodLabel(periodKey){ return periodKey==='semaine'?'7 days':periodKey==='mois'?'30 days':'90 days'; }
+// ===== FORME & DOULEUR — le bloc de tête de la vue période (audit Progrès, sept. 2026) =====
+// Avant : Charge, Douleur et Forme du jour vivaient en trois cartes AU-DESSUS des onglets, en valeur
+// instantanée. Deux problèmes. D'abord Charge et Douleur sont déjà sur l'Accueil (mêmes fonctions,
+// mêmes seuils, mêmes couleurs) à un tap d'ici — un doublon de 112 px. Ensuite l'ACWR est un signal de
+// DÉCISION ("allège aujourd'hui"), et cette décision se prend sur l'Accueil et dans la séance, jamais
+// dans un bilan : il reste donc sur l'Accueil et quitte cet écran côté utilisateur (il demeure dans
+// progSafetyBlock pour le coach, qui consulte une fiche sans passer par l'Accueil).
+// Restent la douleur et la forme — les deux SEULES variables de toute l'app que la personne déclare
+// elle-même, les seules qui ne dérivent pas de l'entraînement. Elles passent de la valeur du jour à la
+// TENDANCE sur la période active, ce que l'Accueil ne saura jamais faire, et prennent la première place :
+// quelqu'un qui a une épaule ne vient pas dans Progrès savoir s'il a été discipliné — la régularité est
+// un moyen, une douleur qui baisse sur 30 jours est la fin. Aucune donnée nouvelle à collecter :
+// h.douleur est stocké par séance, userCheckinHistory est une série datée.
+function getPeriodPainSeries(sessions){
+  return sessions.filter(h=>h.douleur!=null).map(h=>({date:h.date, v:h.douleur})).sort((a,b)=>a.date-b.date);
+}
+function avgPain(sessions){
+  const s=getPeriodPainSeries(sessions);
+  return s.length ? s.reduce((t,x)=>t+x.v,0)/s.length : null;
+}
+// Seuil à 1 point sur une MOYENNE de période — getPainSignal, lui, compare deux mesures isolées et
+// demande 2 points pour écarter le bruit du jour le jour. Une moyenne lisse déjà ce bruit.
+function periodPainState(avg, avgPrev){
+  if(avg==null) return null;
+  if(avgPrev==null) return {label:trDyn('Not enough history yet'), color:'var(--gray2)'};
+  const d=avg-avgPrev;
+  if(d<=-1) return {label:trDyn('Easing over this period'), color:'var(--brand-fixed)'};
+  if(d>=1) return {label:trDyn('Rising over this period'), color:'var(--vigilance)'};
+  return {label:trDyn('Stable over this period'), color:'var(--gray2)'};
+}
+function getPeriodCheckins(periodKey){
+  const from=Date.now()-PROG_PERIOD_DAYS[periodKey]*HIST_DAY;
+  return userCheckinHistory.filter(c=>c.date>=from).sort((a,b)=>b.date-a.date);
+}
 // Fenêtre réelle de l'onglet, en clair — "7 jours" ne disait jamais depuis quand (audit Progrès).
 // data-notranslate : la chaîne est déjà composée dans la bonne langue par toLocaleDateString.
 function periodWindowLabel(periodKey){
@@ -9348,6 +9389,49 @@ function renderProgPeriod(periodKey){
   // dernier est dedans ou dehors en comparant avec son calendrier. Composée à l'affichage, donc
   // renderProgPeriod est rappelée depuis setLang (sinon la date reste dans la langue du dernier rendu).
   html+='<div style="font-size:11px;color:var(--gray2);margin:0 0 14px;" data-notranslate="1">'+periodWindowLabel(periodKey)+'</div>';
+  // ---- Bloc 0 : Forme & douleur — comment je l'ai VÉCU, avant combien j'ai fait ----
+  const painAvg=avgPain(sessions), painAvgPrev=avgPain(prevSessions);
+  const painSeries=getPeriodPainSeries(sessions);
+  if(painAvg!=null){
+    const painState=periodPainState(painAvg, painAvgPrev);
+    const painShown=Math.round(painAvg*10)/10;
+    const painCol = painAvg<=3 ? 'var(--brand-fixed)' : painAvg<=6 ? 'var(--vigilance)' : 'var(--red)';
+    const maxPain=Math.max(3, ...painSeries.map(x=>x.v));
+    // La HAUTEUR porte le niveau — marqueur non coloré exigé par la charte ; la couleur ne fait que
+    // redire le même seuil. Une douleur à 0 garde un trait de 3 px : une barre absente se lirait comme
+    // une séance manquante plutôt que comme une séance sans douleur.
+    const spark='<div style="display:flex;align-items:flex-end;gap:3px;height:34px;">'
+      +painSeries.map(x=>'<div style="flex:1;min-width:3px;border-radius:2px;height:'+Math.max(3, Math.round(x.v/maxPain*34))+'px;background:'+(x.v<=3?'var(--brand-fixed)':x.v<=6?'var(--vigilance)':'var(--red)')+';"></div>').join('')
+      +'</div>';
+    const cks=getPeriodCheckins(periodKey);
+    let formRow='';
+    if(cks.length){
+      const ord=cks.map(c=>CHECKIN_ORDINAL[c.val]||3);
+      const recent=ord[0], older=ord[ord.length-1];
+      const fd = cks.length<2 ? 0 : recent-older;
+      const fArrow = fd>=1 ? '↑' : fd<=-1 ? '↓' : '→';
+      const fCol = fd>=1 ? 'var(--brand-fixed)' : fd<=-1 ? 'var(--vigilance)' : 'var(--gray2)';
+      formRow='<div style="display:flex;align-items:center;gap:9px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'
+        +'<div style="font-size:12px;color:var(--gray2);flex-shrink:0;">'+trDyn('Form')+'</div>'
+        +'<div style="font-size:19px;line-height:1;">'+checkinEmoji(cks[0].val)+'</div>'
+        +'<div style="font-size:12.5px;color:var(--white);font-weight:600;flex:1;min-width:0;">'+checkinLabel(cks[0].val)+'</div>'
+        +'<div style="font-size:13px;font-weight:700;color:'+fCol+';">'+fArrow+'</div>'
+        +'</div>';
+    }
+    html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">FORM &amp; PAIN<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Form &amp; pain\',\'The two things you report yourself, over the last '+getPeriodLabel(periodKey)+'. Pain = the average of what you declared after each session in this window, and the bars show each of those sessions in order. The verdict compares that average with the previous '+getPeriodLabel(periodKey)+' — rising or easing only from 1 point of difference. Form = your daily check-in, most recent first, with its direction over the window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+    html+='<div class="card-sm" style="margin-bottom:16px;">'
+      +'<div style="display:flex;align-items:baseline;gap:8px;">'
+      +'<div style="font-size:32px;font-weight:800;color:'+painCol+';line-height:1;flex-shrink:0;">'+painShown+'<span style="font-size:17px;color:var(--gray2);font-weight:700;">/10</span></div>'
+      +'<div style="font-size:13px;color:var(--gray2);">average pain</div>'
+      +'</div>'
+      +'<div style="font-size:12.5px;font-weight:600;color:'+painState.color+';margin:7px 0 0;">'+painState.label+'</div>'
+      +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'+spark
+      +'<div style="font-size:11px;color:var(--gray2);margin-top:6px;">'+painSeries.length+' session'+(painSeries.length!==1?'s':'')+' rated</div>'
+      +'</div>'
+      +formRow
+      +'</div>';
+  }
+
   // ---- Bloc 1 : Regularity (même nom que Home, ex-"Consistency" — un seul mot pour la même métrique
   // sur les 2 écrans, cf discussion) — est-ce que je m'entraîne assez souvent ? ----
   // Le héros portait "100%" avec "3/3" treize pixels plus bas : le MÊME calcul en deux notations (le
@@ -9494,7 +9578,7 @@ function setProgTab(el,view){
   // d'arriver au contenu, alors que la carte appartient aux onglets 7/30/90j) — reste affichée pour
   // les trois autres onglets.
   const safetyEl=document.getElementById('progSafetyBlock');
-  if(safetyEl) safetyEl.style.display = isHistory ? 'none' : '';
+  if(safetyEl) safetyEl.style.display = (isHistory || !progSafetyBlockVisible()) ? 'none' : '';
 }
 // Bascule Liste/Mois à l'intérieur de l'onglet Historique — même donnée (userSessionHistory), deux
 // affichages (cf discussion "pas deux fonctionnalités, un affichage à deux réglages").
@@ -11523,6 +11607,13 @@ const EN_FR = {
   "VOLUME & INTENSITY": "VOLUME & INTENSITÉ",
   "vs your all-time best 7-day window": "vs ta meilleure fenêtre de 7 jours jamais atteinte",
   "BODY ZONES": "ZONES DU CORPS",
+  "FORM & PAIN": "FORME & DOULEUR",
+  "average pain": "douleur moyenne",
+  "Form": "Forme",
+  "Easing over this period": "En baisse sur cette période",
+  "Rising over this period": "En hausse sur cette période",
+  "Stable over this period": "Stable sur cette période",
+  "Not enough history yet": "Pas encore assez de recul",
   "Goal met": "Objectif tenu",
   "Close to your goal": "Proche de ton objectif",
   "Below your usual rhythm": "En dessous de ton rythme",
@@ -12862,6 +12953,8 @@ const EN_FR_PATTERNS = [
   [/^Intensity ([\d.]+) → ([\d.]+)$/, (m)=>`Intensité ${m[1]} → ${m[2]}`],
   [/^(\d+) sessions? total · ([\d.]+) avg \/ member \/ week$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} au total · ${m[2]} moy. / membre / semaine`],
   [/^(\d+) sessions? · (\d+) min avg\/session$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} · ${m[2]} min moy./séance`],
+  // Compteur de séances renseignées sous la frise de douleur (bloc Forme & douleur) — pluriel dynamique.
+  [/^(\d+) sessions? rated$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''} renseignée${Number(m[1])>1?'s':''}`],
   // Générique pour tous les compteurs d'étape de wizard (csi/csc/cprog + détours) — posés en JS brut
   // via textContent, jamais captés par un balayage statique, donc jamais traduits sans ce pattern.
   [/^Step (\d+) of (\d+)$/, (m)=>`Étape ${m[1]} sur ${m[2]}`],
@@ -13036,6 +13129,7 @@ const FR_EN_PATTERNS = [
   // retour FR→EN sur un écran wizard (csi/csc/cprog/defi/friend) laissait le compteur d'étape
   // bloqué en français, découvert en vérifiant les nouveaux compteurs defiStepLbl/friendStepLbl.
   [/^Étape (\d+) sur (\d+)$/, (m)=>`Step ${m[1]} of ${m[2]}`],
+  [/^(\d+) séances? renseignées?$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} rated`],
   // Libellé de la carte séance (renderHomeSeance, cardLbl) — même problème que ci-dessus : sens forward
   // seul (EN_FR_PATTERNS) suffit pour un premier rendu FR, mais bloque en français sans re-rendu si on
   // repasse en anglais depuis un écran déjà affiché.
