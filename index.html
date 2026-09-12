@@ -1118,8 +1118,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <p style="font-size:15px;color:rgba(255,255,255,.82);line-height:1.5;text-shadow:0 1px 4px rgba(0,0,0,.5);" id="t_ob_intro_sub">A few questions so every session fits you.</p>
   </div>
   <div style="position:relative;z-index:2;padding:0 28px calc(24px + env(safe-area-inset-bottom));">
-    <button class="btn btn-brand-fixed" onclick="obExpress=false;majOb1Express();go('ob_objectif')" id="t_ob_intro_cta">Let's go! →</button>
-    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" onclick="skipObIntro()" id="t_ob_intro_skip">Skip the questions ›</button><div style="font-size:12px;color:rgba(255,255,255,.62);margin-top:2px;">Just your positions, then you're in.</div></div>
+    <button class="btn btn-brand-fixed" onclick="obExpress=false;majOb1Express();go('ob_objectif')" id="t_ob_intro_cta">Let's go →</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" onclick="skipObIntro()" id="t_ob_intro_skip">Skip the questions</button></div>
   </div>
 </div>
 
@@ -1142,7 +1142,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" id="obObjectifNext" disabled onclick="go('ob1')">Continue →</button>
-    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" onclick="go('ob1')">Skip this question</button></div>
   </div>
 </div>
 
@@ -1307,7 +1306,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
-    <button class="btn btn-brand-fixed" onclick="go('ob_vision')">Discover the bar →</button>
+    <button class="btn btn-brand-fixed" onclick="go('ob_vision')">Discover kinmio →</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" onclick="go('ob_consent')">Skip the tutorial</button></div>
   </div>
 </div>
 
@@ -1348,7 +1348,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" onclick="obDemoReviewMode=false;obDemoStepIdx=0;renderObDemoStep();go('ob_demo')">Set up my bar →</button>
-    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" onclick="go('ob_consent')">Skip the introduction</button></div>
   </div>
 </div>
 
@@ -1364,8 +1363,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="display:flex;align-items:center;gap:12px;" id="obDemoStep"></div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
-    <button class="btn btn-brand-fixed" id="obDemoNextBtn" onclick="advanceObDemo()">Got it, next step →</button>
-    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost ob-skip" id="obDemoSkip" onclick="go('ob_consent')">Skip the tutorial</button></div>
+    <button class="btn btn-brand-fixed" id="obDemoNextBtn" onclick="advanceObDemo()">Next step →</button>
   </div>
 </div>
 
@@ -1529,7 +1527,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <input type="text" id="scPrenom" placeholder="First name" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
     <input type="email" id="scEmail" placeholder="Email" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
     <input type="password" id="scPassword" placeholder="Password" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:20px;">
-    <button class="btn btn-teal" id="signupCentreCta" style="opacity:.5;" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)">Create my account</button>
+    <button class="btn btn-teal" id="signupCentreCta" style="opacity:.5;" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)">Create my account →</button>
     <div style="margin:16px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">or</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
     <div style="display:flex;gap:10px;">
       <button class="social-btn" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple</button>
@@ -3882,7 +3880,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="font-size:11px;color:var(--gray);margin-top:12px;line-height:1.5;"><svg class="ki"><use href="#ki-ob-lock"/></svg> Data encrypted, processed under GDPR. Revocable anytime in Profile › Health.</div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
-    <button class="btn btn-brand-fixed" id="obConsentCta" onclick="finishConsent()">Enter your space →</button>
+    <button class="btn btn-brand-fixed" id="obConsentCta" onclick="finishConsent()">Access my space →</button>
   </div>
 </div>
 
@@ -6515,7 +6513,7 @@ function go(id){
     // Le bouton annonce la vraie prochaine étape : créer son compte (parcours découverte, pas encore de
     // compte) plutôt qu'"Enter your space" si ce n'est pas encore vrai à ce stade.
     const cta=document.getElementById('obConsentCta');
-    if(cta) cta.textContent = trDyn((userParcours==='B' && !userFirstName) ? 'Create your account →' : 'Enter your space →');
+    if(cta) cta.textContent = trDyn((userParcours==='B' && !userFirstName) ? 'Create my account →' : 'Access my space →');
   }
   if(id==='home' || id==='programme') setTimeout(renderProgramme, 20);
   if(id==='programme') setTimeout(()=>{
@@ -12828,7 +12826,7 @@ const EN_FR = {
   "WHO recommends 150 min of moderate activity a week, or 75 min vigorous, plus strength training twice.": "L'OMS recommande 150 min d'activité modérée par semaine, ou 75 min intense, et du renforcement 2 fois.",
   "Every move counts.": "Chaque mouvement compte.",
   "A few questions so every session fits you.": "Quelques questions pour que chaque séance te corresponde.",
-  "Let's go! →": "C'est parti ! →",
+  "Let's go →": "C'est parti →",
   "When do you train?": "Quand t'entraînes-tu ?",
   "Pick a frequency, or tap the days that work for you — they stay in sync.": "Choisis une fréquence, ou touche les jours qui te conviennent — ils restent synchronisés.",
   "Which days?": "Quels jours ?",
@@ -12852,8 +12850,8 @@ const EN_FR = {
   "It becomes your screen and sensor for the session": "Il devient ton écran et ton capteur pour la séance",
   "Get in position and go": "Installe-toi et c'est parti",
   "Bar in hand, an elastic band, or just in front of it — standing, seated, or however works for you": "Barre en main, avec un élastique, ou juste devant elle — debout, assis, comme ça te convient",
-  "Got it, next step →": "Compris, étape suivante →",
-  "Got it, all set →": "Compris, c'est prêt →",
+  "Next step →": "Étape suivante →",
+  "Got it →": "C'est compris →",
   "1 week": "1 semaine",
   "2 weeks": "2 semaines",
   "4 weeks": "4 semaines",
@@ -12863,11 +12861,8 @@ const EN_FR = {
   "I kept the exact same programme after leaving the centre — same bar, same referent checking in. That continuity is what kept me going.": "J'ai gardé exactement le même programme en quittant le centre — même barre, même référent qui prend des nouvelles. C'est cette continuité qui m'a fait tenir.",
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
-  "Skip the questions ›": "Passer les questions ›",
-  "Skip this question": "Passer cette question",
-  "Skip the introduction": "Passer la présentation",
-  "Skip the tutorial": "Passer le tuto",
-  "Just your positions, then you're in.": "Juste tes positions, puis tu entres.",
+  "Skip the questions": "Passer les questions",
+  "Skip the tutorial": "Passer le tutoriel",
   // ob1
   "Which position(s) do you train in?": "Dans quelle(s) position(s) t'entraînes-tu ?",
   "Multiple choices possible — your sessions adapt.": "Plusieurs choix possibles — tes séances s'adaptent.",
@@ -12934,9 +12929,9 @@ const EN_FR = {
   "To calibrate the length of your sessions.": "Pour calibrer la durée de tes séances.",
   "Continue →": "Continuer →",
   "See my plan →": "Voir mon plan →",
-  "Discover the bar →": "Découvrir la barre →",
+  "Discover kinmio →": "Découvrir kinmio →",
   "Set up my bar →": "Installer ma barre →",
-  "Enter your space →": "Accéder à ton espace →",
+  "Access my space →": "Accéder à mon espace →",
   "Create your account →": "Créer ton compte →",
   // ob_summary
   "✦ Your kinmio programme": "✦ Ton programme kinmio",
@@ -15556,10 +15551,8 @@ function renderObDemoStep(){
   const step=document.getElementById('obDemoStep');
   if(step) step.innerHTML = '<div style="width:26px;height:26px;border-radius:50%;background:var(--brand-fixed);color:var(--ink-on-accent);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(obDemoStepIdx+1)+'</div>'
     +'<div><div style="font-size:15px;font-weight:600;color:var(--white);">'+trDyn(s.title)+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(s.sub)+'</div></div>';
-  const skip=document.getElementById('obDemoSkip');
-  if(skip) skip.parentElement.hidden = obDemoReviewMode;   // revu depuis Mon équipement : le retour suffit
   const btn=document.getElementById('obDemoNextBtn');
-  if(btn) btn.textContent = trDyn(obDemoStepIdx < OB_DEMO_STEPS.length-1 ? 'Got it, next step →' : 'Got it, all set →');
+  if(btn) btn.textContent = trDyn(obDemoStepIdx < OB_DEMO_STEPS.length-1 ? 'Next step →' : 'Got it →');
   // La vidéo change avec l'étape — un vrai tuto séquentiel, pas une boucle générique identique du début à la fin.
   // .src direct sur <video>, pas un <source> enfant (audit chargement, sept. 2026 — cf lazySplashVideo) :
   // manipuler <source src>+.load() ne fonctionne pas de façon fiable au tout premier chargement.
