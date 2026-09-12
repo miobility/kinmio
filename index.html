@@ -279,12 +279,18 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
    cartes etait recopiee en style EN LIGNE a chaque usage (font-size:13px;padding:11px), ce qui faisait
    autant de rendus differents que d'endroits. Une classe, une valeur. */
 .btn-sm{padding:11px;font-size:13px;border-radius:12px;}
-.btn-orange{background:var(--orange-btn);color:#fff;box-shadow:0 8px 16px -8px rgba(var(--orange-rgb),.28),0 2px 5px rgba(var(--orange-rgb),.1);}
-.btn-teal{background:var(--teal-btn);color:#fff;}
+/* TEXTE DES BOUTONS PLEINS : --ink-on-accent, pas #fff (13 sept. 2026, decide par Benjamin).
+   Mesure sur les SIX accents : le blanc echouait partout (3,04 a 3,65 selon l'accent), l'encre passe
+   partout (5,41 a 6,49). Le jeton existait deja et etait fait pour ca — les boutons ne l'utilisaient
+   simplement pas, alors que la carte du jour et le bouton de seance l'employaient correctement.
+   Il vaut #0A0A0F en theme sombre (fond de bouton clair) et #fff en theme clair (fond fonce) :
+   5,50 et 5,49. Une seule ecriture couvre les deux themes et les six accents. */
+.btn-orange{background:var(--orange-btn);color:var(--ink-on-accent);box-shadow:0 8px 16px -8px rgba(var(--orange-rgb),.28),0 2px 5px rgba(var(--orange-rgb),.1);}
+.btn-teal{background:var(--teal-btn);color:var(--ink-on-accent);}
 /* Pour les CTA des écrans avant que l'utilisateur ait sa propre plateforme (splash, entrée,
    onboarding, paywall, login/signup) — cf --brand-fixed dans le :root. .btn-orange suit
    data-accent, ce qui n'a pas de sens tant qu'aucune plateforme n'est encore identifiée. */
-.btn-brand-fixed{background:var(--brand-fixed-btn);color:#fff;box-shadow:0 8px 16px -8px rgba(var(--brand-fixed-rgb),.28),0 2px 5px rgba(var(--brand-fixed-rgb),.1);}
+.btn-brand-fixed{background:var(--brand-fixed-btn);color:var(--ink-on-accent);box-shadow:0 8px 16px -8px rgba(var(--brand-fixed-rgb),.28),0 2px 5px rgba(var(--brand-fixed-rgb),.1);}
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--white);cursor:pointer;}
 /* Etat desactive reel : un bouton a 40% d'opacite reste cliquable, passe sous le seuil de
    contraste, et ne dit pas s'il agit ou non — deux ecrans du parcours faisaient l'inverse
