@@ -860,6 +860,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.4" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/><rect x="13.1" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.2" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-guide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2 2 0 0 1 6 3.5h5v17H6a2 2 0 0 0-2 2Z"/><path d="M20 5.5a2 2 0 0 0-2-2h-5v17h5a2 2 0 0 1 2 2Z"/></symbol>
+  <symbol id="ki-unlock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 7.7-1.5"/><path d="M12 14.5v2"/></symbol>
   <symbol id="ki-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5a13 13 0 0 1 0 17"/><path d="M12 3.5a13 13 0 0 0 0 17"/></symbol>
   <symbol id="ki-stop-prog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="13" height="13" rx="2.5"/></symbol>
   <symbol id="ki-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/></symbol>
@@ -1266,7 +1267,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div class="scroll px pb">
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;">
-        <div style="width:44px;height:44px;border-radius:12px;background:rgba(var(--teal-rgb),.12);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔓</div>
+        <div style="width:44px;height:44px;border-radius:12px;background:rgba(var(--teal-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--teal);"><svg class="ki" style="width:21px;height:21px;"><use href="#ki-unlock"/></svg></div>
         <div><div style="font-size:14px;font-weight:700;color:var(--white);">Already subscribed?</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">Log in with your kinmio.com account</div></div>
       </div>
       <button class="btn btn-brand-fixed" style="width:100%;" onclick="go('login')">Continue on kinmio.com →</button>
@@ -1409,7 +1410,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen" id="signup_centre">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Last step</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
-    <h2 class="gap8">Last step 🎉</h2>
+    <h2 class="gap8">Your programme is waiting for you</h2>
     <p class="sub gap28">Create your account to access your programme.</p>
     <input type="text" id="scPrenom" placeholder="First name" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
     <input type="email" id="scEmail" placeholder="Email" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
@@ -11986,6 +11987,17 @@ const EN_FR = {
   "MY CHALLENGES": "MES DÉFIS",
   "See my whole programme": "Voir tout mon programme",
   "Cardio endurance": "Endurance cardio",
+  "Your programme is waiting for you": "Ton programme t'attend",
+  "Nothing to work around": "Rien à ménager",
+  "Your free trial has ended": "Ton essai est terminé",
+  "Subscribe on kinmio.com to keep training — come back and log in, we'll recognize your account instantly.": "Abonne-toi sur kinmio.com pour continuer à t'entraîner — reviens te connecter, on reconnaîtra ton compte tout de suite.",
+  "Already subscribed?": "Déjà abonné ?",
+  "Log in with your kinmio.com account": "Connecte-toi avec ton compte kinmio.com",
+  "Continue on kinmio.com →": "Continuer sur kinmio.com →",
+  "Opens kinmio.com in your browser · your progress is saved": "Ouvre kinmio.com dans ton navigateur · ta progression est gardée",
+  "Free access managed by your centre": "Accès gratuit, géré par ton centre",
+  "Your coach tracks your progress": "Ton référent suit ta progression",
+  "Programme adapted to your sessions": "Programme calé sur tes séances",
   "What is your goal?": "Quel est ton objectif ?",
   "You can change it whenever you want.": "Tu pourras en changer quand tu veux.",
   "I'm discovering kinmio": "Je découvre kinmio",
@@ -14255,7 +14267,12 @@ function populateSummary(){
   el = document.getElementById('sc_pos'); if(el) el.textContent = profile.pos.length ? profile.pos.join(' · ') : '—';
   el = document.getElementById('sc_freq'); if(el) el.textContent = trDyn(freq + (freq==1?' day/week':' days/week'));
   el = document.getElementById('sc_duree'); if(el) el.textContent = profile.duree ? profile.duree+' min' : '—';
-  el = document.getElementById('sc_zones'); if(el) el.innerHTML = profile.zones.length ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Area to protect: ' + profile.zones.join(', ') : '✓ Programme adapted to your care';
+  // La VALEUR était préfixée de « Area to protect: » alors que la carte affiche déjà ce libellé
+  // juste au-dessus — le mot apparaissait deux fois, dont une en anglais et jamais traduite parce
+  // qu'elle était composée à l'affichage. Et le repli disait « adapted to your care » : « care » est
+  // du vocabulaire de soin, proscrit.
+  el = document.getElementById('sc_zones');
+  if(el) el.textContent = profile.zones.length ? profile.zones.join(', ') : trDyn('Nothing to work around');
 }
 
 // Projection ob_projection : calculée à partir des vraies réponses (fréquence × durée), comparée au
