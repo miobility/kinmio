@@ -2192,6 +2192,38 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      Même grammaire que programme_detail : c'est le même objet — un engagement daté avec un
      avancement. La différence tient au bloc « ce qui l'a fait avancer » : un défi doit montrer d'où
      vient son chiffre, sinon le compteur n'est pas croyable. -->
+<!-- ================= CREER UN DEFI PARTAGE (date, avec classement) ================= -->
+<div class="screen" id="creer_defi">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Create a challenge</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <div class="ps-section"><div class="ps-title">What we measure</div><div id="cdUnites"></div></div>
+    <div class="ps-section"><div class="ps-title">How long</div><div id="cdDurees"></div></div>
+    <div class="ps-section"><div class="ps-title">A target?</div>
+      <div style="font-size:12.5px;color:var(--gray2);margin:-4px 0 10px;line-height:1.45;" id="cdCibleHint"></div>
+      <div id="cdCibles"></div>
+    </div>
+    <div class="ps-section"><div class="ps-title">Who is in</div>
+      <div style="font-size:12.5px;color:var(--gray2);margin:-4px 0 10px;line-height:1.45;">Everyone starts the same day — that is what makes the ranking fair.</div>
+      <div id="cdAmis"></div>
+    </div>
+    <div style="height:8px;"></div>
+    <button class="btn btn-brand-fixed" id="cdSubmit" style="width:100%;" onclick="submitCreerDefi()">Launch the challenge</button>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- ================= DEFI PARTAGE — le classement ================= -->
+<div class="screen" id="defi_partage_detail">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="dpTopTitle">Challenge</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <div id="dpHead"></div>
+    <div id="dpClassement" style="margin-top:18px;"></div>
+    <div id="dpCode" style="margin-top:18px;"></div>
+    <div id="dpCta" style="margin-top:18px;"></div>
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
 <div class="screen" id="defi_detail">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="ddTopTitle">The challenge</div><div class="topnav-r"></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
@@ -5143,11 +5175,15 @@ let userSessionAttempts = [];
 // Pas de pas, pas de kilomètres, pas de longueurs — nous n'avons ni GPS ni podomètre, et un défi
 // qu'on ne peut pas honnêtement compter ne vaut pas d'être proposé.
 const DEFI_UNITES = {
-  minutes: { lbl:'minutes',            calc:(sess)=>sess.reduce((t,h)=>t+(h.duree||0),0) },
-  seances: { lbl:'sessions',           calc:(sess)=>sess.length },
-  jours:   { lbl:'training days',      calc:(sess)=>new Set(sess.map(h=>Math.floor(h.date/HIST_DAY))).size },
-  points:  { lbl:'effort points',      calc:(sess)=>Math.round(sess.reduce((t,h)=>t+(h.cardioScore||0)+(h.renfoScore||0),0)) },
-  zone:    { lbl:'sessions in the zone', calc:(sess,from,to)=>{
+  minutes: { lbl:'minutes', un:'minute',            calc:(sess)=>sess.reduce((t,h)=>t+(h.duree||0),0) },
+  seances: { lbl:'sessions', un:'session',           calc:(sess)=>sess.length },
+  jours:   { lbl:'training days', un:'training day', calc:(sess)=>new Set(sess.map(h=>Math.floor(h.date/HIST_DAY))).size },
+  points:  { lbl:'effort points', un:'effort point', calc:(sess)=>Math.round(sess.reduce((t,h)=>t+(h.cardioScore||0)+(h.renfoScore||0),0)) },
+  // "Cinq jours d'affilee" n'est PAS l'unite jours : jours compte les jours distincts, pas
+  // consecutifs. Le calcul existait deja pour les badges (computeBestStreak) — on le rebranche sur
+  // la fenetre du defi au lieu de tout l'historique.
+  serie:   { lbl:'days in a row', un:'day in a row', calc:(sess)=>computeBestStreak(sess) },
+  zone:    { lbl:'sessions in the zone', un:'session in the zone', calc:(sess,from,to)=>{
     // Seule unité qui ne se lit pas sur userSessionHistory : le temps en zone vit par exercice.
     let n=0;
     Object.values(exerciseZoneHistory).forEach(hist=>hist.forEach(e=>{ if(e.date>=from && e.date<to && e.pctZone>=75) n++; }));
@@ -5220,6 +5256,235 @@ function leaveDefi(id){
   closeModal();
   toast(trDyn('Challenge left'));
   renderDefisScreen();
+}
+
+// ===== DEFIS PARTAGES — la seconde famille, DATEE (12 sept. 2026) =====
+// Les huit du catalogue sont glissants : la fenetre demarre le jour ou l'on rejoint. C'est ce qui
+// enleve l'angoisse de rater le depart, et ca reste vrai. Mais on ne peut pas classer quelqu'un au
+// jour 2 avec quelqu'un au jour 27 : un classement a besoin d'une ligne de depart commune, et le
+// glissant supprime la ligne de depart. Le defi partage est donc DATE — debut et fin fixes, les memes
+// pour tous — et vit A COTE du catalogue, pas a sa place.
+// La cible est FACULTATIVE : sans elle on classe (une course, "le max de jours d'affilee"), avec elle
+// on classe ET on dit qui l'a atteinte. Un seul objet pour les deux formes.
+let defisPartages = [];
+let dpSeq = 0;
+
+// Les amis n'ont aujourd'hui aucune donnee d'entrainement (id, nom, ini, statut, online). Meme
+// procede que simulatedFriendWeeklyMinutes, etendu : une graine stable par ami et par unite, pour que
+// la maquette ne change pas de valeurs a chaque rendu. A remplacer par la vraie donnee cote serveur.
+function friendSeed(friend, sel){
+  const base = String(friend.id + '|' + sel).split('').reduce((s,c)=>s+c.charCodeAt(0), 0);
+  return Math.abs(Math.sin(base*12.9898)*43758.5453) % 1;
+}
+// Rythme tenu : jours d'entrainement par semaine. C'est le signal le plus discriminant de tous —
+// quelqu'un a 2 seances par semaine et quelqu'un a 6 ne jouent pas au meme jeu, quelle que soit leur
+// forme. Volontairement PAS la jauge : elle est reglee par le moteur et baisse quand la douleur monte,
+// donc classer les gens par jauge reviendrait a les classer par etat de sante.
+// Ancrees sur l'utilisateur plutot que flottantes : des amis se ressemblent statistiquement, et une
+// simulation libre produisait un jeu de demo ou personne n'etait jamais comparable — ce qui donnait
+// l'air casse une regle qui marchait. L'ecart va de -2 a +2 jours et de -15 a +15 minutes, donc
+// certains tombent dans la bande et d'autres non : les deux cas se voient.
+function friendRythme(friend){ return Math.max(1, userRythme() + Math.round(friendSeed(friend,'rythme')*4) - 2); }
+function friendVolume(friend){ return Math.max(10, userVolume() + (Math.round(friendSeed(friend,'volume')*6) - 3)*5); }
+function userRythme(){
+  const from=Date.now()-28*HIST_DAY;
+  const jours=new Set(userSessionHistory.filter(h=>h.date>=from).map(h=>Math.floor(h.date/HIST_DAY))).size;
+  return Math.max(1, Math.round(jours/4));
+}
+function userVolume(){
+  const from=Date.now()-28*HIST_DAY;
+  const sess=userSessionHistory.filter(h=>h.date>=from);
+  return sess.length ? Math.round(sess.reduce((t,h)=>t+(h.duree||0),0)/sess.length) : (userProfileData.duree_seance||30);
+}
+// Comparable, pas "de meme niveau" : le defi doit couter a peu pres le meme effort aux deux.
+// +/- 1 jour par semaine et +/- 10 minutes par seance.
+function estComparable(friend){
+  return Math.abs(friendRythme(friend)-userRythme())<=1 && Math.abs(friendVolume(friend)-userVolume())<=10;
+}
+// On ne montre jamais un niveau, on montre une RAISON : un badge "Niveau 3" invite a classer les
+// gens, une phrase dit pourquoi le match est juste et ne se compare pas.
+function raisonComparable(friend){
+  const r=friendRythme(friend), v=friendVolume(friend);
+  return currentLang==='fr'
+    ? 'Même rythme que toi — '+r+' jour'+(r>1?'s':'')+' par semaine, séances de '+v+' min'
+    : 'Same rhythm as you — '+r+' day'+(r>1?'s':'')+' a week, '+v+' min sessions';
+}
+
+// "1 jours d'affilee" : le libelle de l'unite etait toujours au pluriel. Une seule fabrique, utilisee
+// partout ou une valeur est suivie de son unite.
+// Le nom d'un defi partage n'est PAS stocke : il se compose a l'affichage a partir de l'unite et de la
+// cible. Fabrique une fois a la creation, il restait dans la langue de ce jour-la — meme piege que les
+// chaines assemblees au rendu, deplace d'un cran plus tot.
+function dpNom(dp){
+  if(dp.cible) return dp.cible+' '+uniteLbl(dp.unite, dp.cible);
+  return currentLang==='fr' ? 'Le plus de '+uniteLbl(dp.unite, 2) : 'Most '+uniteLbl(dp.unite, 2);
+}
+function uniteLbl(unite, valeur){
+  const u=DEFI_UNITES[unite]; if(!u) return '';
+  return trDyn((Math.abs(valeur)===1 && u.un) ? u.un : u.lbl);
+}
+function getDefiPartage(id){ return defisPartages.find(d=>d.id===id) || null; }
+function dpEnCours(dp){ const n=Date.now(); return n>=dp.debut && n<dp.fin; }
+function dpJoursRestants(dp){ return Math.max(0, Math.ceil((dp.fin-Date.now())/HIST_DAY)); }
+// Ma valeur se lit sur l'historique reel, dans la fenetre du defi. Celle d'un ami est simulee, avec
+// la meme graine stable — sinon le classement sautillerait a chaque rendu.
+function dpValeur(dp, participantId){
+  const u=DEFI_UNITES[dp.unite]; if(!u) return 0;
+  if(participantId==='me'){
+    const sess=userSessionHistory.filter(h=>h.date>=dp.debut && h.date<dp.fin);
+    return u.calc(sess, dp.debut, dp.fin);
+  }
+  const f=FRIENDS.find(x=>x.id===participantId) || {id:participantId};
+  const jours=Math.max(1, Math.round((Math.min(Date.now(),dp.fin)-dp.debut)/HIST_DAY));
+  const parJour={minutes:friendVolume(f)*friendRythme(f)/7, seances:friendRythme(f)/7, jours:friendRythme(f)/7,
+                 points:friendVolume(f)*friendRythme(f)/7*2.2, serie:0, zone:friendRythme(f)/7*0.6};
+  if(dp.unite==='serie') return Math.min(jours, Math.round(friendRythme(f)*(0.6+friendSeed(f,'serie')*0.8)));
+  return Math.round((parJour[dp.unite]||0)*jours);
+}
+function dpClassement(dp){
+  return dp.participants
+    .map(p=>({...p, valeur:dpValeur(dp, p.id)}))
+    .sort((a,b)=>b.valeur-a.valeur);
+}
+function creerDefiPartage(unite, jours, cible, amisIds){
+  const debut=Date.now(), fin=debut+jours*HIST_DAY;
+  const parts=[{id:'me', nom:trDyn('You'), ini:'M', couleur:'var(--brand-fixed)'}]
+    .concat(amisIds.map(id=>{ const f=FRIENDS.find(x=>x.id===id); return f?{id:f.id, nom:f.nom, ini:f.ini, couleur:'#529CFE'}:null; }).filter(Boolean));
+  const dp={ id:'DP-'+(++dpSeq), unite, cible:cible||null, debut, fin, jours, createurId:'me', participants:parts, code:genDefiCode() };
+  defisPartages.unshift(dp);
+  return dp;
+}
+// ===== CREATION D'UN DEFI PARTAGE =====
+// Quatre unites seulement sur les six : "seances" double presque "jours" pour qui s'entraine une fois
+// par jour, et "zone" demande d'expliquer ce qu'est la zone avant qu'on puisse choisir. Les quatre
+// retenues se comprennent sans notice.
+const CD_UNITES = [
+  { k:'serie',   t:'Days in a row',    d:'The longest unbroken run' },
+  { k:'jours',   t:'Training days',    d:'However they are spread out' },
+  { k:'minutes', t:'Minutes',          d:'Total time on the bar' },
+  { k:'points',  t:'Effort points',    d:'Time and reps weighted by intensity' }
+];
+const CD_DUREES = [7, 14, 30];
+let cdUnite='serie', cdJours=14, cdCible=null, cdAmis=[];
+function openCreerDefi(){ cdUnite='serie'; cdJours=14; cdCible=null; cdAmis=[]; go('creer_defi'); setTimeout(renderCreerDefi,20); }
+function setCdUnite(k){ cdUnite=k; cdCible=null; renderCreerDefi(); }
+function setCdJours(j){ cdJours=j; cdCible=null; renderCreerDefi(); }
+function setCdCible(v){ cdCible=v; renderCreerDefi(); }
+function toggleCdAmi(id){ const i=cdAmis.indexOf(id); if(i<0) cdAmis.push(id); else cdAmis.splice(i,1); renderCreerDefi(); }
+// Les cibles proposees se calculent sur la duree choisie : proposer "300 minutes" sur 7 jours et sur
+// 30 jours serait la meme phrase pour deux efforts sans rapport.
+function cdCiblesProposees(){
+  const j=cdJours;
+  if(cdUnite==='serie')   return [Math.min(3,j), Math.min(5,j), Math.min(7,j)].filter((v,i,a)=>v>1 && a.indexOf(v)===i);
+  if(cdUnite==='jours')   return [Math.round(j*0.3), Math.round(j*0.5), Math.round(j*0.7)].filter((v,i,a)=>v>0 && a.indexOf(v)===i);
+  if(cdUnite==='minutes') return [j*10, j*20, j*30];
+  return [j*40, j*80, j*140];
+}
+function renderCreerDefi(){
+  const opt=(on, titre, sous, onclick)=>'<div onclick="'+onclick+'" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;border-radius:14px;cursor:pointer;background:var(--bg2);border:1.5px solid '+(on?'var(--brand-fixed)':'var(--border)')+';">'
+    +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);">'+titre+'</div>'
+    +(sous?'<div style="font-size:11.5px;color:var(--gray2);margin-top:2px;line-height:1.35;">'+sous+'</div>':'')+'</div>'
+    +'<div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;'+(on?'background:var(--brand-fixed);color:var(--ink-on-accent);':'border:1.5px solid var(--border);')+'">'+(on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div></div>';
+  const chip=(on, txt, onclick)=>'<span class="lib-chip'+(on?' on':'')+'" onclick="'+onclick+'" style="margin:0 8px 8px 0;'+(on?'border-color:var(--brand-fixed);color:var(--brand-fixed);background:rgba(var(--brand-fixed-rgb),.08);':'')+'">'+txt+'</span>';
+
+  const eu=document.getElementById('cdUnites');
+  if(eu) eu.innerHTML = CD_UNITES.map(u=>opt(cdUnite===u.k, trDyn(u.t), trDyn(u.d), "setCdUnite('"+u.k+"')")).join('');
+
+  const ed=document.getElementById('cdDurees');
+  if(ed) ed.innerHTML = '<div style="display:flex;flex-wrap:wrap;">'
+    + CD_DUREES.map(j=>chip(cdJours===j, trDyn(j+' days'), 'setCdJours('+j+')')).join('') + '</div>';
+
+  const hint=document.getElementById('cdCibleHint');
+  if(hint) hint.textContent = trDyn('Without a target, the highest score wins. With one, everyone who reaches it succeeds.');
+  const ec=document.getElementById('cdCibles');
+  if(ec) ec.innerHTML = '<div style="display:flex;flex-wrap:wrap;">'
+    + chip(cdCible===null, trDyn('No target'), 'setCdCible(null)')
+    + cdCiblesProposees().map(v=>chip(cdCible===v, v+' '+uniteLbl(cdUnite, v), 'setCdCible('+v+')')).join('') + '</div>';
+
+  // Lot D : les amis comparables d'abord, avec la RAISON. On ne montre jamais un niveau.
+  const ea=document.getElementById('cdAmis');
+  if(ea){
+    const actifs=FRIENDS.filter(f=>f.statut==='actif');
+    const tri=[...actifs].sort((a,b)=>(estComparable(b)?1:0)-(estComparable(a)?1:0));
+    ea.innerHTML = tri.length
+      ? tri.map(f=>opt(cdAmis.includes(f.id), f.nom, estComparable(f)?raisonComparable(f):'', "toggleCdAmi('"+f.id+"')")).join('')
+      : '<div style="font-size:13px;color:var(--gray2);">'+trDyn('No friend yet — you can still launch it and share the code.')+'</div>';
+  }
+  const btn=document.getElementById('cdSubmit');
+  if(btn) btn.textContent = trDyn('Launch the challenge');
+  const sc=document.getElementById('creer_defi'); if(sc) sweepTranslate(sc, currentLang);
+}
+function submitCreerDefi(){
+  const dp=creerDefiPartage(cdUnite, cdJours, cdCible, cdAmis);
+  openDefiPartage(dp.id);
+  toast(trDyn('Challenge launched'));
+  renderDefisScreen();
+}
+
+// ===== LE CLASSEMENT =====
+let dpCurrentId=null;
+function openDefiPartage(id){ dpCurrentId=id; go('defi_partage_detail'); setTimeout(renderDefiPartage,20); }
+function renderDefiPartage(){
+  const dp=getDefiPartage(dpCurrentId); if(!dp) return;
+  const u=DEFI_UNITES[dp.unite];
+  const set=(id,html)=>{ const e=document.getElementById(id); if(e) e.innerHTML=html; };
+  const t=document.getElementById('dpTopTitle'); if(t) t.textContent=dpNom(dp);
+  const restants=dpJoursRestants(dp);
+  const fini=!dpEnCours(dp);
+  // Le nom est deja dans la barre du haut : le repeter 40 px plus bas etait une redite. La carte ne
+  // porte que les faits qu'elle seule peut dire. Et "14 jours restants · 14 jours" disait deux fois la
+  // meme chose au premier jour : la duree totale part, il reste ce qu'il reste.
+  set('dpHead', '<div class="card-sm" style="margin:0;">'
+    +'<div style="font-size:13px;color:var(--white);font-weight:700;">'
+      +(fini ? trDyn('Finished') : trDyn(restants+' day'+(restants>1?'s':'')+' left'))
+      +'<span style="color:var(--gray2);font-weight:400;"> · '+dp.participants.length+' '+trDyn('participants')+'</span></div>'
+    +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'
+      +(dp.cible ? trDyn('To reach')+' : '+dp.cible+' '+uniteLbl(dp.unite, dp.cible) : trDyn('No target — the highest score wins.'))
+      +'</div></div>');
+
+  const cl=dpClassement(dp);
+  const max=Math.max(1, cl[0]?cl[0].valeur:1);
+  set('dpClassement', '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn('Ranking')+'</div>'
+    + cl.map((p,i)=>{
+        const moi=p.id==='me';
+        const atteint = dp.cible && p.valeur>=dp.cible;
+        return '<div style="display:flex;align-items:center;gap:11px;margin-bottom:7px;padding:10px 12px;border-radius:12px;background:'+(moi?'rgba(var(--brand-fixed-rgb),.07)':'var(--bg2)')+';border:1px solid '+(moi?'rgba(var(--brand-fixed-rgb),.4)':'var(--border)')+';">'
+          +'<span style="font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--gray2);width:16px;text-align:center;flex-shrink:0;">'+(i+1)+'</span>'
+          +'<span style="width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#0A0A0F;background:'+p.couleur+';">'+p.ini+'</span>'
+          +'<span style="flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+p.nom+'</span>'
+          +(atteint?'<span style="color:var(--brand-fixed);display:inline-flex;flex-shrink:0;"><svg class="ki" style="width:14px;height:14px;"><use href="#ki-check-circle"/></svg></span>':'')
+          +'<span style="font-size:12.5px;font-weight:700;color:var(--white);font-variant-numeric:tabular-nums;flex-shrink:0;">'+p.valeur+' <span style="color:var(--gray2);font-weight:400;font-size:10.5px;">'+uniteLbl(dp.unite, p.valeur)+'</span></span>'
+          +'</div>';
+      }).join('')
+    // Un dernier n'est pas un perdant : le classement dit un ordre, pas un verdict. Aucun mot d'echec
+    // nulle part, meme fini — c'est la meme regle que pour un programme qu'on arrete.
+    + '<div style="font-size:11.5px;color:var(--gray2);margin-top:8px;line-height:1.45;">'
+      + trDyn('Everyone here trained. The ranking says in which order, nothing else.') + '</div>');
+
+  set('dpCode', '<div class="card-sm" style="margin:0;display:flex;align-items:center;gap:12px;">'
+    +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:var(--white);">'+trDyn('Invite with this code')+'</div>'
+    +'<div style="font-size:15px;font-weight:800;letter-spacing:.1em;color:var(--brand-fixed);font-variant-numeric:tabular-nums;margin-top:3px;">'+dp.code+'</div></div>'
+    +'<button class="btn-ghost" style="color:var(--gray2);flex-shrink:0;" onclick="toast(trDyn(\'Code copied\')+\' — \'+\''+dp.code+'\')">'+trDyn('Copy')+'</button></div>');
+
+  set('dpCta', '<button class="btn btn-outline" style="width:100%;" onclick="confirmQuitterDefiPartage(\''+dp.id+'\')">'+trDyn('Leave this challenge')+'</button>');
+  const sc=document.getElementById('defi_partage_detail'); if(sc) sweepTranslate(sc, currentLang);
+}
+function confirmQuitterDefiPartage(id){
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:8px;">'+trDyn('Leave this challenge?')+'</div>'
+    +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+trDyn('Your sessions stay in your history. Only the ranking loses you.')+'</div>'
+    +'<button class="btn btn-outline" style="width:100%;margin-top:18px;" onclick="quitterDefiPartage(\''+id+'\')">'+trDyn('Leave')+'</button>'
+    +'<button class="btn-ghost" style="width:100%;margin-top:8px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Cancel')+'</button>');
+}
+function genDefiCode(){
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c='';
+  for(let i=0;i<6;i++) c+=A[Math.floor(Math.random()*A.length)];
+  return c;
+}
+function quitterDefiPartage(id){
+  const i=defisPartages.findIndex(d=>d.id===id); if(i<0) return;
+  defisPartages.splice(i,1);
+  closeModal(); go('defis'); renderDefisScreen();
+  toast(trDyn('Challenge left'));
 }
 
 let userProgrammeHistory = [
@@ -5802,6 +6067,8 @@ function go(id){
   if(id==='salle_attente') setTimeout(simulateBattleLobby, 20);
   if(id==='battle_countdown') setTimeout(startBattleCountdown, 20);
   if(id==='defi_config') setTimeout(resetDefiConfig, 20);
+  if(id==='creer_defi') setTimeout(renderCreerDefi, 20);
+  if(id==='defi_partage_detail') setTimeout(renderDefiPartage, 20);
   if(id==='defi_ami_config') setTimeout(resetDefiAmiConfig, 20);
   if(id==='defi_ami_attente') setTimeout(startFriendWait, 20);
   if(id==='mes_amis') setTimeout(renderMesAmis, 20);
@@ -9325,7 +9592,25 @@ function defiTileHtml(d){
     +'<div style="font-size:13px;font-weight:700;color:var(--white);line-height:1.22;">'+trDyn(d.nom)+'</div>'
     +'<div style="display:flex;align-items:center;gap:5px;margin-top:6px;font-size:10.5px;color:var(--gray2);font-variant-numeric:tabular-nums;">'
       +'<svg class="ki" style="width:13px;height:13px;flex-shrink:0;"><use href="#'+d.ic+'"/></svg>'
-      +'<span>'+trDyn(d.cible+' '+u.lbl)+' · '+trDyn(d.fenetreJours+' days')+'</span></div>'
+      +'<span>'+d.cible+' '+uniteLbl(d.unite, d.cible)+' · '+trDyn(d.fenetreJours+' days')+'</span></div>'
+    +'</div>';
+}
+// Carte d'un defi partage : ce qu'on veut savoir d'un coup d'oeil, c'est OU J'EN SUIS par rapport aux
+// autres et COMBIEN DE TEMPS il reste — pas la cible, qui est dans la fiche.
+function defiPartageCardHtml(dp){
+  const u=DEFI_UNITES[dp.unite], cl=dpClassement(dp);
+  const moi=cl.findIndex(p=>p.id==='me')+1;
+  const val=(cl.find(p=>p.id==='me')||{valeur:0}).valeur;
+  const restants=dpJoursRestants(dp), fini=!dpEnCours(dp);
+  return '<div class="card-sm" style="margin:0 20px 10px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiPartage(\''+dp.id+'\')">'
+    +'<div style="flex:1;min-width:0;">'
+      +'<div style="font-size:14px;font-weight:700;color:var(--white);">'+dpNom(dp)+'</div>'
+      +'<div style="font-size:11.5px;color:var(--gray2);margin-top:3px;">'
+        + (currentLang==='fr' ? (moi+'ᵉ sur '+cl.length) : (moi+' of '+cl.length))
+        + ' · ' + val + ' ' + uniteLbl(dp.unite, val)
+        + ' · ' + (fini ? trDyn('Finished') : trDyn(restants+' day'+(restants>1?'s':'')+' left')) + '</div>'
+    +'</div>'
+    +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg>'
     +'</div>';
 }
 function renderDefisScreen(){
@@ -9333,9 +9618,11 @@ function renderDefisScreen(){
   if(mes){
     // Le titre ne depend plus de userDefis : le defi de volume hebdomadaire le suit toujours, et un
     // bloc sans titre juste au-dessus d'un autre titre se lisait comme sa legende.
+    const vide = !userDefis.length && !defisPartages.length;
     mes.innerHTML = '<div class="zone-lbl" style="margin-top:18px;">MY CHALLENGES</div>'
+      + defisPartages.map(defiPartageCardHtml).join('')
       + userDefis.map(u=>{ const d=getDefi(u.id); return d?defiCardHtml(d,u):''; }).join('')
-      + (userDefis.length ? '' : '<div style="margin:0 20px 10px;font-size:12px;color:var(--gray);">'+trDyn('No challenge joined yet.')+'</div>');
+      + (vide ? '<div style="margin:0 20px 10px;font-size:12px;color:var(--gray);">'+trDyn('No challenge joined yet.')+'</div>' : '');
     sweepTranslate(mes, currentLang);
   }
   if(cat){
@@ -9354,9 +9641,12 @@ function renderDefisScreen(){
       corps = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
         + libres.map(defiTileHtml).join('') + '</div>';
     }
-    cat.innerHTML = libres.length
-      ? '<div class="zone-lbl" style="margin-top:22px;">TO TAKE ON</div>' + corps
-      : '';
+    // "Creer un defi" vit dans le titre et non sur une carte : une porte n'a pas besoin de 70 px pour
+    // dire qu'elle est une porte, et la zone tapable descend a 44 px par le padding.
+    const creer='<span role="button" tabindex="0" onclick="openCreerDefi()" style="margin-left:auto;font-size:11.5px;font-weight:700;color:var(--brand-fixed);letter-spacing:0;text-transform:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:15px 0 15px 16px;margin-top:-15px;margin-bottom:-15px;">'
+      +'<svg class="ki" style="width:12px;height:12px;"><use href="#ki-plus"/></svg>'+trDyn('Create a challenge')+'</span>';
+    cat.innerHTML = '<div class="zone-lbl" style="margin-top:22px;display:flex;align-items:center;">'+trDyn('TO TAKE ON')+creer+'</div>'
+      + (libres.length ? corps : '');
     sweepTranslate(cat, currentLang);
   }
   renderProgBadges('defisBadgesSection');
@@ -12029,6 +12319,39 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "To reach": "À atteindre",
+  "No target — the highest score wins.": "Sans cible — le meilleur score gagne.",
+  "day in a row": "jour d’affilée",
+  "training day": "jour d’entraînement",
+  "effort point": "point d’effort",
+  "session in the zone": "séance dans la zone",
+  "Create a challenge": "Créer un défi",
+  "What we measure": "Ce qu’on mesure",
+  "How long": "Sur combien de temps",
+  "A target?": "Une cible ?",
+  "Who is in": "Qui est dedans",
+  "Launch the challenge": "Lancer le défi",
+  "Days in a row": "Jours d’affilée",
+  "The longest unbroken run": "La plus longue suite sans interruption",
+  "Training days": "Jours d’entraînement",
+  "However they are spread out": "Peu importe comment ils se répartissent",
+  "Total time on the bar": "Le temps total sur la barre",
+  "Effort points": "Points d’effort",
+  "Time and reps weighted by intensity": "Le temps et les reps pondérés par l’intensité",
+  "No target": "Sans cible",
+  "Without a target, the highest score wins. With one, everyone who reaches it succeeds.": "Sans cible, c’est le meilleur score qui gagne. Avec une cible, tous ceux qui l’atteignent réussissent.",
+  "Everyone starts the same day — that is what makes the ranking fair.": "Tout le monde démarre le même jour — c’est ce qui rend le classement juste.",
+  "No friend yet — you can still launch it and share the code.": "Pas encore d’ami — tu peux quand même le lancer et partager le code.",
+  "Challenge launched": "Défi lancé",
+  "Ranking": "Classement",
+  "participants": "participants",
+  "Everyone here trained. The ranking says in which order, nothing else.": "Tout le monde ici s’est entraîné. Le classement dit dans quel ordre, rien d’autre.",
+  "Invite with this code": "Inviter avec ce code",
+  "Code copied": "Code copié",
+  "Leave this challenge?": "Quitter ce défi ?",
+  "Your sessions stay in your history. Only the ranking loses you.": "Tes séances restent dans ton historique. Seul le classement te perd.",
+  "Leave": "Quitter",
+  "days in a row": "jours d’affilée",
   "TO TAKE ON": "À RELEVER",
   "DUELS": "DUELS",
   "No challenge joined yet.": "Aucun défi rejoint pour l'instant.",
@@ -13909,6 +14232,10 @@ function setLang(lang){
     // « Prochain badge : Premier mois — 13 restantes » est une seule chaîne assemblée au rendu : les
     // libellés des cartes sont des clés de dictionnaire et suivaient la langue, pas cette ligne-là.
     if(document.getElementById('defisBadgesSection')) renderProgBadges('defisBadgesSection');
+    // Les cartes de defi partage composent leur nom et leur rang au rendu : sans ce rappel elles
+    // restaient dans la langue du dernier affichage.
+    if(document.getElementById('defisMes')) renderDefisScreen();
+    if(document.querySelector('#defi_partage_detail.active')) renderDefiPartage();
     // La fenetre datee ("6 -> 12 sept.") est composee par toLocaleDateString, donc invisible du
     // dictionnaire : sans ce rappel elle resterait dans la langue du dernier rendu.
     if(document.getElementById('progPeriodView')) renderProgPeriod(progActivePeriod);
