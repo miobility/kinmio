@@ -641,18 +641,18 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
    vitrine, ca ne s'empile pas. Meme patron que .exo-row, ascenseur masque compris. */
 .badges-grid{display:flex;gap:10px;padding:0 20px 8px;overflow-x:auto;scrollbar-width:none;}
 .badges-grid::-webkit-scrollbar{display:none;}
-.badge-card{width:104px;flex-shrink:0;background:var(--bg2);border-radius:16px;padding:14px 8px;text-align:center;border:1px solid var(--border);}
+.badge-card{width:82px;flex-shrink:0;background:var(--bg2);border-radius:14px;padding:10px 6px;text-align:center;border:1px solid var(--border);}
 /* Un badge verrouille etait le meme dessin en opacity:.35 — ce qui attenuait aussi son nom et sa
    condition, donc rendait illisible precisement ce qu'on a besoin de lire quand on ne l'a pas encore.
    La difference porte maintenant sur la FORME (plein contre pointille), pas sur l'intensite, et le
    texte garde son contraste. Le pointille dit d'ailleurs la bonne chose : un emplacement en attente,
    pas un objet eteint. */
 .badge-card.lock{background:transparent;}
-.badge-e{width:48px;height:48px;border-radius:15px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;background:var(--brand-fixed);color:var(--ink-on-accent);}
-.badge-e svg{width:26px;height:26px;}
+.badge-e{width:36px;height:36px;border-radius:12px;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;background:var(--brand-fixed);color:var(--ink-on-accent);}
+.badge-e svg{width:20px;height:20px;}
 .badge-card.lock .badge-e{background:transparent;border:1.5px dashed var(--dim);color:var(--dim);}
 .badge-card.lock .badge-t{color:var(--gray);}
-.badge-t{font-size:11.5px;font-weight:700;color:var(--white);line-height:1.25;}
+.badge-t{font-size:10.5px;font-weight:700;color:var(--white);line-height:1.22;}
 .badge-d{font-size:10px;color:var(--gray);margin-top:3px;line-height:1.3;}
 
 /* ===== KINE DASHBOARD ===== */
@@ -2288,31 +2288,33 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <!-- Ordre inversé (12 sept. 2026) : le bloc social ouvrait l'onglet, donc un utilisateur sans ami
          tombait d'abord sur trois avatars et un « défier un ami » inutilisable, et l'onglet paraissait
          vide. Mes défis et le catalogue à rejoindre passent devant ; le social descend. -->
+    <!-- Trois mots, trois sections (12 sept. 2026) : un DEFI a une fin et peut avoir des gens dedans,
+         un DUEL a une heure, un BADGE n'a ni l'un ni l'autre. L'ordre suit ce qu'on vient y faire :
+         ce que j'ai en cours, ce que je peux relever, ce que je lance maintenant, ce que j'ai gagne. -->
     <div id="defisMes"></div>
+    <!-- Le defi de volume hebdo remonte ici : c'est un defi EN COURS, pas une porte d'entree. Il vivait
+         au milieu du bloc social, 1 100 px plus bas, entre une rangee d'avatars et les badges. -->
+    <div id="defisVolumeChallenge" class="card-sm" style="margin:0 20px 0;padding:18px;border-radius:18px;"></div>
     <div id="defisCatalogue"></div>
-    <div class="zone-lbl" style="margin-top:22px;">WITH OTHERS</div>
+
+    <div class="zone-lbl" style="margin-top:22px;">DUELS</div>
+    <div class="card-sm" style="margin:0 20px 0;border-color:rgba(var(--red-rgb),.30);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiAmi()">
+      <div style="width:38px;height:38px;border-radius:12px;background:rgba(var(--red-rgb),.10);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:700;color:var(--white);">Challenge a friend</div>
+        <div style="font-size:11.5px;color:var(--gray);margin-top:1px;">One move, two screens, same minute</div>
+      </div>
+      <div style="color:var(--gray);font-size:16px;">›</div>
+    </div>
     <div style="display:flex;align-items:center;gap:10px;margin:10px 20px 0;">
       <div style="display:flex;flex-shrink:0;">
         <div style="width:30px;height:30px;border-radius:50%;background:var(--brand-fixed);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--ink-on-accent);">M</div>
         <div style="width:30px;height:30px;border-radius:50%;background:#529CFE;border:2px solid var(--bg);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0A0F;">L</div>
         <div style="width:30px;height:30px;border-radius:50%;background:#A87EFD;border:2px solid var(--bg);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0A0F;">K</div>
       </div>
-      <div style="flex:1;min-width:0;font-size:12.5px;color:var(--gray);" id="defisGroupLabel">Your group · 3 members</div>
-      <span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="go('mes_amis')">Manage friends</span>
+    <div style="flex:1;min-width:0;font-size:12.5px;color:var(--gray);" id="defisGroupLabel">Your group · 3 members</div>
+    <span style="font-size:12px;font-weight:700;color:var(--orange);cursor:pointer;flex-shrink:0;" onclick="go('mes_amis')">Manage friends</span>
     </div>
-
-    <!-- Défi 1v1 — déplacé depuis Home (audit sept. 2026) : vivait seul sur Home, déconnecté de tout
-         le reste de la compétition sociale. Vit ici désormais, à côté du défi de groupe et des badges. -->
-    <div class="card-sm" style="margin:16px 20px 0;border-color:rgba(var(--orange-rgb),.3);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openDefiAmi()">
-      <div style="width:38px;height:38px;border-radius:12px;background:rgba(var(--orange-rgb),.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,21v-18 /><path d=M5,4c2,-1,4,-1,6,0c2,1,4,1,6,0v8c-2,1,-4,1,-6,0c-2,-1,-4,-1,-6,0Z /></svg></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:14px;font-weight:700;color:var(--orange);">Challenge a friend</div>
-        <div style="font-size:11.5px;color:var(--gray);margin-top:1px;">Duel it out on a cardio move</div>
-      </div>
-      <div style="color:var(--gray);font-size:16px;">›</div>
-    </div>
-
-    <div id="defisVolumeChallenge" class="card-sm" style="margin:12px 20px 0;padding:18px;border-radius:18px;"></div>
 
     <div class="zone-lbl" style="margin-top:22px;">BADGES</div>
     <div id="defisBadgesSection" style="margin:10px 20px 24px;"></div>
@@ -5176,11 +5178,11 @@ const DEFIS_CATALOGUE = [
 // cartes pour 8 défis. Chaque défi apparaît donc UNE fois, sous la première intention qui le prend —
 // le nombre de cartes ne bouge pas, ce qui change c'est qu'on peut sauter un groupe entier d'un coup.
 const DEFI_RAYONS = [
-  { titre:'Getting back into it', sous:'Short, and reachable',
+  { titre:'Getting back into it', 
     test:(d)=>!d.expedition && d.cible<=10 && (d.unite==='seances' || d.unite==='jours') },
-  { titre:'A month, one goal',    sous:'Long enough to count, short enough to hold',
+  { titre:'A month, one goal',    
     test:(d)=>!d.expedition },
-  { titre:'The long haul',        sous:'Measured in months',
+  { titre:'The long haul',        
     test:()=>true }
 ];
 // En dessous de ce seuil, grouper coûte plus de titres que ça n'économise de lecture.
@@ -9309,13 +9311,31 @@ function defiCardHtml(d, entry){
     +'<svg class="ki" style="color:var(--gray);flex-shrink:0;margin-top:3px;"><use href="#ki-fwd"/></svg>'
     +'</div>';
 }
+// Tuile de catalogue, deux par rangee. La carte pleine largeur coute 81 px ; huit d'entre elles font
+// 648 px pour une fenetre visible de 692 — aucun rangement ne rattrape ca, il faut changer l'anatomie.
+// Ce qui tombe : le sous-titre (il descend dans la fiche du defi, qui l'affiche deja) et le chevron
+// (la tuile entiere est tapable). Ce qui reste : le nom, et la cible avec sa fenetre — un catalogue
+// dit ce que c'est et ce que ca coute ; le pourquoi s'ouvre quand on hesite.
+function defiTileHtml(d){
+  const u=DEFI_UNITES[d.unite]||{lbl:''};
+  return '<div class="card-sm" style="margin:0;padding:11px 12px;cursor:pointer;" onclick="openDefiDetail(\''+d.id+'\')">'
+    // Le pictogramme occupait sa propre ligne : 33 px par rangee, quatre rangees, 132 px — pour un
+    // glyphe pris a la planche des badges, le meme air pour les huit. Il decore, il ne distingue pas.
+    // Il redescend sur la ligne de la cible, ou il coute sa seule hauteur de texte.
+    +'<div style="font-size:13px;font-weight:700;color:var(--white);line-height:1.22;">'+trDyn(d.nom)+'</div>'
+    +'<div style="display:flex;align-items:center;gap:5px;margin-top:6px;font-size:10.5px;color:var(--gray2);font-variant-numeric:tabular-nums;">'
+      +'<svg class="ki" style="width:13px;height:13px;flex-shrink:0;"><use href="#'+d.ic+'"/></svg>'
+      +'<span>'+trDyn(d.cible+' '+u.lbl)+' · '+trDyn(d.fenetreJours+' days')+'</span></div>'
+    +'</div>';
+}
 function renderDefisScreen(){
   const mes=document.getElementById('defisMes'), cat=document.getElementById('defisCatalogue');
   if(mes){
-    mes.innerHTML = userDefis.length
-      ? '<div class="zone-lbl" style="margin-top:18px;">MY CHALLENGES</div>'
-        + userDefis.map(u=>{ const d=getDefi(u.id); return d?defiCardHtml(d,u):''; }).join('')
-      : '';
+    // Le titre ne depend plus de userDefis : le defi de volume hebdomadaire le suit toujours, et un
+    // bloc sans titre juste au-dessus d'un autre titre se lisait comme sa legende.
+    mes.innerHTML = '<div class="zone-lbl" style="margin-top:18px;">MY CHALLENGES</div>'
+      + userDefis.map(u=>{ const d=getDefi(u.id); return d?defiCardHtml(d,u):''; }).join('')
+      + (userDefis.length ? '' : '<div style="margin:0 20px 10px;font-size:12px;color:var(--gray);">'+trDyn('No challenge joined yet.')+'</div>');
     sweepTranslate(mes, currentLang);
   }
   if(cat){
@@ -9326,16 +9346,16 @@ function renderDefisScreen(){
       corps = DEFI_RAYONS.map(r=>{
         const sel=[]; for(let i=reste.length-1;i>=0;i--){ if(r.test(reste[i])) sel.unshift(reste.splice(i,1)[0]); }
         if(!sel.length) return '';
-        return '<div style="margin:22px 20px 10px;">'
-          +'<div style="font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.2px;">'+trDyn(r.titre)+'</div>'
-          +'<div style="font-size:11.5px;color:var(--gray2);margin-top:1px;">'+trDyn(r.sous)+'</div></div>'
-          + sel.map(d=>defiCardHtml(d,null)).join('');
+        return '<div style="margin:15px 20px 8px;font-size:13px;font-weight:800;color:var(--white);letter-spacing:-.1px;">'+trDyn(r.titre)+'</div>'
+          +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
+          + sel.map(defiTileHtml).join('') + '</div>';
       }).join('');
     } else {
-      corps = libres.map(d=>defiCardHtml(d,null)).join('');
+      corps = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 20px;">'
+        + libres.map(defiTileHtml).join('') + '</div>';
     }
     cat.innerHTML = libres.length
-      ? '<div class="zone-lbl" style="margin-top:'+(userDefis.length?'22':'18')+'px;">JOIN A CHALLENGE</div>' + corps
+      ? '<div class="zone-lbl" style="margin-top:22px;">TO TAKE ON</div>' + corps
       : '';
     sweepTranslate(cat, currentLang);
   }
@@ -9348,16 +9368,20 @@ function renderDefiVolumeChallenge(){
   const you=getUserWeeklyMinutes(), them=simulatedFriendWeeklyMinutes(friend);
   const max=Math.max(you, them, 1);
   const daysLeft=getChallengeDaysLeft();
-  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
-    +'<div><div style="font-size:15px;font-weight:700;">'+trDyn('Weekly volume challenge')+'</div>'
-    +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn('You vs ')+trDyn(friend.nom)+' · '+trDyn(daysLeft+' day'+(daysLeft>1?'s':'')+' left')+'</div></div>'
-    +'<div style="width:32px;height:32px;border-radius:10px;background:rgba(var(--brand-fixed-rgb),.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
-    +'<svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-fixed)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9.5 3h5"/></svg></div>'
-    +'</div>'
-    +'<div style="margin-top:18px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><div style="font-weight:700;color:var(--white);">'+trDyn('You')+'</div><div style="color:var(--gray2);font-variant-numeric:tabular-nums;">'+trDyn(you+' min')+'</div></div>'
-    +'<div style="height:8px;border-radius:5px;background:var(--border);overflow:hidden;"><div style="width:'+Math.round(you/max*100)+'%;height:100%;background:var(--brand-fixed);border-radius:5px;"></div></div></div>'
-    +'<div style="margin-top:14px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><div style="font-weight:700;color:var(--white);">'+trDyn(friend.nom)+'</div><div style="color:var(--gray2);font-variant-numeric:tabular-nums;">'+trDyn(them+' min')+'</div></div>'
-    +'<div style="height:8px;border-radius:5px;background:var(--border);overflow:hidden;"><div style="width:'+Math.round(them/max*100)+'%;height:100%;background:#529CFE;border-radius:5px;"></div></div></div>';
+  // 161 px pour comparer deux nombres : un pictogramme decoratif, deux barres empilees chacune avec son
+  // nom au-dessus et sa valeur a droite, et un titre sur deux lignes. La meme regle que les tuiles du
+  // catalogue s'applique — deux barres superposees disent l'ecart aussi bien quand elles sont fines et
+  // collees, et le nom peut vivre SUR la ligne plutot qu'au-dessus. Le pictogramme part : il ne
+  // distinguait rien, c'etait le seul objet de l'ecran a en porter un.
+  const ligne=(nom, val, pct, couleur, fort)=>'<div style="display:flex;align-items:center;gap:9px;margin-top:7px;">'
+    +'<span style="font-size:12px;'+(fort?'font-weight:700;color:var(--white);':'color:var(--gray2);')+'width:76px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nom+'</span>'
+    +'<span style="flex:1;height:6px;border-radius:4px;background:var(--border);overflow:hidden;"><span style="display:block;width:'+pct+'%;height:100%;border-radius:4px;background:'+couleur+';"></span></span>'
+    +'<span style="font-size:11.5px;color:var(--gray2);width:46px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;">'+val+' min</span></div>';
+  el.innerHTML = '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;">'
+      +'<span style="font-size:13.5px;font-weight:700;color:var(--white);">'+trDyn('Weekly volume challenge')+'</span>'
+      +'<span style="font-size:11px;color:var(--gray);flex-shrink:0;">'+trDyn(daysLeft+' day'+(daysLeft>1?'s':'')+' left')+'</span></div>'
+    + ligne(trDyn('You'), you, Math.round(you/max*100), 'var(--brand-fixed)', true)
+    + ligne(trDyn(friend.nom), them, Math.round(them/max*100), '#529CFE', false);
 }
 // Score Kinmio du jour — même formule que l'Intensity% (minutes×jauge / reps×résistance), juste à
 // l'échelle de la séance plutôt que de la fenêtre 7/30/90j : l'objectif du jour = le score que donnerait
@@ -9670,7 +9694,7 @@ function renderProgBadges(elId){
   const nbOk=badges.filter(b=>b.unlocked).length;
   el.innerHTML='<div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 20px 10px;"><span style="font-size:11.5px;color:var(--gray2);">'+(currentLang==='fr' ? nbOk+' sur '+badges.length : nbOk+' of '+badges.length)+'</span></div>'
     +'<div class="badges-grid">'
-    +badges.map(b=>'<div class="badge-card'+(b.unlocked?'':' lock')+'"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div><div class="badge-d">'+trDyn(b.d)+'</div></div>').join('')
+    +badges.map(b=>'<div class="badge-card'+(b.unlocked?'':' lock')+'"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div></div>').join('')
     +'</div>'
     +(next ? '<div style="margin-top:12px;font-size:13px;color:var(--white);display:flex;align-items:center;gap:7px;"><span style="color:var(--gray2);display:inline-flex;"><svg class="ki" style="width:15px;height:15px;"><use href="#'+next.ic+'"/></svg></span><span>'+trDyn('Next badge')+' : '+trDyn(next.t)+' — '+(next.target-total)+' '+trDyn('to go')+'</span></div>'
       +'<div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:6px;"><div style="height:100%;width:'+Math.round(total/next.target*100)+'%;background:var(--orange);border-radius:3px;"></div></div>'
@@ -12005,6 +12029,10 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "TO TAKE ON": "À RELEVER",
+  "DUELS": "DUELS",
+  "No challenge joined yet.": "Aucun défi rejoint pour l'instant.",
+  "One move, two screens, same minute": "Un mouvement, deux écrans, la même minute",
   "See my whole programme": "Voir tout mon programme",
   "Cardio endurance": "Endurance cardio",
   "Your programme is waiting for you": "Ton programme t'attend",
@@ -13219,9 +13247,6 @@ const EN_FR = {
   "The ones I didn't finish": "Que je n'ai pas finies",
   "Where it hurt": "Où j'ai eu mal",
   "Everything": "Tout",
-  "Measured in months": "Ça se compte en mois",
-  "Long enough to count, short enough to hold": "Assez long pour compter, assez court pour tenir",
-  "Short, and reachable": "Court, et atteignable",
   "The long haul": "Le long cours",
   "A month, one goal": "Un mois, un objectif",
   "Getting back into it": "Je m'y remets",
