@@ -11033,6 +11033,9 @@ const EN_FR = {
   "Area to protect": "Zone à ménager",
   "Frequency": "Fréquence",
   "Preferred duration": "Durée préférée",
+  "Always": "Toujours",
+  "Never": "Jamais",
+  "Long sessions only": "Séances longues seulement",
   "Get started →": "Commencer →",
   // formules_preview
   "🎉 1 MONTH FREE": "🎉 1 MOIS OFFERT",
@@ -15362,12 +15365,12 @@ function renderSessionDetail(){
         +'</div>';
     }
   }
-  // Coche Échauffement/Retour au calme par lancement, jamais un réglage permanent (cf discussion :
-  // l'échauffement est un point de sécurité P0, "toujours proposé, jamais imposé" doit survivre au
-  // déplacement du choix avant la séance) — remise à l'état de la séance (s.echauffement/retour_calme)
-  // à chaque ouverture de la fiche, jamais mémorisée d'une séance à l'autre.
-  sdWarmupOn = !!s.echauffement;
-  sdCooldownOn = !!s.retour_calme;
+  // Coche par lancement abandonnée (cf discussion Benjamin/DESIGN) : un choix refait 3x/semaine est de
+  // la friction, pas une préférence. Trois niveaux à la place — champ de la séance (shouldRunWarmup/
+  // shouldRunCooldown) + préférence réglée une fois dans Mon profil d'entraînement + "Passer" resté tel
+  // quel pour l'exception du jour. renderSdPhases() reste volontairement l'affichage simple (3 phases,
+  // total statique) : DESIGN la refait pour n'annoncer que ce qui aura vraiment lieu, une fois ce
+  // routage confirmé branché — pas avant, cf discussion.
   renderSdPhases();
   const listEl=document.getElementById('sdExoList');
   if(listEl){
@@ -16495,9 +16498,10 @@ function demarrerSessionNouveau(id){
   sessionRpeLog = [];
   currentProgram = { titre: s.nom_marketing, exercices: list, duree: s.duree, objectifLabel: s.objectif.join(' · '), jours: currentProgram.jours, semaine: semaineActuelle, excluded: [], avecCoach: !!s.avecCoach };
   sessCurrent = 1;
-  // La coche de la fiche (sdWarmupOn, cf renderSdPhases) decide si on passe par l'echauffement — meme
-  // resultat que taper "Passer" une fois dans l'ecran, juste decide avant plutot qu'apres l'avoir vu.
-  go(sdWarmupOn ? 'session_warmup' : 'session');
+  // Trois niveaux (cf discussion Benjamin/DESIGN, remplace la coche par lancement) : la séance elle-
+  // même peut dire non (shouldRunWarmup), sinon la préférence réglée une fois dans Mon profil
+  // d'entraînement décide — "Passer l'échauffement" dans l'écran reste l'exception du jour, inchangée.
+  go(shouldRunWarmup(s) ? 'session_warmup' : 'session');
 }
 // Échauffement — P0 sécurité (cf Manques identifiés) : aucune notion de warm-up n'existait avant dans
 // le déroulé de séance. Skippable, adapté au profil : filtré par userProfileData.zones_eviter, même
@@ -16544,14 +16548,31 @@ function getCooldownMoves(){
   const list=COOLDOWN_MOVES.filter(m=>!m.zone || !avoid.includes(m.zone));
   return list.length ? list : COOLDOWN_MOVES.filter(m=>!m.zone);
 }
-// Coche par lancement (cf discussion "comme la coche Passer maintenant", pas un réglage permanent) :
-// remise à l'état de la séance à chaque ouverture de la fiche (renderSessionDetail), jamais mémorisée
-// d'une séance à l'autre — préserve le rappel de sécurité répété de l'échauffement (chantier P0).
-let sdWarmupOn=true, sdCooldownOn=true;
-function toggleSdPhase(which, on){
-  if(which==='warmup') sdWarmupOn=on; else sdCooldownOn=on;
-  renderSdPhases();
+// Échauffement/retour au calme en trois niveaux (décision Benjamin, remplace la coche par lancement) :
+// 1) la séance elle-même peut dire non (echauffement/retour_calme===false), auquel cas rien ne le fait
+//    changer d'avis ; 2) sinon la préférence réglée une fois dans Mon profil d'entraînement décide
+//    (Toujours / Séances longues seulement / Jamais) ; 3) "Passer" dans l'écran reste l'exception du
+//    jour, ne modifie jamais la préférence. Aucune séance du catalogue n'est entre 15 et 30 min : c'est
+//    la coupure naturelle pour "longue".
+const LONG_SESSION_MIN_DUREE=30;
+function shouldRunWarmup(s){
+  if(s && s.echauffement===false) return false;
+  const pref=profile.warmupPref||'Always';
+  if(pref==='Never') return false;
+  if(pref==='Long sessions only') return !!(s && s.duree>=LONG_SESSION_MIN_DUREE);
+  return true;
 }
+function shouldRunCooldown(s){
+  if(s && s.retour_calme===false) return false;
+  const pref=profile.cooldownPref||'Always';
+  if(pref==='Never') return false;
+  if(pref==='Long sessions only') return !!(s && s.duree>=LONG_SESSION_MIN_DUREE);
+  return true;
+}
+// Affichage simple, volontairement pas encore conditionné par shouldRunWarmup/shouldRunCooldown —
+// DESIGN reprend ce bloc pour n'annoncer que les phases qui auront vraiment lieu une fois le routage
+// confirmé branché (cf discussion), pas avant : sinon la fiche annoncerait "pas d'échauffement" sur
+// des séances qui en auront quand même un selon la préférence du moment.
 function renderSdPhases(){
   const s=[...SESSIONS,...userSessions].find(x=>x.id===window._curSessId); if(!s) return;
   const phasesEl=document.getElementById('sdPhases'); if(!phasesEl) return;
@@ -16560,20 +16581,11 @@ function renderSdPhases(){
   const row=(lbl,val,fort)=>'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">'
     +'<span style="font-size:13.5px;color:'+(fort?'var(--white);font-weight:700;':'var(--gray2);')+'">'+trDyn(lbl)+'</span>'
     +'<span style="font-size:12.5px;color:'+(fort?'var(--brand-fixed)':'var(--gray)')+';font-variant-numeric:tabular-nums;'+(fort?'font-weight:700;':'')+'">'+val+' '+trDyn('min')+'</span></div>';
-  // Ligne à cocher : le champ echauffement/retour_calme de la séance ne fixe que l'état de départ de
-  // la coche (enfin branché, cf discussion) — la personne peut la basculer avant chaque lancement,
-  // exactement comme elle pourrait taper "Passer" une fois dans l'écran lui-même.
-  const checkRow=(lbl,val,on,which)=>'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">'
-    +'<label style="display:flex;align-items:center;gap:9px;cursor:pointer;">'
-    +'<input type="checkbox" '+(on?'checked':'')+' onchange="toggleSdPhase(\''+which+'\', this.checked)" style="width:17px;height:17px;accent-color:var(--brand-fixed);flex-shrink:0;">'
-    +'<span style="font-size:13.5px;color:var(--gray2);">'+trDyn(lbl)+'</span></label>'
-    +'<span style="font-size:12.5px;color:'+(on?'var(--gray)':'var(--gray2)')+';font-variant-numeric:tabular-nums;'+(on?'':'text-decoration:line-through;')+'">'+val+' '+trDyn('min')+'</span></div>';
-  const total=(sdWarmupOn?wu:0)+core+(sdCooldownOn?cd:0);
   phasesEl.innerHTML='<div class="ex-sec-t" style="padding:0 0 4px;">'+trDyn('How it runs')+'</div>'
     +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:4px 14px;">'
-    +checkRow('Warm-up', wu, sdWarmupOn, 'warmup')+row('Session', core)+checkRow('Cool-down', cd, sdCooldownOn, 'cooldown')
+    +row('Warm-up', wu)+row('Session', core)+row('Cool-down', cd)
     +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;"><span style="font-size:13.5px;color:var(--white);font-weight:700;">'+trDyn('Total')+'</span>'
-    +'<span style="font-size:13.5px;color:var(--brand-fixed);font-weight:700;font-variant-numeric:tabular-nums;">'+total+' '+trDyn('min')+'</span></div>'
+    +'<span style="font-size:13.5px;color:var(--brand-fixed);font-weight:700;font-variant-numeric:tabular-nums;">'+(wu+core+cd)+' '+trDyn('min')+'</span></div>'
     +'</div>';
 }
 function renderCooldownList(){
@@ -16589,10 +16601,9 @@ function renderCooldownList(){
 function finishCooldown(){ go('feedback'); }
 function skipCooldown(){ go('feedback'); }
 // Point de sortie unique de la séance live (dernier exercice fini, via "Finish" ou finishRest) —
-// toujours le retour au calme avant le feedback, jamais un accès direct qui le contournerait.
-// Meme logique que le depart (sdCooldownOn, cf renderSdPhases) : decidee avant la seance, pas
-// redemandee ici — sinon on redemanderait deux fois la meme chose a deux endroits differents.
-function goEndOfSession(){ go(sdCooldownOn ? 'session_cooldown' : 'feedback'); }
+// shouldRunCooldown() décide si le retour au calme a lieu (séance + préférence, cf discussion), jamais
+// redemandé ici : la décision est déjà prise avant le lancement, pas à la sortie.
+function goEndOfSession(){ go(shouldRunCooldown(sessionActuelle) ? 'session_cooldown' : 'feedback'); }
 // Démarrer UN SEUL exercice depuis sa fiche (pas une séance) : la fiche expose déjà
 // tous les réglages (reps/durée/repos/intensité) — direct sur l'écran live, le décompte
 // vocal 3-2-1 existant tient lieu de "avant".
@@ -20187,7 +20198,12 @@ const TP_FIELDS=[
   {key:'zones', icon:'<svg class="ki"><use href="#ki-shield"/></svg>', label:'Area to protect', multi:true, empty:'No specific area', opts:['Shoulder(s)','Back / lower back','Knee(s)','Wrist(s) / arms']},
   {key:'freq', icon:'<svg class="ki"><use href="#ki-cal"/></svg>', label:'Frequency', opts:['1×/week','2×/week','3×/week','4×/week','5×/week']},
   {key:'jours', icon:'<svg class="ki"><use href="#ki-cal-check"/></svg>', label:'Training days', multi:true, opts:OB_DAYS},
-  {key:'duree', icon:'<svg class="ki"><use href="#ki-timer"/></svg>', label:'Preferred duration', opts:['15 min','30 min','45 min','60 min']}
+  {key:'duree', icon:'<svg class="ki"><use href="#ki-timer"/></svg>', label:'Preferred duration', opts:['15 min','30 min','45 min','60 min']},
+  // Réglé une fois, pas redemandé à chaque séance (cf discussion "un choix refait 3x/semaine est de la
+  // friction, pas une préférence") — lu par shouldRunWarmup/shouldRunCooldown. La séance elle-même
+  // garde le dernier mot (echauffement/retour_calme===false prime toujours sur ce réglage).
+  {key:'warmupPref', icon:'<svg class="ki"><use href="#ki-timer"/></svg>', label:'Warm-up', opts:['Always','Long sessions only','Never']},
+  {key:'cooldownPref', icon:'<svg class="ki"><use href="#ki-timer"/></svg>', label:'Cool-down', opts:['Always','Long sessions only','Never']}
 ];
 function tpSeed(){
   if(!profile.pos||!profile.pos.length) profile.pos=['Standing','Seated'];
@@ -20197,6 +20213,8 @@ function tpSeed(){
   if(!profile.freq) profile.freq=parseInt((document.getElementById('freqNum')||{}).textContent)||3;
   if(!Array.isArray(profile.jours) || !profile.jours.length) profile.jours=(FREQ_DAYS_EN[profile.freq]||FREQ_DAYS_EN[3]).slice();
   if(!profile.duree) profile.duree=30;
+  if(!profile.warmupPref) profile.warmupPref='Always';
+  if(!profile.cooldownPref) profile.cooldownPref='Always';
 }
 function tpValue(f){
   if(f.key==='freq') return profile.freq+'×/week';
