@@ -298,6 +298,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 .btn[disabled]{background:var(--bg3);color:var(--gray);border-color:var(--border);cursor:not-allowed;box-shadow:none;}
 .btn-danger{background:transparent;border:1.5px solid var(--border);color:var(--red);}
 .btn-ghost{position:relative;background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+.btn-ghost.ob-skip{color:var(--gray2);font-size:14px;font-weight:600;padding:10px 4px;}
 .btn-ghost::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 /* 36 px dessinés, 44 px touchés : le ::after transparent porte la cible sans grossir le bouton ni
    déplacer la mise en page (même remède que .info-i, audit Progrès). */
@@ -1120,8 +1121,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <p style="font-size:15px;color:rgba(255,255,255,.82);line-height:1.5;text-shadow:0 1px 4px rgba(0,0,0,.5);" id="t_ob_intro_sub">A few questions so every session fits you.</p>
   </div>
   <div style="position:relative;z-index:2;padding:0 28px calc(24px + env(safe-area-inset-bottom));">
-    <button class="btn btn-brand-fixed" onclick="go('ob_objectif')" id="t_ob_intro_cta">Let's go! →</button>
-    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost" style="color:var(--gray);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip ›</button></div>
+    <button class="btn btn-brand-fixed" onclick="obExpress=false;majOb1Express();go('ob_objectif')" id="t_ob_intro_cta">Let's go! →</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn-ghost" style="color:var(--gray);font-size:13px;" onclick="skipObIntro()" id="t_ob_intro_skip">Skip the questions ›</button><div style="font-size:12px;color:rgba(255,255,255,.62);margin-top:2px;">Just your positions, then you're in.</div></div>
   </div>
 </div>
 
@@ -1132,7 +1133,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      valeur par défaut. C'est la première question parce que c'est la seule qui porte sur l'intention ;
      tout le reste dit comment, celle-ci dit pourquoi. (Manque P0-2 du benchmark de juillet.) -->
 <div class="screen ob-light" id="ob_objectif" style="--ob-x:8%;">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r" style="margin-left:auto;"><button class="btn-ghost ob-skip" onclick="go('ob1')">Skip</button></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 6</div>
     <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:17%;background:var(--brand-fixed);border-radius:2px;"></div></div>
@@ -1149,7 +1150,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <div class="screen ob-light" id="ob1" style="--ob-x:24%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
-  <div style="padding:2px 20px 10px;flex-shrink:0;">
+  <div id="ob1Prog" style="padding:2px 20px 10px;flex-shrink:0;">
     <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 6</div>
     <!-- Barre de progression réintroduite (cf discussion) — retirée une 1re fois car elle atteignait
          100% avec encore 4 écrans à faire (calcul indépendant, pas fiable). Cette fois : une largeur
@@ -1159,7 +1160,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Which position(s) do you train in?</h2>
-    <p class="sub gap20">Multiple choices possible — your sessions adapt.</p>
+    <p class="sub gap20" id="ob1Sub">Multiple choices possible — your sessions adapt.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;" id="pos_opts">
       <div class="ob-opt multi" onclick="toggleAllPositions(this)" data-val="toutes"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-all"/></svg></div><div style="flex:1"><div class="ob-label">All positions</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleMulti(this)" data-val="debout"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-standing"/></svg></div><div style="flex:1"><div class="ob-label">Standing</div></div><div class="ob-check"></div></div>
@@ -1260,13 +1261,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <p class="sub gap24">To calibrate the length of your sessions.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
       <div class="ob-opt" onclick="selOb8(this)" data-val="15"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-bolt"/></svg></div><div style="flex:1"><div class="ob-label">15 min</div></div><div class="ob-check"></div></div>
-      <div class="ob-opt" onclick="selOb8(this)" data-val="30"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-rings"/></svg></div><div style="flex:1"><div class="ob-label">30 min</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt sel" onclick="selOb8(this)" data-val="30"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-rings"/></svg></div><div style="flex:1"><div class="ob-label">30 min</div></div><div class="ob-check">✓</div></div>
       <div class="ob-opt" onclick="selOb8(this)" data-val="45"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-dumbbell"/></svg></div><div style="flex:1"><div class="ob-label">45 min</div></div><div class="ob-check"></div></div>
       <div class="ob-opt" onclick="selOb8(this)" data-val="60"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-flame"/></svg></div><div style="flex:1"><div class="ob-label">60 min</div></div><div class="ob-check"></div></div>
     </div>
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
-    <button class="btn btn-brand-fixed" id="ob8next" disabled onclick="go('preuve_sociale');renderTestimonialCarousel(0);">Continue →</button>
+    <button class="btn btn-brand-fixed" id="ob8next" onclick="if(!profile.duree){profile.duree=30;ob8Selected=30;}go('preuve_sociale');renderTestimonialCarousel(0);">Continue →</button>
   </div>
 </div>
 
@@ -1314,7 +1315,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <!-- Écran vision : le tagline complet + les fonctionnalités clés, une fois le profil paramétré -->
 <div class="screen" id="ob_vision">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r" style="margin-left:auto;"><button class="btn-ghost ob-skip" onclick="go('ob_consent')">Skip</button></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <div style="display:flex;justify-content:center;margin-bottom:20px;">
       <img src="kinmio_logo_app.png" alt="kinmio" style="height:28px;width:auto;display:block;">
@@ -1353,7 +1354,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 
 <div class="screen" id="ob_demo">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r" style="margin-left:auto;"><button class="btn-ghost ob-skip" id="obDemoSkip" onclick="go('ob_consent')">Skip</button></div></div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
     <h2 class="gap8">Meet your bar</h2>
     <p class="sub gap20">30 seconds to get it right — anchor, adjust, go.</p>
@@ -12863,6 +12864,8 @@ const EN_FR = {
   "I kept the exact same programme after leaving the centre — same bar, same referent checking in. That continuity is what kept me going.": "J'ai gardé exactement le même programme en quittant le centre — même barre, même référent qui prend des nouvelles. C'est cette continuité qui m'a fait tenir.",
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
+  "Skip the questions ›": "Passer les questions ›",
+  "Just your positions, then you're in.": "Juste tes positions, puis tu entres.",
   // ob1
   "Which position(s) do you train in?": "Dans quelle(s) position(s) t'entraînes-tu ?",
   "Multiple choices possible — your sessions adapt.": "Plusieurs choix possibles — tes séances s'adaptent.",
@@ -15526,8 +15529,14 @@ function toggleAllPositions(el){
 // La preuve sociale arrivait en 4e position, au milieu du tunnel, là où l'on n'a encore rien investi.
 // Un témoignage convainc quand on hésite à s'engager : elle est passée juste avant l'horizon
 // d'engagement, le seul moment du parcours où l'on demande vraiment quelque chose (audit onboarding).
+// « Passer les questions » (intro) : les positions restent la seule question posée, parce que c'est la
+// seule où une réponse par défaut peut donner une séance inadaptée au corps (« Debout » pour quelqu'un
+// en fauteuil). Toutes les autres ont une valeur par défaut honnête. (Maquette onboarding, 12 sept. 2026.)
+let obExpress = false;
 function nextIfOb1(){
-  if(posSelections.size > 0){ go('ob6'); }
+  if(posSelections.size === 0) return;
+  if(obExpress){ obExpress=false; finishConsent(); return; }
+  go('ob6');
 }
 
 // Démo/prise en main de la barre (P1) — 3 étapes réellement navigables (tap sur la vidéo ou le
@@ -15545,6 +15554,8 @@ function renderObDemoStep(){
   const step=document.getElementById('obDemoStep');
   if(step) step.innerHTML = '<div style="width:26px;height:26px;border-radius:50%;background:var(--brand-fixed);color:var(--ink-on-accent);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(obDemoStepIdx+1)+'</div>'
     +'<div><div style="font-size:15px;font-weight:600;color:var(--white);">'+trDyn(s.title)+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(s.sub)+'</div></div>';
+  const skip=document.getElementById('obDemoSkip');
+  if(skip) skip.hidden = obDemoReviewMode;   // revu depuis Mon équipement : le retour suffit
   const btn=document.getElementById('obDemoNextBtn');
   if(btn) btn.textContent = trDyn(obDemoStepIdx < OB_DEMO_STEPS.length-1 ? 'Got it, next step →' : 'Got it, all set →');
   // La vidéo change avec l'étape — un vrai tuto séquentiel, pas une boucle générique identique du début à la fin.
@@ -19771,8 +19782,12 @@ function toggleConsent(key,el){
 }
 function toggleConsentShare(el){ consentShareRef=!consentShareRef; el.classList.toggle('on',consentShareRef); }
 function skipObIntro(){
-  if(userParcours==='B' && !userFirstName){ go('signup_decouverte'); return; }  // parcours découverte : le compte doit être créé avant d'entrer
-  goAfterSummary();
+  obExpress = true;
+  majOb1Express();
+  go('ob1');
+}
+function majOb1Express(){
+  const prog=document.getElementById('ob1Prog'); if(prog) prog.hidden = obExpress;   // pas de « Question 2 sur 6 » quand c'est la seule
 }
 function finishConsent(){
   // Les toggles santé sont à false par défaut (cf. déclaration de health) — ne pas les toucher EST déjà
