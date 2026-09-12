@@ -872,6 +872,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <!-- Hybride = seuil + jauge : l'arc de la jauge traverse par la ligne pointillee du seuil. Le mode
        melange les deux, son dessin les melange aussi. Il portait un emoji au milieu de quatre
        pictogrammes — exactement la surface mixte qu'on s'interdit. -->
+  <!-- Les deux types d'objectif qui n'avaient pas de pictogramme (Cardio et Renforcement en ont un
+       dans TYPE_ICON_LIB). Mobilite : une amplitude, l'arc parcouru par une articulation. Maintien :
+       le trait horizontal tenu, ni montee ni descente — c'est exactement ce que le mot dit. -->
+  <symbol id="ki-mobility" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.4" cy="17.6" r="2"/><path d="M6.4 17.6a11.2 11.2 0 0 1 11.2-11.2"/><path d="M14.4 3.6 18 6.4l-3.6 2.8"/></symbol>
+  <symbol id="ki-upkeep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><circle cx="8" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M6.2 7.6h11.6M6.2 16.4h11.6" stroke-dasharray="2.2 2.6" opacity=".55"/></symbol>
   <symbol id="ki-hybrid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 17.6a7.6 7.6 0 0 1 15.2 0"/><path d="M3.2 11.4h17.6" stroke-dasharray="2.4 2.4"/><circle cx="12" cy="17.6" r="1.5" fill="currentColor" stroke="none"/><path d="M12 17.6 15.4 14"/></symbol>
   <symbol id="ki-hold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 18.4h3.2l2.2-8.8h6.4l2.2 8.8h3.2"/></symbol>
   <symbol id="ki-duel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.4v15.2" stroke-dasharray="2.6 2.6"/><path d="M7.6 7.4 4 12l3.6 4.6"/><path d="M16.4 7.4 20 12l-3.6 4.6"/></symbol>
@@ -3601,8 +3606,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="px"><button class="btn btn-orange" onclick="toast('Request sent to kinmio ✓')">Contact kinmio</button></div>
       <div class="ex-sec-t" style="padding:12px 20px 6px;color:var(--gray2);">Exports</div>
       <div class="row" style="padding:0 20px 4px;">
-        <button class="btn btn-outline" onclick="toast('Export in progress... ✓')">📄 Quarterly ARS report</button>
-        <button class="btn btn-outline" onclick="toast('Export in progress... ✓')">📊 Annual centre review</button>
+        <button class="btn btn-outline" onclick="toast('Export in progress... ✓')"><svg class="ki"><use href="#ki-note"/></svg>Quarterly ARS report</button>
+        <button class="btn btn-outline" onclick="toast('Export in progress... ✓')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Annual centre review</button>
       </div>
     </div>
     <div style="height:90px;"></div>
@@ -4577,7 +4582,7 @@ const SESSIONS = [
     accroche: "Sans accroche",
     exercices: ["EX-S01","EX-B04","EX-B02","EX-S07","EX-B03","EX-S02"],
     echauffement: true, retour_calme: true,
-    description: "Un enchaînement cardio intense pour faire monter le rythme cardiaque vite — boxe et gainage, sans temps mort.",
+    description: "Le rythme monte vite et ne redescend pas : boxe et gainage s’enchaînent sans temps mort. Rien à installer, juste de la place.", description_en: "Your heart rate climbs fast and stays there: boxing and core work back to back, no pause. Nothing to set up, just room to move.",
     tags: ["Sans élastique","Full body"]
   },
   {
@@ -4588,7 +4593,7 @@ const SESSIONS = [
     accroche: "Sans accroche",
     exercices: ["EX-S01","EX-S02","EX-S03","EX-S04","EX-S05"],
     echauffement: false, retour_calme: false,
-    description: "Session shadow et bras rapides. Express. Sans équipement.",
+    description: "Quinze minutes pour réveiller les épaules et les bras, sans rien sortir. Le format qui tient dans une journée chargée.", description_en: "Fifteen minutes to wake up the shoulders and arms, with nothing to take out. The format that fits into a busy day.",
     tags: ["Sans barre","Express","Haut du corps"]
   },
   {
@@ -4599,7 +4604,7 @@ const SESSIONS = [
     accroche: "Sans accroche",
     exercices: ["EX-B02","EX-B04","EX-B01","EX-B03","EX-B05"],
     echauffement: false, retour_calme: false,
-    description: "Barre seule. Cardio pur. Bâton de ski, scie, kayak, rotation, windmill.",
+    description: "Du cardio du haut du corps avec la barre seule : ski, scie, kayak. Les épaules travaillent en amplitude, les jambes se reposent.", description_en: "Upper-body cardio with the bar alone: ski, saw, kayak. Your shoulders work through range while your legs rest.",
     tags: ["Barre seule","Express"]
   },
   {
@@ -4610,7 +4615,7 @@ const SESSIONS = [
     accroche: "Sous les pieds",
     exercices: ["EX-E01","EX-E02","EX-E03","EX-E04","EX-E10"],
     echauffement: false, retour_calme: false,
-    description: "Haut du corps complet. Un seul point d'accroche. Zéro changement.",
+    description: "Tout le haut du corps sans jamais changer d’accroche : tu t’installes une fois et tu enchaînes. Du renforcement sans manipulation.", description_en: "The whole upper body without ever changing the anchor: set up once and keep going. Strength work without the fiddling.",
     tags: ["Haut du corps"]
   },
   {
@@ -4621,7 +4626,7 @@ const SESSIONS = [
     accroche: "Accroche dos puis point bas",
     exercices: ["EX-E12","EX-E13","EX-E15","EX-E16","EX-E17","EX-E22"],
     echauffement: false, retour_calme: false,
-    description: "Pectoraux + Dos. 2 changements d'accroche. Équilibre push/pull.",
+    description: "Pousser puis tirer, en équilibre : ce que tu renforces devant, tu le renforces derrière. Deux changements d’accroche seulement.", description_en: "Push then pull, in balance: whatever you strengthen in front, you strengthen behind. Only two anchor changes.",
     tags: ["Pectoraux","Dos","Push Pull"]
   },
   {
@@ -4632,7 +4637,7 @@ const SESSIONS = [
     accroche: "Sous les pieds",
     exercices: ["EX-E06","EX-B06","EX-B07","EX-B08","EX-E07"],
     echauffement: false, retour_calme: false,
-    description: "Bas du corps. Squat résisté, fentes, thruster. Accroche pieds uniquement.",
+    description: "Les jambes et les fessiers, accroche aux pieds du début à la fin. Tu sens le travail dans les cuisses, pas dans le dos.", description_en: "Legs and glutes, anchored at the feet from start to finish. You feel the work in the thighs, not in the back.",
     tags: ["Jambes","Fessiers"]
   },
   {
@@ -4643,7 +4648,7 @@ const SESSIONS = [
     accroche: "Sans accroche puis sous les pieds",
     exercices: ["EX-S01","EX-B01","EX-S07","EX-B03","EX-E01","EX-E02","EX-E06","EX-E10","EX-E09"],
     echauffement: true, retour_calme: true,
-    description: "Bloc cardio puis bloc renfo. Corps entier. Session longue et complète.",
+    description: "Quarante-cinq minutes en deux temps : le cardio d’abord, le renforcement ensuite. La séance complète quand tu as le temps devant toi.", description_en: "Forty-five minutes in two parts: cardio first, strength after. The complete session for when you have time ahead of you.",
     tags: ["Full body","Long"]
   },
   {
@@ -4654,7 +4659,7 @@ const SESSIONS = [
     accroche: "Sans accroche puis sous les pieds",
     exercices: ["EX-S01","EX-E01","EX-B01","EX-E02","EX-S02","EX-E06"],
     echauffement: false, retour_calme: false,
-    description: "Alternance cardio / renfo. Accessible débutant. Équilibré.",
+    description: "Cardio et renforcement en alternance, à un rythme qui laisse récupérer. Une bonne première séance longue.", description_en: "Cardio and strength alternating, at a pace that lets you recover. A good first long session.",
     tags: ["Débutant","Équilibré"]
   },
   {
@@ -4665,7 +4670,7 @@ const SESSIONS = [
     accroche: "Point fixation milieu",
     exercices: ["EX-B11","EX-B10","EX-E18","EX-E19"],
     echauffement: false, retour_calme: false,
-    description: "Abdos et obliques. Express. Point de fixation milieu.",
+    description: "Quinze minutes centrées sur le ventre et les côtés. Un seul point de fixation, rien à déplacer.", description_en: "Fifteen minutes focused on the middle and the sides. One fixing point, nothing to move.",
     tags: ["Abdos","Obliques","Express"]
   },
   {
@@ -4676,7 +4681,7 @@ const SESSIONS = [
     accroche: "Sous les pieds puis point haut",
     exercices: ["EX-E01","EX-E11","EX-E23","EX-E26"],
     echauffement: false, retour_calme: false,
-    description: "Biceps + Triceps. Express. 1 changement d'accroche.",
+    description: "Biceps et triceps, quinze minutes, un seul changement d’accroche. Court et ciblé.", description_en: "Biceps and triceps, fifteen minutes, a single anchor change. Short and targeted.",
     tags: ["Bras","Biceps","Triceps","Express"]
   },
   {
@@ -4687,7 +4692,7 @@ const SESSIONS = [
     accroche: "Sans accroche",
     exercices: ["EX-S01","EX-S02","EX-S03","EX-S04"],
     echauffement: false, retour_calme: false,
-    description: "Cardio assis. Shadow, scie, bras de nage, bâton de ski.",
+    description: "Du cardio entièrement assis, sans élastique. Le rythme monte par les bras — utile quand se lever n’est pas au programme.", description_en: "Cardio done entirely seated, no elastics. Your heart rate rises through the arms — useful when standing up is not on the agenda.",
     tags: ["Assis","Express","Sans élastique"]
   },
   {
@@ -4698,7 +4703,7 @@ const SESSIONS = [
     accroche: "Sans accroche",
     exercices: ["EX-S01","EX-S08","EX-S06","EX-B01","EX-B04","EX-S11"],
     echauffement: true, retour_calme: true,
-    description: "Cardio intense avancé. Jumping jack, squat sauté, burpee.",
+    description: "Jumping jacks, squats sautés, burpees : de l’impact et du souffle, debout. Trente minutes qui demandent des appuis solides.", description_en: "Jumping jacks, jump squats, burpees: impact and breath, standing. Thirty minutes that ask for solid footing.",
     tags: ["Debout","Intense","Avancé","Sans élastique"]
   },
   {
@@ -4709,7 +4714,7 @@ const SESSIONS = [
     accroche: "Sans accroche",
     exercices: ["EX-S01","EX-S02","EX-S03","EX-S04","EX-S05","EX-B01"],
     echauffement: false, retour_calme: true,
-    description: "Cardio modéré en position assise. Enchaînement fluide.",
+    description: "Trente minutes de cardio assis, sans à-coups. L’enchaînement reste fluide du début à la fin.", description_en: "Thirty minutes of seated cardio, no jolts. The flow stays even from start to finish.",
     tags: ["Assis","Modéré","Sans élastique"]
   },
   {
@@ -4720,7 +4725,7 @@ const SESSIONS = [
     accroche: "Sous les cuisses",
     exercices: ["EX-E09","EX-E10","EX-E11","EX-E12","EX-E14"],
     echauffement: false, retour_calme: false,
-    description: "Haut du corps assis. Élastique sous les cuisses.",
+    description: "Le haut du corps renforcé sans quitter la chaise, élastique passé sous les cuisses. Même travail que debout, l’équilibre en moins.", description_en: "Upper-body strength without leaving the chair, elastic under the thighs. The same work as standing, minus the balance.",
     tags: ["Assis","Haut du corps"]
   },
   {
@@ -4731,7 +4736,7 @@ const SESSIONS = [
     accroche: "Sous les pieds puis point haut",
     exercices: ["EX-E01","EX-E02","EX-E04","EX-E07","EX-E22","EX-E23","EX-E25","EX-E05"],
     echauffement: false, retour_calme: false,
-    description: "Renforcement avancé haut du corps. Volume élevé.",
+    description: "Beaucoup de volume sur le haut du corps, quarante-cinq minutes. À garder pour les semaines où tu te sens solide.", description_en: "A lot of volume on the upper body, forty-five minutes. Keep it for the weeks when you feel strong.",
     tags: ["Debout","Avancé","Intense","Long"]
   },
   {
@@ -4742,7 +4747,7 @@ const SESSIONS = [
     accroche: "Sous les cuisses puis point milieu",
     exercices: ["EX-E11","EX-E09","EX-B11","EX-E18","EX-E19"],
     echauffement: false, retour_calme: false,
-    description: "Bras et abdos en position assise.",
+    description: "Bras et abdos, assis. Deux zones qui se relaient, donc peu de temps mort et pas de fatigue générale.", description_en: "Arms and core, seated. Two areas taking turns, so few pauses and no overall fatigue.",
     tags: ["Assis","Bras","Core","Intermédiaire"]
   },
   {
@@ -4753,7 +4758,7 @@ const SESSIONS = [
     accroche: "Sans accroche puis sous les cuisses",
     exercices: ["EX-S01","EX-S02","EX-E09","EX-E10","EX-E11","EX-B01"],
     echauffement: false, retour_calme: false,
-    description: "Cardio puis renfo. Tout en position assise.",
+    description: "Un peu de cardio, puis du renforcement, tout assis. La séance qui couvre les deux sans rien demander aux jambes.", description_en: "Some cardio, then strength, all seated. The session that covers both without asking anything of the legs.",
     tags: ["Assis","Débutant"]
   },
   {
@@ -4764,7 +4769,7 @@ const SESSIONS = [
     accroche: "Sans accroche puis sous les pieds",
     exercices: ["EX-S08","EX-S09","EX-B01","EX-E06","EX-E07","EX-E01","EX-E02","EX-E22","EX-E05"],
     echauffement: true, retour_calme: true,
-    description: "Cardio intense puis renfo avancé. Corps entier.",
+    description: "Le format le plus exigeant : cardio intense d’abord, renforcement avancé ensuite, corps entier. Quarante-cinq minutes qui se préparent.", description_en: "The most demanding format: intense cardio first, then advanced strength, full body. Forty-five minutes you plan for.",
     tags: ["Debout","Avancé","Intense","Long","Full body"]
   },
   {
@@ -4775,7 +4780,7 @@ const SESSIONS = [
     accroche: "Sans accroche",
     exercices: ["EX-S01","EX-B06","EX-S02","EX-B10"],
     echauffement: false, retour_calme: false,
-    description: "Session universelle. Compatible tous profils. Express.",
+    description: "Quinze minutes qui marchent debout, assis ou allongé. Celle qu’on fait quand rien d’autre n’est possible — et elle compte autant.", description_en: "Fifteen minutes that work standing, seated or lying down. The one you do when nothing else is possible — and it counts just as much.",
     tags: ["Toutes positions","Express","Universel","Débutant"]
   },
   {
@@ -4786,7 +4791,7 @@ const SESSIONS = [
     accroche: "Sans accroche puis sous les cuisses",
     exercices: ["EX-S01","EX-S02","EX-S04","EX-E09","EX-E10","EX-E11","EX-E12","EX-E18"],
     echauffement: true, retour_calme: true,
-    description: "Cardio intense puis renfo avancé. Position assise.",
+    description: "Quarante-cinq minutes exigeantes, entièrement assises. Le niveau avancé n’est pas réservé à ceux qui tiennent debout.", description_en: "Forty-five demanding minutes, entirely seated. Advanced is not reserved for those who can stand.",
     tags: ["Assis","Avancé","Intense","Long"]
   }
 ];
@@ -11682,12 +11687,12 @@ const EN_FR = {
   "Standing combinations: jabs, hooks, uppercuts with light footwork. Excellent adaptive cardio.": "Combinaisons debout : jabs, crochets, uppercuts avec un jeu de jambes léger. Excellent cardio adaptatif.",
   "Keep your knees slightly bent. Engage your legs on every punch.": "Garde les genoux légèrement fléchis. Engage tes jambes à chaque coup.",
   "last 7 days": "7 derniers jours",
-  "📊 Pain trend": "📊 Évolution de la douleur",
+  "Pain trend": "Évolution de la douleur",
   "Reported by the user · Slider 0-10": "Déclaré par l'utilisateur · Curseur 0-10",
   "📈 Progress": "📈 Progression",
   "Record": "Record",
-  "📄 PDF export — simulation": "📄 Export PDF — simulation",
-  "📄 Export PDF": "📄 Export PDF",
+  "PDF export — simulation": "Export PDF — simulation",
+  "Export PDF": "Export PDF",
   "🏆 Personal records": "🏆 Records personnels",
   "Post-session notes": "Notes post-séance",
   "e.g. good progress, remember to reassess load in 2 weeks...": "Ex : bonne évolution, penser à réévaluer la charge dans 2 semaines...",
@@ -11771,8 +11776,8 @@ const EN_FR = {
   "Target: 40%": "Objectif : 40%",
   "+5pts vs last quarter": "+5pts vs trimestre dernier",
   "92% of centres renew their licence": "92% des centres renouvellent leur licence",
-  "📄 Centre report": "📄 Rapport centre",
-  "📊 Export network": "📊 Exporter le réseau",
+  "Centre report": "Rapport centre",
+  "Export network": "Exporter le réseau",
   "Features used": "Fonctionnalités utilisées",
   "Individual sessions": "Séances individuelles",
   "Group sessions": "Séances collectives",
@@ -11784,9 +11789,9 @@ const EN_FR = {
   "Network training profile": "Profil d'entraînement réseau",
   "Avg. session duration by objective": "Durée moyenne de séance par objectif",
   "Reports": "Rapports",
-  "📊 Monthly network report": "📊 Rapport réseau mensuel",
+  "Monthly network report": "Rapport réseau mensuel",
   "📈 Aggregated data export": "📈 Export données agrégées",
-  "📄 Annual network review": "📄 Bilan annuel réseau",
+  "Annual network review": "Bilan annuel réseau",
   // collectif — simulation live (roster réel, jauges/depart/classement simulés sur un seul appareil)
   "Group session": "Séance collective",
   "Waiting": "En attente",
@@ -12251,7 +12256,7 @@ const EN_FR = {
   "Most practised exercises": "Exercices les plus pratiqués",
   "Average pain by muscle group (0–10)": "Douleur moyenne par groupe musculaire (0–10)",
   "Progress week 1 → week 4": "Progression semaine 1 → semaine 4",
-  "📊 Export dataset (anonymised CSV)": "📊 Exporter le jeu de données (CSV anonymisé)",
+  "Export dataset (anonymised CSV)": "Exporter le jeu de données (CSV anonymisé)",
   "Director accounts": "Comptes directeurs",
   "Invite": "Inviter",
   "Suspend": "Suspendre",
@@ -12376,7 +12381,7 @@ const EN_FR = {
   "Controlled movement. Quality over quantity.": "Mouvement contrôlé. La qualité avant la quantité.",
   "⚡ Effort and energy": "⚡ Effort et énergie",
   "🏆 Best period": "🏆 Meilleure période",
-  "📊 Yearly records": "📊 Records annuels",
+  "Yearly records": "Records annuels",
   "You're up +28% in volume this month. Solid. 💪": "Tu es en hausse de +28% de volume ce mois-ci. Solide. 💪",
   "Rotate your phone": "Tourne ton téléphone",
   "Place your phone in landscape on your kinmio bar to follow your session comfortably.": "Place ton téléphone en mode paysage sur ta barre kinmio pour suivre ta séance confortablement.",
@@ -12434,8 +12439,8 @@ const EN_FR = {
   "→ Declared effort down: Intense → Moderate → Easy": "→ Effort déclaré en baisse : Intense → Modéré → Facile",
   "→ Pain rising despite less intense sessions": "→ Douleur en hausse malgré des séances moins intenses",
   "Exports": "Exports",
-  "📄 User record PDF": "📄 Fiche utilisateur PDF",
-  "📊 Monthly report PDF": "📊 Rapport mensuel PDF",
+  "User record PDF": "Fiche utilisateur PDF",
+  "Monthly report PDF": "Rapport mensuel PDF",
   "Export in progress... ✓": "Export en préparation... ✓",
   "Group training profile": "Profil d'entraînement du groupe",
   "Live stats": "Stats en direct",
@@ -12444,11 +12449,11 @@ const EN_FR = {
   "→ 2 participants struggling": "→ 2 participants en difficulté",
   "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Gap detected": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Écart détecté",
   "✓ Aligned": "✓ Aligné",
-  "📄 Referent report": "📄 Rapport référent",
+  "Referent report": "Rapport référent",
   "Referent report — simulation": "Rapport référent — simulation",
   "60 days": "60 jours",
-  "📄 Quarterly ARS report": "📄 Rapport trimestriel ARS",
-  "📊 Annual centre review": "📊 Bilan annuel centre",
+  "Quarterly ARS report": "Rapport trimestriel ARS",
+  "Annual centre review": "Bilan annuel centre",
   // Audit i18n — textes découverts non traduits (passe de vérification complète)
   "3 days / week": "3 jours / semaine",
   "1 day / week": "1 jour / semaine",
@@ -12588,7 +12593,7 @@ const EN_FR = {
   "Allow account creation": "Autoriser la création de comptes",
   "Anonymised research sharing": "Partage de données de recherche anonymisées",
   "Feed anonymised research datasets": "Alimenter des jeux de données de recherche anonymisées",
-  "📊 Export global data": "📊 Exporter les données globales",
+  "Export global data": "Exporter les données globales",
   "No notifications yet.": "Aucune notification pour l'instant.",
   "Create the session →": "Créer la séance →",
   "Create the group session →": "Créer la séance collective →",
@@ -12642,10 +12647,10 @@ const EN_FR = {
   "🔥 Intensity": "🔥 Intensité",
   "🔥 Pace": "🔥 Rythme",
   "⚖️ Balance": "⚖️ Équilibre",
-  "📊 Rhythm consistency": "📊 Régularité du rythme",
+  "Rhythm consistency": "Régularité du rythme",
   "🔥 Average intensity": "🔥 Intensité moyenne",
   "⚖️ Average balance": "⚖️ Équilibre moyen",
-  "📊 Average rhythm consistency": "📊 Régularité du rythme moyenne",
+  "Average rhythm consistency": "Régularité du rythme moyenne",
   "Session summary": "Résumé de la séance",
   "Accelerating — too easy": "Accélère — trop facile",
   "Slowing down progressively — good level": "Ralentit progressivement — bon niveau",
@@ -12873,7 +12878,7 @@ const EN_FR_PATTERNS = [
   [/^(\d+) partner centres?$/, (m)=>`${m[1]} centre${Number(m[1])>1?'s':''} partenaire${Number(m[1])>1?'s':''}`],
   [/^(\d+) min ago$/, (m)=>`il y a ${m[1]} min`],
   [/^(\d+) h ago$/, (m)=>`il y a ${m[1]} h`],
-  [/^📊 Anonymised dataset exported ✓ \((\d+) users? · simulation\)$/, (m)=>`📊 Jeu de données anonymisé exporté ✓ (${m[1]} utilisateurs · simulation)`],
+  [/^Anonymised dataset exported ✓ \((\d+) users? · simulation\)$/, (m)=>`Jeu de données anonymisé exporté ✓ (${m[1]} utilisateurs · simulation)`],
   [/^(.+) \((\d+) people\)$/, (m)=>`${m[1]} (${m[2]} personnes)`],
   [/^(\d+) participants? selected$/, (m)=>`${m[1]} participant${Number(m[1])>1?'s':''} sélectionné${Number(m[1])>1?'s':''}`],
   [/^(\d+) exercises?$/, (m)=>`${m[1]} exercice${Number(m[1])>1?'s':''}`],
@@ -13016,7 +13021,7 @@ const FR_EN_PATTERNS = [
   [/^(\d+) centres? partenaires?$/, (m)=>`${m[1]} partner centre${Number(m[1])>1?'s':''}`],
   [/^il y a (\d+) min$/, (m)=>`${m[1]} min ago`],
   [/^il y a (\d+) h$/, (m)=>`${m[1]} h ago`],
-  [/^📊 Jeu de données anonymisé exporté ✓ \((\d+) utilisateurs? · simulation\)$/, (m)=>`📊 Anonymised dataset exported ✓ (${m[1]} users · simulation)`],
+  [/^Jeu de données anonymisé exporté ✓ \((\d+) utilisateurs? · simulation\)$/, (m)=>`Anonymised dataset exported ✓ (${m[1]} users · simulation)`],
   [/^(.+) \((\d+) personnes\)$/, (m)=>`${m[1]} (${m[2]} people)`],
   [/^(\d+) participants? sélectionnés?$/, (m)=>`${m[1]} participant${Number(m[1])>1?'s':''} selected`],
   [/^(\d+) exercices?$/, (m)=>`${m[1]} exercise${Number(m[1])>1?'s':''}`],
@@ -15269,7 +15274,13 @@ function renderSessionDetail(){
   const nameInput=document.getElementById('sdNameInput'); if(nameInput) nameInput.value = s.nom_marketing;
   const descInput=document.getElementById('sdDescInput'); if(descInput) descInput.value = s.description||'';
   const nameDisplay=document.getElementById('sdNameDisplay'); if(nameDisplay) nameDisplay.textContent = s.nom_marketing;
-  const descDisplay=document.getElementById('sdDescDisplay'); if(descDisplay) descDisplay.textContent = s.description||'';
+  // Les 20 descriptions décrivaient le CONTENU en style télégraphique (« Pectoraux + Dos. 2 changements
+  // d'accroche. ») — une fiche technique, pas une raison de s'y mettre. Réécrites côté effet : ce que
+  // la séance te fait, avec le seul fait pratique qui décide (assis, barre seule, express).
+  // Et elles n'étaient traduites NULLE PART : aucune des 20 n'était au dictionnaire, un anglophone les
+  // lisait en français. D'où description_en dans la donnée plutôt qu'en clés — ce sont des phrases,
+  // pas des libellés.
+  const descDisplay=document.getElementById('sdDescDisplay'); if(descDisplay) descDisplay.textContent = ((currentLang!=='fr' && s.description_en) ? s.description_en : s.description)||'';
   const editView=document.getElementById('sdEditView'), readView=document.getElementById('sdReadView');
   if(editView) editView.style.display='none';
   if(readView) readView.style.display='block';
@@ -17349,9 +17360,9 @@ function renderAdmin(){
             +'<div style="text-align:right;"><span class="pbdg" style="background:var(--bg3);color:var(--gray2);">PENDING ACTIVATION</span><div style="margin-top:6px;"><button class="pres-add" onclick="toast(\'Reminder sent to '+ct.nom+' ✓\')">Follow up →</button></div></div></div>';
         }
         const near=ct.renouvJ<100;
-        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--orange)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--orange)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\'📄 '+ct.nom+' report (demo)\')">📄 Centre report</button></div></div>';
+        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--orange)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--orange)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\'<svg class="ki"><use href="#ki-note"/></svg>\'+ct.nom+\' report (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Centre report</button></div></div>';
       }).join('')
-    + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'📊 Full network export (demo)\')">📊 Export network</button></div>';
+    + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'<svg class="ki"><use href="#ki-ob-chart"/></svg>Full network export (demo)\')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Export network</button></div>';
 
   // ===== GROWTH (croissance réseau — courbes + transition + renouvellement) =====
   const gr=document.getElementById('adm_metriques');
@@ -17394,12 +17405,12 @@ function renderAdmin(){
     +'<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);"><div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--white);">Anonymised research sharing</div><div style="font-size:12px;color:var(--gray);">Feed anonymised research datasets</div></div><div class="km-switch on" onclick="this.classList.toggle(\'on\')"><div class="km-knob"></div></div></div>'
     +'<div style="display:flex;align-items:center;gap:12px;padding-top:12px;"><div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--white);">Maintenance mode</div><div style="font-size:12px;color:var(--gray);">Suspend access to the network</div></div><div class="km-switch" onclick="this.classList.toggle(\'on\')"><div class="km-knob"></div></div></div>'
     +'</div>'
-    +'<div class="px" style="padding-top:14px;"><button class="btn btn-outline" onclick="exportDataset()">📊 Export global data</button></div>'
+    +'<div class="px" style="padding-top:14px;"><button class="btn btn-outline" onclick="exportDataset()"><svg class="ki"><use href="#ki-ob-chart"/></svg>Export global data</button></div>'
     +'<div class="ex-sec-t" style="padding:16px 20px 8px;">Reports</div>'
     +'<div class="px" style="display:flex;flex-direction:column;gap:10px;">'
-      +'<button class="btn btn-outline" onclick="toast(\'📊 Monthly network report (demo)\')">📊 Monthly network report</button>'
+      +'<button class="btn btn-outline" onclick="toast(\'<svg class="ki"><use href="#ki-ob-chart"/></svg>Monthly network report (demo)\')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Monthly network report</button>'
       +'<button class="btn btn-outline" onclick="toast(\'📈 Aggregated data export (demo)\')">📈 Aggregated data export</button>'
-      +'<button class="btn btn-outline" onclick="toast(\'📄 Annual network review (demo)\')">📄 Annual network review</button>'
+      +'<button class="btn btn-outline" onclick="toast(\'<svg class="ki"><use href="#ki-note"/></svg>Annual network review (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Annual network review</button>'
     +'</div>';
 
   // ===== USAGE RÉSEAU (données agrégées anonymisées — déplacé depuis l'ancien onglet Métriques) =====
@@ -17414,7 +17425,7 @@ function renderAdmin(){
     +'<div class="px">'+MUSCLE_PROG.map(g2=>'<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;"><div style="width:90px;flex-shrink:0;font-size:13px;color:var(--white);">'+g2.m+'</div>'+admBar(Math.round(g2.d/maxPain*100),'var(--red)')+'<div style="width:32px;text-align:right;font-size:13px;color:var(--gray2);font-weight:700;">'+g2.d.toFixed(1)+'</div></div>').join('')+'</div>'
     +'<div class="ex-sec-t" style="padding:14px 20px 8px;">Progress week 1 → week 4</div>'
     +'<div class="px">'+MUSCLE_PROG.map(g2=>'<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;"><div style="width:90px;flex-shrink:0;font-size:13px;color:var(--white);">'+g2.m+'</div>'+admBar(g2.p,'var(--teal)')+'<div style="width:44px;text-align:right;font-size:13px;color:var(--teal);font-weight:700;">+'+g2.p+'%</div></div>').join('')+'</div>'
-    +'<div class="px" style="margin-top:14px;"><button class="btn btn-outline" onclick="exportDataset()">📊 Export dataset (anonymised CSV)</button></div>'
+    +'<div class="px" style="margin-top:14px;"><button class="btn btn-outline" onclick="exportDataset()"><svg class="ki"><use href="#ki-ob-chart"/></svg>Export dataset (anonymised CSV)</button></div>'
     +'<div class="ex-sec-t" style="padding:18px 20px 8px;">Features used</div>'
     +'<div class="px">'+ADMIN_FEATURE_USAGE.map(f=>'<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;"><div style="width:150px;flex-shrink:0;font-size:13px;color:var(--white);">'+f.n+'</div>'+admBar(f.p,'var(--orange)')+'<div style="width:36px;text-align:right;font-size:12px;color:var(--gray);">'+f.p+'%</div></div>').join('')+'</div>'
     +'<div class="ex-sec-t" style="padding:14px 20px 8px;">Onboarding completion</div>'
@@ -17431,19 +17442,22 @@ const ADMIN_FEATURE_USAGE=[
   {n:'Referent messages', p:43},
   {n:'Training profile', p:38}
 ];
+// Quatre emoji dans un seul objet graphique, en double (une fois pour les parts, une fois pour les
+// minutes) : derniere surface mixte de l'app, ratee par l'inventaire emoji parce qu'elle vit dans un
+// litteral JS et pas dans le markup.
 const ADMIN_TRAINING_PROFILE=[
-  {icon:'🔀', n:'Mobility', p:44, color:'var(--teal)'},
-  {icon:'💪', n:'Strengthening', p:32, color:'var(--orange)'},
-  {icon:'❤️', n:'Cardio', p:15, color:'#E85EE8'},
-  {icon:'⚡', n:'Upkeep', p:9, color:'#7368EE'}
+  {icon:'<svg class="ki"><use href="#ki-mobility"/></svg>', n:'Mobility', p:44, color:'var(--teal)'},
+  {icon:'<svg class="ki"><use href="#ki-ob-dumbbell"/></svg>', n:'Strengthening', p:32, color:'var(--orange)'},
+  {icon:'<svg class="ki"><use href="#ki-heart"/></svg>', n:'Cardio', p:15, color:'#E85EE8'},
+  {icon:'<svg class="ki"><use href="#ki-upkeep"/></svg>', n:'Upkeep', p:9, color:'#7368EE'}
 ];
 const ADMIN_SESSION_DURATION=[
-  {icon:'💪', n:'Strengthening', min:28},
-  {icon:'🔀', n:'Mobility', min:24},
-  {icon:'❤️', n:'Cardio', min:32},
-  {icon:'⚡', n:'Upkeep', min:21}
+  {icon:'<svg class="ki"><use href="#ki-ob-dumbbell"/></svg>', n:'Strengthening', min:28},
+  {icon:'<svg class="ki"><use href="#ki-mobility"/></svg>', n:'Mobility', min:24},
+  {icon:'<svg class="ki"><use href="#ki-heart"/></svg>', n:'Cardio', min:32},
+  {icon:'<svg class="ki"><use href="#ki-upkeep"/></svg>', n:'Upkeep', min:21}
 ];
-function exportDataset(){ toast('📊 Anonymised dataset exported ✓ ('+PATHOLOGIES.reduce((s,p)=>s+p.n,0)+' users · simulation)'); }
+function exportDataset(){ toast('<svg class="ki"><use href="#ki-ob-chart"/></svg>Anonymised dataset exported ✓ ('+PATHOLOGIES.reduce((s,p)=>s+p.n,0)+' users · simulation)'); }
 
 // ============================================================
 // POLISH & SIMULATIONS (7.1 → 7.6)
