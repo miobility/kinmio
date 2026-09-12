@@ -848,6 +848,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 5.9a.9.9 0 0 1 1.36-.78l9.1 5.32a.75.75 0 0 1 0 1.3l-9.1 5.32A.9.9 0 0 1 8.4 16.4Z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.4" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/><rect x="13.1" y="5.6" width="3.5" height="12.8" rx="1.4" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ki-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/></symbol>
+  <symbol id="ki-repeat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.6-5.7"/><path d="M20 12a8 8 0 0 1-13.6 5.7"/><path d="M17 3v4h-4"/><path d="M7 21v-4h4"/></symbol>
+  <symbol id="ki-body" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.6" r="2.1"/><path d="M12 8v6"/><path d="M7.5 9.5 12 8l4.5 1.5"/><path d="M12 14l-2.5 6M12 14l2.5 6"/></symbol>
   <symbol id="ki-add-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h11"/><path d="M3.5 12h8"/><path d="M3.5 17.5h8"/><path d="M17.5 14.5v6"/><path d="M14.5 17.5h6"/></symbol>
   <symbol id="ki-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.4v13.2"/><path d="M5.4 12h13.2"/></symbol>
   <symbol id="ki-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 6.6 17.4 17.4"/><path d="M17.4 6.6 6.6 17.4"/></symbol>
@@ -2110,6 +2113,31 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div style="text-align:center;"><button onclick="exportToHealth()" style="background:none;border:none;color:var(--gray);font-size:13px;text-decoration:underline;cursor:pointer;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,20c-4.5,-3,-8,-6.5,-8,-10.5a4.5,4.5,0,0,1,8,-2.8a4.5,4.5,0,0,1,8,2.8c0,4,-3.5,7.5,-8,10.5Z /></svg> Export to Apple Health</button></div>
     </div>
+  </div>
+</div>
+
+
+<!-- ================= DÉTAIL D'UN PROGRAMME =================
+     Un programme s'ouvrait dans une MODALE de 340 × 543 avec une image de 72 × 72 (audit Bibliothèque) :
+     l'objet le plus lourd de l'app — quatre semaines, douze séances — était le seul sans écran à lui, et
+     le seul sur lequel aucun travail d'image n'avait été fait. Même grammaire que session_detail : hero
+     pleine largeur du conteneur, badge et titre posés dessus, chips, description, puis le contenu. -->
+<div class="screen" id="programme_detail">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="pdTopTitle">Programme</div><div class="topnav-r"></div></div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
+    <div class="hero-glow bleed" style="margin:0 -20px 14px;">
+      <div id="pdHero" class="kimg r-16-9" style="background-color:#1E1D26;">
+        <span id="pdHeroBadge" style="position:absolute;top:14px;left:14px;z-index:2;font-size:11px;font-weight:800;letter-spacing:.3px;padding:5px 11px;border-radius:8px;text-transform:uppercase;"></span>
+        <div id="pdHeroTitle" style="position:absolute;left:16px;right:16px;bottom:14px;z-index:2;font-size:22px;font-weight:800;letter-spacing:-.4px;color:#fff;"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;" id="pdTags"></div>
+    <div id="pdDesc" style="font-size:13.5px;line-height:1.55;color:var(--gray2);margin-bottom:18px;"></div>
+    <div id="pdProgress" style="display:none;margin-bottom:18px;"></div>
+    <div class="ps-title" style="margin:0 0 10px;">The weeks</div>
+    <div id="pdWeeks"></div>
+    <div id="pdCta" style="margin-top:18px;"></div>
+    <div style="height:24px;"></div>
   </div>
 </div>
 
@@ -4832,7 +4860,7 @@ const PROGRAMMES = [
       s3: ["SES-08","SES-11","SES-03"],
       s4: ["SES-08","SES-11","SES-03"]
     },
-    description: "Programme découverte. Accessible tous profils. Mixte cardio + renfo.",
+    description: "Quatre semaines pour installer l'habitude avant de chercher l'effort. Trois séances courtes par semaine, debout, assis ou allongé selon la journée — le programme s'adapte à toi, pas l'inverse. À la fin, tu sauras ce que ton corps accepte.", description_en: "Four weeks to build the habit before chasing the effort. Three short sessions a week — standing, seated or lying down depending on the day. The programme adapts to you, not the other way round. By the end, you'll know what your body accepts.",
     tags: ["Débutant","Mixte","Toutes positions","4 semaines"]
   },
   {
@@ -4851,7 +4879,7 @@ const PROGRAMMES = [
       s7: ["SES-15","SES-05","SES-04"],
       s8: ["SES-15","SES-05","SES-04"]
     },
-    description: "Renforcement progressif sur 8 semaines. Haut + bas du corps.",
+    description: "Huit semaines pour construire, sans à-coups. Le renforcement gagne en intensité semaine après semaine, toujours debout, toujours avec la barre. C'est le programme qui demande le plus de constance et qui la rend le mieux.", description_en: "Eight weeks to build, with no jolts. The strength work gains intensity week after week, always standing, always with the bar. It's the programme that asks for the most consistency, and gives back the most.",
     tags: ["Intermédiaire","Renforcement","Debout","8 semaines"]
   },
   {
@@ -4866,7 +4894,7 @@ const PROGRAMMES = [
       s3: ["SES-01","SES-04","SES-07"],
       s4: ["SES-01","SES-04","SES-07"]
     },
-    description: "Cardio + renforcement équilibré. Alternance cardio / renfo. Idéal reprise.",
+    description: "Le souffle et la force, en alternance. Une séance cardio, une séance de renforcement, et le corps n'a jamais deux fois de suite la même demande. Quatre semaines qui conviennent bien à une reprise après une pause.", description_en: "Breath and strength, taking turns. One cardio session, one strength session, so your body never faces the same demand twice in a row. Four weeks that suit a return after a break.",
     tags: ["Débutant","Mixte","Debout","4 semaines"]
   },
   {
@@ -4883,7 +4911,7 @@ const PROGRAMMES = [
       s5: ["SES-15","SES-16","SES-05"],
       s6: ["SES-15","SES-16","SES-05"]
     },
-    description: "Haut du corps complet sur 6 semaines. Debout et assis.",
+    description: "Six semaines concentrées sur le haut du corps : épaules, bras, dos. Debout ou assis, sans jamais solliciter les jambes — utile quand elles ont besoin qu'on les laisse tranquilles. L'amplitude revient avant la force.", description_en: "Six weeks focused on the upper body: shoulders, arms, back. Standing or seated, never calling on the legs — useful when they need to be left alone. Range comes back before strength.",
     tags: ["Intermédiaire","Renforcement","Haut du corps","6 semaines"]
   },
   {
@@ -4902,7 +4930,7 @@ const PROGRAMMES = [
       s7: ["SES-18","SES-15","SES-12","SES-05"],
       s8: ["SES-18","SES-15","SES-12","SES-05"]
     },
-    description: "Programme avancé corps entier. 4 séances/sem. Cardio + renfo intense.",
+    description: "Quatre séances par semaine pendant huit semaines, cardio et renforcement mêlés. C'est le programme le plus exigeant du catalogue : à prendre quand la régularité est déjà acquise et que c'est l'intensité qui manque.", description_en: "Four sessions a week for eight weeks, cardio and strength mixed. It's the most demanding programme in the catalogue: take it when consistency is already there and intensity is what's missing.",
     tags: ["Avancé","Mixte","Debout","8 semaines","Intense"]
   }
 ];
@@ -5240,7 +5268,12 @@ function initApresOnboarding() {
   // après six semaines SANS AUCUNE séance — l'alerte de retard ne pouvait pas se déclencher. Le récap
   // de clôture (séances faites pendant ce programme) tombait lui aussi sur un tableau vide.
   programmeActif = getProgrammeSuggere();
-  programmeActifDepuis = Date.now();
+  // Date de début : maintenant pour une vraie première personne (son historique est vide, les deux
+  // valeurs coïncident). Si un historique existe déjà — c'est le cas du prototype, dont les séances
+  // sont pré-semées pour que l'app paraisse vécue — on remonte à la plus ancienne, sinon le programme
+  // annoncerait « 0/12 » à quelqu'un dont l'écran d'à côté affiche quatre séances faites.
+  const plusAncienne = userSessionHistory.length ? Math.min(...userSessionHistory.map(h=>h.date)) : null;
+  programmeActifDepuis = plusAncienne!==null ? Math.min(plusAncienne, Date.now()) : Date.now();
   semaineActuelle = 1;
 
   // Met à jour la session du jour
@@ -11640,6 +11673,14 @@ const EN_FR = {
   "vs your all-time best 7-day window": "vs ta meilleure fenêtre de 7 jours jamais atteinte",
   "BODY ZONES": "ZONES DU CORPS",
   "filtered on your profile": "filtré sur ton profil",
+  "The weeks": "Les semaines",
+  "sessions done": "séances faites",
+  "Started on": "Commencé le",
+  "in progress": "en cours",
+  "Currently active — open it →": "En cours — l'ouvrir →",
+  "Activate this programme": "Activer ce programme",
+  "Delete this programme": "Supprimer ce programme",
+  "Assign this programme →": "Assigner ce programme →",
   "Add to a session": "Ajouter à une séance",
   "FORM & PAIN": "FORME & DOULEUR",
   "average pain": "douleur moyenne",
@@ -12970,6 +13011,9 @@ const EN_FR_PATTERNS = [
   [/^(\d+) of (\d+) exercises?$/, (m)=>`${m[1]} sur ${m[2]} exercices`],
   [/^(\d+) of (\d+) sessions?$/, (m)=>`${m[1]} sur ${m[2]} séances`],
   [/^(\d+) of (\d+) programmes?$/, (m)=>`${m[1]} sur ${m[2]} programmes`],
+  // Fiche programme : durée et rythme composés à l'affichage.
+  [/^(\d+) weeks?$/, (m)=>`${m[1]} semaine${Number(m[1])>1?'s':''}`],
+  [/^(\d+) sessions?\/week$/, (m)=>`${m[1]} séance${Number(m[1])>1?'s':''}/semaine`],
   // Générique pour tous les compteurs d'étape de wizard (csi/csc/cprog + détours) — posés en JS brut
   // via textContent, jamais captés par un balayage statique, donc jamais traduits sans ce pattern.
   [/^Step (\d+) of (\d+)$/, (m)=>`Étape ${m[1]} sur ${m[2]}`],
@@ -13148,6 +13192,8 @@ const FR_EN_PATTERNS = [
   [/^(\d+) sur (\d+) exercices?$/, (m)=>`${m[1]} of ${m[2]} exercises`],
   [/^(\d+) sur (\d+) séances?$/, (m)=>`${m[1]} of ${m[2]} sessions`],
   [/^(\d+) sur (\d+) programmes?$/, (m)=>`${m[1]} of ${m[2]} programmes`],
+  [/^(\d+) semaines?$/, (m)=>`${m[1]} week${Number(m[1])>1?'s':''}`],
+  [/^(\d+) séances?\/semaine$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''}/week`],
   // Libellé de la carte séance (renderHomeSeance, cardLbl) — même problème que ci-dessus : sens forward
   // seul (EN_FR_PATTERNS) suffit pour un premier rendu FR, mais bloque en français sans re-rendu si on
   // repasse en anglais depuis un écran déjà affiché.
@@ -16657,28 +16703,98 @@ function editFeedbackComment(){
   const h=window._curRecapEntry; if(!h) return;
   openNoteEditor(h.coachComment||'', 'Comment on this session', function(v){ h.coachComment=v; renderHistoryRecapModal(h); });
 }
+let pdCurrentId=null;
 function openProgrammeDetail(id){
   const p=[...PROGRAMMES,...userProgrammes].find(x=>x.id===id); if(!p) return;
+  pdCurrentId=id;
+  closeModal();
+  go('programme_detail');
+  setTimeout(()=>renderProgrammeDetail(), 20);
+}
+function renderProgrammeDetail(){
+  const p=[...PROGRAMMES,...userProgrammes].find(x=>x.id===pdCurrentId); if(!p) return;
   const toutes=[...SESSIONS,...userSessions];
-  const weeks = Object.keys(p.semaines).map(wk=>{
-    const num = wk.replace('s','');
-    const names = p.semaines[wk].map(sid=>{ const s=toutes.find(x=>x.id===sid); return s?s.nom:sid; }).join(' · ');
-    return '<div style="padding:8px 0;border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:700;color:var(--gray2);text-transform:uppercase;margin-bottom:2px;">Week '+num+'</div><div style="font-size:13px;color:var(--white);">'+names+'</div></div>';
-  }).join('');
   const isActive = programmeActif && programmeActif.id===p.id;
   const isPersonal = !PROGRAMMES.some(x=>x.id===p.id);
-  showModal('<div style="width:72px;height:72px;margin:0 auto 12px;border-radius:20px;background-image:url(\''+programmePhotoFor(p)+'\');background-size:cover;background-position:center;"></div>'
-    +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:2px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.nom_marketing+'</div>'
-    +'<div style="font-size:13px;color:var(--gray);margin-bottom:14px;text-align:center;">'+p.niveau+' · '+p.duree_semaines+' weeks · '+p.frequence+'x/week</div>'
-    +'<div style="font-size:13px;color:var(--gray2);line-height:1.5;margin-bottom:14px;">'+p.description+'</div>'
-    +weeks
-    +(currentRole==='referent'
-      ? '<button class="btn btn-orange" style="width:100%;margin-top:16px;" onclick="assignProgrammeTemplate(\''+p.id+'\')">Assign this programme →</button>'
+
+  const hero=document.getElementById('pdHero');
+  if(hero) hero.style.backgroundImage='url("'+programmePhotoFor(p)+'")';
+  const badge=document.getElementById('pdHeroBadge');
+  if(badge){ badge.textContent=trDyn(p.niveau); badge.style.background='rgba(var(--brand-fixed-rgb),.22)'; badge.style.color='var(--brand-fixed)'; badge.style.backdropFilter='blur(10px)'; }
+  const title=document.getElementById('pdHeroTitle'); if(title) title.textContent=p.nom_marketing;
+
+  // Chips : mêmes objets que la fiche séance (durée, rythme, positions, objectifs) — jamais une phrase
+  // composée, pour que chaque information reste sécable et traduisible seule.
+  const chip=(icon,txt)=>'<span class="sd-chip" style="display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:7px 12px;font-size:12.5px;color:var(--gray2);"><svg class="ki" style="color:var(--gray);"><use href="#'+icon+'"/></svg>'+txt+'</span>';
+  const tags=document.getElementById('pdTags');
+  if(tags){
+    tags.innerHTML = chip('ki-calendar', trDyn(p.duree_semaines+' weeks'))
+      + chip('ki-repeat', trDyn(p.frequence+' sessions/week'))
+      + (p.positions||[]).map(pos=>chip('ki-body', trDyn(pos))).join('')
+      + (p.objectif||[]).map(o=>chip('ki-spark', trDyn(o))).join('');
+  }
+  // Même règle que la fiche séance : une description est une PHRASE, pas une clé de dictionnaire —
+  // elle vit dans la donnée en deux langues (description / description_en), sinon un texte libre rédigé
+  // en français resterait en français quelle que soit la langue de l'interface.
+  const desc=document.getElementById('pdDesc');
+  if(desc) desc.textContent = ((currentLang!=='fr' && p.description_en) ? p.description_en : p.description) || '';
+
+  // Avancement : seulement si c'est LE programme en cours — sur une fiche catalogue, une barre à 0%
+  // ne dirait rien d'autre que « tu ne l'as pas commencé », ce que la présence du bouton dit déjà.
+  const prog=document.getElementById('pdProgress');
+  if(prog){
+    if(isActive){
+      const pr=getProgrammeProgress(p);
+      const pct=pr.totalSessions ? Math.round(pr.completedCount/pr.totalSessions*100) : 0;
+      const depuis = programmeActifDepuis ? new Date(programmeActifDepuis).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'long'}) : null;
+      prog.style.display='';
+      prog.innerHTML='<div class="card-sm">'
+        +'<div style="display:flex;align-items:baseline;gap:8px;">'
+          +'<div style="font-size:26px;font-weight:800;color:var(--white);line-height:1;">'+pr.completedCount+'/'+pr.totalSessions+'</div>'
+          +'<div style="font-size:13px;color:var(--gray2);">'+trDyn('sessions done')+'</div>'
+        +'</div>'
+        +(depuis?'<div style="font-size:11.5px;color:var(--gray2);margin-top:6px;" data-notranslate="1">'+trDyn('Started on')+' '+depuis+'</div>':'')
+        +'<div style="height:6px;border-radius:3px;background:var(--bg3);margin-top:12px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:var(--brand-fixed);border-radius:3px;"></div></div>'
+        +'</div>';
+    } else { prog.style.display='none'; prog.innerHTML=''; }
+  }
+
+  // Les semaines, déployées — chaque séance porte sa vignette et s'ouvre. La modale n'en donnait que
+  // les noms collés par des points, sans accès ni durée.
+  const weeksEl=document.getElementById('pdWeeks');
+  if(weeksEl){
+    const curWeek = isActive ? getProgrammeProgress(p).weekIndex : 0;
+    weeksEl.innerHTML = Object.keys(p.semaines).map(wk=>{
+      const num=parseInt(wk.replace('s',''),10);
+      const encours = num===curWeek;
+      const lignes = p.semaines[wk].map(sid=>{
+        const s=toutes.find(x=>x.id===sid);
+        if(!s) return '';
+        return '<div onclick="openSessionDetail(\''+s.id+'\')" style="display:flex;align-items:center;gap:11px;padding:9px 0;cursor:pointer;">'
+          +'<div class="kimg" style="width:48px;height:48px;border-radius:10px;flex-shrink:0;background-image:url(\''+sessionPhotoFor(s)+'\');"></div>'
+          +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+trDyn(s.nom_marketing||s.nom)+'</div>'
+          +'<div style="font-size:11.5px;color:var(--gray2);">'+trDyn(s.duree+' min')+' · '+trDyn((s.exercices||[]).length+' exercise'+((s.exercices||[]).length>1?'s':''))+'</div></div>'
+          +'<svg class="ki" style="color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg>'
+          +'</div>';
+      }).join('');
+      return '<div class="card-sm" style="margin-bottom:10px;'+(encours?'border-color:var(--brand-fixed);':'')+'">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">'
+          +'<div style="font-size:11px;font-weight:800;color:'+(encours?'var(--brand-fixed)':'var(--gray2)')+';letter-spacing:.6px;text-transform:uppercase;">'+trDyn('Week')+' '+num+'</div>'
+          +(encours?'<div style="font-size:10px;font-weight:700;color:var(--brand-fixed);background:rgba(var(--brand-fixed-rgb),.14);border-radius:5px;padding:2px 7px;">'+trDyn('in progress')+'</div>':'')
+        +'</div>'+lignes+'</div>';
+    }).join('');
+  }
+
+  const cta=document.getElementById('pdCta');
+  if(cta){
+    cta.innerHTML = (currentRole==='referent'
+      ? '<button class="btn btn-orange" style="width:100%;" onclick="assignProgrammeTemplate(\''+p.id+'\')">'+trDyn('Assign this programme →')+'</button>'
       : (isActive
-        ? '<button class="btn btn-outline" style="width:100%;margin-top:16px;" disabled>Currently active</button>'
-        : '<button class="btn btn-orange" style="width:100%;margin-top:16px;" onclick="activerProgramme(\''+p.id+'\')">Activate this programme</button>'))
-    +(isPersonal ? '<button class="btn-ghost" style="margin-top:8px;width:100%;color:var(--red);" onclick="deleteUserProgramme(\''+p.id+'\')">Delete this programme</button>' : '')
-    +'<button class="btn-ghost" style="margin-top:8px;width:100%;color:var(--gray2);" onclick="closeModal()">Close</button>');
+        ? '<button class="btn btn-outline" style="width:100%;" onclick="go(\'programme\');setTimeout(showProgMonView,30)">'+trDyn('Currently active — open it →')+'</button>'
+        : '<button class="btn btn-orange" style="width:100%;" onclick="activerProgramme(\''+p.id+'\')">'+trDyn('Activate this programme')+'</button>'))
+      + (isPersonal ? '<button class="btn-ghost" style="margin-top:10px;width:100%;color:var(--red);" onclick="deleteUserProgramme(\''+p.id+'\')">'+trDyn('Delete this programme')+'</button>' : '');
+  }
+  sweepTranslate(document.getElementById('programme_detail'), currentLang);
 }
 // Référent : utilise le programme (durée/fréquence/exercices agrégés depuis ses séances) comme point
 // de départ de creation_programme — cprogUserId et l'objectif restent volontairement vides : on ne
