@@ -12811,6 +12811,7 @@ const EN_FR = {
   "Started today": "Commencé aujourd'hui",
   "Programme completed": "Programme terminé",
   "MY CHALLENGES": "MES DÉFIS",
+  "Short": "Écourtée",
   "Ramping up fast": "En hausse rapide",
   "Below your usual pace": "Sous ton rythme habituel",
   "In a healthy zone": "Dans une zone saine",
@@ -16716,7 +16717,7 @@ function renderProgMonView(){
           +'<div style="width:44px;height:44px;border-radius:10px;flex-shrink:0;background-image:url(\''+sessionPhotoFor(s)+'\');background-size:cover;background-position:center;"></div>'
           +'<div style="flex:1;min-width:0;">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;">'
-          +'<div style="font-size:15px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(isToday?'🔥':'○')+' '+s.nom_marketing+'</div>'
+          +'<div style="font-size:15px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.nom_marketing+'</div>'
           +'<div style="font-size:12px;color:var(--gray);flex-shrink:0;margin-left:8px;">'+(isToday?'Today':'Upcoming')+'</div>'
           +'</div>'
           +'<div style="font-size:12px;color:var(--gray);margin-top:4px;">'+s.duree+' min · '+sessionBadgeLabel(s)+'</div>'
@@ -18211,32 +18212,26 @@ function renderProgHistoryList(){
     const dateLbl=d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short'});
     const kind=histKind(h);
     const tagHtml='<span class="tag" style="background:rgba(0,0,0,0);border:1px solid var(--gray2);color:var(--gray2);padding:2px 8px;font-size:10px;">'+trDyn(KIND_TAG[kind].lbl)+'</span>';
-    const head='<div style="display:flex;align-items:center;justify-content:space-between;">'+tagHtml+'<div style="font-size:11px;color:var(--gray);flex-shrink:0;">'+dateLbl+'</div></div>'
-      +'<div style="font-size:14px;font-weight:700;color:var(--white);margin-top:4px;">'+trDyn(h.nom)+'</div>';
+    const ligne=(droite, marque)=>'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid var(--border);cursor:pointer;">'
+      +'<span style="font-size:13.5px;font-weight:600;color:var(--white);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+trDyn(h.nom)
+        +(marque?'<span style="color:var(--gray2);font-weight:400;"> · '+marque+'</span>':'')+'</span>'
+      +'<span style="font-size:11.5px;color:var(--gray2);flex-shrink:0;font-variant-numeric:tabular-nums;">'+droite+'</span></div>';
     if(kind==='programme'){
-      return sep+'<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openHistItem('+i+')">'+head+'</div>';
+      return sep+'<div onclick="openHistItem('+i+')">'+ligne(dateLbl, trDyn(KIND_TAG[kind].lbl))+'</div>';
     }
     if(kind==='attempt'){
       // Un fait, pas un verdict : "Interrompue" plutôt que "Abandonnée" — même information, sans le mot-jugement.
       const doneOf = currentLang==='fr' ? (h.exercicesDone+' sur '+h.exercicesTotal+' exercices') : (h.exercicesDone+' of '+h.exercicesTotal+' exercises');
-      return sep+'<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openHistItem('+i+')">'+head
-        +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'+doneOf+' · '+trDyn(h.dureeReelle+' min')+'</div>'
-        +'</div>';
+      // "Interrompue" reste sur la ligne : c'est la seule chose que le nom ne dit pas.
+      return sep+'<div onclick="openHistItem('+i+')">'+ligne(dateLbl+' · '+trDyn(h.dureeReelle+' min'), trDyn(KIND_TAG[kind].lbl))+'</div>';
     }
-    const effortLbl=EFFORT_LABELS_HIST[h.effort]||h.effort||'—';
-    // Même étiquette que l'Accueil/la fiche séance/le calendrier (sessionBadgeLabel, tags réels) — en
-    // sous-titre, pas dans le tag coloré (qui porte désormais la nature de l'entrée, cf KIND_TAG).
-    const sess=h.sessionId ? allSess.find(s=>s.id===h.sessionId) : null;
-    const badgeLbl=sess ? trDyn(sessionBadgeLabel(sess)) : null;
+    // "Fait en 6 min pour 30 prevues" reste la seule marque qui merite la ligne : elle signale au
+    // referent une seance qui n'a pas pu avoir lieu comme prevu. Le reste (effort, douleur, source
+    // des reps, etiquette de seance) vit dans le detail, qu'un tap ouvre.
     const fast = viaCoach && h.dureeAttendue && h.duree < h.dureeAttendue*0.5;
-    const srcLbl = viaCoach ? REP_SOURCE_LABEL[h.repSource] : null;
-    const flag = fast ? '<div style="font-size:11px;color:var(--vigilance);margin-top:4px;">'+(currentLang==='fr' ? '⚠ Fait en '+h.duree+' min · '+h.dureeAttendue+' min prévus' : '⚠ Done in '+h.duree+' min · '+h.dureeAttendue+' min planned')+'</div>' : '';
-    return sep+'<div class="card-sm" style="margin:0 0 10px;cursor:pointer;" onclick="openHistItem('+i+')">'+head
-      +(badgeLbl?'<div style="font-size:11px;color:var(--gray2);margin-top:1px;">'+badgeLbl+'</div>':'')
-      +'<div style="font-size:12px;color:var(--gray2);margin-top:4px;">'+trDyn(h.exercices+' exercise'+(h.exercices>1?'s':''))+' · '+trDyn(h.duree+' min')+(h.reps?' · '+trDyn(h.reps+' reps'):'')+'</div>'
-      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(effortLbl)+(h.douleur!==undefined?' · '+trDyn('Pain')+' '+h.douleur+'/10':'')+(srcLbl?' · '+trDyn(srcLbl):'')+'</div>'
-      +flag
-      +'</div>';
+    // Seance : le nom et la duree. Le reste — exercices, reps, effort, douleur — vit dans le detail,
+    // qu'un tap ouvre, et la tendance de douleur a desormais son bloc dans Progres.
+    return sep+'<div onclick="openHistItem('+i+')">'+ligne(dateLbl+' · '+trDyn(h.duree+' min'), fast?trDyn('Short'):null)+'</div>';
   }).join('');
   window._histRenderedItems = items;   // pour openHistItem(i), évite de refaire le tri/filtre au clic
   sweepTranslate(el, currentLang);
