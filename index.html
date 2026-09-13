@@ -6682,6 +6682,9 @@ function go(id){
     // ce relance explicite, une vidéo bloquée par la politique autoplay du navigateur au premier chargement
     // reste figée pour toujours, même en y revenant plus tard.
     playSplashVideo(sv);
+    // Safari iPhone met en pause une vidéo lancée hors de l'écran : à cet instant l'écran entrant est encore
+    // décalé à droite (translateX 110 %). On relance une fois la glissade terminée (13 sept. 2026).
+    if(sv) setTimeout(()=>{ if(ne.classList.contains('active') && sv.paused) playSplashVideo(sv); }, 380);
     void ne.offsetWidth;                                // reflow pour ancrer l'état initial
     ne.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
     ne.style.transform='translateX(0)';
@@ -13264,11 +13267,15 @@ function replaySplash(){
   playSplashIntro();
 }
 document.addEventListener('DOMContentLoaded', function(){
-  // go('screen2') plus bas ne relance PAS la vidéo : au premier chargement, screen2 est déjà
-  // l'écran actif par défaut, donc le garde-fou ce===ne de go() court-circuite tout, y compris
-  // le retry play() qui y est câblé pour les autres transitions — sans ce retry direct ici, une
-  // vidéo bloquée par la politique autoplay du navigateur au tout premier chargement reste figée.
+  // Préchargement de la vidéo d'entrée pendant l'écran du logo (elle est encore hors écran : Safari iPhone
+  // la mettra en pause, go('screen2') la relance une fois visible).
   playSplashVideo(document.querySelector('#screen2 .splash-video'));
+  // Filet : si Safari met en pause une vidéo de fond alors que son écran est affiché (hors écran au
+  // lancement, économie d'énergie levée, retour d'appel…), on la relance.
+  document.querySelectorAll('.splash-video').forEach(v=>v.addEventListener('pause', ()=>{
+    const sc=v.closest('.screen');
+    if(sc && sc.classList.contains('active') && !document.hidden) setTimeout(()=>{ if(v.paused && sc.classList.contains('active')) playSplashVideo(v); }, 250);
+  }));
   playSplashIntro();
   // Filet de sécurité : certains navigateurs refusent tout autoplay tant qu'aucun geste utilisateur
   // n'a eu lieu, même muet — la toute première interaction (tap n'importe où) relance les vidéos
