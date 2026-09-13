@@ -18400,7 +18400,7 @@ function renderSessionDetail(){
         +'<div class="exo-prev-num">'+(i+1)+'</div>'
         +'<div class="exo-prev-img" style="background-image:url(\''+exoPhotoFor(ex)+'\');"></div>'
         +'<div class="exo-prev-body"><div class="exo-prev-name">'+ex.nom+'</div><div class="exo-prev-meta">'+meta+'</div></div>'
-        +'<button onclick="event.stopPropagation();removeExoFromSession(\''+exId+'\')" style="width:26px;height:26px;border-radius:50%;background:var(--bg3);border:none;color:var(--gray2);font-size:14px;cursor:pointer;line-height:1;flex-shrink:0;">×</button>'
+        +'<button onclick="event.stopPropagation();removeExoFromSession(\''+exId+'\')" style="width:26px;height:26px;border-radius:50%;background:var(--bg3);border:none;color:var(--gray2);font-size:14px;cursor:pointer;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center;" aria-label="'+trDyn('Remove')+'"><svg class="ki" style="width:12px;height:12px;"><use href="#ki-close"/></svg></button>'
         +'</div>';
     }).join('') + '</div>'
     ;
@@ -21219,7 +21219,7 @@ function renderDefiSeqOrderListShared(a){
     return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);">'
       +'<div style="width:22px;height:22px;border-radius:50%;background:var(--teal);color:var(--ink-on-accent);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;" data-notranslate="1">'+(i+1)+'</div>'
       +'<div style="flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" data-notranslate="1">'+(ex?ex.nom:'?')+'</div>'
-      +'<button class="btn-ghost" style="width:26px;height:26px;padding:0;font-size:15px;line-height:1;color:var(--gray);flex-shrink:0;" onclick="event.stopPropagation();removeDefiSeqItemShared(\''+a.prefix+'\','+i+')">✕</button>'
+      +'<button class="btn-ghost" style="width:26px;height:26px;padding:0;font-size:15px;line-height:1;color:var(--gray);flex-shrink:0;" onclick="event.stopPropagation();removeDefiSeqItemShared(\''+a.prefix+'\','+i+')" aria-label="'+trDyn('Remove')+'"><svg class="ki" style="width:13px;height:13px;"><use href="#ki-close"/></svg></button>'
     +'</div>';
   }).join('')+'</div>';
 }
@@ -21852,7 +21852,7 @@ function renderMesAmis(){
   let html='';
   if(pending.length){
     html+='<div class="ex-sec-t" style="padding:0 0 8px;">Friend requests</div>'
-      + pending.map(f=>row(f, '<button class="btn-ghost" style="color:var(--teal);font-size:12.5px;font-weight:700;padding:6px 8px;flex-shrink:0;" onclick="event.stopPropagation();acceptFriendRequest(\''+f.id+'\')">Accept</button><button class="btn-ghost" style="color:var(--gray);font-size:16px;padding:6px 8px;flex-shrink:0;" onclick="event.stopPropagation();declineFriendRequest(\''+f.id+'\')">✕</button>')).join('')
+      + pending.map(f=>row(f, '<button class="btn-ghost" style="color:var(--teal);font-size:12.5px;font-weight:700;padding:6px 8px;flex-shrink:0;" onclick="event.stopPropagation();acceptFriendRequest(\''+f.id+'\')">Accept</button><button class="btn-ghost" style="color:var(--gray);font-size:16px;padding:6px 8px;flex-shrink:0;" onclick="event.stopPropagation();declineFriendRequest(\''+f.id+'\')" aria-label="'+trDyn('Remove')+'"><svg class="ki" style="width:13px;height:13px;"><use href="#ki-close"/></svg></button>')).join('')
       + '<div style="height:8px;"></div>';
   }
   if(online.length){
