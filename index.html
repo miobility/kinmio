@@ -418,6 +418,10 @@ h3{font-size:17px;font-weight:700;color:var(--white);font-family:var(--font-head
 .logo-name span{color:var(--orange);}
 .splash-tag{font-size:15px;color:var(--gray2);text-align:center;max-width:280px;line-height:1.5;}
 .splash-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+/* Bouton « Play » natif (Safari iOS, mode économie d'énergie, navigateurs intégrés) : toutes les vidéos de
+   l'app sont des fonds muets sans contrôles, le bouton n'a jamais de sens. Masqué, le fond dégradé reste
+   visible le temps que la lecture démarre (13 sept. 2026). */
+video::-webkit-media-controls,video::-webkit-media-controls-panel,video::-webkit-media-controls-play-button,video::-webkit-media-controls-start-playback-button,video::-webkit-media-controls-overlay-play-button{display:none!important;-webkit-appearance:none!important;opacity:0!important;}
 /* Etait un degrade brun orange -> vert sombre, dernier vestige de l'accent orange (le #1a0e05
    avait echappe a la passe sur les #1a0e0a). Repris dans le langage emeraude. */
 .splash-video-fallback{position:absolute;inset:0;background:linear-gradient(160deg,var(--bg3) 0%,var(--bg) 45%,rgba(var(--brand-fixed-rgb),.10) 100%);z-index:0;}
@@ -1094,7 +1098,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ÉCRAN 2 : Vidéo + choix barre -->
 <div class="screen" id="screen2">
   <div class="splash-video-fallback"></div>
-  <video class="splash-video" autoplay muted loop playsinline><source src="onboarding.mp4" type="video/mp4"></video>
+  <video class="splash-video" src="onboarding.mp4" autoplay muted loop playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback></video>
   <div class="splash-overlay"></div>
   <!-- Logo + slogan -->
   <div style="position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14vh 28px 0;">
@@ -6612,8 +6616,15 @@ function enableObSummaryNotifs(){
 // chargement (vérifié en direct : .play() seul restait bloqué à networkState=NETWORK_NO_SOURCE).
 function playSplashVideo(v){
   if(!v) return;
-  if(v.readyState===0) v.load();
-  v.play().catch(()=>{});
+  // Muet et en ligne posés en PROPRIÉTÉS, pas seulement en attributs : Safari iOS refuse la lecture
+  // automatique si la propriété muted n'est pas vraie au moment du play().
+  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+  if(v.readyState===0 && (v.getAttribute('src') || v.querySelector('source'))) v.load();
+  const p = v.play();
+  if(p && p.catch) p.catch(()=>{
+    // Refusé (données pas encore là, ou politique autoplay) : on retente dès que la vidéo peut jouer.
+    v.addEventListener('canplay', ()=>{ v.play().catch(()=>{}); }, {once:true});
+  });
 }
 let hist=['splash'];
 // Racines de bottom-nav : écrans frères entre eux (onglets), jamais une pile — un aller-retour entre
@@ -13262,8 +13273,11 @@ document.addEventListener('DOMContentLoaded', function(){
   // Filet de sécurité : certains navigateurs refusent tout autoplay tant qu'aucun geste utilisateur
   // n'a eu lieu, même muet — la toute première interaction (tap n'importe où) relance les vidéos
   // d'ambiance restées en pause pour cette raison, une seule fois.
-  const retrySplashVideos=()=>{ document.querySelectorAll('.splash-video').forEach(playSplashVideo); document.removeEventListener('pointerdown', retrySplashVideos); };
-  document.addEventListener('pointerdown', retrySplashVideos, {once:true});
+  const retrySplashVideos=()=>{ document.querySelectorAll('.screen.active .splash-video').forEach(v=>{ if(v.paused) playSplashVideo(v); }); };
+  ['touchstart','pointerdown','click'].forEach(ev=>document.addEventListener(ev, retrySplashVideos, {passive:true}));
+  // Retour sur l'onglet ou page restaurée depuis le cache : Safari met les vidéos en pause.
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) retrySplashVideos(); });
+  window.addEventListener('pageshow', retrySplashVideos);
 });
 
 // Langue
