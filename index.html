@@ -2161,8 +2161,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="font-size:38px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,4v16 /><path d=M16,4v16 /></svg></div>
     <div style="font-size:19px;font-weight:800;color:var(--white);">Paused</div>
     <button class="btn btn-orange" style="min-width:200px;" onclick="togglePause()">Resume</button>
-    <button class="btn-ghost demo-only" style="color:var(--brand-fixed);font-weight:700;" onclick="demoNextExercise()">Go to next exercise</button>
-    <button class="btn-ghost demo-only" style="color:var(--gray2);font-weight:700;" onclick="demoEndSession()">Go to end of session</button>
+    <button class="btn-ghost demo-only" id="sessPauseDemoNext" style="color:var(--brand-fixed);font-weight:700;" onclick="demoNextExercise()">Go to next exercise</button>
+    <button class="btn-ghost demo-only" id="sessPauseDemoEnd" style="color:var(--gray2);font-weight:700;" onclick="demoEndSession()">Go to end of session</button>
     <button class="btn-ghost" style="width:100%;max-width:220px;color:var(--red);padding:14px;" onclick="quitSession()"><svg class="ki"><use href="#ki-stop"/></svg>Quit workout</button>
   </div>
   <div id="sessCountdownOverlay" style="display:none;position:absolute;inset:0;background:var(--bg);z-index:55;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
@@ -3243,6 +3243,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="sub" style="text-align:center;margin-bottom:8px;" id="ex_muscles">—</div>
     <div style="display:flex;justify-content:center;margin-bottom:10px;" id="exPastille"></div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;" id="ex_badges"></div>
+    <!-- Le meme CTA qu'en bas, remonte sous le nom et les badges, comme sur la fiche seance (13 sept. 2026). -->
+    <div id="exStartTop" style="display:none;margin-bottom:16px;"></div>
     <div class="coach-tip" id="exCoachNoteBlock" style="display:none;margin-bottom:16px;"><span class="ct-ic"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg></span><span id="exCoachNoteTxt"></span></div>
     <div class="card-sm gap16" id="exSeanceWrap" style="display:flex;align-items:center;gap:12px;">
       <span style="font-size:24px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5.5 y=4.5 width=13 height=17 rx=2 /><rect x=9 y=3 width=6 height=3 rx=1 /><path d=M8.5,11h7 /><path d=M8.5,15h7 /></svg></span>
@@ -12465,6 +12467,7 @@ function togglePause(){
   sessionPaused=!sessionPaused;
   const ov=document.getElementById('sessPauseOverlay');
   if(sessionPaused){
+    syncPauseDemoLabels();
     if(ov) ov.style.display='flex';
     stopGaugeTick();
     stopRepDetection();
@@ -12577,26 +12580,62 @@ function stopLiveTimers(){
 // Raccourcis de demo (retours plateforme, 13 sept. 2026) : visibles dans la pause seulement quand le
 // mode demo est actif. « Aller a l'exercice suivant » suit le chemin normal (repos, feedback d'exercice) ;
 // « Aller a la fin de seance » saute au recap. Rien d'autre ne change : la seance est marquee demo.
-function demoNextExercise(){
-  if(!demoSkipGates) return;
+function demoNextExercise(force){
+  if(!demoSkipGates && !force) return;
   const onRest = document.getElementById('next_exercise').classList.contains('active');
   if(onRest){ if(nextExoPaused) toggleNextExoPause(); finishRest(); return; }
   if(sessionPaused) togglePause();
   stopLiveTimers();
-  go(sessTotal<=1 ? 'feedback' : 'next_exercise');
+  go(isSoloRun() ? 'feedback' : 'next_exercise');
 }
-function demoEndSession(){
-  if(!demoSkipGates) return;
+function demoEndSession(force){
+  if(!demoSkipGates && !force) return;
   if(sessionPaused) togglePause();
   if(typeof nextExoPaused!=='undefined' && nextExoPaused) toggleNextExoPause();
   stopLiveTimers();
   commitExoFeedback();
   go('feedback');
 }
+// FEUILLE AU BLOCAGE (13 sept. 2026). Les raccourcis de démo étaient derrière deux portes fermées : une
+// option désactivée par défaut dans Profil › Démo du prototype, puis la pause. Sans elles, « Suivant »
+// répondait par un toast en anglais et il fallait attendre chaque minuteur (~10 min pour une séance).
+// La sortie apparaît maintenant au moment où l'on bute. Une séance avancée ainsi est marquée démo
+// comme avec l'option (sessionGateSkipped → demoGatesSkipped dans l'historique).
+let sessionGateSkipped = false;
+function isSoloRun(){ return ((currentProgram && currentProgram.exercices && currentProgram.exercices.length) || sessTotal) <= 1; }
+function showGateSheet(kind, left){
+  const solo = isSoloRun();
+  const fr = currentLang==='fr';
+  const title = kind==='reps'
+    ? (fr ? 'Il reste '+left+' répétition'+(left>1?'s':'') : left+' rep'+(left>1?'s':'')+' to go')
+    : trDyn('The timer has to run out');
+  const b=(cls,label,fn)=>'<button class="btn '+cls+'" style="width:100%;margin-top:10px;" onclick="'+fn+'">'+trDyn(label)+'</button>';
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:6px;">'+title+'</div>'
+    +'<div style="font-size:13px;color:var(--gray2);line-height:1.5;margin-bottom:4px;">'+trDyn("It's what makes the effort verifiable. For a demo, you can move on:")+'</div>'
+    +(solo ? b('btn-orange','Finish the exercise →','gateSkip(\'next\')')
+           : b('btn-orange','Skip this exercise →','gateSkip(\'next\')')+b('btn-outline','Go to end of session','gateSkip(\'end\')'))
+    +'<div style="text-align:center;margin-top:14px;"><span style="color:var(--gray2);font-size:13px;font-weight:600;cursor:pointer;" onclick="gateAlwaysFree()">'+trDyn('Always advance freely in demo')+'</span></div>');
+}
+function gateSkip(where){
+  closeModal(); sessionGateSkipped = true;
+  if(where==='end') demoEndSession(true); else demoNextExercise(true);
+}
+function gateAlwaysFree(){
+  closeModal();
+  if(!demoSkipGates) toggleDemoSkipGates();
+}
+function syncPauseDemoLabels(){
+  // Exercice seul : « exercice suivant » et « fin de séance » menaient au même endroit. Un seul raccourci.
+  const solo = isSoloRun();
+  const nx=document.getElementById('sessPauseDemoNext'), en=document.getElementById('sessPauseDemoEnd');
+  if(nx) nx.textContent = trDyn(solo ? 'Finish the exercise' : 'Go to next exercise');
+  if(en) en.style.visibility = solo ? 'hidden' : '';
+  if(en) en.style.position = solo ? 'absolute' : '';
+}
 function toggleDemoSkipGates(){
   demoSkipGates = !demoSkipGates;
   document.body.classList.toggle('demo-on', demoSkipGates);   // affiche les raccourcis de démo dans la pause
-  toast(demoSkipGates ? '✓ Demo mode: session gates disabled' : '✓ Session gates re-enabled');
+  toast(trDyn(demoSkipGates ? '✓ Demo mode: session gates disabled' : '✓ Session gates re-enabled'));
   renderDemoSection('demoHubContent');
 }
 function updateNextBtn(){
@@ -12612,20 +12651,20 @@ function updateNextBtn(){
   if(stdNextBtn){
     if(isNouveau && !isCardio && exSetCurrent<exSetTotal){
       stdNextBtn.textContent='Complete set →';
-      stdNextBtn.onclick=()=>{ if(repsGoalMet()) completeRepsSet(); else toast('Finish your '+repTarget+' reps first ('+rc+'/'+repTarget+')'); };
+      stdNextBtn.onclick=()=>{ if(repsGoalMet()) completeRepsSet(); else showGateSheet('reps', repTarget-rc); };
     } else {
       stdNextBtn.textContent = hasNext ? 'Next exercise →' : 'Finish →';
       const goNext = hasNext ? ()=>go('next_exercise') : finishGo;
       stdNextBtn.onclick = (isNouveau && !isCardio)
-        ? (()=>{ if(repsGoalMet()) goNext(); else toast('Finish your '+repTarget+' reps first ('+rc+'/'+repTarget+')'); })
+        ? (()=>{ if(repsGoalMet()) goNext(); else showGateSheet('reps', repTarget-rc); })
         : goNext;
     }
   }
   const gaugeNextBtn=document.getElementById('gaugeNextBtn');
   if(gaugeNextBtn){
-    gaugeNextBtn.textContent = hasNext ? 'Next →' : 'Finish →';
+    gaugeNextBtn.textContent = trDyn(hasNext ? 'Next →' : 'Finish →');
     const goNextGauge = hasNext ? ()=>go('next_exercise') : finishGo;
-    gaugeNextBtn.onclick = ()=>{ if(cardioTimeUp()) goNextGauge(); else toast('Wait for the timer to finish, or enable demo mode in Prototype demo'); };
+    gaugeNextBtn.onclick = ()=>{ if(cardioTimeUp()) goNextGauge(); else showGateSheet('timer'); };
   }
 }
 function startRestPhase(){
@@ -12767,7 +12806,7 @@ function startGaugeTimer(){
       return;
     }
     gaugeSecondsInZone++;
-    if(lblEl){ lblEl.textContent='Time remaining'; lblEl.style.color='var(--gray)'; }
+    if(lblEl){ lblEl.textContent=trDyn('Time remaining'); lblEl.style.color='var(--gray)'; }
     if(numEl) numEl.style.opacity='1';
     cardioSecondsLeft--;
     announceCountdown(cardioSecondsLeft);
@@ -12994,7 +13033,7 @@ function confirmSessionReady(){
   onSessionStart();
 }
 function onSessionStart(){
-  if(sessCurrent===1){ sessionExoFeedback={}; sessionExoReps={}; sessionStartTime=Date.now(); sessionTotalReps=0; sessionTypeDuration={Cardio:0, Renforcement:0}; sessionTypeReps={Cardio:0, Renforcement:0}; sessionCardioScore=0; sessionRenfoScore=0; sessionZoneDuration={}; sessionExoScores={}; sessionAnyRealMotion=false; sessionAnyManualTap=false; sessionAnySimulatedAuto=false; applyIntensityRecommendation(); }
+  if(sessCurrent===1){ sessionGateSkipped=false; sessionExoFeedback={}; sessionExoReps={}; sessionStartTime=Date.now(); sessionTotalReps=0; sessionTypeDuration={Cardio:0, Renforcement:0}; sessionTypeReps={Cardio:0, Renforcement:0}; sessionCardioScore=0; sessionRenfoScore=0; sessionZoneDuration={}; sessionExoScores={}; sessionAnyRealMotion=false; sessionAnyManualTap=false; sessionAnySimulatedAuto=false; applyIntensityRecommendation(); }
   else {
     bankExerciseTypeDuration(currentProgram.exercices[sessCurrent-2], rc);   // lu avant que rc ne soit remis à 0 juste après
     sessionTotalReps += rc;
@@ -13072,7 +13111,7 @@ function onSessionStart(){
       if(timerWrap) timerWrap.style.display='block';
       if(repWrap) repWrap.style.display='flex';
       if(jaugeRow) jaugeRow.style.display='none';
-      if(timerLbl) timerLbl.textContent='Time remaining';
+      if(timerLbl) timerLbl.textContent=trDyn('Time remaining');
       if(repVideoBox){ repVideoBox.style.display='none'; repVideoBox.innerHTML=''; }
       if(resistBadge) resistBadge.style.display='none';
       tsVal=32; startTimer();
@@ -13231,6 +13270,15 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions": "Passer les questions",
+  "The timer has to run out": "Le minuteur doit aller au bout",
+  "It's what makes the effort verifiable. For a demo, you can move on:": "C'est ce qui rend l'effort vérifiable. Pour une démo, tu peux avancer :",
+  "Skip this exercise →": "Passer cet exercice →",
+  "Finish the exercise →": "Terminer l'exercice →",
+  "Finish the exercise": "Terminer l'exercice",
+  "Always advance freely in demo": "Toujours avancer librement en démo",
+  "Advance freely in sessions": "Avancer librement en séance",
+  "✓ Demo mode: session gates disabled": "✓ Mode démo : la séance avance librement",
+  "✓ Session gates re-enabled": "✓ Garde-fous de séance réactivés",
   "What are your training habits?": "Quelle est ton habitude d'entraînement ?",
   "To set the intensity of your first sessions.": "Pour régler l'intensité de tes premières séances.",
   "I'm just starting": "Je débute",
@@ -17366,6 +17414,8 @@ function openExerciceNouveau(id, fromSession){
   // déjà dans une séance, pas en train d'en composer une ni de lancer cet exercice tout seul. Seul
   // "Remplacer" reste pertinent (chantier "fiche exercice unifiée", retour utilisateur).
   const startBtn=document.getElementById('exStartBtn'); if(startBtn) startBtn.style.display = window._exFromSession ? 'none' : 'block';
+  const startTop=document.getElementById('exStartTop');
+  if(startTop){ startTop.style.display = window._exFromSession ? 'none' : 'block'; startTop.innerHTML = window._exFromSession ? '' : '<button class="btn btn-orange" style="margin:0;" onclick="startExerciseFromFiche()">'+trDyn('Start this exercise \u2192')+'</button>'; }
   const addBtn=document.getElementById('exAddToSessionBtn'); if(addBtn) addBtn.style.display = (currentRole==='referent' || window._exFromSession) ? 'none' : 'block';
   const replaceTop=document.getElementById('exReplaceTop'); if(replaceTop) replaceTop.style.display = window._exFromSession ? 'block' : 'none';
   window._curEx=ex.id;
@@ -22992,7 +23042,7 @@ function submitFeedback(){
       // plus, jamais lus par ACWR/streaks/etc. qui ne connaissent que les champs ci-dessus.
       dureeAttendue: sessionActuelle ? sessionActuelle.duree : (currentProgram.duree||0),
       repSource: sessionRepSource(),
-      demoGatesSkipped: demoSkipGates,
+      demoGatesSkipped: demoSkipGates || sessionGateSkipped,
       douleurExoMax: douleurExoMax,
       exoReps: {...sessionExoReps},
       zoneMin: (()=>{ const rows=Object.values(exerciseZoneHistory||{}).flat().filter(z=>sessionStartTime && z.date>=sessionStartTime); if(!rows.length) return 0; const pct=rows.reduce((a,z)=>a+z.pctZone,0)/rows.length; return Math.round((sessionTypeDuration.Cardio||0)*pct/100); })(),
@@ -23554,7 +23604,7 @@ function renderDemoSection(containerId){
      '<div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.6px;margin:18px 0 2px;"><svg class="ki"><use href="#ki-sliders"/></svg>Prototype demo</div>'
     + secTitle('Session integrity')
     + card(
-        row('', 'Skip timers/rep targets in live sessions', demoSkipGates ? 'ON — advances freely, for demos' : 'OFF — normal verifiability gates', 'toggleDemoSkipGates()', demoSkipGates?'var(--brand-fixed)':G)
+        row('', trDyn('Advance freely in sessions'), demoSkipGates ? 'ON — advances freely, for demos' : 'OFF — normal verifiability gates', 'toggleDemoSkipGates()', demoSkipGates?'var(--brand-fixed)':G)
       )
     + secTitle('B2C user')
     + card(
