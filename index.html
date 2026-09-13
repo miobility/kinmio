@@ -2401,7 +2401,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="flex-shrink:0;">
       <div id="sessSearchWrap" style="display:none;padding:10px 20px 0;"><input id="sessSearchInput" type="text" placeholder="Search a session…" oninput="renderProgSessionsView()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div class="px pt" style="padding-bottom:10px;display:flex;gap:8px;overflow-x:auto;">
-        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openSessFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="sessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openSessFilterModal()"><svg class="ki" style="width:15px;height:15px;"><use href="#ki-sliders"/></svg> Filters<span id="sessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
         <button class="lib-chip" id="sessChipFavoris" onclick="toggleSessFavorisChip()"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</button><button class="lib-chip" id="sessChipMatchProfile" onclick="toggleSessMatchProfileChip()"><svg class="ki"><use href="#ki-spark"/></svg>For you</button><button class="lib-chip" id="sessChipCoach" onclick="toggleSessCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
       <div class="px" style="padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <div id="progSessionsCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 sessions</div>
@@ -2422,7 +2422,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="flex-shrink:0;">
       <div id="progSearchWrap" style="display:none;padding:10px 20px 0;"><input id="progSearchInput" type="text" placeholder="Search a programme…" oninput="renderProgProgrammesView()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div class="px pt" style="padding-bottom:10px;display:flex;gap:8px;overflow-x:auto;">
-        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openProgFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="progFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openProgFilterModal()"><svg class="ki" style="width:15px;height:15px;"><use href="#ki-sliders"/></svg> Filters<span id="progFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
         <button class="lib-chip" id="progChipFavoris" onclick="toggleProgFavorisChip()"><svg class="ki"><use href="#ki-heart"/></svg>Favourites</button><button class="lib-chip" id="progChipMatchProfile" onclick="toggleProgMatchProfileChip()"><svg class="ki"><use href="#ki-spark"/></svg>For you</button><button class="lib-chip" id="progChipCoach" onclick="toggleProgCoachChip()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Coach</button></div>
       <div class="px" style="padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <div id="progProgrammesCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 programmes</div>
@@ -2777,7 +2777,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="libNouveauCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 exercises</div>
       <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
         <button class="btn-ghost" id="libResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibNouveauFilters()">Reset all</button>
-        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibNouveauFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libNouveauFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibNouveauFilterModal()"><svg class="ki" style="width:15px;height:15px;"><use href="#ki-sliders"/></svg> Filters<span id="libNouveauFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
       </div>
     </div>
     <div id="libNouveauTri" style="padding:0 20px 8px;flex-shrink:0;font-size:10.5px;color:var(--gray);line-height:1.4;"></div>
@@ -2789,7 +2789,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="libSeancesCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 sessions</div>
       <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
         <button class="btn-ghost" id="libSessResetBtn" style="display:none;color:var(--orange);font-size:12px;padding:4px 8px;" onclick="resetLibSessFilters()">Reset all</button>
-        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibSessFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libSessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibSessFilterModal()"><svg class="ki" style="width:15px;height:15px;"><use href="#ki-sliders"/></svg> Filters<span id="libSessFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
       </div>
     </div>
     <div id="libSeancesTri" style="padding:0 20px 8px;flex-shrink:0;font-size:10.5px;color:var(--gray);line-height:1.4;"></div>
@@ -2797,7 +2797,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div id="libTab_programmes" style="display:none;flex-direction:column;flex:1;min-height:0;">
     <div style="padding:0 20px 10px;flex-shrink:0;display:flex;gap:8px;overflow-x:auto;">
-      <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibProgFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="libProgFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+      <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openLibProgFilterModal()"><svg class="ki" style="width:15px;height:15px;"><use href="#ki-sliders"/></svg> Filters<span id="libProgFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
     </div>
     <div class="px" style="padding-bottom:8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
       <div id="libProgCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 programmes</div>
@@ -3000,7 +3000,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div id="csnCount" style="font-size:12px;color:var(--gray);font-weight:600;">0 selected</div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;" onclick="openCsnFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="csnFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;" onclick="openCsnFilterModal()"><svg class="ki" style="width:15px;height:15px;"><use href="#ki-sliders"/></svg> Filters<span id="csnFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
         <button style="width:38px;height:38px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--border);color:var(--white);font-size:15px;cursor:pointer;flex-shrink:0;" onclick="toggleCsnSearch()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg></button>
       </div>
       <div id="csnSearchWrap" style="display:none;margin-bottom:10px;"><input id="csnSearchInput" type="text" placeholder="Search an exercise…" oninput="renderCsnExoList()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
@@ -3046,7 +3046,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       </div>
       <div style="margin-bottom:10px;"><input id="cpnSearchInput" type="text" placeholder="Search a session…" oninput="renderCpnSessList()" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--white);"></div>
       <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;">
-        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openCpnFilterModal()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=10.5 cy=10.5 r=6.5 /><path d=M20,20l-4.3-4.3 /></svg> Filters<span id="cpnFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
+        <button style="display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;flex-shrink:0;" onclick="openCpnFilterModal()"><svg class="ki" style="width:15px;height:15px;"><use href="#ki-sliders"/></svg> Filters<span id="cpnFilterBadge" style="display:none;background:var(--orange);color:var(--ink-on-accent);border-radius:9px;min-width:16px;height:16px;padding:0 5px;font-size:11px;font-weight:700;align-items:center;justify-content:center;"></span></button>
         <button class="lib-chip" id="cpnChipMatchProfile" onclick="toggleCpnMatchProfileChip()"><svg class="ki"><use href="#ki-spark"/></svg>For you</button>
       </div>
       <div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Tap sessions in the order you want them to repeat — picked first comes first.</div>
@@ -8509,12 +8509,26 @@ const userProfileCentre = {
 // fenêtre, elle est juste ignorée — sinon sauter une réponse suffisait à fausser tout le signal.
 // trend='none' si aucune donnée ou une seule (pas de vraie tendance calculable) : jamais interprété en
 // silence comme "stable", contrairement à l'ancien comportement.
+// Douleur de l'Accueil (retours plateforme, 13 sept. 2026) : la DERNIERE seance, comparee a la moyenne
+// des 3 precedentes, fleche a partir de 2 points. Chaque seance compte pour la plus haute de sa douleur
+// de fin de seance et de ses douleurs d'exercice (securite : un 7 sur un exercice ne s'efface pas
+// derriere un 3 note a la fin). Un abandon pour douleur compte comme une seance a 6. On ne fait JAMAIS
+// la moyenne des douleurs d'exercice avec celles de seance : une seance a 6 exercices peserait six fois.
+function painEvents(){
+  const ev = userSessionHistory.filter(h=>h.douleur!=null)
+    .map(h=>({date:h.date, v:Math.max(h.douleur, h.douleurExoMax||0)}));
+  (typeof userSessionAttempts!=='undefined'?userSessionAttempts:[]).filter(a=>a.reason==='pain')
+    .forEach(a=>ev.push({date:a.date, v:6}));
+  return ev.sort((a,b)=>b.date-a.date);
+}
 function getPainSignal(){
-  const withPain = userSessionHistory.filter(h=>h.douleur!=null).slice(0,3);   // unshift() : index 0 = le plus récent
-  if(!withPain.length) return {level:null, delta:null, trend:'none'};
-  const level = withPain[0].douleur;
-  if(withPain.length<2) return {level, delta:null, trend:'none'};
-  const delta = withPain[0].douleur - withPain[withPain.length-1].douleur;
+  const ev = painEvents();
+  if(!ev.length) return {level:null, delta:null, trend:'none'};
+  const level = ev[0].v;
+  const prev = ev.slice(1,4);
+  if(!prev.length) return {level, delta:null, trend:'none'};
+  const avgPrev = prev.reduce((s,e)=>s+e.v,0)/prev.length;
+  const delta = Math.round((level-avgPrev)*10)/10;
   const trend = delta>=2 ? 'hausse' : delta<=-2 ? 'baisse' : 'stable';
   return {level, delta, trend};
 }
@@ -8688,7 +8702,7 @@ function buildLoadPainHtml(pad, compact, only){
   const painComment = pain.level==null ? '' : pain.trend==='hausse' ? 'Rising over your last 3 sessions' : pain.trend==='baisse' ? 'Easing over your last 3 sessions' : 'Stable over your last 3 sessions';
   const loadTip = fatigue.level==='high'?'Load rising fast — consider a lighter session':fatigue.level==='low'?'Load lower than usual — good time to build back up':'Load steady and manageable';
   const loadInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Load\',\'How hard you have trained over the last 7 days compared with your usual pace over 28 days. Between 0.8 and 1.3 is a healthy zone — much higher means you are ramping up fast.\',[\'seance\',4])" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
-  const painInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'Your self-reported pain level, from your last sessions where you answered the pain question. Calculation: level = your most recent answer (out of 10). Trend = that value minus your answer from up to 3 sessions ago (skipped sessions don\\\'t count against you) — only shown as rising or easing if the change is 2 points or more, so small day-to-day noise isn\\\'t flagged as a real trend.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
+  const painInfo='<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'Your pain at the end of your last session. The arrow compares it with the average of your 3 previous sessions, from 2 points of difference.\')" '+infoIcon+'><svg class="ki"><use href="#ki-info"/></svg></span>';
 
   if(compact){
     const heroC='font-size:22px;font-weight:800;line-height:1;';
@@ -9289,12 +9303,15 @@ function renderHomeKpiZone(prefix, profile){
   // chiffres pour une meme notion, qui pouvaient se contredire a l'ecran.
   const painWord = lvl==null ? '' : trDyn(lvl<=3 ? 'Mild pain' : lvl<=6 ? 'Moderate pain' : 'High pain');
   const painCell='<div class="kt sig" style="border-left-color:'+painTone+';">'
-    +'<div class="kt-l">'+trDyn('Pain')+info('Pain','Your most recent self-reported pain level, taken at the end of your last session. The trend compares it with up to 3 sessions ago.')
+    +'<div class="kt-l">'+trDyn('Pain')+info('Pain','Your pain at the end of your last session. The arrow compares it with the average of your 3 previous sessions, from 2 points of difference.')
       +(painAlert?'<span style="color:'+painTone+';display:contents;">'+pic('alert')+'</span>':'')+'</div>'
     +(lvl==null
       ? '<div class="kt-c" style="margin-top:0;">'+trDyn('Not enough data yet')+'</div>'
       : '<div class="kt-v" style="color:'+painTone+';">'+lvl+'<span class="kt-u">/10</span></div>'
-        +'<div class="kt-c" style="margin-top:9px;color:'+painTone+';font-weight:600;">'+painWord+'</div>')
+        +'<div class="kt-c" style="margin-top:9px;color:'+painTone+';font-weight:600;">'+painWord+'</div>'
+        +'<div class="kt-c" style="margin-top:2px;">'+trDyn('last session')
+          +(pain.trend==='hausse'||pain.trend==='baisse' ? ' · <span style="color:'+(pain.trend==='hausse'?'var(--vigilance)':'var(--brand-fixed)')+';font-weight:700;">'+(pain.trend==='hausse'?'\u2191 ':'\u2193 ')+Math.abs(Math.round(pain.delta))+'</span>' : '')
+        +'</div>')
   +'</div>';
 
   // margin-top:0 sur EFFORT collait le titre sous la carte seance — 0 px d'ecart, si bien qu'il se
@@ -11050,14 +11067,14 @@ function renderProgPeriod(periodKey){
       +'</div>';
     // "Stable sur cette periode" repetait en toutes lettres ce que Volume dit deja par une fleche
     // ("↑ 38%") — meme information, deux grammaires. La fleche gagne : plus courte, et deja en place.
-    const painDelta = (painAvgPrev!=null && Math.abs(painAvg-painAvgPrev)>=0.5)
+    const painDelta = (painAvgPrev!=null && Math.abs(painAvg-painAvgPrev)>=1)
       ? {txt:(painAvg<painAvgPrev?'\u2193 ':'\u2191 ')+(Math.round(Math.abs(painAvg-painAvgPrev)*10)/10), col:(painAvg<painAvgPrev?'var(--brand-fixed)':'var(--vigilance)')}
       : null;
-    blocDouleur+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">PAIN<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'The average of what you declared after each session over this window, and the bars show each of those sessions in order. The verdict compares that average with the previous window — rising or easing only from 1 point of difference.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+    blocDouleur+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">PAIN<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'The average pain you declared at the end of your sessions over this window. Each bar is one session, in order. The arrow compares it with the previous window, from 1 point of difference.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
     blocDouleur+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:'+painCol+';line-height:1;flex-shrink:0;">'+painShown+'<span style="font-size:15px;font-weight:600;color:var(--gray2);">/10</span></div>'
-      +'<div style="font-size:13px;color:var(--gray2);">average pain</div>'
+      +'<div style="font-size:13px;color:var(--gray2);">'+trDyn('average over '+getPeriodLabel(periodKey))+'</div>'
       +'<div style="margin-left:auto;font-size:12.5px;font-weight:700;color:'+painCol+';text-align:right;">'+trDyn(painAvg<=3?'Mild pain':painAvg<=6?'Moderate pain':'High pain')+'</div>'
       +'</div>'
       +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'+spark
@@ -11129,7 +11146,7 @@ function renderProgPeriod(periodKey){
   // Objectif de l'Accueil. Effet secondaire voulu : passer de 7 à 90 jours ne fait plus chuter le héros
   // de 100% à 13% sans raison — 3/3 → 5/39 montre son dénominateur et explique sa propre chute.
   const regState=periodRegularityState(daysThis, goalRounded);
-  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over the last '+getPeriodLabel(periodKey)+', versus your goal for that window. Best streak = your longest run of consecutive training days in that window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over this window, versus your goal for that window. Best streak = your longest run of consecutive training days in that window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +'<div style="display:flex;align-items:baseline;gap:8px;min-width:0;">'
     +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;flex-shrink:0;">'+daysThis+'/'+goalRounded+'</div>'
@@ -11168,7 +11185,7 @@ function renderProgPeriod(periodKey){
       +(prev ? '<div style="font-size:11px;font-weight:700;color:'+cc+';">'+(d.dir==='flat'?'–':ar+' '+d.pct+'%')+'</div>' : '')+'</div>';
   };
   const dureeDelta=pctDelta(dureeTotal, dureeTotalPrev);
-  html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">VOLUME<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained over the last '+getPeriodLabel(periodKey)+', and how many sessions/exercises that took.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+  html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">VOLUME<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Volume\',\'Total minutes trained over this window, and how many sessions and exercises that took.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">'
     +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;">'+dureeTotal+'</div>'
@@ -11187,7 +11204,7 @@ function renderProgPeriod(periodKey){
   // même longueur ? Plus de split Cardio/Strength ici (retiré de Home, retiré ici pour la même raison :
   // rester simple, cf discussion) ----
   if(effortPct!=null){
-    html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">INTENSITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been over the last '+getPeriodLabel(periodKey)+', compared to your own peak. Calculation: your effort score over this window, divided by your single best '+getPeriodLabel(periodKey)+' window ever recorded — cardio and strength are each scored by time/reps × intensity level, then combined. 100% means you\\\'re matching your all-time best window of this length.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+    html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">INTENSITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Real effort\',\'How intense your training has been over this window, compared with your own peak: your effort score over this window divided by your best window of the same length ever recorded. Cardio and strength are each scored by time or reps × intensity level, then combined. 100% means you are matching your best.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
     html+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;">'+effortPct+'%</div>'
@@ -11268,7 +11285,7 @@ function renderProgPeriod(periodKey){
       +'</div></div>';
   }
 
-  html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">BODY ZONES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Body zones\',\'Where your training time actually goes, over the last '+getPeriodLabel(periodKey)+' — time spent per muscle group.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+  html+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">BODY ZONES<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Body zones\',\'Where your training time actually goes over this window: time spent per muscle group.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +(zonePct ? '<div style="display:flex;align-items:center;gap:20px;">'
       +'<div style="width:100px;height:100px;border-radius:50%;flex-shrink:0;background:conic-gradient('+donutGradient+');position:relative;"><div style="position:absolute;inset:22px;border-radius:50%;background:var(--bg2);"></div></div>'
@@ -12862,6 +12879,23 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions": "Passer les questions",
+  "last session": "dernière séance",
+  "average over 7 days": "en moyenne sur 7 jours",
+  "average over 30 days": "en moyenne sur 30 jours",
+  "average over 90 days": "en moyenne sur 90 jours",
+  "Your pain at the end of your last session. The arrow compares it with the average of your 3 previous sessions, from 2 points of difference.": "Ta douleur à la fin de ta dernière séance. La flèche la compare à la moyenne de tes 3 séances précédentes, à partir de 2 points d'écart.",
+  "The average pain you declared at the end of your sessions over this window. Each bar is one session, in order. The arrow compares it with the previous window, from 1 point of difference.": "La douleur moyenne que tu as déclarée en fin de séance sur cette période. Chaque barre est une séance, dans l'ordre. La flèche compare avec la période précédente, à partir d'un point d'écart.",
+  "How many days you trained over this window, versus your goal for that window. Best streak = your longest run of consecutive training days in that window.": "Le nombre de jours où tu t'es entraîné sur cette période, face à ton objectif. Meilleure série = ton plus grand nombre de jours d'entraînement consécutifs sur la période.",
+  "Total minutes trained over this window, and how many sessions and exercises that took.": "Le total de minutes d'entraînement sur cette période, et le nombre de séances et d'exercices que ça représente.",
+  "How intense your training has been over this window, compared with your own peak: your effort score over this window divided by your best window of the same length ever recorded. Cardio and strength are each scored by time or reps × intensity level, then combined. 100% means you are matching your best.": "L'intensité de ton entraînement sur cette période, comparée à ton propre record : ton score d'effort sur la période divisé par ta meilleure période de même durée. Cardio et renforcement sont notés en temps ou répétitions × niveau d'intensité, puis additionnés. 100 % veut dire que tu égales ton record.",
+  "Where your training time actually goes over this window: time spent per muscle group.": "Où va vraiment ton temps d'entraînement sur cette période : le temps passé par groupe musculaire.",
+  "Your daily check-in over this window, oldest on the left. Five levels, from exhausted to great. The verdict compares your most recent answer with the oldest one in the window.": "Ton check-in du jour sur cette période, le plus ancien à gauche. Cinq niveaux, d'épuisé à au top. Le verdict compare ta réponse la plus récente à la plus ancienne de la période.",
+  "How close each member is to their own weekly goal, averaged across the roster. Calculation: for each member, distinct days trained this period ÷ their personal weekly target (scaled to the period length), capped at 100% — then averaged across members. Not a raw attendance rate.": "À quel point chaque membre approche son propre objectif hebdomadaire, en moyenne sur la liste. Calcul : pour chaque membre, jours d'entraînement distincts sur la période ÷ son objectif hebdomadaire (ramené à la durée de la période), plafonné à 100 %, puis moyenne entre membres. Ce n'est pas un taux de présence brut.",
+  "Average minutes trained per member per week, across the roster. Sessions total and coach-vs-autonomous split for this period below.": "Minutes d'entraînement moyennes par membre et par semaine, sur toute la liste. Le total de séances et la part avec coach ou en autonomie sont détaillés dessous.",
+  "Members whose recent training load (ACWR) is ramping up fast compared to their usual pace — worth a lighter session or a check-in.": "Les membres dont la charge récente (ACWR) monte vite par rapport à leur rythme habituel : une séance plus légère ou un point avec eux s'impose.",
+  "Average self-reported pain level across the roster, from members' last sessions where they answered the pain question.": "Douleur moyenne déclarée sur la liste, d'après la dernière séance de chaque membre où il a répondu à la question douleur.",
+  "Body zones": "Zones du corps",
+  "High load": "Charge élevée",
   "Skip the tutorial": "Passer le tutoriel",
   // ob1
   "Which position(s) do you train in?": "Dans quelle(s) position(s) t'entraînes-tu ?",
@@ -19153,7 +19187,8 @@ function renderProgrammeDetail(){
   const hero=document.getElementById('pdHero');
   if(hero) hero.style.backgroundImage='url("'+programmePhotoFor(p)+'")';
   const badge=document.getElementById('pdHeroBadge');
-  if(badge){ badge.textContent=trDyn(p.niveau); badge.style.background='rgba(var(--brand-fixed-rgb),.22)'; badge.style.color='var(--brand-fixed)'; badge.style.backdropFilter='blur(10px)'; }
+  if(badge){ badge.textContent=trDyn(p.niveau || 'Custom');   // un programme cree par le membre n'a pas de niveau : trDyn(undefined) faisait planter toute la fiche
+    badge.style.background='rgba(var(--brand-fixed-rgb),.22)'; badge.style.color='var(--brand-fixed)'; badge.style.backdropFilter='blur(10px)'; }
   const title=document.getElementById('pdHeroTitle'); if(title) title.textContent=p.nom_marketing;
 
   // Chips : mêmes objets que la fiche séance (durée, rythme, positions, objectifs) — jamais une phrase
@@ -22342,8 +22377,7 @@ function showInfoSheet(title, body, guideRef){
   const lien = guideRef ? guideLink(guideRef[0], guideRef[1], 'margin-top:2px;') : '';
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);line-height:1.5;">'+body+'</div>'
-    + lien
-    +'<button class="btn btn-outline" style="width:100%;margin-top:'+(lien?'8px':'20px')+';" onclick="closeModal()">'+trDyn('Close')+'</button>');
+    + lien);   // la croix de showModal suffit : plus de bouton « Fermer » en double
 }
 function renderSubBlock(){
   const el=document.getElementById('subBlock'); if(!el) return;
@@ -22384,6 +22418,7 @@ function submitFeedback(){
   // L'exception du jour meurt avec l'occurrence : les bascules de la fiche reprennent la valeur du
   // profil d'entrainement a la prochaine ouverture.
   if(sessionActuelle) clearPhaseOverride(sessionActuelle.id);
+  if(window._feedbackCoachMsg){ logCoachHistory({type:'session', theme:'suivi', message: window._feedbackCoachMsg}); window._feedbackCoachMsg=null; }
   lastSessionPain=painAfter;   // sert de référence "avant" pour la prochaine séance
   lastFeedbackEffort=feedbackEffort;   // sert à recommander une intensité moindre la prochaine fois
   const noteEl=document.getElementById('fbNote');
@@ -22524,7 +22559,10 @@ function setFeedbackCoachMsg(){
   const week=getWeekDaysTrained();
   const msg = trDyn(feedbackMessages[key])+' '+trDyn(week.fait+'/'+week.objectif+' sessions')+'.';
   renderCoachTip('feedbackCoachTip', msg);
-  logCoachHistory({type:'session', theme:'suivi', message: msg});
+  // Plus de logCoachHistory ici : cette fonction tourne a CHAQUE mouvement de la reglette douleur, et
+  // ecrivait jusqu'a 7 messages dans le Coach IA pour une seule fin de seance (mesure, 13 sept. 2026).
+  // Le message de seance s'ecrit une fois, a l'enregistrement (submitFeedback).
+  window._feedbackCoachMsg = msg;
 }
 function onFbPainInput(el){
   document.getElementById('fbPainVal').innerHTML=el.value+'<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span>';
