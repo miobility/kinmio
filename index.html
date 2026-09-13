@@ -3160,6 +3160,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <span onclick="openAddExoRich()" style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;">+ Add</span>
     </div>
     <div id="sdExoList"></div>
+    <div id="sdRatioRow" style="margin-top:14px;"></div>
     <div id="sdCooldownRow" style="margin-top:16px;"></div>
     <div id="sdTotalRow"></div>
     <!-- 20 px ne suffisaient pas : le Total finissait exactement la ou commencait "Demarrer cette
@@ -13052,6 +13053,19 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions": "Passer les questions",
+  "Programme created": "Programme créé",
+  "Session created": "Séance créée",
+  "Exercise created": "Exercice créé",
+  "Start this programme": "Démarrer ce programme",
+  "See the programme": "Voir le programme",
+  "Start this session": "Démarrer cette séance",
+  "See the session": "Voir la séance",
+  "Try it now": "L'essayer maintenant",
+  "Discovery 1:2": "Découverte 1:2",
+  "Balanced 1:1": "Équilibré 1:1",
+  "Intense 2:1": "Intense 2:1",
+  "Effort / rest": "Effort / repos",
+  "Applies to the timed exercises of this session.": "S'applique aux exercices chronométrés de cette séance.",
   "Currently": "Actuellement",
   "New day": "Nouveau jour",
   "Session day": "Jour",
@@ -16378,7 +16392,12 @@ function toggleCenAvances(){
 // Ce que chaque role voit du gabarit.
 function appliquerRoleCreationExo(){
   const ref = currentRole==='referent';
-  ['cenDescSection','cenReglagesBloc','cenAvancesBloc'].forEach(id=>{ const e=document.getElementById(id); if(e) e.style.display = ref ? 'block' : 'none'; });
+  // Reglages visibles pour tout le monde (retours plateforme, 13 sept. 2026) : masques cote membre, un
+  // exercice cree par un membre recevait toujours 30 s / 30 s / jauge 2. Description et visibilite
+  // restent reservees au referent.
+  ['cenDescSection','cenAvancesBloc'].forEach(id=>{ const e=document.getElementById(id); if(e) e.style.display = ref ? 'block' : 'none'; });
+  const rb=document.getElementById('cenReglagesBloc'); if(rb) rb.style.display='block';
+  renderCenParams();
 }
 // Onglets Séances/Programmes de la bibliothèque — réutilisent tels quels les catalogues partagés
 // SESSIONS/PROGRAMMES (+ copies persos userSessions/userProgrammes) et les cartes renderSessCard/
@@ -17229,11 +17248,14 @@ function renderExParams(ex){
   // L'article "La jauge" dit expressement qu'on la regle "depuis la fiche d'un exercice, dans Tes
   // reglages" : c'est ici, et nulle part ailleurs, que la question se pose.
   wrap.innerHTML = '<div class="ex-sec-t" style="padding:0 0 8px;">Your settings</div>'
-    + todayNote + rows
+    + todayNote
+    + (p.duree!==undefined && p.recup!==undefined ? '<div style="font-size:12px;font-weight:700;color:var(--gray2);margin:2px 0 8px;">'+trDyn('Effort / rest')+'</div>'+ratioChipsHtml(ratioKeyOf(p), 'setExRatio')+'<div style="height:8px;"></div>' : '')
+    + rows
     + (hasOverride ? '<div style="text-align:center;margin-top:10px;"><span style="color:var(--gray);font-size:13px;cursor:pointer;" onclick="resetExParam(\''+ex.id+'\')">Reset to recommended</span></div>' : '')
     + guideLink('seance',1);
   sweepTranslate(wrap, currentLang);
 }
+function setExRatio(key){ const id=window._curEx; const ex=[...EXERCICES,...userExercices].find(e=>e.id===id); if(!ex) return; const p=getParamsExercice(ex); userParamsOverrides[id]={...userParamsOverrides[id], recup: ratioRecup(p.duree,key)}; renderExParams(ex); }
 function adjustExParam(field, delta, min, max){
   const id=window._curEx; const ex=[...EXERCICES,...userExercices].find(e=>e.id===id); if(!ex) return;
   const current = getParamsExercice(ex);
@@ -17279,8 +17301,11 @@ function cenParamStepperRow(field, val){
 function renderCenParams(){
   const wrap=document.getElementById('cenParamsSection'); if(!wrap) return;
   const p=cenParamsForMode();
-  wrap.innerHTML = EX_PARAM_FIELDS.map(f=>cenParamStepperRow(f,p[f.key])).join('');
+  wrap.innerHTML = (p.duree!==undefined && p.recup!==undefined ? '<div style="font-size:12px;font-weight:700;color:var(--gray2);margin:2px 0 8px;">'+trDyn('Effort / rest')+'</div>'+ratioChipsHtml(ratioKeyOf(p), 'setCenRatio')+'<div style="height:8px;"></div>' : '')
+    + EX_PARAM_FIELDS.map(f=>cenParamStepperRow(f,p[f.key])).join('');
+  sweepTranslate(wrap, currentLang);
 }
+function setCenRatio(key){ cenParams.recup = ratioRecup(cenParams.duree, key); renderCenParams(); }
 function adjustCenParam(field, delta, min, max){
   cenParams[field] = Math.max(min, Math.min(max, (cenParams[field]||0)+delta));
   renderCenParams();
@@ -17337,7 +17362,8 @@ function submitCreateExerciceNouveau(){
     visibilite: currentRole==='referent' ? cenVisibilite : 'prive',
     referent: currentRole==='referent'
   });
-  showSuccessOverlay('✓', 'Exercise created', 'bibliotheque', 1200);
+  go('bibliotheque');
+  setTimeout(()=>showCreatedSheet('exercise', id), 80);
 }
 
 // ─── Ajouter un exercice à une séance existante (ou en créer une) ──
@@ -18091,8 +18117,25 @@ function editSessionCoachNote(){
   const s=[...SESSIONS,...userSessions].find(x=>x.id===window._curSessId); if(!s) return;
   openNoteEditor(s.coachNote||'', 'Note for '+s.nom_marketing, function(v){ s.coachNote=v; renderSessionDetail(); });
 }
+// Ratio effort / repos (retours plateforme, 13 sept. 2026) : le repos existait dans chaque exercice mais
+// n'etait reglable nulle part par le membre. Trois prereglages lisibles, plus « Personnalise ». Il se
+// regle sur un exercice (fiche, creation) ou sur une seance entiere : le ratio de seance s'applique a
+// ses exercices chronometres, sauf ceux dont le repos a ete regle a la main.
+const RATIO_PRESETS=[{key:'decouverte', lbl:'Discovery 1:2', f:2},{key:'equilibre', lbl:'Balanced 1:1', f:1},{key:'intense', lbl:'Intense 2:1', f:0.5}];
+let sessionRatioPrefs={};   // sessionId -> cle de RATIO_PRESETS
+function ratioRecup(duree, key){ const r=RATIO_PRESETS.find(x=>x.key===key); return r ? Math.max(10, Math.round(duree*r.f/5)*5) : null; }
+function ratioKeyOf(p){ if(p.duree===undefined || p.recup===undefined) return null; const f=p.recup/p.duree; const r=RATIO_PRESETS.find(x=>Math.abs(x.f-f)<0.12); return r ? r.key : 'perso'; }
+function paramsInSession(ex, sessionId){
+  const p=getParamsExercice(ex); const key=sessionId && sessionRatioPrefs[sessionId];
+  if(key && p.duree!==undefined && !(userParamsOverrides[ex.id] && userParamsOverrides[ex.id].recup!==undefined)) return {...p, recup: ratioRecup(p.duree, key)};
+  return p;
+}
+function ratioChipsHtml(activeKey, onclickFn){
+  return '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+RATIO_PRESETS.concat([{key:'perso', lbl:'Custom'}]).map(r=>
+    '<span class="lib-chip'+(activeKey===r.key?' on':'')+'" style="cursor:'+(r.key==='perso'?'default':'pointer')+';" '+(r.key==='perso'?'':'onclick="'+onclickFn+'(\''+r.key+'\')"')+'>'+trDyn(r.lbl)+'</span>').join('')+'</div>';
+}
 function sdExoSummary(ex){
-  const p = getParamsExercice(ex);
+  const p = paramsInSession(ex, window._curSessId);
   const parts=[];
   if(p.reps!==undefined) parts.push(p.reps+' reps');
   if(p.duree!==undefined) parts.push(p.duree+'s');
@@ -18103,6 +18146,7 @@ function sdExoSummary(ex){
   if(p.recup!==undefined) parts.push(p.recup+'s '+trDyn('rest'));
   return parts.join(' · ');
 }
+function setSessionRatio(key){ const id=window._curSessId; if(!id) return; sessionRatioPrefs[id] = (sessionRatioPrefs[id]===key) ? null : key; renderSessionDetail(); }
 function renderSessionDetail(){
   const s=[...SESSIONS,...userSessions].find(x=>x.id===window._curSessId); if(!s) return;
   const exos=[...EXERCICES,...userExercices];
@@ -18218,6 +18262,12 @@ function renderSessionDetail(){
   // total statique) : DESIGN la refait pour n'annoncer que ce qui aura vraiment lieu, une fois ce
   // routage confirmé branché — pas avant, cf discussion.
   renderSdPhases();
+  const ratioEl=document.getElementById('sdRatioRow');
+  if(ratioEl){
+    const timed = s.exercices.some(id=>{ const e=exos.find(x=>x.id===id); return e && getParamsExercice(e).duree!==undefined; });
+    ratioEl.innerHTML = timed ? '<div class="ex-sec-t" style="padding:0 0 8px;">'+trDyn('Effort / rest')+'</div>'+ratioChipsHtml(sessionRatioPrefs[s.id]||null, 'setSessionRatio')
+      +'<div style="font-size:11.5px;color:var(--gray);margin-top:6px;">'+trDyn('Applies to the timed exercises of this session.')+'</div>' : '';
+  }
   const listEl=document.getElementById('sdExoList');
   if(listEl){
     listEl.innerHTML = '<div class="exo-prev-list">' + s.exercices.map((exId,i)=>{
@@ -18620,10 +18670,33 @@ function submitCreateSession(){
     description:'Ma séance personnalisée.', tags:['Personnalisée'],
     photo: csnPhoto
   });
-  toast('✓ Session created');
   sessNouveauFilters.perso = true;
   back();
   setTimeout(renderProgSessionsView, 30);
+  setTimeout(()=>showCreatedSheet('session', userSessions[userSessions.length-1].id), 60);
+}
+// « Cree. Et maintenant ? » (retours plateforme, 13 sept. 2026) : apres une creation on revenait a la
+// bibliotheque sans rien proposer, et un programme cree ne devenait jamais actif — donc absent de
+// l'accueil et du calendrier. La fenetre propose l'usage le plus probable de ce qu'on vient de creer.
+function showCreatedSheet(kind, id){
+  const b=(lbl,call,primary)=>'<button class="btn '+(primary?'btn-brand-fixed':'btn-outline')+'" style="margin-top:10px;" onclick="closeModal();'+call+'">'+trDyn(lbl)+'</button>';
+  let title, sub='', acts='';
+  if(kind==='programme'){
+    const pr=userProgrammes.find(x=>x.id===id); if(!pr) return;
+    title='Programme created'; sub=pr.nom+' · '+(currentLang==='fr' ? pr.duree_semaines+' semaines · '+pr.frequence+' séances/sem.' : pr.duree_semaines+' weeks · '+pr.frequence+'x/week');
+    acts=b('Start this programme',"activerProgramme('"+id+"')",true)+b('See the programme',"openProgrammeDetail('"+id+"')");
+  } else if(kind==='session'){
+    const se=userSessions.find(x=>x.id===id); if(!se) return;
+    title='Session created'; sub=se.nom+' · '+se.duree+' min';
+    acts=b('Start this session',"demarrerSessionNouveau('"+id+"')",true)+b('See the session',"openSessionDetail('"+id+"')");
+  } else {
+    const ex=userExercices.find(x=>x.id===id); if(!ex) return;
+    title='Exercise created'; sub=ex.nom;
+    acts=b('Add to a session',"openAddToSessionModal('"+id+"')",true)+b('Try it now',"demarrerExerciceSeul('"+id+"')");
+  }
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);">'+trDyn(title)+'</div>'
+    +'<div style="font-size:13px;color:var(--gray);margin:4px 0 6px;">'+sub+'</div>'+acts
+    +'<button class="btn-ghost" style="width:100%;margin-top:6px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Later')+'</button>');
 }
 
 // ===== Créer un programme (utilisateur B2C/centre) — même principe que la création de session, en piochant des sessions =====
@@ -18868,9 +18941,9 @@ function submitCreateProgramme(){
     description: 'Mon programme personnalisé.', tags: ['Personnalisée'],
     photo: cpnPhoto
   });
-  toast('✓ Programme created');
   back();
   setTimeout(renderProgProgrammesView, 30);
+  setTimeout(()=>showCreatedSheet('programme', userProgrammes[userProgrammes.length-1].id), 60);
 }
 // ===== Éditer les séances d'un programme actif depuis "Change my programme" — même fork-on-edit
 // que les séances (isCatalogSession/forkSessionForEdit) : un programme catalogue n'est jamais
@@ -19566,7 +19639,7 @@ function demarrerSessionNouveau(id){
   const exos=[...EXERCICES,...userExercices];
   const list = s.exercices.map(exId=>{
     const ex = exos.find(e=>e.id===exId); if(!ex) return null;
-    return { id: ex.id, nom: ex.nom, type: ex.type, mode: ex.mode, params: getParamsExercice(ex), emoji: TYPE_ICON_LIB[ex.type]||'🏋️' };
+    return { id: ex.id, nom: ex.nom, type: ex.type, mode: ex.mode, params: paramsInSession(ex, s.id), emoji: TYPE_ICON_LIB[ex.type]||'🏋️' };
   }).filter(Boolean);
   sessionActuelle = s;
   sessionRpeLog = [];
