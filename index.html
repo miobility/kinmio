@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>kinmio</title>
 <script>
-/* Applique le thème avant le premier paint pour éviter un flash sombre→clair.
-   Priorité : choix explicite localStorage > préférence système > sombre par défaut. */
+/* Toujours sombre au lancement (décidé le 13 sept. 2026) : la maquette live sert de démo, elle ne doit
+   jamais s'ouvrir en clair parce que le téléphone est en clair ou qu'un test précédent a basculé le
+   thème. Le réglage Profil › Thème reste actif, le temps de la visite seulement. On efface l'ancien
+   choix mémorisé pour qu'aucune version antérieure ne le relise. */
 (function(){
-  try{
-    var saved = localStorage.getItem('kinmio-theme');
-    var mode = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
-  }catch(e){}
+  try{ localStorage.removeItem('kinmio-theme'); }catch(e){}
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4284,7 +4282,6 @@ function getTheme(){
 function setTheme(mode){
   if(mode==='light') document.documentElement.setAttribute('data-theme','light');
   else document.documentElement.removeAttribute('data-theme');
-  try{ localStorage.setItem('kinmio-theme', mode); }catch(e){}
   document.querySelectorAll('.theme-switch').forEach(el=>el.classList.toggle('on', mode==='dark'));
 }
 function toggleTheme(){ setTheme(getTheme()==='light' ? 'dark' : 'light'); }
