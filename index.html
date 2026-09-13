@@ -6472,6 +6472,62 @@ function syncUserProfileDataFromOnboarding(){
   if(profile.freq) userProfileData.frequence = profile.freq;
   if(profile.duree) userProfileData.duree_seance = profile.duree;
 }
+// ─── COMPTE DE TEST (13 sept. 2026) ─────────
+// Avant : un testeur arrivait sur un Accueil où tout allait bien (semaine 3/3, douleur 1/10, aucun
+// retard) — rien n'invitait à cliquer. À la fin du premier onboarding, on remplace l'historique figé par
+// UNE SEMAINE vécue, calée sur les jours d'entraînement choisis : des séances du programme faites, les
+// autres manquées (dont la plus récente), et une douleur qui remonte à la dernière séance faite. Ça
+// allume ce que l'app sait dire : séances à rattraper, cycle pas atteint, carte « séance allégée »,
+// notification. Rien n'est inventé côté moteur : ce sont les calculs habituels sur cet historique.
+let compteTestSeme = false;
+function semerCompteTest(){
+  if(compteTestSeme || !programmeActif || !programmeActif.semaines) return;
+  compteTestSeme = true;
+  const trainDays = getTrainDays();
+  const noms = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const today0 = new Date(); today0.setHours(0,0,0,0);
+  let jours = [];
+  for(const span of [10, 14]){
+    jours = [];
+    for(let d=span; d>=1; d--){ const t=new Date(today0.getTime()-d*HIST_DAY); if(trainDays.includes(noms[t.getDay()])) jours.push(t); }
+    if(jours.length>=4) break;
+  }
+  if(jours.length<2) return;
+  // Manqués : le plus récent, et un du milieu s'il y en a assez pour garder au moins deux séances faites.
+  if(jours.length>6) jours = jours.slice(-6);   // fréquence élevée : une semaine suffit
+  const manques = new Set([jours.length-1]);
+  if(jours.length>=4) manques.add(Math.floor((jours.length-1)/2));
+  const toutes = [...SESSIONS, ...userSessions];
+  const ids = Object.values(programmeActif.semaines).flat();
+  const exos = [...EXERCICES, ...userExercices];
+  const faits = jours.filter((_,i)=>!manques.has(i));
+  const hist = faits.map((jour,i)=>{
+    const sess = toutes.find(x=>x.id===ids[i % ids.length]) || toutes[0];
+    const ex = (sess.exercices||[]).map(id=>exos.find(e=>e.id===id)).filter(Boolean);
+    const nCardio = ex.filter(e=>e.type==='Cardio').length;
+    const duree = sess.duree || 25;
+    const dureeCardio = ex.length ? Math.round(duree*nCardio/ex.length) : 0;
+    const dureeRenfo = duree - dureeCardio;
+    const derniere = i===faits.length-1;
+    return {
+      date: jour.getTime()+18.5*3600*1000, nom: sess.nom_marketing||sess.nom, sessionId: sess.id,
+      exoIds: ex.map(e=>e.id), exercices: ex.length, duree, dureeCardio, dureeRenfo,
+      cardioScore: dureeCardio*2, renfoScore: Math.round(dureeRenfo*4.5), reps: Math.round(dureeRenfo*2.4),
+      effort: derniere ? 'intense' : 'modere', douleur: derniere ? 7 : (i===0 ? 1 : 2), douleurExoMax: derniere ? 7 : null,   // 7 : « élevée » aussi dans la tuile Signaux (≤ 6 s'y lit « modérée »)
+      zoneDuration: {dos:0, epaules:0, bras:0, jambes:0, corps_entier: duree*6},
+      zoneMin: Math.round(dureeCardio*0.7), avecCoach: false, dureeAttendue: duree, repSource: 'sensor', demoGatesSkipped: false
+    };
+  }).sort((a,b)=>b.date-a.date);
+  userSessionHistory.length = 0;
+  hist.forEach(h=>userSessionHistory.push(h));
+  const last = hist[0];
+  if(last) logCoachHistory({date: last.date+20*60*1000, type:'session', theme:'suivi', recap:{
+    seance: last.nom, effort: last.effort, douleur: last.douleur, exoPains: [], levels: [], next: {level:1, reason:'your pain was high last time'}
+  }});
+  for(let i=NOTIFS.length-1;i>=0;i--){ if(/in a row|trial ends in/.test(NOTIFS[i].t)) NOTIFS.splice(i,1); }   // contrediraient la semaine vécue (et l'essai affiché sur l'Accueil)
+  NOTIFS.unshift({ic:'<svg class="ki"><use href="#ki-cal"/></svg>', t:'You missed a session. Catch it up?', x:'Recently', unread:true, go:'home', then:()=>openObjectifPaceInfo('week')});
+  if(typeof syncBell==='function') syncBell();
+}
 function initApresOnboarding() {
   if(userParcours==='B'){ if(!trialStartDate) trialStartDate = Date.now(); }   // essai découverte : 1er passage seulement, la démo rappelle cette fonction plusieurs fois, le compteur ne doit pas se réinitialiser
   else { subscribed = true; }   // parcours barre : abonnement déjà payé sur kinmio.com, pas d'essai in-app
@@ -6484,12 +6540,15 @@ function initApresOnboarding() {
   // après six semaines SANS AUCUNE séance — l'alerte de retard ne pouvait pas se déclencher. Le récap
   // de clôture (séances faites pendant ce programme) tombait lui aussi sur un tableau vide.
   programmeActif = getProgrammeSuggere();
+  const premierPassage = !compteTestSeme;
+  semerCompteTest();
   // Date de début : maintenant pour une vraie première personne (son historique est vide, les deux
   // valeurs coïncident). Si un historique existe déjà — c'est le cas du prototype, dont les séances
   // sont pré-semées pour que l'app paraisse vécue — on remonte à la plus ancienne, sinon le programme
   // annoncerait « 0/12 » à quelqu'un dont l'écran d'à côté affiche quatre séances faites.
   const plusAncienne = userSessionHistory.length ? Math.min(...userSessionHistory.map(h=>h.date)) : null;
   programmeActifDepuis = plusAncienne!==null ? Math.min(plusAncienne, Date.now()) : Date.now();
+  if(premierPassage && compteTestSeme && plusAncienne!==null) programStartDate = plusAncienne;   // le cycle démarre avec la semaine vécue
   semaineActuelle = 1;
   if(!reglageArme){ reglageArme = true; reglageSeancesRestantes = 2; }   // 1er passage seulement, comme programStartDate
 
@@ -6759,8 +6818,10 @@ function go(id){
   // l'appelait, mais seule refreshHomeSeanceZones() l'appelait, et revenir sur l'Accueil ne passait
   // pas par la. Elle ne s'est donc jamais declenchee. Une fois la seance faite, "prochaine seance"
   // n'est plus la reponse a "qu'est-ce que je fais aujourd'hui" : c'est l'objectif de la semaine.
-  if(id==='home') setTimeout(()=>{ renderHomeSeance('home', homeData); ordonnerZonesAccueil('home'); }, 40);
-  if(id==='home_centre') setTimeout(()=>{ renderHomeSeance('homeCentre', homeDataCentre); ordonnerZonesAccueil('homeCentre'); }, 40);
+  // Idem pour la carte d'ajustement sur signal : dessinee seulement apres un check-in ou un changement de
+  // langue, jamais a l'arrivee sur l'Accueil (trouve en preparant le compte de test, 13 sept. 2026).
+  if(id==='home') setTimeout(()=>{ renderSignalAdjust('home'); renderHomeSeance('home', homeData); ordonnerZonesAccueil('home'); }, 40);
+  if(id==='home_centre') setTimeout(()=>{ renderSignalAdjust('homeCentre'); renderHomeSeance('homeCentre', homeDataCentre); ordonnerZonesAccueil('homeCentre'); }, 40);
   if(id==='sante') setTimeout(updateHealthUI, 30);
   if(id==='resume') setTimeout(renderResumeHealth, 30);
   // renderNextSeance()/setResumeCoachMsg() sont maintenant appelés directement depuis
@@ -13270,6 +13331,10 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions": "Passer les questions",
+  "You missed a session. Catch it up?": "Tu as manqué une séance. La rattraper ?",
+  "Recently": "Récemment",
+  "Martin Dupont sent you a message": "Martin Dupont t'a envoyé un message",
+  "2 days ago": "Il y a 2 jours",
   "The timer has to run out": "Le minuteur doit aller au bout",
   "It's what makes the effort verifiable. For a demo, you can move on:": "C'est ce qui rend l'effort vérifiable. Pour une démo, tu peux avancer :",
   "Skip this exercise →": "Passer cet exercice →",
@@ -20987,9 +21052,10 @@ function renderNotifs(){
   const el=document.getElementById('notifList'); if(!el) return;
   if(!NOTIFS.length){ el.innerHTML='<div class="lib-empty">No notifications yet.</div>'; return; }
   el.innerHTML=NOTIFS.map((n,i)=>'<div class="notif '+(n.unread?'unread':'')+'" onclick="onNotif('+i+')"><div class="notif-ic">'+n.ic+'</div><div style="flex:1;"><div style="font-size:14px;color:var(--white);font-weight:600;line-height:1.3;">'+n.t+'</div><div style="font-size:12px;color:var(--gray);margin-top:3px;">'+n.x+'</div></div>'+(n.unread?'<span style="width:8px;height:8px;border-radius:50%;background:var(--orange);align-self:center;flex-shrink:0;"></span>':'')+'</div>').join('');
+  sweepTranslate(el, currentLang);   // les notifications restaient en anglais sous l'interface française
 }
 function openNotifs(){ withSkeleton('notifList',3,renderNotifs); go('notifications'); }
-function onNotif(i){ const n=NOTIFS[i]; if(!n)return; n.unread=false; renderNotifs(); syncBell(); if(n.invite) pendingInvite=n.invite; if(n.defiInvite) invitationDefiId=n.defiInvite; if(n.go) go(n.go); }
+function onNotif(i){ const n=NOTIFS[i]; if(!n)return; n.unread=false; renderNotifs(); syncBell(); if(n.invite) pendingInvite=n.invite; if(n.defiInvite) invitationDefiId=n.defiInvite; if(n.go) go(n.go); if(n.then) setTimeout(n.then, 350); }
 function markNotifsRead(){ NOTIFS.forEach(n=>n.unread=false); renderNotifs(); syncBell(); toast('Notifications marked as read'); }
 function syncBell(){ const any=NOTIFS.some(n=>n.unread); document.querySelectorAll('.bell-dot').forEach(d=>d.style.display=any?'block':'none'); }
 function pushNotif(ic,txt,target){
