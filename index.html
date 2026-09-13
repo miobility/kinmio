@@ -348,6 +348,9 @@ body.demo-on .demo-only{display:inline-flex!important;}
    photo revient un jour, ce sera en plein ecran, ou une image a la surface de dire quelque chose. */
 .ob-opt.sel .ob-icon{background:rgba(var(--brand-fixed-rgb),.12);}
 .ob-label{font-size:15px;font-weight:600;color:var(--white);}
+.ob-hab-sub{font-size:12px;color:var(--gray);margin-top:2px;line-height:1.35;}
+#hab_opts.has-sel .ob-opt:not(.sel) .ob-hab-sub{display:none;}
+#habRepriseRow{display:flex;} #habRepriseRow[hidden],#habEcho[hidden]{display:none;}   /* les réponses non choisies se replient : l'écran tient sans défiler une fois l'interrupteur apparu */
 .ob-desc{font-size:12px;color:var(--gray);margin-top:2px;line-height:1.4;}
 .ob-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-on-accent);font-weight:700;}
 .ob-opt.sel .ob-check{background:var(--brand-fixed);border-color:var(--brand-fixed);}
@@ -1057,6 +1060,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-ob-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5" /><path d="M3.5,9.5h17" /><path d="M8,3v4" /><path d="M16,3v4" /></symbol>
   <symbol id="ki-ob-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8" /><path d="M12,9v4l3,2" /><path d="M9.5,2.5h5" /></symbol>
   <symbol id="ki-ob-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3,12h4l2,-7l4,14l2,-7h6" /></symbol>
+  <symbol id="ki-ob-lvl1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V16"/><path d="M9.7 20V12.5" opacity=".28"/><path d="M14.3 20V9" opacity=".28"/><path d="M19 20V5.5" opacity=".28"/></symbol>
+  <symbol id="ki-ob-lvl2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V16"/><path d="M9.7 20V12.5"/><path d="M14.3 20V9" opacity=".28"/><path d="M19 20V5.5" opacity=".28"/></symbol>
+  <symbol id="ki-ob-lvl3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V16"/><path d="M9.7 20V12.5"/><path d="M14.3 20V9"/><path d="M19 20V5.5" opacity=".28"/></symbol>
+  <symbol id="ki-ob-lvl4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V16"/><path d="M9.7 20V12.5"/><path d="M14.3 20V9"/><path d="M19 20V5.5"/></symbol>
   <symbol id="ki-ob-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4,20V10M12,20V4M20,20v-7" /></symbol>
   <symbol id="ki-ob-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></symbol>
   <symbol id="ki-ob-people" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="3.3" /><path d="M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6" /><circle cx="16.5" cy="8.5" r="2.6" /><path d="M15.3,5.6a2.6,2.6,0,0,1,0,5.8" /><path d="M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6" /></symbol>
@@ -1137,8 +1144,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob_objectif" style="--ob-x:8%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 6</div>
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:17%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 1 of 7</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:14%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">What is your goal?</h2>
@@ -1153,12 +1160,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob1" style="--ob-x:24%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div id="ob1Prog" style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 6</div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 2 of 7</div>
     <!-- Barre de progression réintroduite (cf discussion) — retirée une 1re fois car elle atteignait
          100% avec encore 4 écrans à faire (calcul indépendant, pas fiable). Cette fois : une largeur
          fixe par écran, calquée directement sur le même "Question N of 5" déjà affiché juste au-dessus
          — jamais désynchronisée puisque c'est littéralement le même chiffre, pas un second calcul. -->
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:33%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:29%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Which position(s) do you train in?</h2>
@@ -1172,6 +1179,37 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
     <button class="btn btn-brand-fixed" id="ob1next" disabled onclick="nextIfOb1()">Continue →</button>
+  </div>
+</div>
+
+<!-- HABITUDE D'ENTRAÎNEMENT (13 sept. 2026, scénario 3 validé). On demande l'habitude sur la durée, pas
+     « en ce moment » : une sportive qui revient de blessure sait tenir un effort. L'interrupteur « Je reprends »
+     n'apparaît qu'aux deux profils sportifs (on ne démarre un cran plus bas que si on part d'assez haut).
+     La réponse fixe le point de départ ; les deux premières séances règlent ensuite chaque exercice
+     (applyReglageSeance). Placée avant la zone à ménager : qui reprend après une blessure dit laquelle juste après. -->
+<div class="screen ob-light" id="ob_habitude" style="--ob-x:28%;">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
+  <div style="padding:2px 20px 10px;flex-shrink:0;">
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 7</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:43%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+  </div>
+  <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
+    <h2 class="gap8">What are your training habits?</h2>
+    <p class="sub gap20">To set the intensity of your first sessions.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;" id="hab_opts">
+      <div class="ob-opt" onclick="setObHabitude('debute')" data-val="debute"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-lvl1"/></svg></div><div style="flex:1"><div class="ob-label">I'm just starting</div><div class="ob-hab-sub">No regular training so far</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="setObHabitude('occasionnel')" data-val="occasionnel"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-lvl2"/></svg></div><div style="flex:1"><div class="ob-label">I train now and then</div><div class="ob-hab-sub">Less than one session a week</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="setObHabitude('habitude')" data-val="habitude"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-lvl3"/></svg></div><div style="flex:1"><div class="ob-label">I'm used to training</div><div class="ob-hab-sub">1 to 2 sessions a week, for several months</div></div><div class="ob-check"></div></div>
+      <div class="ob-opt" onclick="setObHabitude('intensif')" data-val="intensif"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-lvl4"/></svg></div><div style="flex:1"><div class="ob-label">I train several times a week</div><div class="ob-hab-sub">3 sessions or more, including intense ones</div></div><div class="ob-check"></div></div>
+    </div>
+    <div id="habRepriseRow" hidden style="background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:14px 16px;align-items:center;gap:12px;margin-bottom:12px;cursor:pointer;" onclick="toggleObReprise()">
+      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--white);">I'm coming back after a break</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">injury, time off, busy period…</div></div>
+      <div class="km-switch" id="habRepriseSw"><div class="km-knob"></div></div>
+    </div>
+    <div id="habEcho" hidden style="margin-bottom:22px;"></div>
+  </div>
+  <div style="padding:12px 20px calc(24px + env(safe-area-inset-bottom));flex-shrink:0;background:var(--bg);">
+    <button class="btn btn-brand-fixed" id="obHabNext" disabled onclick="go('ob6')">Continue →</button>
   </div>
 </div>
 
@@ -1194,8 +1232,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob6" style="--ob-x:32%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 3 of 6</div>
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:50%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 7</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:57%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">Do you have an area to protect?</h2>
@@ -1223,8 +1261,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob7" style="--ob-x:50%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 4 of 6</div>
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:67%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 of 7</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:71%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">When do you train?</h2>
@@ -1255,8 +1293,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob8" style="--ob-x:68%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 5 of 6</div>
-    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:83%;background:var(--brand-fixed);border-radius:2px;"></div></div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 6 of 7</div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:86%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
     <h2 class="gap8">How long do you like to train?</h2>
@@ -1277,7 +1315,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="screen ob-light" id="ob_commit" style="--ob-x:85%;">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-r"></div></div>
   <div style="padding:2px 20px 10px;flex-shrink:0;">
-    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 6 of 6</div>
+    <div style="font-size:12px;color:var(--gray);font-weight:600;">Question 7 of 7</div>
     <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:100%;background:var(--brand-fixed);border-radius:2px;"></div></div>
   </div>
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;justify-content:flex-start;">
@@ -6255,7 +6293,7 @@ function getProgrammeSuggere() {
   // composition si aucun programme ne porte son objectif — avant, seule la composition comptait, ce qui
   // revenait à choisir un programme sur la famille de mouvements plutôt que sur le but.
   const vises = userProfileData.objectifs || [];
-  let match = allProgrammes.find(p => {
+  const candidats = allProgrammes.filter(p => {
     const objOk = vises.length
       ? (p.objectifs||[]).some(o => vises.includes(o))
       : p.objectif.some(o => userProfileData.objectif.includes(o));
@@ -6264,6 +6302,13 @@ function getProgrammeSuggere() {
     const equipOk = !programmeMissingEquipment(p);
     return objOk && freqOk && ciOk && equipOk;
   });
+  // Le niveau entre dans le choix (13 sept. 2026) : programme du même niveau, sinon celui juste en
+  // dessous — jamais plus dur que le point de départ. Sans programme à ce niveau ou en dessous pour
+  // l'objectif, on retombe sur Real Start.
+  const RANG = {'Débutant':0, 'Intermédiaire':1, 'Avancé':2};
+  const rangUser = RANG[userProfileData.niveau] ?? 0;
+  const tenables = candidats.filter(p => (RANG[p.niveau] ?? 0) <= rangUser);
+  let match = tenables.reduce((best,p) => (!best || (RANG[p.niveau]??0) > (RANG[best.niveau]??0)) ? p : best, null);
 
   // Garde-fou : Real Start par défaut
   if (!match) {
@@ -6364,6 +6409,44 @@ function toggleObObjectif(k){
   obObjectifsChoisis = (obObjectifsChoisis[0]===k) ? [] : [k];
   renderObObjectifs();
 }
+
+// ─── HABITUDE D'ENTRAÎNEMENT → point de départ (13 sept. 2026) ─────────
+// niv suit l'échelle de userNiveau (2 = Débutant, 3 = Intermédiaire, 4 = Avancé). « De temps en temps »
+// démarre comme « Je débute » mais avec effort et repos égaux : un départ trop bas donne une séance facile,
+// un départ trop haut une séance ratée — et les séances de réglage font vite monter qui est placé trop bas.
+const OB_HABITUDES = { debute:{niv:2, ratio:null}, occasionnel:{niv:2, ratio:'equilibre'}, habitude:{niv:3, ratio:null}, intensif:{niv:4, ratio:null} };
+function setObHabitude(k){
+  profile.habitude = k;
+  if(k!=='habitude' && k!=='intensif') profile.reprise = false;   // l'interrupteur disparaît : sa valeur aussi
+  renderObHabitude();
+}
+function toggleObReprise(){ profile.reprise = !profile.reprise; renderObHabitude(); }
+function renderObHabitude(){
+  const box=document.getElementById('hab_opts'); if(!box) return;
+  const k=profile.habitude;
+  box.classList.toggle('has-sel', !!k);
+  box.querySelectorAll('.ob-opt').forEach(o=>{ const on=o.getAttribute('data-val')===k; o.classList.toggle('sel',on); const c=o.querySelector('.ob-check'); if(c) c.textContent=on?'✓':''; });
+  const sportif = k==='habitude' || k==='intensif';
+  const row=document.getElementById('habRepriseRow'); if(row) row.hidden=!sportif;
+  const sw=document.getElementById('habRepriseSw'); if(sw) sw.classList.toggle('on', !!profile.reprise);
+  const echo=document.getElementById('habEcho');
+  if(echo){
+    echo.hidden=!k;
+    if(k){
+      echo.innerHTML='<div style="background:rgba(var(--brand-fixed-rgb),.10);border:1px solid rgba(var(--brand-fixed-rgb),.28);border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.5;color:var(--gray2);">'
+        +trDyn(profile.reprise ? 'We start one notch below your usual level, and your first two sessions fine-tune each exercise to your measurements.' : 'Your first two sessions then fine-tune each exercise to your measurements.')+'</div>';
+      sweepTranslate(echo, currentLang);
+    }
+  }
+  const btn=document.getElementById('obHabNext'); if(btn) btn.disabled=!k;
+}
+// Point de départ tiré de la réponse, ou null si la question n'a pas été répondue.
+function departDepuisHabitude(){
+  const h=OB_HABITUDES[profile.habitude]; if(!h) return null;
+  let niv=h.niv, ratio=h.ratio;
+  if(profile.reprise && (profile.habitude==='habitude' || profile.habitude==='intensif')){ niv-=1; if(niv===2) ratio='equilibre'; }
+  return {niv, ratio};
+}
 function syncUserProfileDataFromOnboarding(){
   if(obObjectifsChoisis.length) userProfileData.objectifs = obObjectifsChoisis.slice();
   const posMap = {'Standing':'Debout','Debout':'Debout','Seated':'Assis','Assis':'Assis','Lying down':'Allongé','Allongé':'Allongé'};
@@ -6377,6 +6460,12 @@ function syncUserProfileDataFromOnboarding(){
   // endroits, y compris quand l'écran onboarding n'est plus dans le DOM visible.
   const zoneLabelMap = {'Shoulder(s)':['Épaules'], 'Back / lower back':['Dos','Lombaires'], 'Knee(s)':['Genoux'], 'Wrist(s) / arms':['Poignets'], 'Avoid jumping':['Éviter les sauts'], 'Pregnancy':['Grossesse'], 'Postpartum':['Post-partum']};
   userProfileData.zones_eviter = (profile.zones||[]).flatMap(v=>zoneLabelMap[v]||[]);
+  const depart = departDepuisHabitude();
+  if(depart){ userNiveau = depart.niv; userProfileData.ratioDefaut = depart.ratio; }
+  // Garde-fous : reprise en douceur, grossesse ou post-partum → départ doux, quelle que soit l'habitude.
+  if((userProfileData.objectifs||[]).includes('reprise') || (profile.zones||[]).some(z=>z==='Pregnancy' || z==='Postpartum')){
+    if(userNiveau>2){ userNiveau = 2; userProfileData.ratioDefaut = null; }
+  }
   if(typeof userNiveau!=='undefined') userProfileData.niveau = userNiveau>=4 ? 'Avancé' : userNiveau>=3 ? 'Intermédiaire' : 'Débutant';
   if(profile.freq) userProfileData.frequence = profile.freq;
   if(profile.duree) userProfileData.duree_seance = profile.duree;
@@ -6400,6 +6489,7 @@ function initApresOnboarding() {
   const plusAncienne = userSessionHistory.length ? Math.min(...userSessionHistory.map(h=>h.date)) : null;
   programmeActifDepuis = plusAncienne!==null ? Math.min(plusAncienne, Date.now()) : Date.now();
   semaineActuelle = 1;
+  if(!reglageArme){ reglageArme = true; reglageSeancesRestantes = 2; }   // 1er passage seulement, comme programStartDate
 
   // Met à jour la session du jour
   sessionActuelle = getSessionDuJour();
@@ -13141,6 +13231,23 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions": "Passer les questions",
+  "What are your training habits?": "Quelle est ton habitude d'entraînement ?",
+  "To set the intensity of your first sessions.": "Pour régler l'intensité de tes premières séances.",
+  "I'm just starting": "Je débute",
+  "No regular training so far": "Pas d'entraînement régulier jusqu'ici",
+  "I train now and then": "Je m'entraîne de temps en temps",
+  "Less than one session a week": "Moins d'une séance par semaine",
+  "I'm used to training": "J'ai l'habitude de m'entraîner",
+  "1 to 2 sessions a week, for several months": "1 à 2 séances par semaine, depuis plusieurs mois",
+  "I train several times a week": "Je m'entraîne plusieurs fois par semaine",
+  "3 sessions or more, including intense ones": "3 séances ou plus, dont des séances intenses",
+  "I'm coming back after a break": "Je reprends après une pause",
+  "injury, time off, busy period…": "blessure, arrêt, période chargée…",
+  "We start one notch below your usual level, and your first two sessions fine-tune each exercise to your measurements.": "On démarre un cran en dessous de ton habitude, et tes deux premières séances ajustent chaque exercice à ta mesure.",
+  "Your first two sessions then fine-tune each exercise to your measurements.": "Tes deux premières séances ajustent ensuite chaque exercice à ta mesure.",
+  "Level tuning": "Réglage de ton niveau",
+  "session 1 of 2": "séance 1 sur 2",
+  "session 2 of 2": "séance 2 sur 2",
   "threshold": "seuil",
   "the zone": "la zone",
   "Three hundred squats": "Trois cents squats",
@@ -15905,7 +16012,7 @@ let obExpress = false;
 function nextIfOb1(){
   if(posSelections.size === 0) return;
   if(obExpress){ go('ob_projection'); return; }   // modifiee depuis « Ton plan est pret » : on y revient
-  go('ob6');
+  go('ob_habitude');
 }
 
 // Démo/prise en main de la barre (P1) — 3 étapes réellement navigables (tap sur la vidéo ou le
@@ -18249,7 +18356,8 @@ let sessionRatioPrefs={};   // sessionId -> cle de RATIO_PRESETS
 function ratioRecup(duree, key){ const r=RATIO_PRESETS.find(x=>x.key===key); return r ? Math.max(10, Math.round(duree*r.f/5)*5) : null; }
 function ratioKeyOf(p){ if(p.duree===undefined || p.recup===undefined) return null; const f=p.recup/p.duree; const r=RATIO_PRESETS.find(x=>Math.abs(x.f-f)<0.12); return r ? r.key : 'perso'; }
 function paramsInSession(ex, sessionId){
-  const p=getParamsExercice(ex); const key=sessionId && sessionRatioPrefs[sessionId];
+  // Ratio de la séance s'il a été choisi, sinon celui du point de départ (« De temps en temps » : effort = repos).
+  const p=getParamsExercice(ex); const key=(sessionId && sessionRatioPrefs[sessionId]) || userProfileData.ratioDefaut;
   if(key && p.duree!==undefined && !(userParamsOverrides[ex.id] && userParamsOverrides[ex.id].recup!==undefined)) return {...p, recup: ratioRecup(p.duree, key)};
   return p;
 }
@@ -20244,6 +20352,7 @@ function skipObIntro(){
   obExpress = true;
   majOb1Express();
   if(!profile.duree) profile.duree = 30;
+  if(!profile.habitude) userNiveau = 2;   // questions passées : départ doux, les séances de réglage font le reste
   go('ob_projection');
 }
 function majOb1Express(){
@@ -22903,7 +23012,9 @@ function submitFeedback(){
     personalNotes.unshift({date:"Just now", nom:exoNom||'Session', txt:noteTxt});
     toast('Note saved — find it in Progression › Badges ✓');
   }
+  const reglageN = applyReglageSeance();   // avant computeSessionChanges : ses crans apparaissent dans « Ce qui change »
   const changes = computeSessionChanges();
+  if(reglageN) changes.reglage = reglageN;
   // Un seul message dans le Coach IA par seance, avec ce qui change (retours plateforme, 13 sept. 2026).
   if(currentProgram && currentProgram.titre){
     logCoachHistory({type:'session', theme:'suivi', recap:{
@@ -23096,6 +23207,34 @@ function renderFeedbackRecap(){
 }
 // Ce qui change apres la seance : niveaux d'exercice modifies (compares au debut de seance) et
 // ajustement de la prochaine seance. Meme source pour l'ecran et pour le message du Coach IA.
+// ─── SÉANCES DE RÉGLAGE (scénario 3, 13 sept. 2026) ─────────
+// Les deux premières séances après l'onboarding règlent chaque exercice sur sa propre mesure, au lieu
+// d'extrapoler tout le catalogue depuis un test. Un cran au plus par séance : −1 si moins de 50 % dans la
+// zone, effort « Maximum » ou douleur ≥ 4 ; +1 si l'effort était facile et, quand la zone est mesurée, au
+// moins 85 % dedans. Un exercice déjà bougé pendant la séance (douleur ≥ 6, effort répété) ou plafonné par
+// l'ajustement du jour n'est pas touché : on n'empile pas deux corrections. Ensuite, la règle normale reprend.
+let reglageArme = false, reglageSeancesRestantes = 0;
+function applyReglageSeance(){
+  if(reglageSeancesRestantes<=0 || !currentProgram || !(currentProgram.exercices||[]).length) return 0;
+  const exos=[...EXERCICES,...userExercices];
+  currentProgram.exercices.forEach(item=>{
+    if(!item || !item.params || item.params.jauge===undefined || item._jaugeBase!==undefined) return;
+    const ex=exos.find(e=>e.id===item.id); if(!ex) return;
+    const cur=getParamsExercice(ex).jauge; if(cur===undefined || cur!==item.params.jauge) return;
+    const f=(sessionExoFeedback||{})[ex.id]||{};
+    const rows=(exerciseZoneHistory[ex.id]||[]).filter(z=>sessionStartTime && z.date>=sessionStartTime);
+    const zone=rows.length ? rows[rows.length-1].pctZone : null;
+    if(zone===null && !f.rpe && !f.painTouched) return;   // exercice pas fait : aucun signal
+    let d=0;
+    if((zone!==null && zone<50) || f.rpe===5 || (f.painTouched && f.pain>=4)) d=-1;
+    else if(f.rpe && f.rpe<=2 && (zone===null || zone>=85)) d=1;
+    const to=Math.max(1, Math.min(5, cur+d));
+    if(to!==cur){ userParamsOverrides[ex.id]={...userParamsOverrides[ex.id], jauge:to}; logJaugeChange(ex.id, to); }
+  });
+  const n = 3 - reglageSeancesRestantes;
+  reglageSeancesRestantes--;
+  return n;
+}
 function computeSessionChanges(){
   const changes=[];
   ((currentProgram && currentProgram.exercices)||[]).forEach(item=>{
@@ -23110,7 +23249,8 @@ function computeSessionChanges(){
 }
 function sessionChangesHtml(ch){
   const row=(l,r,col)=>'<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--white);">'+l+'</span><span style="color:'+(col||'var(--gray2)')+';font-weight:600;text-align:right;">'+r+'</span></div>';
-  let h = ch.levels.map(c=>row(c.exName, trDyn('level')+' '+c.from+' \u2192 '+c.to, c.to<c.from?'var(--vigilance)':'var(--brand-fixed)')).join('');
+  let h = ch.reglage ? row(trDyn('Level tuning'), trDyn('session '+ch.reglage+' of 2'), 'var(--brand-fixed)') : '';
+  h += ch.levels.map(c=>row(c.exName, trDyn('level')+' '+c.from+' \u2192 '+c.to, c.to<c.from?'var(--vigilance)':'var(--brand-fixed)')).join('');
   if(ch.next) h += row(trDyn('Next session'), trDyn('eased to level')+' '+ch.next.level, 'var(--vigilance)');
   if(!h) h = row(trDyn('Your levels'), trDyn('unchanged'));
   return h;
