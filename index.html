@@ -298,6 +298,8 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overflow-x:hidden
 .btn[disabled]{background:var(--bg3);color:var(--gray);border-color:var(--border);cursor:not-allowed;box-shadow:none;}
 .btn-danger{background:transparent;border:1.5px solid var(--border);color:var(--red);}
 .btn-ghost{position:relative;background:transparent;border:none;color:var(--gray);font-size:14px;cursor:pointer;padding:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+.demo-only{display:none!important;}
+body.demo-on .demo-only{display:inline-flex!important;}
 .btn-ghost.ob-skip{color:var(--gray2);font-size:13px;font-weight:600;padding:8px 10px;}
 .btn-ghost::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%);}
 /* 36 px dessinés, 44 px touchés : le ::after transparent porte la cible sans grossir le bouton ni
@@ -1411,6 +1413,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div onclick="go('mon_profil_entrainement')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);">My training profile</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('guide');setTimeout(renderLibGuide,20)" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg class="ki"><use href="#ki-guide"/></svg> Guide</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('sante')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M9,15l6,-6 /><path d=M8,12l-2.5,2.5a3.5,3.5,0,0,0,5,5L13,17 /><path d=M16,12l2.5,-2.5a3.5,3.5,0,0,0,-5,-5L11,7 /></svg> Health connections</span><span style="color:var(--gray);">›</span></div>
+        <div onclick="openCoachPrefs()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:15px;color:var(--white);display:inline-flex;align-items:center;gap:6px;"><span id="profilCoachSpark" style="display:inline-flex;"></span>AI Coach</span><span style="color:var(--gray);">›</span></div>
         <div onclick="go('mes_amis')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;"><span style="font-size:15px;color:var(--white);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> My friends</span><span style="color:var(--gray);">›</span></div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Notifications</div>
@@ -2117,6 +2120,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="font-size:38px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,4v16 /><path d=M16,4v16 /></svg></div>
     <div style="font-size:19px;font-weight:800;color:var(--white);">Paused</div>
     <button class="btn btn-orange" style="min-width:200px;" onclick="togglePause()">Resume</button>
+    <button class="btn-ghost demo-only" style="color:var(--brand-fixed);font-weight:700;" onclick="demoNextExercise()">Go to next exercise</button>
+    <button class="btn-ghost demo-only" style="color:var(--gray2);font-weight:700;" onclick="demoEndSession()">Go to end of session</button>
     <button class="btn-ghost" style="width:100%;max-width:220px;color:var(--red);padding:14px;" onclick="quitSession()"><svg class="ki"><use href="#ki-stop"/></svg>Quit workout</button>
   </div>
   <div id="sessCountdownOverlay" style="display:none;position:absolute;inset:0;background:var(--bg);z-index:55;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
@@ -2197,40 +2202,62 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <!-- ================= FEEDBACK post-séance ================= -->
 <div class="screen" id="feedback">
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Session summary</div><div class="topnav-r"></div></div>
+  <!-- UN SEUL ECRAN de fin de seance (retours plateforme, 13 sept. 2026) : le recap et le feedback etaient
+       sur deux ecrans alors que les chiffres du recap sont connus AVANT le feedback. En haut ce qui s'est
+       passe, dessous ce qu'on declare, et une fois enregistre, ce qui change pour la suite. -->
   <div class="scroll px pt pb" style="display:flex;flex-direction:column;">
-    <h2 class="gap8">How did it go?</h2>
-    <p class="sub gap24">Your feedback adjusts your next sessions.</p>
-    <div class="fb-section">
-      <div class="fb-title">Pain level?</div>
-      <div class="pain-wrap">
-        <div class="pain-val" id="fbPainVal">0<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span></div>
-        <input type="range" id="fbPainSlider" min="0" max="10" value="0" oninput="onFbPainInput(this)" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--teal) 0%,var(--vigilance) 50%,var(--red) 100%);outline:none;cursor:pointer;margin-bottom:10px;">
-        <div class="pain-labels"><span>None</span><span>High</span></div>
-      </div>
+    <div style="text-align:center;margin-bottom:14px;">
+      <h2 class="gap4" id="fbRecapTitle">Session</h2>
+      <p class="sub" id="fbRecapSub" style="margin:0;"></p>
     </div>
-    <div class="fb-section">
-      <div class="fb-title">Perceived effort?</div>
-      <div class="effort-row">
-        <!-- 5 crans, et une rampe dans le langage de la jauge plutot que des visages (decision
-             "5 crans partout") : l'echelle de FORME du matin garde ses visages dessines parce
-             qu'elle mesure un ETAT ; celle-ci mesure une DIFFICULTE, donc elle parle jauge.
-             Migration par ajout d'un cran par le bas, sans renumeroter : facile/modere/intense/
-             maximum gardent leur valeur, donc recommendedIntensityLevel() n'est pas touche. -->
+    <div class="card-sm" id="fbRecapStats" style="display:flex;justify-content:space-around;text-align:center;margin-bottom:18px;"></div>
+    <div id="fbForm">
+      <div class="fb-section">
+        <div class="fb-title">Perceived effort</div>
+        <div class="effort-row">
         <div class="eff-opt" data-val="tres_facile" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i></i><i></i><i></i><i></i></span><span class="eff-l">Very easy</span></div>
         <div class="eff-opt" data-val="facile" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i class="f"></i><i></i><i></i><i></i></span><span class="eff-l">Easy</span></div>
         <div class="eff-opt on" data-val="modere" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i></span><span class="eff-l">Moderate</span></div>
         <div class="eff-opt" data-val="intense" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i></span><span class="eff-l">Intense</span></div>
         <div class="eff-opt" data-val="maximum" onclick="selEff(this)"><span class="eff-g"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></span><span class="eff-l">Maximum</span></div>
       </div>
+      </div>
+      <div class="fb-section">
+        <div class="fb-title">Pain</div>
+        <div class="pain-wrap">
+          <div class="pain-val" id="fbPainVal">0<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span></div>
+          <input type="range" id="fbPainSlider" min="0" max="10" value="0" oninput="onFbPainInput(this)" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--teal) 0%,var(--vigilance) 50%,var(--red) 100%);outline:none;">
+          <div class="pain-labels"><span>None</span><span>High</span></div>
+          <div id="fbPainHint" style="display:none;font-size:12px;color:var(--gray);margin-top:6px;line-height:1.4;">Set to your highest pain during the session. You can change it.</div>
+        </div>
+      </div>
+      <div class="fb-section" id="fbExoSection" style="display:none;">
+        <div class="fb-title">Exercise by exercise</div>
+        <div class="card-sm" id="fbExoList" style="padding:4px 14px;"></div>
+      </div>
+      <div class="fb-section">
+        <button class="btn-ghost" id="fbNoteToggle" style="padding:6px 0;color:var(--gray2);font-weight:700;font-size:13px;" onclick="toggleFbNote()">+ Add a note</button>
+        <div id="fbNoteWrap" style="display:none;">
+          <div class="fb-title" id="fbNoteTitle">Note for your coach <span style="color:var(--gray);font-weight:400;">(optional)</span></div>
+          <textarea class="note-input" id="fbNote" placeholder="E.g.: left shoulder feels sensitive..."></textarea>
+        </div>
+      </div>
+      <div class="coach-tip" id="feedbackCoachTip" style="display:none;"></div>
+      <div class="spacer"></div>
+      <button class="btn btn-orange" id="fbSaveBtn" onclick="submitFeedback()">Save</button>
+      <div style="height:24px;"></div>
     </div>
-    <div class="fb-section">
-      <div class="fb-title" id="fbNoteTitle">Note for your coach <span style="color:var(--gray);font-weight:400;">(optional)</span></div>
-      <textarea class="note-input" id="fbNote" placeholder="E.g.: left shoulder feels sensitive..."></textarea>
+    <div id="fbAfter" style="display:none;">
+      <div class="fb-section" id="fbChangesSection">
+        <div class="fb-title">What changes</div>
+        <div class="card-sm" id="fbChanges" style="padding:4px 14px;"></div>
+      </div>
+      <div id="resumeDefiDone" style="display:none;margin:0 0 16px;"></div>
+      <div id="resumeDefis" style="display:none;margin:0 0 16px;"></div>
+      <div id="resumeNextSeance" style="margin:0 0 16px;padding:14px 16px;background:var(--bg2);border-radius:14px;border:1px solid var(--border);"></div>
+      <button class="btn btn-orange" id="fbBackBtn" onclick="go('home')">Back to home</button>
+      <div style="text-align:center;margin:14px 0 24px;"><button onclick="exportToHealth()" style="background:none;border:none;color:var(--gray);font-size:13px;text-decoration:underline;cursor:pointer;">Export to Apple Health</button></div>
     </div>
-    <div class="coach-tip" id="feedbackCoachTip" style="margin-bottom:16px;"></div>
-    <div class="spacer"></div>
-    <button class="btn btn-orange" onclick="submitFeedback()">Submit my session</button>
-    <div style="height:24px;"></div>
   </div>
 </div>
 
@@ -2255,9 +2282,6 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="coach-tip" id="resumeCoachTip" style="background:none;border-left:none;padding:0 0 10px;margin-bottom:10px;border-bottom:1px solid var(--border);"></div>
       <div id="resumeMetricsCard"></div>
     </div>
-    <div id="resumeDefiDone" style="display:none;margin:0 20px 16px;"></div>
-    <div id="resumeDefis" style="display:none;margin:0 20px 16px;"></div>
-    <div id="resumeNextSeance" style="margin:0 20px 16px;padding:14px 16px;background:var(--bg2);border-radius:14px;border:1px solid var(--border);"></div>
     <div style="padding:0 20px 8px;"><button class="btn btn-orange" id="resumeBackBtn" onclick="go('home')">Back to home</button></div>
     <!-- Pied de page utilitaire : actions de synchro secondaires (confirmation coach, FC Apple Watch,
          export Santé), regroupées et discrètes plutôt qu'au même niveau que le contenu principal. -->
@@ -2615,6 +2639,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div style="font-size:38px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,4v16 /><path d=M16,4v16 /></svg></div>
     <div style="font-size:19px;font-weight:800;color:var(--white);">Paused</div>
     <button class="btn btn-orange" style="min-width:200px;" onclick="toggleNextExoPause()">Resume</button>
+    <button class="btn-ghost demo-only" style="color:var(--brand-fixed);font-weight:700;" onclick="demoNextExercise()">Go to next exercise</button>
+    <button class="btn-ghost demo-only" style="color:var(--gray2);font-weight:700;" onclick="demoEndSession()">Go to end of session</button>
     <button style="background:none;border:none;color:var(--gray);font-size:13px;font-weight:600;cursor:pointer;padding:8px;" onclick="quitSession()">Quit workout</button>
   </div>
   <div class="sess-main">
@@ -2635,14 +2661,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="sess-name" id="nextExoName" style="text-align:left;">Horizontal row</div>
         <div class="sess-rep" id="nextExoSub" style="text-align:left;color:var(--gray2);">3 sets · 12 reps · Standing</div>
       </div>
-      <div id="nextExoRpeRow" style="display:none;margin:14px 0;">
-        <div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">How did that feel?</div>
-        <div style="display:flex;gap:8px;" id="nextExoRpeOpts"></div>
+      <div id="nextExoRpeRow" style="display:none;margin:14px 0 10px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Perceived effort</div>
+        <div class="effort-row" id="nextExoRpeOpts"></div>
       </div>
       <div id="nextExoPainRow" style="display:none;margin:0 0 14px;">
-        <div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Any specific discomfort?</div>
-        <input type="range" id="nextExoPainSlider" min="0" max="10" value="0" oninput="onNextExoPainInput(this)" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--teal) 0%,var(--vigilance) 50%,var(--red) 100%);outline:none;cursor:pointer;margin-bottom:4px;">
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray);"><span>None</span><span class="pain-val" id="nextExoPainVal">0 / 10</span><span>Intense</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;justify-content:space-between;"><span>Pain</span><span class="pain-val" id="nextExoPainVal" style="font-size:12px;">0 / 10</span></div>
+        <input type="range" id="nextExoPainSlider" min="0" max="10" value="0" oninput="onNextExoPainInput(this)" style="width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--teal) 0%,var(--vigilance) 50%,var(--red) 100%);outline:none;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray);margin-top:4px;"><span>None</span><span>High</span></div>
       </div>
       <div class="sess-ctrls">
         <button class="sess-prev" id="nextExoSkip" onclick="goEndOfSession()">Finish</button>
@@ -6578,7 +6604,7 @@ function go(id){
   if(id==='dashboard_referent'){ setTimeout(()=>setRefView(refView||'accueil'), 30); setTimeout(()=>{ const e=document.getElementById('homeRefDateLabel'); if(e) e.textContent=todayDateLabel(); }, 20); }
   if(id==='dashboard_directeur') setTimeout(()=>setDirView(dirView||'global'), 30);
   if(id==='dashboard_admin') setTimeout(()=>{ renderAdmin(); setAdminView(adminView||'metriques'); }, 30);
-  if(id==='profil') setTimeout(()=>{ paintAvatar('profilAvatarImg','marc','Marc D.','M','var(--orange)'); applyUserAvatarTo('profilAvatarImg'); renderSubBlock(); renderRoleSwitcher('roleSwitcherProfil'); }, 20);
+  if(id==='profil') setTimeout(()=>{ paintProfilCoachSpark(); paintAvatar('profilAvatarImg','marc','Marc D.','M','var(--orange)'); applyUserAvatarTo('profilAvatarImg'); renderSubBlock(); renderRoleSwitcher('roleSwitcherProfil'); }, 20);
   if(id==='mon_profil_entrainement') setTimeout(renderTrainingProfile, 20);
   if(id==='mon_equipement') setTimeout(renderEquipmentScreen, 20);
   if(id==='progression'){ setTimeout(()=>renderProgPeriod(progActivePeriod), 20); setTimeout(()=>{ renderProgSafetyBlock('progSafetyBlock'); syncProgHeader(); }, 20); }
@@ -8969,6 +8995,7 @@ function goToCalendar(){
 // Ou mene la carte "seance faite" de l'Accueil : l'historique de Progres, la ou la seance qu'on vient
 // de terminer est deja rangee avec sa duree et son ressenti. Meme precaution que goToCalendar : le
 // setProgTab est differe apres le setup par defaut de go('progression').
+function openHomeDoneRecap(idx){ const h=userSessionHistory[idx]; if(h) renderHistoryRecapModal(h); else goToHistorique(); }
 function goToHistorique(){
   go('progression');
   setTimeout(()=>{ const t=document.getElementById('progTab4'); if(t) setProgTab(t,'historique'); }, 40);
@@ -9455,6 +9482,13 @@ function formatCheckinDeltaSpan(part){
 }
 // Moyenne des jauges des exercices de la séance du jour — affichée sur la carte séance, mise à jour
 // après validation puisque userParamsOverrides (lu par getParamsExercice) a changé.
+// Carte seance (retours plateforme, 13 sept. 2026) : une « intensite moyenne » ne disait rien — on
+// montre le niveau le plus haut de la seance, celui qui demandera le plus.
+function maxSessionJauge(sess){
+  const exos=[...EXERCICES,...userExercices]; let m=null;
+  sess.exercices.forEach(id=>{ const ex=exos.find(e=>e.id===id); if(!ex) return; const j=getParamsExercice(ex).jauge; if(j!==undefined) m = m==null ? j : Math.max(m,j); });
+  return m;
+}
 function avgSessionJauge(sess){
   const exos=[...EXERCICES,...userExercices];
   const vals=[];
@@ -9933,19 +9967,27 @@ function renderHomeSeance(prefix, data){
     const photoF = sFaite ? sessionPhotoFor(sFaite) : '';
     const duree = h&&h.duree ? h.duree : 0;
     const nbEx = h&&h.exoIds ? h.exoIds.length : (sFaite?sFaite.exercices.length:0);
-    // Photo desaturee : c'est un souvenir, pas une invitation. Le vert de la pastille dit "fait".
+    // Carte « fait » (retours plateforme, 13 sept. 2026) : la photo reste, assombrie par un voile pour
+    // que le nom et les chiffres se lisent dessus. Un tap ouvre directement le recap de CETTE seance
+    // (plus la liste de l'historique), et la prochaine seance reste visible en pied de carte.
+    const effortTxt = h&&h.effort ? trDyn(EFFORT_LABELS[h.effort]||'Moderate').toLowerCase() : '';
+    const zoneRowsJ = Object.values(exerciseZoneHistory||{}).flat().filter(z=>{ const d=new Date(z.date); d.setHours(0,0,0,0); return d.getTime()===today0.getTime(); });
+    const zonePctJ = zoneRowsJ.length ? Math.round(zoneRowsJ.reduce((a,z)=>a+z.pctZone,0)/zoneRowsJ.length) : null;
+    const stats=[duree? duree+' '+trDyn('min') : '', zonePctJ!=null ? '<span style="color:var(--brand-fixed);">'+zonePctJ+' % '+trDyn('in the zone')+'</span>' : nbEx+' '+trDyn(nbEx>1?'exercises':'exercise'), effortTxt].filter(Boolean).join(' \u00b7 ');
+    const nextJ=getNextTrainingDayAfterToday();
+    const idxH=userSessionHistory.indexOf(h);
     zone.innerHTML='<div class="zone-lbl" style="margin-top:0;">'+trDyn('DONE TODAY')+'</div>'
-      +'<div class="today" style="cursor:pointer;" onclick="goToHistorique()">'
-      +'<div class="today-thumb" style="background-image:url(\''+photoF+'\');background-size:cover;background-position:center;filter:saturate(.35) brightness(.7);">'
-        +'<div class="today-dur" style="background:var(--brand-fixed);color:var(--ink-on-accent);"><svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg></div>'
-      +'</div>'
-      +'<div class="today-body">'
-        +'<div style="display:flex;align-items:center;gap:6px;"><div class="today-title" style="font-size:22px;margin-bottom:0;flex:1;min-width:0;">'+nom+'</div>'
-        +'<svg class="ki" style="width:15px;height:15px;color:var(--gray);flex-shrink:0;"><use href="#ki-fwd"/></svg></div>'
-        +'<div style="font-size:13px;color:var(--gray2);margin-top:4px;">'
-          + (duree? duree+' '+trDyn('min')+' \u00b7 ' : '') + nbEx+' '+trDyn(nbEx>1?'exercises':'exercise')
+      +'<div class="today" style="overflow:hidden;">'
+      +'<div style="position:relative;height:150px;background-image:linear-gradient(0deg,rgba(10,10,15,.88) 0%,rgba(10,10,15,.45) 100%),url(\''+photoF+'\');background-size:cover;background-position:center;cursor:pointer;" onclick="openHomeDoneRecap('+idxH+')">'
+        +'<span style="position:absolute;right:12px;top:12px;display:inline-flex;align-items:center;gap:4px;background:var(--brand-fixed);color:var(--ink-on-accent);border-radius:12px;font-size:12px;font-weight:800;padding:4px 10px;"><svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg>'+trDyn('Done')+'</span>'
+        +'<div style="position:absolute;left:16px;right:16px;bottom:14px;">'
+          +'<div class="today-title" style="font-size:22px;margin-bottom:2px;">'+nom+'</div>'
+          +'<div style="font-size:13px;color:rgba(237,239,242,.85);">'+stats+'</div>'
         +'</div>'
-        +'<div style="font-size:13px;font-weight:700;color:var(--brand-fixed);margin-top:10px;">'+trDyn('See the recap')+' \u2192</div>'
+      +'</div>'
+      +'<div class="today-body" style="padding-top:12px;">'
+        +'<button class="btn btn-outline" style="width:100%;padding:12px;font-size:14px;" onclick="openHomeDoneRecap('+idxH+')">'+trDyn('See my recap')+'</button>'
+        +(nextJ ? '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;"><span style="color:var(--gray);">'+trDyn('Up next')+'</span><span style="color:var(--white);font-weight:600;">'+trDyn(nextJ.name)+'</span></div>' : '')
       +'</div></div>';
     sweepTranslate(zone, currentLang);
     return;
@@ -10023,7 +10065,7 @@ function renderHomeSeance(prefix, data){
       const propose = (!todaySessionAdjust && todayCheckin && CHECKIN_IMPACT[todayCheckin]) ? previewCheckinImpact(todayCheckin) : null;
       const ex = todaySessionAdjust ? todaySessionAdjust.exCount : (propose ? propose.exCount : realSess.exercices.length);
       const du = todaySessionAdjust ? todaySessionAdjust.duree   : (propose ? propose.duree   : realSess.duree);
-      return '<div class="today-sub">'+ex+' exercises · '+du+' min'+(priorityMuscle?' · '+priorityMuscle:'')+(avgSessionJauge(realSess)!=null?' · '+trDyn('avg intensity')+' '+avgSessionJauge(realSess):'')+'</div>'
+      return '<div class="today-sub">'+ex+' exercises · '+du+' min'+(priorityMuscle?' · '+priorityMuscle:'')+(maxSessionJauge(realSess)!=null?' · '+trDyn('up to level')+' '+maxSessionJauge(realSess):'')+'</div>'
     })()
     +cta
     // "Mon programme →" est remonté dans la ligne de titre OBJECTIF (renderHomeObjectifRing) : il
@@ -10143,7 +10185,7 @@ function getCoachWeeklyProposal(){
     const week=getWeekDaysTrained();
     const pain=getPainSignal();
     const painKey = pain.trend==='baisse' ? 'pain trending down' : pain.trend==='hausse' ? 'pain trending up' : 'pain stable';
-    return {type:'level', exId:best.exId, exName:best.ex.nom, pctZone:best.mastery.pctAvg, level:best.mastery.jauge, sessionsDone:week.fait, sessionsGoal:week.objectif, painKey};
+    return {type:'level', exId:best.exId, exName:best.ex.nom, pctZone:best.mastery.pctAvg, level:(getParamsExercice(best.ex).jauge!==undefined ? getParamsExercice(best.ex).jauge : best.mastery.jauge),   /* le niveau REEL de l'exercice : c'est lui que applyCoachLevelUp incremente */ sessionsDone:week.fait, sessionsGoal:week.objectif, painKey};
   }
   // Préférences d'exercice ("j'aime pas ce mouvement" -> proposer une alternative) : envisagé ici,
   // PAS construit. Vérifié en essayant : le seul signal d'exclusion existant (activeExcludedStore/
@@ -10194,6 +10236,10 @@ function coachWeeklyHtml(){
         +trDyn(p.sessionsDone+'/'+p.sessionsGoal+' sessions')+', '+trDyn(p.painKey)+', '+trDyn(p.pctZone+'% time in zone on ')+trDyn(p.exName)+'.'
         +'<br>'+trDyn('I suggest moving up to level '+(p.level+1)+'.')
       +'</div>'
+      +'<div style="margin-top:10px;font-size:13px;">'
+        +'<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--gray);">'+trDyn('Gauge threshold')+'</span><span style="color:var(--white);font-weight:700;">'+p.level+' \u2192 '+(p.level+1)+'</span></div>'
+        +'<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;"><span style="color:var(--gray);">'+trDyn('Duration, rest and sets')+'</span><span style="color:var(--white);">'+trDyn('unchanged')+'</span></div>'
+      +'</div>'
       +'<div style="display:flex;gap:8px;margin-top:14px;">'
         +'<button class="btn" style="flex:1;padding:12px;font-size:13.5px;background:var(--brand-fixed);color:var(--ink-on-accent);" onclick="applyCoachLevelUp(\''+p.exId+'\')">'+trDyn('Confirm level up')+'</button>'
         +'<button class="btn btn-outline" style="flex:1;padding:12px;font-size:13.5px;" onclick="dismissCoachWeekly()">'+trDyn('Not this week')+'</button>'
@@ -10203,16 +10249,46 @@ function coachWeeklyHtml(){
 // Garde le nom d'origine : quatre endroits l'appellent apres avoir change l'etat de la proposition.
 // Il n'y a plus de carte a redessiner, seulement le fil qui la contient.
 function renderCoachIaWeeklyCard(){ renderCoachThread(); }
-function applyCoachLevelUp(exId){
+// Reglage du Coach IA (retours plateforme, 13 sept. 2026). PROGRESSER : me demander (defaut) ou
+// appliquer automatiquement. PROTEGER (niveau qui baisse apres une douleur ou un effort trop dur) reste
+// toujours applique et n'est pas desactivable. Un membre suivi par un centre ne voit pas ce reglage.
+function paintProfilCoachSpark(){ const e=document.getElementById('profilCoachSpark'); if(e && !e.innerHTML) e.innerHTML=aiSparkleIcon(15,'currentColor'); }
+function openCoachPrefs(){
+  if(currentRole==='user_centre'){ toast(trDyn('Your coach decides your progression.')); return; }
+  const auto=!!userProfileData.coachAutoLevel;
+  const opt=(on,val,t,d)=>'<div onclick="setCoachAutoLevel('+val+')" style="display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
+    +'<span style="width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:2px;border:2px solid '+(on?'var(--brand-fixed)':'var(--border)')+';background:'+(on?'var(--brand-fixed)':'transparent')+';box-shadow:inset 0 0 0 3px var(--bg2);"></span>'
+    +'<span><span style="display:block;font-size:14.5px;font-weight:700;color:var(--white);">'+trDyn(t)+'</span><span style="display:block;font-size:12.5px;color:var(--gray);margin-top:2px;line-height:1.4;">'+trDyn(d)+'</span></span></div>';
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:6px;">'+trDyn('AI Coach')+'</div>'
+    +'<div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin:14px 0 2px;">'+trDyn('When the coach suggests progressing')+'</div>'
+    +opt(!auto,'false','Ask me every time','You confirm each level change.')
+    +opt(auto,'true','Apply automatically','The coach raises the level and tells you in the thread.')
+    +'<div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin:18px 0 2px;">'+trDyn('When the coach protects you')+'</div>'
+    +'<div style="font-size:13px;color:var(--gray2);line-height:1.5;padding:8px 0;">'+trDyn('Always applied: after pain or an effort that was too hard, the level goes down right away. This cannot be turned off.')+'</div>');
+}
+function setCoachAutoLevel(v){ userProfileData.coachAutoLevel=!!v; openCoachPrefs(); }
+function maybeAutoApplyCoachLevel(){
+  if(!userProfileData.coachAutoLevel || currentRole==='user_centre') return;
+  const p=getCoachWeeklyProposal();
+  if(p && p.type!=='programme' && p.exId) applyCoachLevelUp(p.exId, true);
+}
+function revertCoachLevel(exId, level){
+  const ex=[...EXERCICES,...userExercices].find(e=>e.id===exId); if(!ex) return;
+  userParamsOverrides[exId]={...(userParamsOverrides[exId]||{}), jauge:level};
+  logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exId, exName:ex.nom, level, accepted:true, reverted:true});
+  toast(trDyn('Level updated ✓'));
+  renderCoachThread();
+}
+function applyCoachLevelUp(exId, auto){
   const exos=[...EXERCICES,...userExercices];
   const ex=exos.find(e=>e.id===exId); if(!ex) return;
   const curParams=getParamsExercice(ex);
   const curLevel=curParams.jauge!==undefined?curParams.jauge:1;
   userParamsOverrides[exId]={...(userParamsOverrides[exId]||{}), jauge:curLevel+1};
   coachWeeklyDismissedWeekStart=getWeekStartTimestamp();
-  logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exName:ex.nom, level:curLevel+1, accepted:true});
-  toast(trDyn('Level updated ✓'));
-  renderCoachIaWeeklyCard();   // reconstruit le fil : l'entree y entre, et la proposition traitee en sort
+  logCoachHistory({type:'weekly', theme:'ajustement', kind:'level', exId, exName:ex.nom, level:curLevel+1, from:curLevel, accepted:true, auto:!!auto});
+  if(!auto) toast(trDyn('Level updated ✓'));
+  if(!auto) renderCoachIaWeeklyCard();   // reconstruit le fil : l'entree y entre, et la proposition traitee en sort
   updateCoachIaBadge();
 }
 // Mute programmeActif.frequence directement — c'est le seul champ que getProgrammeProgress()/
@@ -11862,31 +11938,41 @@ function toggleRepDetect(){
 // ===== Compteur d'exercices de la séance (pilote next_exercise / dernier exercice) =====
 let sessCurrent=1, sessTotal=7;
 function finishRest(){
+  commitExoFeedback();
   if(sessCurrent>=sessTotal){ goEndOfSession(); }
   else { sessCurrent++; go('session'); }
 }
-const RPE_OPTS = [{v:1,e:'😌'},{v:2,e:'🙂'},{v:3,e:'😅'},{v:4,e:'😓'},{v:5,e:'🥵'}];
+// Feedback d'exercice (retours plateforme, 13 sept. 2026) : memes questions que la fin de seance —
+// effort ressenti en 5 crans de jauge (plus d'emojis) et douleur 0-10, toujours proposee. Les reponses
+// sont gardees dans sessionExoFeedback et banquees UNE fois en quittant le repos : avant, chaque tap et
+// chaque mouvement de reglette appelaient bankExercise*, si bien qu'une reglette glissee au-dessus de 6
+// pouvait baisser le niveau de l'exercice plusieurs fois d'un coup.
+const EFFORT_KEYS=['tres_facile','facile','modere','intense','maximum'];
+const EFFORT_LABELS={tres_facile:'Very easy', facile:'Easy', modere:'Moderate', intense:'Intense', maximum:'Maximum'};
+let sessionExoFeedback = {};   // exId -> {rpe, pain, painTouched, banked}
+function effOptHtml(i, on, onclick){
+  const k=EFFORT_KEYS[i];
+  let bars=''; for(let b=0;b<5;b++) bars+='<i'+(b<=i?' class="f"':'')+'></i>';
+  return '<div class="eff-opt'+(on?' on':'')+'" data-val="'+k+'" onclick="'+onclick+'"><span class="eff-g">'+bars+'</span><span class="eff-l">'+trDyn(EFFORT_LABELS[k])+'</span></div>';
+}
 function setExerciseRpe(exId, val){
-  const idx = sessionRpeLog.findIndex(r=>r.exId===exId);
-  if(idx>=0) sessionRpeLog[idx].rpe=val; else sessionRpeLog.push({exId, rpe:val});
-  document.querySelectorAll('#nextExoRpeOpts button').forEach(b=>{
-    const on = Number(b.dataset.v)===val;
-    b.style.background = on ? 'var(--orange)' : 'var(--bg2)';
-    b.style.borderColor = on ? 'var(--orange)' : 'var(--border)';
-  });
-  bankExerciseRpe(exId, val);
-  // Douleur demandée seulement si l'effort était dur (😓/🥵) — pas à chaque exercice, pour ne pas
-  // doubler la friction de "How did that feel?" sur les exercices qui se sont bien passés.
-  const painRow=document.getElementById('nextExoPainRow');
-  if(painRow){
-    if(val>=4){ painRow.style.display='block'; window._nextExoPainTargetId=exId; }
-    else { painRow.style.display='none'; window._nextExoPainTargetId=null; }
-  }
+  const f = sessionExoFeedback[exId] = sessionExoFeedback[exId] || {};
+  f.rpe = val;
+  const opts=document.getElementById('nextExoRpeOpts');
+  if(opts) opts.innerHTML = EFFORT_KEYS.map((k,i)=>effOptHtml(i, i+1===val, "setExerciseRpe('"+exId+"',"+(i+1)+")")).join('');
 }
 function onNextExoPainInput(el){
   document.getElementById('nextExoPainVal').textContent=el.value+' / 10';
   const exId=window._nextExoPainTargetId; if(!exId) return;
-  bankExercisePain(exId, parseInt(el.value,10));
+  const f = sessionExoFeedback[exId] = sessionExoFeedback[exId] || {};
+  f.pain = parseInt(el.value,10); f.painTouched = true;
+}
+function commitExoFeedback(){
+  const exId=window._nextExoPainTargetId; if(!exId) return;
+  const f=sessionExoFeedback[exId]; if(!f || f.banked) return;
+  if(f.rpe) bankExerciseRpe(exId, f.rpe);
+  if(f.painTouched) bankExercisePain(exId, f.pain);
+  f.banked = true;
 }
 // ===== RPE par exercice — historique persistant (au-delà de la seule séance en cours, contrairement
 // à sessionRpeLog) et effet réel : jusqu'ici collecté à chaque exercice sans jamais être relu nulle
@@ -12100,25 +12186,20 @@ function renderNextExercise(){
   // RPE de l'exercice qu'on vient de terminer (nouveau modèle uniquement)
   const justFinished = currentProgram && currentProgram.exercices[sessCurrent-1];
   const rpeRow=document.getElementById('nextExoRpeRow');
-  if(rpeRow){
-    if(justFinished && justFinished.mode){
-      rpeRow.style.display='block';
-      const opts=document.getElementById('nextExoRpeOpts');
-      if(opts) opts.innerHTML = RPE_OPTS.map(o=>
-        '<button data-v="'+o.v+'" onclick="setExerciseRpe(\''+justFinished.id+'\','+o.v+')" style="flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:10px 0;font-size:20px;cursor:pointer;">'+o.e+'</button>'
-      ).join('');
-    } else {
-      rpeRow.style.display='none';
-    }
-  }
-  // Le slider douleur ne réapparaît que si le RPE tapé sur CE nouvel exercice est élevé (cf.
-  // setExerciseRpe) — toujours masqué/réinitialisé tant que rien n'a encore été tapé.
   const painRow=document.getElementById('nextExoPainRow');
+  const withFeedback = !!(justFinished && justFinished.mode);
+  window._nextExoPainTargetId = withFeedback ? justFinished.id : null;
+  const prev = withFeedback ? (sessionExoFeedback[justFinished.id]||{}) : {};
+  if(rpeRow){
+    rpeRow.style.display = withFeedback ? 'block' : 'none';
+    if(withFeedback) setExerciseRpe(justFinished.id, prev.rpe||0);
+    if(withFeedback && !prev.rpe) delete sessionExoFeedback[justFinished.id].rpe;
+  }
   if(painRow){
-    painRow.style.display='none';
-    window._nextExoPainTargetId=null;
-    const slider=document.getElementById('nextExoPainSlider'); if(slider) slider.value=0;
-    const val=document.getElementById('nextExoPainVal'); if(val) val.textContent='0 / 10';
+    painRow.style.display = withFeedback ? 'block' : 'none';
+    const v = prev.painTouched ? prev.pain : 0;
+    const slider=document.getElementById('nextExoPainSlider'); if(slider) slider.value=v;
+    const val=document.getElementById('nextExoPainVal'); if(val) val.textContent=v+' / 10';
   }
 }
 
@@ -12246,8 +12327,34 @@ function updateSetLabel(){
 let demoSkipGates = false;
 function repsGoalMet(){ return demoSkipGates || rc >= repTarget; }
 function cardioTimeUp(){ return demoSkipGates || cardioSecondsLeft <= 0; }
+function stopLiveTimers(){
+  try{ if(typeof cardioInt!=='undefined' && cardioInt){ clearInterval(cardioInt); cardioInt=null; } }catch(e){}
+  try{ if(typeof restInt!=='undefined' && restInt){ clearInterval(restInt); restInt=null; } }catch(e){}
+  try{ stopGaugeTick(); }catch(e){}
+  try{ stopRepDetection(); }catch(e){}
+}
+// Raccourcis de demo (retours plateforme, 13 sept. 2026) : visibles dans la pause seulement quand le
+// mode demo est actif. « Aller a l'exercice suivant » suit le chemin normal (repos, feedback d'exercice) ;
+// « Aller a la fin de seance » saute au recap. Rien d'autre ne change : la seance est marquee demo.
+function demoNextExercise(){
+  if(!demoSkipGates) return;
+  const onRest = document.getElementById('next_exercise').classList.contains('active');
+  if(onRest){ if(nextExoPaused) toggleNextExoPause(); finishRest(); return; }
+  if(sessionPaused) togglePause();
+  stopLiveTimers();
+  go(sessTotal<=1 ? 'feedback' : 'next_exercise');
+}
+function demoEndSession(){
+  if(!demoSkipGates) return;
+  if(sessionPaused) togglePause();
+  if(typeof nextExoPaused!=='undefined' && nextExoPaused) toggleNextExoPause();
+  stopLiveTimers();
+  commitExoFeedback();
+  go('feedback');
+}
 function toggleDemoSkipGates(){
   demoSkipGates = !demoSkipGates;
+  document.body.classList.toggle('demo-on', demoSkipGates);   // affiche les raccourcis de démo dans la pause
   toast(demoSkipGates ? '✓ Demo mode: session gates disabled' : '✓ Session gates re-enabled');
   renderDemoSection('demoHubContent');
 }
@@ -12533,7 +12640,7 @@ function renderSessionMetricsCard(elId, exercices, titleTxt, skipIntensity){
   const regulariteRow = metricsRow('<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M5,20v-6 /><path d=M12,20v-10 /><path d=M19,20v-4 /></svg>','Average rhythm consistency', avgReg+'/100', null);
   const sep='<div style="height:1px;background:var(--border);"></div>';
   const titleBlock = titleTxt ? '<div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">'+titleTxt+'</div>' : '';
-  card.innerHTML = titleBlock+(intensiteRow?intensiteRow+sep:'')+symetrieRow+sep+regulariteRow;
+  card.innerHTML = titleBlock+(intensiteRow?intensiteRow+sep:'')+regulariteRow;   // plus d'asymetrie MOYENNE de seance : les ecarts s'annulent d'un exercice a l'autre
   sweepTranslate(card, currentLang);
 }
 // ===== Démarrage d'une série : reset reps + décompte vocal 3-2-1 + détection =====
@@ -12593,9 +12700,12 @@ function applyIntensityRecommendation(){
     currentProgram._sessIntensityLevel = rec ? rec.level : 2;
     currentProgram._sessIntensityReason = rec ? rec.reason : null;
     if(rec){
+      // POUR AUJOURD'HUI seulement (retours plateforme, 13 sept. 2026) : l'ajustement du jour ecrivait
+      // dans userParamsOverrides, donc baissait le niveau de chaque exercice DEFINITIVEMENT. Il plafonne
+      // maintenant la copie de la seance en cours ; le niveau de base est garde pour « Ce qui change ».
       currentProgram.exercices.forEach(e=>{
-        if(e.params && e.params.jauge!==undefined){
-          userParamsOverrides[e.id] = {...userParamsOverrides[e.id], jauge: rec.level};
+        if(e.params && e.params.jauge!==undefined && e.params.jauge>rec.level){
+          e._jaugeBase = e.params.jauge;
           e.params = {...e.params, jauge: rec.level};
         }
       });
@@ -12642,7 +12752,7 @@ function confirmSessionReady(){
   onSessionStart();
 }
 function onSessionStart(){
-  if(sessCurrent===1){ sessionStartTime=Date.now(); sessionTotalReps=0; sessionTypeDuration={Cardio:0, Renforcement:0}; sessionTypeReps={Cardio:0, Renforcement:0}; sessionCardioScore=0; sessionRenfoScore=0; sessionZoneDuration={}; sessionExoScores={}; sessionAnyRealMotion=false; sessionAnyManualTap=false; sessionAnySimulatedAuto=false; applyIntensityRecommendation(); }
+  if(sessCurrent===1){ sessionExoFeedback={}; sessionStartTime=Date.now(); sessionTotalReps=0; sessionTypeDuration={Cardio:0, Renforcement:0}; sessionTypeReps={Cardio:0, Renforcement:0}; sessionCardioScore=0; sessionRenfoScore=0; sessionZoneDuration={}; sessionExoScores={}; sessionAnyRealMotion=false; sessionAnyManualTap=false; sessionAnySimulatedAuto=false; applyIntensityRecommendation(); }
   else {
     bankExerciseTypeDuration(currentProgram.exercices[sessCurrent-2], rc);   // lu avant que rc ne soit remis à 0 juste après
     sessionTotalReps += rc;
@@ -12879,6 +12989,36 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions": "Passer les questions",
+  "up to level": "jusqu'au niveau",
+  "Your coach decides your progression.": "C'est ton coach qui décide de ta progression.",
+  "When the coach suggests progressing": "Quand le coach propose de progresser",
+  "Ask me every time": "Me demander à chaque fois",
+  "You confirm each level change.": "Tu valides chaque changement de niveau.",
+  "Apply automatically": "Appliquer automatiquement",
+  "The coach raises the level and tells you in the thread.": "Le coach monte le niveau et te prévient dans le fil.",
+  "When the coach protects you": "Quand le coach te protège",
+  "Always applied: after pain or an effort that was too hard, the level goes down right away. This cannot be turned off.": "Toujours appliqué : après une douleur ou un effort trop dur, le niveau baisse tout de suite. Ce n'est pas désactivable.",
+  "automatic": "automatique",
+  "Gauge threshold": "Seuil de la jauge",
+  "Duration, rest and sets": "Durée, repos et séries",
+  "See my recap": "Revoir mon récap",
+  "Go to next exercise": "Aller à l'exercice suivant",
+  "Go to end of session": "Aller à la fin de séance",
+  "Perceived effort": "Effort ressenti",
+  "Set to your highest pain during the session. You can change it.": "Réglée sur ta douleur la plus haute pendant la séance. Tu peux la changer.",
+  "Exercise by exercise": "Exercice par exercice",
+  "+ Add a note": "+ Ajouter une note",
+  "What changes": "Ce qui change",
+  "right side": "côté droit",
+  "left side": "côté gauche",
+  "reps": "reps",
+  "pain": "douleur",
+  "eased to level": "allégée au niveau",
+  "Your levels": "Tes niveaux",
+  "unchanged": "inchangés",
+  "Effort": "Effort",
+  "Back to exercises": "Retour aux exercices",
+  "min": "min",
   "last session": "dernière séance",
   "average over 7 days": "en moyenne sur 7 jours",
   "average over 30 days": "en moyenne sur 30 jours",
@@ -16995,11 +17135,13 @@ function renderExParams(ex){
   const wrap=document.getElementById('exParamsSection'); if(!wrap) return;
   const p = getParamsExercice(ex);
   const hasOverride = !!userParamsOverrides[ex.id];
+  const recJ = (p.jauge!==undefined) ? recommendedIntensityLevel() : null;
+  const todayNote = (recJ && p.jauge>recJ.level) ? '<div style="font-size:12.5px;color:var(--vigilance);margin:0 0 8px;line-height:1.45;">'+(currentLang==='fr' ? 'Niveau '+p.jauge+' · ajusté à '+recJ.level+' aujourd\'hui' : 'Level '+p.jauge+' · eased to '+recJ.level+' today')+'</div>' : '';
   const rows = EX_PARAM_FIELDS.map(f => exParamStepperRow(f, p[f.key])).join('');
   // L'article "La jauge" dit expressement qu'on la regle "depuis la fiche d'un exercice, dans Tes
   // reglages" : c'est ici, et nulle part ailleurs, que la question se pose.
   wrap.innerHTML = '<div class="ex-sec-t" style="padding:0 0 8px;">Your settings</div>'
-    + rows
+    + todayNote + rows
     + (hasOverride ? '<div style="text-align:center;margin-top:10px;"><span style="color:var(--gray);font-size:13px;cursor:pointer;" onclick="resetExParam(\''+ex.id+'\')">Reset to recommended</span></div>' : '')
     + guideLink('seance',1);
   sweepTranslate(wrap, currentLang);
@@ -19509,7 +19651,7 @@ function skipCooldown(){ go('feedback'); }
 // Point de sortie unique de la séance live (dernier exercice fini, via "Finish" ou finishRest) —
 // shouldRunCooldown() décide si le retour au calme a lieu (séance + préférence, cf discussion), jamais
 // redemandé ici : la décision est déjà prise avant le lancement, pas à la sortie.
-function goEndOfSession(){ go(phaseActive(sessionActuelle,'cooldown') ? 'session_cooldown' : 'feedback'); }
+function goEndOfSession(){ commitExoFeedback(); go(phaseActive(sessionActuelle,'cooldown') ? 'session_cooldown' : 'feedback'); }
 // Démarrer UN SEUL exercice depuis sa fiche (pas une séance) : la fiche expose déjà
 // tous les réglages (reps/durée/repos/intensité) — direct sur l'écran live, le décompte
 // vocal 3-2-1 existant tient lieu de "avant".
@@ -22418,7 +22560,9 @@ function submitFeedback(){
   // L'exception du jour meurt avec l'occurrence : les bascules de la fiche reprennent la valeur du
   // profil d'entrainement a la prochaine ouverture.
   if(sessionActuelle) clearPhaseOverride(sessionActuelle.id);
-  if(window._feedbackCoachMsg){ logCoachHistory({type:'session', theme:'suivi', message: window._feedbackCoachMsg}); window._feedbackCoachMsg=null; }
+  window._feedbackCoachMsg=null;
+  const exoPainsAll = Object.values(sessionExoFeedback||{}).filter(f=>f.painTouched).map(f=>f.pain);
+  const douleurExoMax = exoPainsAll.length ? Math.max(...exoPainsAll) : null;
   lastSessionPain=painAfter;   // sert de référence "avant" pour la prochaine séance
   lastFeedbackEffort=feedbackEffort;   // sert à recommander une intensité moindre la prochaine fois
   const noteEl=document.getElementById('fbNote');
@@ -22451,7 +22595,9 @@ function submitFeedback(){
       // plus, jamais lus par ACWR/streaks/etc. qui ne connaissent que les champs ci-dessus.
       dureeAttendue: sessionActuelle ? sessionActuelle.duree : (currentProgram.duree||0),
       repSource: sessionRepSource(),
-      demoGatesSkipped: demoSkipGates
+      demoGatesSkipped: demoSkipGates,
+      douleurExoMax: douleurExoMax,
+      exoFeedback: JSON.parse(JSON.stringify(sessionExoFeedback||{}))
     });
     // Invalide le cache : sans ça, renderProgMonView() continuerait de réafficher CETTE séance comme
     // "séance du jour" indéfiniment au lieu de laisser getSessionDuJour() recalculer la prochaine.
@@ -22467,7 +22613,29 @@ function submitFeedback(){
     personalNotes.unshift({date:"Just now", nom:exoNom||'Session', txt:noteTxt});
     toast('Note saved — find it in Progression › Badges ✓');
   }
-  go('resume');
+  const changes = computeSessionChanges();
+  // Un seul message dans le Coach IA par seance, avec ce qui change (retours plateforme, 13 sept. 2026).
+  if(currentProgram && currentProgram.titre){
+    logCoachHistory({type:'session', theme:'suivi', recap:{
+      seance: currentProgram.titre, effort: feedbackEffort, douleur: painAfter,
+      exoPains: Object.entries(sessionExoFeedback||{}).filter(([k,f])=>f.painTouched && f.pain>=4).map(([k,f])=>{ const ex=[...EXERCICES,...userExercices].find(e=>e.id===k); return {exName: ex?ex.nom:k, pain:f.pain}; }),
+      levels: changes.levels, next: changes.next
+    }});
+  }
+  showFeedbackAfterSave(changes);
+}
+function showFeedbackAfterSave(changes){
+  const isSolo = sessTotal<=1;
+  const form=document.getElementById('fbForm'); if(form) form.style.display='none';
+  const after=document.getElementById('fbAfter'); if(after) after.style.display='block';
+  const ch=document.getElementById('fbChanges'); if(ch){ ch.innerHTML=sessionChangesHtml(changes); const last=ch.lastElementChild; if(last) last.style.borderBottom='none'; }
+  renderResumeDefis();
+  const nextEl=document.getElementById('resumeNextSeance'); if(nextEl){ nextEl.style.display = isSolo ? 'none' : ''; if(!isSolo) renderNextSeance(); }
+  const kine=document.getElementById('resumeKineBox'); if(kine) kine.style.display=(currentRole==='user_centre'&&lastFeedbackHadNote)?'block':'none';
+  const back=document.getElementById('fbBackBtn');
+  if(back){ back.textContent = trDyn(isSolo ? 'Back to exercises' : 'Back to home'); back.onclick = ()=>go(isSolo ? 'bibliotheque' : 'home'); }
+  sweepTranslate(document.getElementById('feedback'), currentLang);
+  const sc=document.querySelector('#feedback .scroll'); if(sc) sc.scrollTop=0;
 }
 // ============================================================
 // VUE SEMAINE UTILISATEUR (home / home_centre)
@@ -22558,7 +22726,7 @@ function setFeedbackCoachMsg(){
   const key = painAfter<painBefore ? 'great' : (painAfter>painBefore ? 'careful' : 'good');
   const week=getWeekDaysTrained();
   const msg = trDyn(feedbackMessages[key])+' '+trDyn(week.fait+'/'+week.objectif+' sessions')+'.';
-  renderCoachTip('feedbackCoachTip', msg);
+  // Pas de bulle coach sur l'ecran de fin de seance : « Ce qui change » la remplace apres l'enregistrement.
   // Plus de logCoachHistory ici : cette fonction tourne a CHAQUE mouvement de la reglette douleur, et
   // ecrivait jusqu'a 7 messages dans le Coach IA pour une seule fin de seance (mesure, 13 sept. 2026).
   // Le message de seance s'ecrit une fois, a l'enregistrement (submitFeedback).
@@ -22574,16 +22742,88 @@ function resetFeedbackScreen(){
   sessionTotalReps += rc; rc=0; repTimestamps=[];   // banque les reps du tout dernier exercice/série de la séance
   bankExerciseCompletion(currentProgram && currentProgram.exercices[sessCurrent-1]);
   bankExerciseZoneTime(currentProgram && currentProgram.exercices[sessCurrent-1]);   // banque le % de temps dans la zone du tout dernier exercice
-  painBefore=lastSessionPain; painAfter=0;
-  const slider=document.getElementById('fbPainSlider'); if(slider) slider.value=0;
-  const val=document.getElementById('fbPainVal'); if(val) val.innerHTML='0<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span>';
+  // La jauge douleur de seance s'ouvre sur la douleur d'exercice la plus haute de la seance.
+  const exoPains = Object.values(sessionExoFeedback||{}).filter(f=>f.painTouched).map(f=>f.pain);
+  const maxExoPain = exoPains.length ? Math.max(...exoPains) : 0;
+  painBefore=lastSessionPain; painAfter=maxExoPain;
+  const slider=document.getElementById('fbPainSlider'); if(slider) slider.value=maxExoPain;
+  const val=document.getElementById('fbPainVal'); if(val) val.innerHTML=maxExoPain+'<span style="font-size:14px;color:var(--gray);font-weight:600;"> / 10</span>';
+  const hint=document.getElementById('fbPainHint'); if(hint) hint.style.display = maxExoPain>0 ? 'block' : 'none';
   const note=document.getElementById('fbNote'); if(note) note.value='';
+  const noteWrap=document.getElementById('fbNoteWrap'); if(noteWrap) noteWrap.style.display='none';
+  const noteTog=document.getElementById('fbNoteToggle'); if(noteTog) noteTog.style.display='';
+  const form=document.getElementById('fbForm'); if(form) form.style.display='';
+  const after=document.getElementById('fbAfter'); if(after) after.style.display='none';
+  renderFeedbackRecap();
   const noteTitle=document.getElementById('fbNoteTitle');
   if(noteTitle) noteTitle.innerHTML = (currentRole==='user_centre' ? 'Note for your coach' : 'Personal note') + ' <span style="color:var(--gray);font-weight:400;">(optional)</span>';
   document.querySelectorAll('#feedback .eff-opt').forEach(o=>o.classList.remove('on'));
   const defaultEff=document.querySelector('#feedback .eff-opt[data-val="modere"]'); if(defaultEff) defaultEff.classList.add('on');
   feedbackEffort='modere';
   setFeedbackCoachMsg();
+}
+function toggleFbNote(){
+  const w=document.getElementById('fbNoteWrap'), t=document.getElementById('fbNoteToggle');
+  if(w) w.style.display='block'; if(t) t.style.display='none';
+  const n=document.getElementById('fbNote'); if(n) n.focus();
+}
+// Asymetrie d'UN exercice (jamais moyennee sur la seance : les ecarts s'annuleraient d'un exercice a
+// l'autre). Montree seulement quand l'ecart entre les deux cotes depasse 10 points.
+function exoAsymmetryLabel(ex){
+  const m=calculerMetriquesExercice(ex); if(!m || !m.symetrie) return '';
+  const d=m.symetrie.droite, g=m.symetrie.gauche;
+  if(Math.abs(d-g)<=10) return '';
+  return d>g ? trDyn('right side')+' '+d+' %' : trDyn('left side')+' '+g+' %';
+}
+function renderFeedbackRecap(){
+  const exList=(currentProgram && currentProgram.exercices)||[];
+  const isSolo = sessTotal<=1;
+  const titre=document.getElementById('fbRecapTitle'); if(titre) titre.textContent = (currentProgram && currentProgram.titre) || '';
+  const elapsedMin = sessionStartTime ? Math.max(1, Math.round((Date.now()-sessionStartTime)/60000)) : ((currentProgram&&currentProgram.duree)||0);
+  const sub=document.getElementById('fbRecapSub');
+  if(sub) sub.textContent = trDyn('Done')+' · '+elapsedMin+' min · '+new Date().toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
+  const done = Math.min(sessCurrent, exList.length) || exList.length;
+  const zoneRows = Object.values(exerciseZoneHistory||{}).flat().filter(z=>sessionStartTime && z.date>=sessionStartTime);
+  const zonePct = zoneRows.length ? Math.round(zoneRows.reduce((a,z)=>a+z.pctZone,0)/zoneRows.length) : null;
+  const stat=(v,l,cls)=>'<div><div style="font-size:18px;font-weight:800;'+(cls?'color:var(--brand-fixed);':'color:var(--white);')+'">'+v+'</div><div style="font-size:11px;color:var(--gray);">'+trDyn(l)+'</div></div>';
+  const statsEl=document.getElementById('fbRecapStats');
+  if(statsEl) statsEl.innerHTML = stat(elapsedMin,'min') + stat(done+'/'+exList.length, isSolo?'exercise':'exercises')
+    + (zonePct!=null ? stat(zonePct+' %','in the zone',true) : stat(sessionTotalReps,'reps'));
+  // Exercice par exercice : effort, douleur, asymetrie — ce qui a ete note pendant la seance.
+  const sec=document.getElementById('fbExoSection'), list=document.getElementById('fbExoList');
+  const rows = exList.slice(0, done).filter(ex=>ex && ex.mode).map(ex=>{
+    const f=(sessionExoFeedback||{})[ex.id]||{};
+    const parts=[];
+    if(f.rpe) parts.push(trDyn(EFFORT_LABELS[EFFORT_KEYS[f.rpe-1]]).toLowerCase());
+    if(f.painTouched) parts.push('<span style="color:'+(f.pain>=4?'var(--vigilance)':'var(--gray2)')+';">'+trDyn('pain')+' '+f.pain+'</span>');
+    const asym=exoAsymmetryLabel(ex); if(asym) parts.push('<span style="color:var(--vigilance);">'+asym+'</span>');
+    if(!parts.length) return '';
+    return '<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--white);">'+ex.nom+'</span><span style="color:var(--gray2);text-align:right;">'+parts.join(' · ')+'</span></div>';
+  }).filter(Boolean);
+  if(sec) sec.style.display = rows.length ? '' : 'none';
+  if(list){ list.innerHTML = rows.join(''); const last=list.lastElementChild; if(last) last.style.borderBottom='none'; }
+  sweepTranslate(document.getElementById('feedback'), currentLang);
+}
+// Ce qui change apres la seance : niveaux d'exercice modifies (compares au debut de seance) et
+// ajustement de la prochaine seance. Meme source pour l'ecran et pour le message du Coach IA.
+function computeSessionChanges(){
+  const changes=[];
+  ((currentProgram && currentProgram.exercices)||[]).forEach(item=>{
+    if(!item || !item.mode || !item.params || item.params.jauge===undefined) return;
+    const ex=[...EXERCICES,...userExercices].find(e=>e.id===item.id); if(!ex) return;
+    const now=getParamsExercice(ex).jauge;
+    const base = item._jaugeBase!==undefined ? item._jaugeBase : item.params.jauge;
+    if(now!==undefined && now!==base && !changes.some(c=>c.exId===ex.id)) changes.push({exId:ex.id, exName:ex.nom, from:base, to:now});
+  });
+  const rec=recommendedIntensityLevel();
+  return {levels:changes, next: rec ? {level:rec.level, reason:rec.reason} : null};
+}
+function sessionChangesHtml(ch){
+  const row=(l,r,col)=>'<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--white);">'+l+'</span><span style="color:'+(col||'var(--gray2)')+';font-weight:600;text-align:right;">'+r+'</span></div>';
+  let h = ch.levels.map(c=>row(c.exName, trDyn('level')+' '+c.from+' \u2192 '+c.to, c.to<c.from?'var(--vigilance)':'var(--brand-fixed)')).join('');
+  if(ch.next) h += row(trDyn('Next session'), trDyn('eased to level')+' '+ch.next.level, 'var(--vigilance)');
+  if(!h) h = row(trDyn('Your levels'), trDyn('unchanged'));
+  return h;
 }
 // ===== resume — message coach basé sur le vrai nombre de séances cette semaine =====
 const resumeMessages={
@@ -23129,7 +23369,13 @@ function coachHistoryText(h){
       ? trDyn('Moved to '+h.newFrequence+'x/week on ')+trDyn(h.programmeName)
       : trDyn('Suggested '+h.newFrequence+'x/week on ')+trDyn(h.programmeName)+' — '+trDyn('declined');
   }
-  return h.accepted ? trDyn('Moved up to level '+h.level+' on ')+trDyn(h.exName) : trDyn('Suggested level '+h.level+' on ')+trDyn(h.exName)+' — '+trDyn('declined');
+  if(h.reverted) return (currentLang==='fr' ? 'Retour au niveau '+h.level+' sur ' : 'Back to level '+h.level+' on ')+h.exName;
+  const base = h.accepted ? trDyn('Moved up to level '+h.level+' on ')+trDyn(h.exName) : trDyn('Suggested level '+h.level+' on ')+trDyn(h.exName)+' — '+trDyn('declined');
+  if(h.accepted && h.auto){
+    const back = (h.exId && h.from) ? '<div style="margin-top:8px;"><button class="btn-ghost" style="padding:6px 0;color:var(--brand-fixed);font-weight:700;font-size:13px;" onclick="revertCoachLevel(\''+h.exId+'\','+h.from+')">'+(currentLang==='fr'?'Revenir au niveau '+h.from:'Back to level '+h.from)+'</button></div>' : '';
+    return base+' · '+trDyn('automatic')+back;
+  }
+  return base;
 }
 // Icône + couleur par thème au lieu d'un texte plat indifférencié (retour utilisateur : "Check-in" et
 // "Passé au niveau 3" avaient exactement la même apparence) — plus de date par bulle, elle est portée
@@ -23148,7 +23394,19 @@ const COACH_SELF_TYPES=['checkin','session','plan'];
 function coachEventLine(text){
   return '<div style="align-self:stretch;text-align:center;font-size:11.5px;color:var(--gray);line-height:1.4;padding:3px 24px;">'+text+'</div>';
 }
+// Message de seance (retours plateforme, 13 sept. 2026) : compose au rendu depuis des donnees, donc
+// toujours dans la langue courante — nom, ce qui a ete declare, et ce qui change pour la suite.
+function sessionRecapCoachHtml(r){
+  const head='<div style="font-weight:700;margin-bottom:3px;">'+r.seance+'</div>'
+    +'<div>'+trDyn('Effort')+' '+trDyn(EFFORT_LABELS[r.effort]||'Moderate').toLowerCase()+' · '+trDyn('pain')+' '+r.douleur+'/10'
+    +((r.exoPains||[]).length ? ' · '+(r.exoPains.map(e=>e.exName+' '+e.pain+'/10').join(', ')) : '')+'</div>';
+  const rows=[];
+  (r.levels||[]).forEach(c=>rows.push('<div style="display:flex;justify-content:space-between;gap:8px;margin-top:4px;"><span>'+c.exName+'</span><span style="color:'+(c.to<c.from?'var(--vigilance)':'var(--brand-fixed)')+';font-weight:700;">'+trDyn('level')+' '+c.from+' \u2192 '+c.to+'</span></div>'));
+  if(r.next) rows.push('<div style="display:flex;justify-content:space-between;gap:8px;margin-top:4px;"><span>'+trDyn('Next session')+'</span><span style="color:var(--vigilance);font-weight:700;">'+trDyn('eased to level')+' '+r.next.level+'</span></div>');
+  return head + (rows.length ? '<div style="font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--gray);margin-top:9px;">'+trDyn('What changes')+'</div>'+rows.join('') : '');
+}
 function coachHistoryEntryHtml(h){
+  if(h.type==='session' && h.recap) return assistantBubble(coachThemeEyebrow('suivi')+sessionRecapCoachHtml(h.recap), false);
   if(h.type==='qa') return assistantBubble(h.question, true)+assistantBubble(coachThemeEyebrow(h.theme, h.tone)+h.message, false);
   if(COACH_SELF_TYPES.indexOf(h.type)>=0) return coachEventLine(coachHistoryText(h));
   return assistantBubble(coachHistoryBubble(h), false);
@@ -23168,6 +23426,7 @@ function lastThreadDateSep(t){
 // plutôt qu'un écran vide à chaque ouverture.
 function renderCoachThread(){
   const t=document.getElementById('assistantThread'); if(!t) return;
+  maybeAutoApplyCoachLevel();
   const history=[...coachHistory].reverse().slice(-30);
   // La bulle d'accueil ne s'affiche plus QUE si le fil est reellement vide (retour terrain, 12 sept. :
   // "est-ce que c'est necessaire d'avoir la fenetre tout le temps allumee ? je pense qu'on peut le
