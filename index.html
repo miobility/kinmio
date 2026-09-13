@@ -1301,7 +1301,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div class="eyebrow" style="margin-bottom:10px;">Here's what we understood about you.</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <div onclick="go('ob1')" style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);cursor:pointer;"><span style="font-size:28px;"><svg class="ki"><use href="#ki-ob-person"/></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Position</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sum_pos">—</div></div><span style="font-size:16px;color:var(--gray);"><svg class="ki"><use href="#ki-ob-edit"/></svg></span></div>
+      <div id="sumPosCard" onclick="go('ob1')" style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);cursor:pointer;"><span style="font-size:28px;"><svg class="ki"><use href="#ki-ob-person"/></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Position</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sum_pos">—</div></div><span style="font-size:16px;color:var(--gray);"><svg class="ki"><use href="#ki-ob-edit"/></svg></span></div>
       <div onclick="go('ob6')" style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);cursor:pointer;"><span style="font-size:28px;"><svg class="ki"><use href="#ki-ob-shield"/></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Area to protect</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sum_zones">—</div></div><span style="font-size:16px;color:var(--gray);"><svg class="ki"><use href="#ki-ob-edit"/></svg></span></div>
       <div onclick="renderObDaysChips();go('ob7')" style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);cursor:pointer;"><span style="font-size:28px;"><svg class="ki"><use href="#ki-ob-calendar"/></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Frequency</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sum_freq">—</div></div><span style="font-size:16px;color:var(--gray);"><svg class="ki"><use href="#ki-ob-edit"/></svg></span></div>
       <div onclick="go('ob8')" style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);cursor:pointer;"><span style="font-size:28px;"><svg class="ki"><use href="#ki-ob-clock"/></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Preferred duration</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sum_duree">—</div></div><span style="font-size:16px;color:var(--gray);"><svg class="ki"><use href="#ki-ob-edit"/></svg></span></div>
@@ -11550,6 +11550,69 @@ function showCalPickBanner(){
     +'</div>';
   sweepTranslate(el, currentLang);
 }
+// Confirmation des gestes du calendrier (retours plateforme, 13 sept. 2026) : rattraper ou deplacer
+// agissaient tout de suite et ne se voyaient que par un changement de pastille. La fenetre dit ce qui
+// va se passer ; le message qui suit propose d'annuler.
+function calDateLbl(ts){ return new Date(ts).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long', day:'numeric', month:'long'}); }
+function calConfirmSheet(title, rows, note, okLbl, okCall){
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
+    +rows.map(r=>'<div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--gray);">'+r[0]+'</span><span style="color:'+(r[2]||'var(--white)')+';font-weight:700;text-align:right;">'+r[1]+'</span></div>').join('')
+    +(note?'<div style="font-size:12.5px;color:var(--gray);margin-top:10px;line-height:1.45;">'+note+'</div>':'')
+    +'<button class="btn btn-brand-fixed" style="margin-top:16px;" onclick="'+okCall+'">'+okLbl+'</button>'
+    +'<button class="btn-ghost" style="width:100%;margin-top:6px;color:var(--gray2);" onclick="closeModal();cancelCalPick()">'+trDyn('Cancel')+'</button>');
+}
+function confirmCalAction(mode, src, target){
+  if(mode==='move'){
+    calConfirmSheet(trDyn('Move this session?'), [[trDyn('Currently'), calDateLbl(src)], [trDyn('New day'), calDateLbl(target), 'var(--brand-fixed)']],
+      trDyn('Your weekly goal does not change.'), trDyn('Move'), 'doCalMove('+src+','+target+')');
+  } else {
+    calConfirmSheet(trDyn('Catch up on this day?'), [[trDyn('Session day'), calDateLbl(target), 'var(--brand-fixed)']],
+      trDyn('A session will be planned for that day.'), trDyn('Plan it'), 'doCalCatchup('+target+')');
+  }
+}
+function toastUndo(msg, undoCall){
+  toast(msg);
+  const t=document.getElementById('kmToast'); if(!t) return;
+  t.style.pointerEvents='auto';
+  t.insertAdjacentHTML('beforeend','<button onclick="'+undoCall+'" style="margin-left:12px;background:none;border:none;color:var(--brand-fixed);font-weight:800;font-size:13px;cursor:pointer;padding:6px 4px;">'+trDyn('Undo')+'</button>');
+  clearTimeout(window._toastT); window._toastT=setTimeout(()=>{ t.classList.remove('show'); t.style.pointerEvents=''; },4500);
+}
+function doCalMove(src, target){
+  closeModal();
+  window._rattrapageEnCours=true;
+  releaseDay(src); assignPlannedDay(target,'self');
+  window._rattrapageEnCours=false; closeModal();
+  toastUndo(trDyn('Session moved to')+' '+calDateLbl(target), 'undoCalMove('+src+','+target+')');
+}
+function undoCalMove(src, target){
+  unassignPlannedDay(target);
+  userSkippedDays = userSkippedDays.filter(d=>d!==src);
+  if(userPlannedSessions.every(p=>p.date!==src) && !getTrainDays().includes(['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(src).getDay()])) userPlannedSessions.push({date:src, source:'self'});
+  refreshHomeSeanceZones(); if(document.getElementById('progCalGrid')) renderProgCalendar();
+  const t=document.getElementById('kmToast'); if(t) t.classList.remove('show');
+}
+function doCalCatchup(target){
+  closeModal();
+  window._rattrapageEnCours=true;
+  assignPlannedDay(target,'catchup');
+  window._rattrapageEnCours=false; closeModal();
+  toastUndo(trDyn('Catch-up planned for')+' '+calDateLbl(target), 'unassignPlannedDay('+target+');document.getElementById(\'kmToast\').classList.remove(\'show\')');
+}
+function confirmRemovePlanned(ts){
+  calConfirmSheet(trDyn('Remove this session?'), [[trDyn('Session day'), calDateLbl(ts)]], trDyn('You added it yourself: removing it does not count as a missed day.'), trDyn('Remove'), 'closeModal();unassignPlannedDay('+ts+');toast(trDyn(\'Session removed\'))');
+}
+// Un jour DU PROGRAMME ne se supprime pas, il se passe : il est excuse pour cette fois, ne compte pas
+// comme manque, et le programme reprend ensuite normalement.
+function confirmSkipProgrammeDay(ts){
+  calConfirmSheet(trDyn('Skip this session?'), [[trDyn('Session day'), calDateLbl(ts)]], trDyn('It will not count as a missed day. Your programme picks up at the next session.'), trDyn('Skip it'), 'doSkipProgrammeDay('+ts+')');
+}
+function doSkipProgrammeDay(ts){
+  closeModal();
+  if(!userSkippedDays.includes(ts)) userSkippedDays.push(ts);
+  refreshHomeSeanceZones(); if(document.getElementById('progCalGrid')) renderProgCalendar();
+  const d=new Date(ts); selectProgCalDay(d.getFullYear(), d.getMonth(), d.getDate());
+  toastUndo(trDyn('Session skipped'), 'userSkippedDays=userSkippedDays.filter(x=>x!=='+ts+');refreshHomeSeanceZones();renderProgCalendar();document.getElementById(\'kmToast\').classList.remove(\'show\')');
+}
 function cancelCalPick(){
   calPickMode=null; calMoveDate=null;
   renderProgCalendar();
@@ -11577,8 +11640,7 @@ function selectProgCalDay(year, month, day){
     if(validTarget){
       const mode=calPickMode, src=calMoveDate;
       calPickMode=null; calMoveDate=null;
-      if(mode==='move') releaseDay(src);
-      assignPlannedDay(dateObj.getTime(), mode==='move'?'self':'catchup');
+      confirmCalAction(mode, src, dateObj.getTime());
       return;
     }
     calPickMode=null; calMoveDate=null;
@@ -11641,6 +11703,7 @@ function selectProgCalDay(year, month, day){
       +'<div style="display:flex;gap:8px;margin-top:10px;">'
         +'<button class="btn btn-brand-fixed" style="flex:1;padding:9px;font-size:12.5px;" onclick="openSessionDetail(\''+sess.id+'\')">'+trDyn('View session')+'</button>'
         +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="startMovePlannedDay('+dateObj.getTime()+')">'+trDyn('Move')+'</button>'
+        +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="confirmSkipProgrammeDay('+dateObj.getTime()+')">'+trDyn('Skip')+'</button>'
       +'</div>'
       +'</div>';
     return;
@@ -11651,7 +11714,7 @@ function selectProgCalDay(year, month, day){
       ? '<div style="font-size:13px;color:var(--brand-fixed);margin-top:4px;font-weight:700;">'+trDyn('Session planned')+'</div>'
         +'<div style="display:flex;gap:8px;margin-top:10px;">'
           +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="startMovePlannedDay('+dateObj.getTime()+')">'+trDyn('Move')+'</button>'
-          +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="unassignPlannedDay('+dateObj.getTime()+')">'+trDyn('Remove')+'</button>'
+          +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="confirmRemovePlanned('+dateObj.getTime()+')">'+trDyn('Remove')+'</button>'
         +'</div>'
       : '<div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div>'
         +'<button class="btn btn-brand-fixed btn-sm" style="width:100%;margin-top:10px;" onclick="assignPlannedDay('+dateObj.getTime()+',\'self\')">'+trDyn('Plan a session here')+'</button>')
@@ -12989,6 +13052,25 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions": "Passer les questions",
+  "Currently": "Actuellement",
+  "New day": "Nouveau jour",
+  "Session day": "Jour",
+  "Move this session?": "Déplacer cette séance ?",
+  "Your weekly goal does not change.": "Ton objectif de la semaine ne change pas.",
+  "Catch up on this day?": "Rattraper ce jour ?",
+  "A session will be planned for that day.": "Une séance sera planifiée ce jour-là.",
+  "Plan it": "Planifier",
+  "Undo": "Annuler",
+  "Session moved to": "Séance déplacée au",
+  "Catch-up planned for": "Rattrapage planifié le",
+  "Remove this session?": "Retirer cette séance ?",
+  "You added it yourself: removing it does not count as a missed day.": "Tu l'avais ajoutée toi-même : la retirer ne compte pas comme un jour manqué.",
+  "Session removed": "Séance retirée",
+  "Skip this session?": "Passer cette séance ?",
+  "It will not count as a missed day. Your programme picks up at the next session.": "Elle ne comptera pas comme un jour manqué. Ton programme reprend à la séance suivante.",
+  "Skip it": "La passer",
+  "Session skipped": "Séance passée",
+  "To check — tap to choose": "À vérifier — touche pour choisir",
   "up to level": "jusqu'au niveau",
   "Your coach decides your progression.": "C'est ton coach qui décide de ta progression.",
   "When the coach suggests progressing": "Quand le coach propose de progresser",
@@ -15706,7 +15788,7 @@ function toggleAllPositions(el){
 let obExpress = false;
 function nextIfOb1(){
   if(posSelections.size === 0) return;
-  if(obExpress){ obExpress=false; finishConsent(); return; }
+  if(obExpress){ go('ob_projection'); return; }   // modifiee depuis « Ton plan est pret » : on y revient
   go('ob6');
 }
 
@@ -15992,7 +16074,13 @@ function populateSummary(){
   var freq = document.getElementById('freqNum') ? document.getElementById('freqNum').textContent : '3';
 
   var el;
-  el = document.getElementById('sum_pos'); if(el) el.textContent = profile.pos.length ? profile.pos.join(' · ') : '—';
+  el = document.getElementById('sum_pos');
+  if(el){
+    const aVerifier = !profile.pos.length;
+    el.textContent = aVerifier ? trDyn('To check — tap to choose') : profile.pos.join(' · ');
+    el.style.color = aVerifier ? 'var(--vigilance)' : 'var(--white)';
+    const card=document.getElementById('sumPosCard'); if(card) card.style.borderColor = aVerifier ? 'var(--vigilance)' : 'var(--border)';
+  }
   el = document.getElementById('sum_freq'); if(el) el.textContent = trDyn(freq + (freq==1?' day/week':' days/week'));
   el = document.getElementById('sum_duree'); if(el) el.textContent = profile.duree ? profile.duree+' min' : '—';
   el = document.getElementById('sum_zones'); if(el) el.textContent = profile.zones.length ? profile.zones.join(', ') : 'None';
@@ -19953,10 +20041,14 @@ function toggleConsent(key,el){
   health[key]=el.classList.contains('sel');
 }
 function toggleConsentShare(el){ consentShareRef=!consentShareRef; el.classList.toggle('on',consentShareRef); }
+// « Passer les questions » (retours plateforme, 13 sept. 2026) : mene a « Ton plan est pret » avec les
+// reponses par defaut. Les positions sont la seule reponse par defaut qui peut donner une seance
+// inadaptee : leur carte passe en tete, marquee « a verifier », au lieu de reposer la question.
 function skipObIntro(){
   obExpress = true;
   majOb1Express();
-  go('ob1');
+  if(!profile.duree) profile.duree = 30;
+  go('ob_projection');
 }
 function majOb1Express(){
   const prog=document.getElementById('ob1Prog'); if(prog) prog.hidden = obExpress;   // pas de « Question 2 sur 6 » quand c'est la seule
