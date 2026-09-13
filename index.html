@@ -792,6 +792,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .u-serie  {background:linear-gradient(145deg,#6B2A6B,#E85EE8);}
 .u-points {background:linear-gradient(145deg,#7A6413,#B69F2B);}
 .u-zone   {background:linear-gradient(145deg,#126166,#42CFD7);}
+.u-exoreps{background:linear-gradient(145deg,#1B6B4A,#26C57B);}
+.u-exozone{background:linear-gradient(145deg,#126166,#42CFD7);}
 /* Carte large d'un defi date : le rendez-vous merite plus de place que le compteur personnel. */
 /* LA VEDETTE — le defi deja rejoint. Une seule mise en avant sur l'onglet (13 sept. 2026). */
 .dvedette{border-radius:18px;overflow:hidden;border:1px solid var(--border);background:var(--bg2);margin:0 20px 9px;cursor:pointer;}
@@ -2309,6 +2311,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Programmes</div><div class="topnav-r"></div></div>
   <div class="px" style="padding-bottom:10px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;" id="catProgChips"></div>
   <div class="scroll" id="catProgList" style="padding:0 20px 24px;"></div>
+</div>
+
+<!-- ================= BADGES (retours plateforme, 13 sept. 2026) =================
+     « Voir tout » depliait la planche sur place et repoussait les defis : c'est maintenant un ecran. -->
+<div class="screen" id="badges">
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title">Badges</div><div class="topnav-r"></div></div>
+  <div class="scroll" id="badgesScreenList" style="padding:0 20px 24px;"></div>
 </div>
 
 <!-- ================= GUIDE =================
@@ -5455,7 +5464,11 @@ const DEFI_UNITES = {
     let n=0;
     Object.values(exerciseZoneHistory).forEach(hist=>hist.forEach(e=>{ if(e.date>=from && e.date<to && e.pctZone>=75) n++; }));
     return n;
-  } }
+  } },
+  // Defis PAR EXERCICE (retours plateforme, 13 sept. 2026) : toujours mesures par la barre, donc
+  // verifiables — des repetitions comptees sur un exercice, ou des seances dans la zone sur un exercice.
+  exoreps: { lbl:'reps', un:'rep', calc:(sess,from,to,defi)=> defi && defi.exId ? sess.reduce((t,h)=>t+((h.exoReps||{})[defi.exId]||0),0) : 0 },
+  exozone: { lbl:'times in the zone', un:'time in the zone', calc:(sess,from,to,defi)=> defi && defi.exId ? (exerciseZoneHistory[defi.exId]||[]).filter(e=>e.date>=from && e.date<to && e.pctZone>=75).length : 0 }
 };
 // Défis GLISSANTS (décidé le 12 sept.) : la fenêtre démarre le jour où on rejoint, pas à une date du
 // calendrier. Un catalogue daté se vide tout seul le 1er du mois suivant et oblige à le réalimenter ;
@@ -5470,8 +5483,17 @@ const DEFIS_CATALOGUE = [
   { id:'DEF-05', nom:'Two thousand points',   sousTitre:'Effort counts double when it is intense',   unite:'points',  cible:2000, fenetreJours:30, ic:'ki-bg-zone',   centreId:null },
   { id:'DEF-06', nom:'Ten times in the zone', sousTitre:'Not harder — more accurate',                unite:'zone',    cible:10,  fenetreJours:30, ic:'ki-bg-clean',   centreId:null },
   { id:'DEF-07', nom:'Sixty days of training',sousTitre:'The long one. Two months, no rush.',        unite:'jours',   cible:60,  fenetreJours:120, ic:'ki-bg-months', centreId:null, expedition:true },
-  { id:'DEF-08', nom:'Ten hours',             sousTitre:'Six hundred minutes over three months',     unite:'minutes', cible:600, fenetreJours:90, ic:'ki-bg-long',    centreId:null, expedition:true }
+  { id:'DEF-08', nom:'Ten hours',             sousTitre:'Six hundred minutes over three months',     unite:'minutes', cible:600, fenetreJours:90, ic:'ki-bg-long',    centreId:null, expedition:true },
+  { id:'DEF-09', nom:'Three hundred squats',  sousTitre:'Counted by the bar, rep after rep',           unite:'exoreps', exId:'EX-B06', cible:300, fenetreJours:30, ic:'ki-bg-week',  centreId:null },
+  { id:'DEF-10', nom:'Shadow boxing in the zone', sousTitre:'Five sessions at 75% or more on this exercise', unite:'exozone', exId:'EX-S01', cible:5, fenetreJours:30, ic:'ki-bg-zone', centreId:null }
 ];
+// Un defi d'exercice n'est propose que si l'exercice convient au profil (position, equipement, zone a
+// menager) : on ne pousse jamais quelqu'un a repeter un mouvement qu'il doit eviter.
+function defiVisiblePourProfil(d){
+  if(!d.exId) return true;
+  const ex=[...EXERCICES,...userExercices].find(e=>e.id===d.exId);
+  return !!ex && exerciceMatchesProfile(ex);
+}
 // Huit défis alignés à plat sous « Rejoindre un défi » : on lisait huit cartes sans savoir laquelle
 // était pour soi. Le réflexe aurait été de ranger par `unite` (minutes / séances / jours / points /
 // zone) — c'est-à-dire par colonne de la base, exactement l'erreur qu'on vient de corriger sur les
@@ -5491,7 +5513,7 @@ function defiProgress(defi, entry){
   const to   = from + defi.fenetreJours*HIST_DAY;
   const sess = userSessionHistory.filter(h=>h.date>=from && h.date<to);
   const u    = DEFI_UNITES[defi.unite];
-  const fait = entry ? u.calc(sess, from, to) : 0;
+  const fait = entry ? u.calc(sess, from, to, defi) : 0;
   const pct  = defi.cible ? Math.min(100, Math.round(fait/defi.cible*100)) : 0;
   const joursRestants = Math.max(0, Math.ceil((to-Date.now())/HIST_DAY));
   const atteint = fait >= defi.cible;
@@ -6533,6 +6555,7 @@ function go(id){
   if(id==='ob_commit' || id==='ob_projection') setTimeout(function(){ populateSummary(); renderObProjection(); }, 50);
   if(id==='ob_vision') preloadObDemoVideo(OB_DEMO_STEPS[0]);
   if(id==='defis') setTimeout(renderDefisScreen, 20);
+  if(id==='badges') setTimeout(renderBadgesScreen, 20);
   if(id==='session_warmup') setTimeout(renderWarmupList, 20);
   if(id==='session_cooldown') setTimeout(renderCooldownList, 20);
   if(id==='ob_consent'){
@@ -10369,6 +10392,7 @@ function defiTileHtml(d){
   return '<div class="dcov u-'+d.unite+'" onclick="openDefiDetail(\''+d.id+'\')">'
     +'<span class="dn">'+d.cible+'</span>'
     +'<span class="du">'+uniteLbl(d.unite, d.cible)+'</span>'
+    +(d.exId ? '<span class="dw" style="font-weight:700;">'+(([...EXERCICES,...userExercices].find(e=>e.id===d.exId)||{}).nom||'')+'</span>' : '')
     +'<span class="dw">'+trDyn(d.fenetreJours+' days')+'</span>'
     +'</div>';
 }
@@ -10387,7 +10411,7 @@ function dpParticipantsProbables(d){
 // ou le libelle complet ne tient pas : "j" pour les jours, "min" pour les minutes, "s" pour les
 // seances. Le libelle entier reste sur la ligne, juste a cote.
 function uniteAbrege(u){
-  return ({minutes:'min', seances:'s\u00e9anc.', jours:'j', serie:'j', points:'pts', zone:'zone'})[u] || '';
+  return ({minutes:'min', seances:'s\u00e9anc.', jours:'j', serie:'j', points:'pts', zone:'zone', exoreps:'reps', exozone:'zone'})[u] || '';
 }
 function defiDateRowHtml(d){
   const parts = dpParticipantsProbables(d);
@@ -10507,7 +10531,7 @@ function renderDefisScreen(){
         + dates.map(defiDateRowHtml).join('')
       : '';
     // RAYON 2 — les glissants, replies a 4 sur 8.
-    const libres = DEFIS_CATALOGUE.filter(d=>!getUserDefi(d.id));
+    const libres = DEFIS_CATALOGUE.filter(d=>!getUserDefi(d.id) && defiVisiblePourProfil(d));
     const montres = defisVoirTout ? libres : libres.slice(0,4);
     const blocSolo = libres.length
       ? '<div class="zone-lbl" style="margin:28px 20px 10px;display:flex;align-items:baseline;gap:6px;">'+trDyn('WHENEVER YOU LIKE')
@@ -10590,6 +10614,45 @@ function lundiDeLaSemaine(ts){
   const d=new Date(ts||Date.now()); d.setHours(0,0,0,0);
   d.setDate(d.getDate()-((d.getDay()+6)%7));
   return d.getTime();
+}
+// Volume par jour (7 jours) ou par semaine (30 et 90 jours), avec la moyenne en pointille et les minutes
+// dans la zone en vert a l'interieur de chaque barre (retours plateforme, 13 sept. 2026).
+function volumeChartHtml(periodKey){
+  const r=periodRange(periodKey);
+  const parJour = periodKey==='semaine';
+  const n = parJour ? 7 : Math.ceil(r.days/7);
+  const start = parJour ? r.from : r.to - n*7*HIST_DAY;
+  const step = parJour ? HIST_DAY : 7*HIST_DAY;
+  const buckets=[];
+  for(let i=0;i<n;i++){
+    const a=start+i*step, b=a+step;
+    const hs=userSessionHistory.filter(h=>h.date>=a && h.date<b);
+    buckets.push({a, min:hs.reduce((t,h)=>t+(h.duree||0),0), zone:hs.reduce((t,h)=>t+(h.zoneMin||0),0)});
+  }
+  const max=Math.max(1,...buckets.map(x=>x.min));
+  const avg=buckets.reduce((t,x)=>t+x.min,0)/n;
+  const H=64;
+  const joursFr=['L','M','M','J','V','S','D'], joursEn=['M','T','W','T','F','S','S'];
+  const lbl=(x,i)=>{
+    if(parJour) return (currentLang==='fr'?joursFr:joursEn)[i];
+    if(n>6 && i%3!==0) return '';
+    return new Date(x.a).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'});
+  };
+  const bars=buckets.map((x,i)=>{
+    const h=Math.round(x.min/max*H), hz=Math.min(h, Math.round(x.zone/max*H));
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;">'
+      +'<div style="width:100%;max-width:26px;height:'+H+'px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        +(h? '<div style="height:'+(h-hz)+'px;background:rgba(var(--gray-rgb,143,142,158),.38);border-radius:'+(hz?'3px 3px 0 0':'3px')+';"></div>' : '<div style="height:2px;background:var(--border);border-radius:1px;"></div>')
+        +(hz? '<div style="height:'+hz+'px;background:var(--brand-fixed);border-radius:'+(h-hz?'0':'3px 3px 0 0')+';"></div>' : '')
+      +'</div>'
+      +'<span style="font-size:9.5px;color:var(--gray);white-space:nowrap;height:12px;">'+lbl(x,i)+'</span></div>';
+  }).join('');
+  const avgY = Math.round(avg/max*H);
+  return '<div style="position:relative;margin:4px 0 14px;">'
+    +(avg>0 ? '<div style="position:absolute;left:0;right:0;top:'+(H-avgY)+'px;border-top:1px dashed var(--gray);opacity:.6;"></div>' : '')
+    +'<div style="display:flex;gap:6px;align-items:flex-start;">'+bars+'</div>'
+    +'<div style="display:flex;gap:12px;font-size:10.5px;color:var(--gray);margin-top:4px;"><span><span style="color:var(--brand-fixed);">\u25A0</span> '+trDyn('in the zone')+'</span><span>\u2504 '+trDyn(parJour?'daily average':'weekly average')+'</span></div>'
+    +'</div>';
 }
 function periodRange(periodKey){
   const days=PROG_PERIOD_DAYS[periodKey]||7;
@@ -10976,7 +11039,27 @@ function getRealBadges(){
   ];
 }
 let badgesVoirTout = false;
-function toggleBadgesVoirTout(){ badgesVoirTout=!badgesVoirTout; renderProgBadges('defisBadgesSection'); }
+function toggleBadgesVoirTout(){ go('badges'); }
+function renderBadgesScreen(){
+  const el=document.getElementById('badgesScreenList'); if(!el) return;
+  const all=getRealBadges(), total=userSessionHistory.length, minutes=userSessionHistory.reduce((t,h)=>t+(h.duree||0),0);
+  const loc=currentLang==='fr'?'fr-FR':'en-GB';
+  const ok=all.filter(b=>b.unlocked), next=all.filter(b=>!b.unlocked && b.target), rest=all.filter(b=>!b.unlocked && !b.target);
+  const tile=(b,extra)=>'<div class="badge-card'+(b.unlocked?'':' lock')+'" style="cursor:pointer;" onclick="openBadgeDetail(\''+b.k+'\')"><div class="badge-e"><svg><use href="#'+b.ic+'"/></svg></div><div class="badge-t">'+trDyn(b.t)+'</div>'+(extra||'')+'</div>';
+  const sec=t=>'<div class="zone-lbl" style="margin:22px 0 10px;">'+trDyn(t)+'</div>';
+  let h='<div style="font-size:13px;color:var(--gray2);margin-top:6px;">'+ok.length+' '+trDyn('of')+' '+all.length+'</div>';
+  if(ok.length) h+=sec('EARNED')+'<div class="badges-grid">'+ok.map(b=>{ const st=badgeStats(b.k); return tile(b, st&&st.date?'<div style="font-size:10.5px;color:var(--gray);margin-top:2px;">'+new Date(st.date).toLocaleDateString(loc,{day:'numeric',month:'short'})+'</div>':''); }).join('')+'</div>';
+  if(next.length) h+=sec('NEXT')+next.map(b=>{
+    const cur = b.k==='hours' ? minutes : total;
+    const pct=Math.min(100, Math.round(cur/b.target*100));
+    return '<div class="card-sm" style="margin-bottom:10px;cursor:pointer;" onclick="openBadgeDetail(\''+b.k+'\')"><div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--white);font-weight:700;">'+trDyn(b.t)+'</span><span style="color:var(--gray2);">'+Math.min(cur,b.target)+'/'+b.target+'</span></div>'
+      +'<div style="font-size:12px;color:var(--gray);margin-top:2px;">'+trDyn(b.d)+'</div>'
+      +'<div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:8px;"><div style="height:100%;width:'+pct+'%;background:var(--orange);border-radius:3px;"></div></div></div>';
+  }).join('');
+  if(rest.length) h+=sec('TO DISCOVER')+'<div class="badges-grid">'+rest.map(b=>tile(b,'<div style="font-size:10.5px;color:var(--gray);margin-top:2px;">'+trDyn(b.d)+'</div>')).join('')+'</div>';
+  el.innerHTML=h;
+  sweepTranslate(el, currentLang);
+}
 function renderProgBadges(elId){
   const el=document.getElementById(elId); if(!el) return;
   const badges0=getRealBadges(), total=userSessionHistory.length;
@@ -10989,7 +11072,7 @@ function renderProgBadges(elId){
   // pour voir les 2 badges gagnes sur 9). Les acquis sont deja en tete du tri, donc ce sont eux qu'on
   // voit sans geste — un badge gagne est une recompense, elle ne se merite pas une deuxieme fois en
   // deroulant. Sur Progres, la planche reste entiere : c'est une vitrine, on vient pour la voir.
-  const replie = (elId==='defisBadgesSection') && !badgesVoirTout && badges.length>4;
+  const replie = (elId==='defisBadgesSection') && badges.length>4;
   const montres = replie ? badges.slice(0,4) : badges;
   el.innerHTML=(elId==='defisBadgesSection' ? '' : '<div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 20px 10px;"><span style="font-size:11.5px;color:var(--gray2);">'+(currentLang==='fr' ? nbOk+' sur '+badges.length : nbOk+' of '+badges.length)+'</span></div>')
     +'<div class="badges-grid">'
@@ -10997,7 +11080,7 @@ function renderProgBadges(elId){
     +'</div>'
     +((elId==='defisBadgesSection' && badges.length>4)
       ? '<div style="text-align:center;margin:9px 20px 0;"><span role="button" tabindex="0" onclick="toggleBadgesVoirTout()" style="font-size:12.5px;font-weight:700;color:var(--orange);cursor:pointer;padding:12px 16px;display:inline-block;">'
-        + (badgesVoirTout ? trDyn('Show less') : trDyn('See all')+' '+badges.length+' \u203a') + '</span></div>'
+        + (trDyn('See all')+' '+badges.length+' \u203a') + '</span></div>'
       : '')
     +(next ? '<div style="margin:12px 20px 0;font-size:13px;color:var(--white);display:flex;align-items:center;gap:7px;"><span style="color:var(--gray2);display:inline-flex;"><svg class="ki" style="width:15px;height:15px;"><use href="#'+next.ic+'"/></svg></span><span>'+trDyn('Next badge')+' : '+trDyn(next.t)+' — '+(next.target-total)+' '+trDyn('to go')+'</span></div>'
       +'<div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:6px 20px 0;"><div style="height:100%;width:'+Math.round(total/next.target*100)+'%;background:var(--orange);border-radius:3px;"></div></div>'
@@ -11270,6 +11353,7 @@ function renderProgPeriod(periodKey){
     +(dureeTotalPrev ? '<span style="font-size:12px;font-weight:700;color:'+(dureeDelta.dir==='up'?'var(--teal)':'var(--gray2)')+';margin-left:auto;">'+(dureeDelta.dir==='up'?'↑':dureeDelta.dir==='down'?'↓':'→')+' '+dureeDelta.pct+'%</span>' : '')
     +'</div>'
     +'<div style="font-size:11.5px;color:var(--gray2);margin-bottom:14px;">'+sessions.length+' session'+(sessions.length!==1?'s':'')+(sessions.length?' · '+avgMinPerSession+' min avg/session':'')+'</div>'
+    +volumeChartHtml(periodKey)
     +'<div style="display:flex;padding-top:14px;border-top:1px solid var(--border);">'
     +'<div style="flex:1;padding-right:14px;border-right:1px solid var(--border);">'+volCell('Exercises', exercicesTotal, exercicesPrevTotal, exercicesTotal)+'</div>'
     +'<div style="flex:1;padding-left:14px;padding-right:14px;border-right:1px solid var(--border);">'+volCell('Cardio min', Math.round(cardioMinTotal), cardioMinPrevTotal, cardioMinTotal)+'</div>'
@@ -12013,7 +12097,8 @@ function finishRest(){
 // pouvait baisser le niveau de l'exercice plusieurs fois d'un coup.
 const EFFORT_KEYS=['tres_facile','facile','modere','intense','maximum'];
 const EFFORT_LABELS={tres_facile:'Very easy', facile:'Easy', modere:'Moderate', intense:'Intense', maximum:'Maximum'};
-let sessionExoFeedback = {};   // exId -> {rpe, pain, painTouched, banked}
+let sessionExoFeedback = {};
+let sessionExoReps = {};   // exId -> repetitions comptees pendant la seance (defis par exercice)   // exId -> {rpe, pain, painTouched, banked}
 function effOptHtml(i, on, onclick){
   const k=EFFORT_KEYS[i];
   let bars=''; for(let b=0;b<5;b++) bars+='<i'+(b<=i?' class="f"':'')+'></i>';
@@ -12723,6 +12808,7 @@ let sessionCardioScore=0, sessionRenfoScore=0, sessionTypeReps={Cardio:0, Renfor
 // par type) mais gardé par exercice, pour classer "Top cardio/strength by effort" par exercice individuel.
 let sessionZoneDuration={}, sessionExoScores={};
 function bankExerciseTypeDuration(ex, repsForExercice){
+  if(ex && ex.id && repsForExercice) sessionExoReps[ex.id]=(sessionExoReps[ex.id]||0)+repsForExercice;
   if(!ex || !exerciseStartTime) return;
   const elapsedMin = (Date.now()-exerciseStartTime)/60000;
   const type = ex.type==='Cardio' ? 'Cardio' : 'Renforcement';
@@ -12816,7 +12902,7 @@ function confirmSessionReady(){
   onSessionStart();
 }
 function onSessionStart(){
-  if(sessCurrent===1){ sessionExoFeedback={}; sessionStartTime=Date.now(); sessionTotalReps=0; sessionTypeDuration={Cardio:0, Renforcement:0}; sessionTypeReps={Cardio:0, Renforcement:0}; sessionCardioScore=0; sessionRenfoScore=0; sessionZoneDuration={}; sessionExoScores={}; sessionAnyRealMotion=false; sessionAnyManualTap=false; sessionAnySimulatedAuto=false; applyIntensityRecommendation(); }
+  if(sessCurrent===1){ sessionExoFeedback={}; sessionExoReps={}; sessionStartTime=Date.now(); sessionTotalReps=0; sessionTypeDuration={Cardio:0, Renforcement:0}; sessionTypeReps={Cardio:0, Renforcement:0}; sessionCardioScore=0; sessionRenfoScore=0; sessionZoneDuration={}; sessionExoScores={}; sessionAnyRealMotion=false; sessionAnyManualTap=false; sessionAnySimulatedAuto=false; applyIntensityRecommendation(); }
   else {
     bankExerciseTypeDuration(currentProgram.exercices[sessCurrent-2], rc);   // lu avant que rc ne soit remis à 0 juste après
     sessionTotalReps += rc;
@@ -13053,6 +13139,20 @@ const EN_FR = {
   "I'm not an athlete. I just wanted a real workout I could trust — 20 minutes, no gym, no guesswork.": "Je ne suis pas une athlète. Je voulais juste un vrai entraînement fiable — 20 minutes, pas de salle, pas de doute.",
   "Skip ›": "Passer ›",
   "Skip the questions": "Passer les questions",
+  "threshold": "seuil",
+  "the zone": "la zone",
+  "Three hundred squats": "Trois cents squats",
+  "Counted by the bar, rep after rep": "Comptés par la barre, répétition après répétition",
+  "Shadow boxing in the zone": "Shadow boxing dans la zone",
+  "Five sessions at 75% or more on this exercise": "Cinq séances à 75 % ou plus sur cet exercice",
+  "times in the zone": "fois dans la zone",
+  "time in the zone": "fois dans la zone",
+  "rep": "rép.",
+  "EARNED": "ACQUIS",
+  "NEXT": "PROCHAINS",
+  "TO DISCOVER": "À DÉCOUVRIR",
+  "daily average": "moyenne par jour",
+  "weekly average": "moyenne par semaine",
   "Programme created": "Programme créé",
   "Session created": "Séance créée",
   "Exercise created": "Exercice créé",
@@ -16490,8 +16590,29 @@ function openGuideArticle(sectionKey, i){
   showModal('<div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;color:var(--brand-fixed);"><svg class="ki" style="width:17px;height:17px;"><use href="#'+a.icon+'"/></svg>'
     +'<span style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">'+(fr?sec.titleFr:sec.titleEn)+'</span></div>'
     +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:12px;font-family:var(--font-head);letter-spacing:-.2px;">'+(fr?a.tFr:a.tEn)+'</div>'
-    +'<div style="max-height:52vh;overflow-y:auto;">'+corps+'</div>'
-    +'<button class="btn btn-outline" style="width:100%;margin-top:16px;" onclick="closeModal()">'+trDyn('Close')+'</button>');
+    +'<div style="max-height:52vh;overflow-y:auto;">'+guideHeroHtml(a)+corps+'</div>');   // la croix de showModal suffit
+}
+// Images du Guide (retours plateforme, 13 sept. 2026) : seulement la ou l'image explique — la jauge et
+// son seuil, la zone, les positions. Pas de photo d'ambiance : elle ne repond a aucune question.
+function guideHeroHtml(a){
+  const t=a.tEn;
+  const gauge=(zone)=>{
+    const cx=150, cy=118, r=92, a0=Math.PI, th=Math.PI*(1-0.70);
+    const pt=(ang,rr)=>[cx+Math.cos(ang)*rr, cy-Math.sin(ang)*rr];
+    const arc=(from,to,col,w)=>{ const p1=pt(from,r), p2=pt(to,r); return '<path d="M'+p1[0].toFixed(1)+','+p1[1].toFixed(1)+' A'+r+','+r+' 0 0 1 '+p2[0].toFixed(1)+','+p2[1].toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"/>'; };
+    const s1=pt(th,r-16), s2=pt(th,r+16), nd=pt(Math.PI*(1-0.82),r-26);
+    return '<svg viewBox="0 0 300 150" style="width:100%;height:auto;display:block;margin:0 0 14px;background:var(--bg3);border-radius:14px;" role="img" aria-label="gauge">'
+      +arc(a0, th, 'rgba(143,142,158,.45)', 14)+arc(th, 0.0001, zone?'#26C57B':'rgba(38,197,123,.55)', 14)
+      +'<line x1="'+s1[0].toFixed(1)+'" y1="'+s1[1].toFixed(1)+'" x2="'+s2[0].toFixed(1)+'" y2="'+s2[1].toFixed(1)+'" stroke="#EDEFF2" stroke-width="3"/>'
+      +'<line x1="'+cx+'" y1="'+cy+'" x2="'+nd[0].toFixed(1)+'" y2="'+nd[1].toFixed(1)+'" stroke="#EDEFF2" stroke-width="4" stroke-linecap="round"/><circle cx="'+cx+'" cy="'+cy+'" r="7" fill="#EDEFF2"/>'
+      +'<text x="'+(s2[0]+6).toFixed(1)+'" y="'+(s2[1]-2).toFixed(1)+'" fill="#A8A7B8" font-size="11" font-family="Inter,sans-serif">'+trDyn('threshold')+'</text>'
+      +(zone?'<text x="236" y="140" fill="#26C57B" font-size="11" font-weight="700" font-family="Inter,sans-serif" text-anchor="middle">'+trDyn('the zone')+'</text>':'')
+      +'</svg>';
+  };
+  if(t==='The gauge') return gauge(false);
+  if(t==='The zone') return gauge(true);
+  if(t==='How a session runs') return '<div style="display:flex;gap:6px;margin:0 0 14px;">'+['debout','assis','allonge'].map(k=>'<div style="flex:1;height:84px;border-radius:12px;background:url(\'ob-position-'+k+'.jpg\') center/cover;"></div>').join('')+'</div>';
+  return '';
 }
 // Les mêmes 5 programmes s'affichaient à deux endroits — Bibliothèque > Programmes ET
 // Programme > Programmes — avec deux habillages différents (l'un avec Filtres/Favoris/Pour toi et un
@@ -19422,7 +19543,7 @@ function renderDefiDetail(){
               +(pr.atteint ? trDyn('Target reached') : pr.joursRestants>0 ? trDyn(pr.joursRestants+' day'+(pr.joursRestants>1?'s':'')+' left') : trDyn('Window closed — kept as it stands'))+'</div>'
           +'</div>'
         : '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:13px;color:var(--gray2);">'
-            +trDyn('Target')+' : <b style="color:var(--white);">'+trDyn(d.cible+' '+u.lbl)+'</b> · '+trDyn(d.fenetreJours+' days')
+            +trDyn('Target')+' : <b style="color:var(--white);">'+d.cible+' '+uniteLbl(d.unite, d.cible)+'</b> · '+trDyn(d.fenetreJours+' days')
             +'<div style="font-size:12px;color:var(--gray2);margin-top:6px;">'+trDyn('The window starts the day you join.')+'</div></div>')
       +'</div>';
   }
@@ -22762,6 +22883,8 @@ function submitFeedback(){
       repSource: sessionRepSource(),
       demoGatesSkipped: demoSkipGates,
       douleurExoMax: douleurExoMax,
+      exoReps: {...sessionExoReps},
+      zoneMin: (()=>{ const rows=Object.values(exerciseZoneHistory||{}).flat().filter(z=>sessionStartTime && z.date>=sessionStartTime); if(!rows.length) return 0; const pct=rows.reduce((a,z)=>a+z.pctZone,0)/rows.length; return Math.round((sessionTypeDuration.Cardio||0)*pct/100); })(),
       exoFeedback: JSON.parse(JSON.stringify(sessionExoFeedback||{}))
     });
     // Invalide le cache : sans ça, renderProgMonView() continuerait de réafficher CETTE séance comme
@@ -23062,7 +23185,7 @@ function renderResumeDefis(){
     const pr=defiProgress(d,u);
     // Apport de CETTE seance : la derniere entree de l'historique, dans l'unite du defi.
     const derniere = userSessionHistory[0] ? [userSessionHistory[0]] : [];
-    const apport = DEFI_UNITES[d.unite].calc(derniere, u.joinedAt, u.joinedAt + d.fenetreJours*HIST_DAY);
+    const apport = DEFI_UNITES[d.unite].calc(derniere, u.joinedAt, u.joinedAt + d.fenetreJours*HIST_DAY, d);
     if(apport<=0) return;
     if(pr.atteint && !u._feteAuj){ u._feteAuj=true; atteints.push({d, pr, u}); return; }
     lignes.push({d, pr, apport});
