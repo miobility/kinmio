@@ -532,7 +532,8 @@ video::-webkit-media-controls,video::-webkit-media-controls-panel,video::-webkit
 .coach-tip{display:flex;align-items:flex-start;gap:8px;padding:12px 14px;background:rgba(var(--orange-rgb),.06);border-left:3px solid var(--orange);border-radius:12px;font-size:13px;color:var(--gray2);line-height:1.4;}
 .coach-tip .ct-ic{flex-shrink:0;font-size:14px;line-height:1.4;}
 .checkin-row{display:flex;gap:8px;margin:0 20px 20px;}
-.checkin-opt{flex:1;padding:14px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:13px;text-align:center;cursor:pointer;font-size:26px;transition:all .15s;}
+.checkin-opt{flex:1;padding:14px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:13px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s;}
+.checkin-lbl{font-size:9.5px;font-weight:600;color:var(--gray2);}
 .exo-row{display:flex;gap:12px;padding:0 20px;overflow-x:auto;margin-bottom:20px;}
 .exo-row::-webkit-scrollbar{display:none;}
 .emini{width:170px;flex-shrink:0;background:var(--bg2);border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid var(--border);}
@@ -1003,6 +1004,14 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.6 3.3a.42.42 0 0 1 .8 0l1.05 4.05a2.1 2.1 0 0 0 1.5 1.5l4.05 1.05a.42.42 0 0 1 0 .8l-4.05 1.05a2.1 2.1 0 0 0-1.5 1.5L12.4 17.3a.42.42 0 0 1-.8 0l-1.05-4.05a2.1 2.1 0 0 0-1.5-1.5L5 10.7a.42.42 0 0 1 0-.8l4.05-1.05a2.1 2.1 0 0 0 1.5-1.5Z" fill="currentColor" stroke="none"/><path d="M17.7 16.1a.26.26 0 0 1 .5 0l.36 1.34 1.34.36a.26.26 0 0 1 0 .5l-1.34.36-.36 1.34a.26.26 0 0 1-.5 0l-.36-1.34-1.34-.36a.26.26 0 0 1 0-.5l1.34-.36Z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 12.6l4.2 4.2 8.6-9.4"/></symbol>
   <symbol id="ki-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M8.2 12.3l2.6 2.6 5-5.5"/></symbol>
+  <!-- Planche des visages du check-in (brief DEV 16 sept.) : 5 visages, une seule encre, seuls les yeux
+       et la bouche changent. Le voile de sélection passe par --ff (fill:var(--ff,transparent) sur le
+       cercle) — une règle CSS classique n'atteint pas l'intérieur d'un <use>. -->
+  <symbol id="ki-f-epuise" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6" fill="var(--ff,transparent)"/><path d="M8.2,10.1 L10.2,10.8"/><path d="M13.8,10.8 L15.8,10.1"/><path d="M8.6,17 Q12,13.6 15.4,17"/></symbol>
+  <symbol id="ki-f-fatigue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6" fill="var(--ff,transparent)"/><path d="M8.3,10.5 L10.3,10.5"/><path d="M13.7,10.5 L15.7,10.5"/><path d="M9,16.4 Q12,14.8 15,16.4"/></symbol>
+  <symbol id="ki-f-neutre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6" fill="var(--ff,transparent)"/><circle cx="9.1" cy="10.4" r="0.85" fill="currentColor" stroke="none"/><circle cx="14.9" cy="10.4" r="0.85" fill="currentColor" stroke="none"/><path d="M9,16 L15,16"/></symbol>
+  <symbol id="ki-f-bien" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6" fill="var(--ff,transparent)"/><path d="M8.3,10.6 Q9.2,9.5 10.1,10.6"/><path d="M13.9,10.6 Q14.8,9.5 15.7,10.6"/><path d="M9,15.6 Q12,17.6 15,15.6"/></symbol>
+  <symbol id="ki-f-forme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6" fill="var(--ff,transparent)"/><path d="M8.1,10.9 Q9.2,9 10.3,10.9"/><path d="M13.7,10.9 Q14.8,9 15.9,10.9"/><path d="M8.4,15 Q12,18.8 15.6,15"/></symbol>
   <symbol id="ki-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.8" y="10.4" width="14.4" height="9.4" rx="2.4"/><path d="M8.3 10.4V7.9a3.7 3.7 0 0 1 7.4 0v2.5"/><path d="M12 14.2v1.9"/></symbol>
   <symbol id="ki-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.4h9.6M17.7 8.4h1.8"/><path d="M4.5 15.6h1.8M9.9 15.6h9.6"/><circle cx="15.9" cy="8.4" r="2.3"/><circle cx="8.1" cy="15.6" r="2.3"/></symbol>
   <symbol id="ki-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5.2"/><circle cx="12" cy="7.9" r="1.05" fill="currentColor" stroke="none"/></symbol>
@@ -1607,11 +1616,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="homeCentreCheckinBlock" style="margin-top:20px;">
       <div class="eyebrow" style="margin:0 20px 10px;">How are you feeling?</div>
       <div class="checkin-row">
-        <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','homeCentre')">😩</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'fatigue','homeCentre')">😴</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'neutre','homeCentre')">😐</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'bien','homeCentre')">😊</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'forme','homeCentre')">🤩</div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','homeCentre')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-epuise"/></svg><div class="checkin-lbl">Exhausted</div></div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'fatigue','homeCentre')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-fatigue"/></svg><div class="checkin-lbl">Tired</div></div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'neutre','homeCentre')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-neutre"/></svg><div class="checkin-lbl">Neutral</div></div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'bien','homeCentre')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-bien"/></svg><div class="checkin-lbl">Good</div></div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'forme','homeCentre')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-forme"/></svg><div class="checkin-lbl">Great</div></div>
       </div>
     </div>
 
@@ -1975,11 +1984,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="homeCheckinBlock" style="margin-top:20px;">
       <div class="eyebrow" style="margin:0 20px 10px;">How are you feeling?</div>
       <div class="checkin-row">
-        <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','home')">😩</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'fatigue','home')">😴</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'neutre','home')">😐</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'bien','home')">😊</div>
-        <div class="checkin-opt" onclick="selCheckinHome(this,'forme','home')">🤩</div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'epuise','home')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-epuise"/></svg><div class="checkin-lbl">Exhausted</div></div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'fatigue','home')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-fatigue"/></svg><div class="checkin-lbl">Tired</div></div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'neutre','home')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-neutre"/></svg><div class="checkin-lbl">Neutral</div></div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'bien','home')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-bien"/></svg><div class="checkin-lbl">Good</div></div>
+        <div class="checkin-opt" onclick="selCheckinHome(this,'forme','home')"><svg class="ki" style="width:26px;height:26px;"><use href="#ki-f-forme"/></svg><div class="checkin-lbl">Great</div></div>
       </div>
     </div>
 
@@ -7393,7 +7402,7 @@ function renderRefAccueil(){
       const done=s.status==='done';
       return '<div class="pat-item" style="cursor:pointer;'+(done?'opacity:.5;':'')+'" onclick="calSessionPop('+gi+')">'
         +'<div style="font-size:12.5px;font-weight:700;color:var(--white);width:46px;flex-shrink:0;">'+hh(s.time)+'</div>'
-        +'<div style="flex:1;min-width:0;"><div class="pat-n">'+(collectif?'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> '+s.name+' — '+s.pers+' participants':'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> '+s.name)+'</div><div class="pat-m">'+(collectif?'Group session':'Individual session')+'</div></div>'
+        +'<div style="flex:1;min-width:0;"><div class="pat-n">'+(collectif?'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> '+trDyn(s.name)+' — '+s.pers+' participants':'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> '+s.name)+'</div><div class="pat-m">'+(collectif?'Group session':'Individual session')+'</div></div>'
         +(done?'<span style="color:var(--gray);font-size:13px;">✓</span>':'')
         +'</div>';
     }).join('') : '<div class="lib-empty">No session today.</div>';
@@ -9017,7 +9026,7 @@ function buildLoadPainHtml(pad, compact, only){
     const moodCard = !moodDone ? '' : '<div class="scard" style="flex:1;display:flex;flex-direction:column;">'
       +'<div style="'+lbl+'">'+trDyn("Today\'s form")+'</div>'
       +'<div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">'
-        +'<span style="font-size:30px;">'+checkinEmoji(todayCheckin)+'</span>'
+        +'<span style="font-size:30px;">'+checkinIcon(todayCheckin)+'</span>'
         +(moodArrow ? '<span style="font-size:13px;font-weight:700;color:'+moodArrowColor+';">'+moodArrow+'</span>' : '')
       +'</div>'
       +'<div style="'+subC+'text-align:center;">'+checkinLabel(todayCheckin)+(currentRole==='referent' && curPatient ? ' · '+trDyn('Today') : '')+'</div>'
@@ -9501,7 +9510,7 @@ function renderHomeObjectifRing(prefix, profile){
     // Chiffre de la semaine remonté à 24px : c'est la donnée du bloc, elle était plus petite que le
     // titre de la séance juste en dessous. Le cycle reste plus bas, ce qui crée enfin une hiérarchie
     // entre les deux échelles (la semaine est celle qui se joue aujourd'hui).
-    +'<div style="font-size:24px;font-weight:800;color:var(--white);margin-top:7px;letter-spacing:-.4px;line-height:1;font-family:var(--font-head);">'+week.fait+'<span style="font-size:13px;font-weight:600;color:var(--gray2);letter-spacing:0;"> / '+week.objectif+' '+trDyn('days')+'</span></div>'
+    +'<div style="font-size:24px;font-weight:800;color:var(--white);margin-top:7px;letter-spacing:-.4px;line-height:1;font-family:var(--font-head);">'+week.fait+'<span style="font-size:13px;font-weight:600;color:var(--gray2);letter-spacing:0;"> / '+week.objectif+' '+trDyn(week.objectif===1?'day':'days')+'</span></div>'
     +'<div style="margin-top:12px;">'+renderWeekStripHtml(weekStrip).replace('margin:0 20px 18px;','margin:0;')+'</div>'
     // Légende ramenée sous la frise, limitée aux états présents : elle se lit à côté de ce qu'elle
     // légende, au lieu d'obliger à ouvrir une fenêtre, mémoriser et refermer.
@@ -9518,7 +9527,7 @@ function renderHomeObjectifRing(prefix, profile){
     // Le compte au-dessus du graphique, comme "2 / 3 jours" est au-dessus de la frise. Plus petit que
     // celui de la semaine (17 contre 24) : c'est ce qui dit laquelle des deux échelles se joue
     // aujourd'hui, et c'est la seule chose qui doit les distinguer.
-    +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-top:7px;letter-spacing:-.3px;line-height:1;font-family:var(--font-head);">'+days4+'<span style="font-size:11.5px;font-weight:600;color:var(--gray2);letter-spacing:0;"> / '+objectif4+' '+trDyn('days')+'</span></div>'
+    +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-top:7px;letter-spacing:-.3px;line-height:1;font-family:var(--font-head);">'+days4+'<span style="font-size:11.5px;font-weight:600;color:var(--gray2);letter-spacing:0;"> / '+objectif4+' '+trDyn(objectif4===1?'day':'days')+'</span></div>'
     +'<div style="margin-top:12px;">'
       +'<div style="height:10px;border-radius:5px;background:var(--border);position:relative;overflow:visible;">'
         +'<div style="position:absolute;top:0;left:0;height:100%;width:'+barPct+'%;background:'+cycleState.color+';border-radius:5px;transition:width .6s ease;"></div>'
@@ -9526,7 +9535,7 @@ function renderHomeObjectifRing(prefix, profile){
       +'</div>'
       // Le repère blanc n'était expliqué nulle part : on le nomme sous la barre, aligné dessous,
       // plutôt que de laisser "Attendu N jours" en bout de ligne sans lien visuel avec le trait.
-      +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn('days')+'</span></div>'
+      +'<div style="position:relative;height:13px;margin-top:3px;"><span style="position:absolute;left:'+Math.min(90,expectedPct)+'%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--gray2);white-space:nowrap;">'+trDyn('Expected')+' '+expectedDays+' '+trDyn(expectedDays===1?'day':'days')+'</span></div>'
     +'</div>'
     +'</div>';
   sweepTranslate(el, currentLang);
@@ -9616,12 +9625,15 @@ function renderHomeKpiZone(prefix, profile){
 }
 let checkInDone=false, checkInDoneCentre=false;
 // Passage à 5 crans (cf chantier "nettoyage emoji", décidé ailleurs, appliqué ici pour la home) : ajout
-// d'un cran par le bas ("épuisé"), sans renumérotation des 3 du milieu — le 💪 disparaît, remplacé par
-// 🤩 en haut de l'échelle "forme" pour ne pas garder une icône qui évoquait plutôt l'effort.
-const CHECKIN_OPTS=[['epuise','😩'],['fatigue','😴'],['neutre','😐'],['bien','😊'],['forme','🤩']];
-// Emoji affiché tel quel après sélection (cf discussion "garder l'emoji sélectionné de base") — plus de
-// traduction vers une icône météo différente, qui ajoutait une indirection sans bénéfice.
-function checkinEmoji(val){ return (CHECKIN_OPTS.find(o=>o[0]===val)||CHECKIN_OPTS[2])[1]; }
+// d'un cran par le bas ("épuisé"), sans renumérotation des 3 du milieu.
+// Emoji remplacés par la planche de visages du sprite (brief DEV 16 sept.) — derniers emoji assumés du
+// check-in. CHECKIN_OPTS porte désormais l'id du symbole, pas un glyphe ; checkinIcon() construit le
+// <svg><use> à la taille demandée (1em par défaut, hérite du font-size du conteneur comme le faisait
+// l'emoji). checkinIconId() donne juste l'id, pour les rares endroits qui veulent construire leur
+// propre <svg> (voile de sélection, cf renderCheckinPreview).
+const CHECKIN_OPTS=[['epuise','ki-f-epuise'],['fatigue','ki-f-fatigue'],['neutre','ki-f-neutre'],['bien','ki-f-bien'],['forme','ki-f-forme']];
+function checkinIconId(val){ return (CHECKIN_OPTS.find(o=>o[0]===val)||CHECKIN_OPTS[2])[1]; }
+function checkinIcon(val, size){ return '<svg class="ki" style="width:'+(size||'1em')+';height:'+(size||'1em')+';"><use href="#'+checkinIconId(val)+'"/></svg>'; }
 // Nom de l'état, en plus de l'emoji seul (cf discussion "est-ce que les émojis suffisent ? peut-être
 // leur mettre un petit texte") — ajouté à l'aperçu (déjà de la place à côté de l'emoji) et à la carte
 // Progress, jamais sous les 5 boutons du sélecteur lui-même (ça doit rester un geste rapide, pas 5
@@ -9663,7 +9675,7 @@ function renderCheckinPrompt(prefix){
   const b=document.getElementById(prefix+'CheckinBlock'); if(!b) return;
   b.style.marginBottom='';
   b.innerHTML=CHECKIN_TITLE
-    +'<div class="checkin-row">'+CHECKIN_OPTS.map(o=>'<div class="checkin-opt" onclick="selCheckinHome(this,\''+o[0]+'\',\''+prefix+'\')">'+o[1]+'</div>').join('')+'</div>';
+    +'<div class="checkin-row">'+CHECKIN_OPTS.map(o=>'<div class="checkin-opt" onclick="selCheckinHome(this,\''+o[0]+'\',\''+prefix+'\')">'+checkinIcon(o[0],'26px')+'<div class="checkin-lbl">'+checkinLabel(o[0])+'</div></div>').join('')+'</div>';
   sweepTranslate(b, currentLang);
 }
 // Plus de petite phrase météo ici — le check-in du jour est désormais visible (icône seule) dans le
@@ -9872,8 +9884,8 @@ function renderCheckinPreview(prefix,val){
   b.innerHTML=CHECKIN_TITLE
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:16px;padding:16px 18px;border:1px solid var(--border);">'
     +'<div style="display:flex;align-items:center;gap:12px;">'
-    +'<span style="font-size:26px;flex-shrink:0;">'+checkinEmoji(val)+'</span>'
-    +'<span style="flex:1;font-size:14px;font-weight:700;color:var(--white);">'+checkinLabel(val)+'</span>'
+    +'<span style="width:38px;height:38px;border-radius:50%;background:rgba(var(--orange-rgb),.14);color:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+checkinIcon(val,'22px')+'</span>'
+    +'<span style="flex:1;font-size:14px;font-weight:700;color:var(--orange);">'+checkinLabel(val)+'</span>'
     +'<span role="button" tabindex="0" style="font-size:15px;color:var(--gray);cursor:pointer;flex-shrink:0;padding:15px;margin:-15px -15px -15px 0;display:inline-flex;align-items:center;" onclick="resetCheckinHome(\''+prefix+'\')"><svg class="ki"><use href="#ki-close"/></svg></span>'
     +'</div>'
     +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+body+'</div>'
@@ -9931,7 +9943,7 @@ function confirmCheckinHome(prefix){
   }
   if(prefix==='homeCentre') checkInDoneCentre=true; else checkInDone=true;
   recordCheckinHistory(val);
-  logCoachHistory({type:'checkin', theme:'ajustement', message: trDyn('Check-in')+' '+checkinEmoji(val)+(todaySessionAdjust?' — '+trDyn('session adjusted'):'')});
+  logCoachHistory({type:'checkin', theme:'ajustement', message: trDyn('Check-in')+' '+checkinIcon(val)+(todaySessionAdjust?' — '+trDyn('session adjusted'):'')});
   renderCheckinDone(prefix,val);
   updateHeaderCheckinBadge(prefix,val);
   refreshHomeSeanceZones();
@@ -9942,7 +9954,7 @@ function confirmCheckinHome(prefix){
 // un élément interactif" déjà établi ailleurs dans l'app, pas une nouvelle convention à apprendre.
 function updateHeaderCheckinBadge(prefix,val){
   const el=document.getElementById(prefix+'CheckinBadge'); if(!el) return;
-  el.textContent=checkinEmoji(val);
+  el.innerHTML=checkinIcon(val,'15px');
   el.style.display='inline-flex';
   el.style.alignItems='center';
   el.style.background='rgba(255,255,255,.12)';
@@ -10074,7 +10086,7 @@ function libelleValiderRattrapage(openDays){
     const nom = d ? (d.today ? trDyn('today') : trDyn(d.j).toLowerCase()) : '';
     return trDyn('Plan')+' '+nom;
   }
-  return trDyn('Plan')+' '+catchupSelection.length+' '+trDyn('days');
+  return trDyn('Plan')+' '+catchupSelection.length+' '+trDyn(catchupSelection.length===1?'day':'days');
 }
 function validerRattrapage(){
   const jours=[...catchupSelection];
@@ -10934,6 +10946,25 @@ function computeBestStreak(sessions){
   days.forEach(d=>{ cur=(prev!==null && d===prev+1) ? cur+1 : 1; best=Math.max(best,cur); prev=d; });
   return best;
 }
+// Remplace "Best streak" (jours consécutifs) pour la carte Régularité — brief DEV 16 sept. : une série
+// de jours consécutifs n'a pas de sens pour un rythme de 3 séances/semaine, elle plafonne à 1 même à
+// objectif tenu à 100%. computeBestStreak() reste inchangée ailleurs (classement référent, badges) —
+// nouvelle fonction dédiée pour ne pas changer leur sens. Même semaine calendaire (lundi-dimanche) que
+// getWeekDaysTrained() — "une seule semaine" partout (cf mémoire projet).
+function computeWeeksHeld(sessions, windowDays){
+  const goal=getWeeklyGoal(); if(!goal) return 0;
+  const now=new Date();
+  const monday=new Date(now.getFullYear(), now.getMonth(), now.getDate()-((now.getDay()+6)%7));
+  monday.setHours(0,0,0,0);
+  const nWeeks=Math.ceil((windowDays||7)/7);
+  let held=0;
+  for(let w=0; w<nWeeks; w++){
+    const start=monday.getTime()-w*7*HIST_DAY, end=start+7*HIST_DAY;
+    const days=new Set(sessions.filter(h=>h.date>=start && h.date<end).map(h=>Math.floor(h.date/HIST_DAY)));
+    if(days.size>=goal) held++;
+  }
+  return held;
+}
 function computeActiveMonthsCount(){
   return new Set(userSessionHistory.map(h=>{const d=new Date(h.date); return d.getFullYear()+'-'+d.getMonth();})).size;
 }
@@ -11132,7 +11163,7 @@ function getMonthWeekBars(sessions){
   const bars=[], bucket=7, nBuckets=Math.ceil(PROG_PERIOD_DAYS.mois/bucket);
   for(let i=nBuckets-1;i>=0;i--){
     const to=Date.now()-i*bucket*HIST_DAY, from=to-bucket*HIST_DAY;
-    bars.push({l:'W'+(nBuckets-i), v:sessions.filter(h=>h.date>=from && h.date<to).length});
+    bars.push({l:(currentLang==='fr'?'S':'W')+(nBuckets-i), v:sessions.filter(h=>h.date>=from && h.date<to).length});
   }
   return bars;
 }
@@ -11396,7 +11427,7 @@ function renderProgPeriod(periodKey){
   // (semaines/an), reliquat de l'époque où ce 3e onglet représentait une année complète plutôt
   // qu'une fenêtre de 90 jours (cf discussion : gonflait l'objectif à ×52 au lieu de ×90/7).
   const goalRounded=Math.round(getWeeklyGoal()*(periodKey==='semaine'?1:periodKey==='mois'?4.33:90/7));
-  const bestStreak=computeBestStreak(sessions);
+  const weeksHeld=computeWeeksHeld(sessions, PROG_PERIOD_DAYS[periodKey]);
   // Régularité en JOURS distincts, pas en séances brutes (même principe que Home) — sinon 4 séances le
   // même jour + 0 + 8 un autre jour se lirait comme "12 séances", alors que ça ne fait que 2 vrais jours
   // d'entraînement. Delta en différence absolue de jours (pas en %, trompeur sur un petit nombre entier).
@@ -11514,17 +11545,16 @@ function renderProgPeriod(periodKey){
       +serie.map((c,i)=>{
         const dernier = i===serie.length-1;
         return '<div style="flex:0 0 auto;text-align:center;min-width:34px;'+(dernier?'':'opacity:.62;')+'">'
-          +'<div style="font-size:21px;line-height:1.1;">'+checkinEmoji(c.val)+'</div>'
+          +'<div style="font-size:21px;line-height:1.1;">'+checkinIcon(c.val)+'</div>'
           +'<div style="font-size:9.5px;color:var(--gray2);margin-top:3px;white-space:nowrap;font-variant-numeric:tabular-nums;" data-notranslate>'
           + new Date(c.date).toLocaleDateString(locF,{day:'numeric',month:'short'})+'</div>'
-          +'<div style="height:2px;border-radius:1px;margin-top:4px;background:'+formeColOf(CHECKIN_ORDINAL[c.val]||3)+';"></div>'
           +'</div>';
       }).join('')
       +'</div>';
     blocForme+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">FORM<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Form\',\'Your daily check-in over this window, oldest on the left. Five levels, from exhausted to great. The verdict compares your most recent answer with the oldest one in the window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
     blocForme+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:center;gap:10px;">'
-      +'<div style="font-size:30px;line-height:1;flex-shrink:0;">'+checkinEmoji(cks[0].val)+'</div>'
+      +'<div style="font-size:30px;line-height:1;flex-shrink:0;">'+checkinIcon(cks[0].val)+'</div>'
       +'<div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:800;color:'+formeColOf(CHECKIN_ORDINAL[cks[0].val]||3)+';line-height:1.2;">'+checkinLabel(cks[0].val)+'</div>'
       +'<div style="font-size:12.5px;color:var(--gray2);margin-top:1px;">today</div></div>'
       +'</div>'
@@ -11547,7 +11577,7 @@ function renderProgPeriod(periodKey){
   // Objectif de l'Accueil. Effet secondaire voulu : passer de 7 à 90 jours ne fait plus chuter le héros
   // de 100% à 13% sans raison — 3/3 → 5/39 montre son dénominateur et explique sa propre chute.
   const regState=periodRegularityState(daysThis, goalRounded);
-  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over this window, versus your goal for that window. Best streak = your longest run of consecutive training days in that window.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
+  html+='<div class="zone-lbl" style="margin:0 0 12px;display:flex;align-items:center;gap:6px;">REGULARITY<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Regularity\',\'How many days you trained over this window, versus your goal for that window. Weeks held = the number of weeks in that window where you reached your weekly goal.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
   html+='<div class="card-sm" style="margin-bottom:16px;">'
     +'<div style="display:flex;align-items:baseline;gap:8px;min-width:0;">'
     +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;flex-shrink:0;">'+daysThis+'/'+goalRounded+'</div>'
@@ -11556,11 +11586,12 @@ function renderProgPeriod(periodKey){
     +'<div style="font-size:12.5px;font-weight:600;color:'+regState.color+';margin:7px 0 14px;">'+regState.label+'</div>'
     // Même structure sur les 3 onglets (7/30/90j) — seule la donnée change, jamais la mise en page.
     +'<div style="display:flex;gap:10px;">'
-      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:'+(daysDelta!==0?'var(--white)':'var(--gray2)')+';">'+(daysDelta>0?'+'+daysDelta:daysDelta<0?daysDelta:'→')+(daysDelta!==0?'<span style="font-size:13px;font-weight:700;color:var(--gray2);">d</span>':'')+'</div><div style="font-size:11px;color:var(--gray2);">vs previous '+getPeriodLabel(periodKey)+'</div></div>'
-      // Scopée à la période depuis l'audit : computeBestStreak() balayait TOUT l'historique et ne
-      // recevait jamais la fenêtre — le même chiffre s'affichait sur 7, 30 et 90 jours, sous une
-      // info-bulle qui promettait déjà « sur cette période ». C'est le calcul qui a rejoint la promesse.
-      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--white);">'+bestStreak+'d</div><div style="font-size:11px;color:var(--gray2);">Best streak</div></div>'
+      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:'+(daysDelta!==0?'var(--white)':'var(--gray2)')+';">'+(daysDelta>0?'+'+daysDelta:daysDelta<0?daysDelta:'→')+(daysDelta!==0?'<span style="font-size:13px;font-weight:700;color:var(--gray2);">'+(currentLang==='fr'?' j':'d')+'</span>':'')+'</div><div style="font-size:11px;color:var(--gray2);">vs previous '+getPeriodLabel(periodKey)+'</div></div>'
+      // Semaines tenues plutôt que série de jours consécutifs (brief DEV 16 sept.) : un rythme de
+      // 3 séances/semaine (lundi-mercredi-vendredi) donnait toujours une "meilleure série" de 1 jour,
+      // même 13 séances sur 13 — contradictoire à côté du X/Y juste au-dessus. Scopée à la fenêtre
+      // active (7/30/90j), même principe que le reste de cette carte.
+      +'<div style="flex:1;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--white);">'+weeksHeld+'<span style="font-size:13px;font-weight:700;color:var(--gray2);">'+(currentLang==='fr'?' sem.':' wk')+'</span></div><div style="font-size:11px;color:var(--gray2);">'+trDyn('Weeks held')+'</div></div>'
       +'</div>'
     // Le "0" au-dessus d'une barre vide répétait ce que la barre plate dit déjà — et c'était sa seule
     // fonction. Neuf zéros alignés sur 90 jours. L'absence est le signal ; la hauteur de ligne est
@@ -11649,8 +11680,8 @@ function renderProgPeriod(periodKey){
       : {txt:(diff>0?'\u2191 ':'\u2193 ')+(Math.round(Math.abs(diff)*10)/10), col:(diff>0?'var(--vigilance)':'var(--gray2)')};
     const hors = loadSerie.filter(x=>x.v>1.3 || x.v<0.8);
     const legendeCharge = hors.length
-      ? loadSerie.length+' '+trDyn('days')+' \u00b7 '+hors.length+' '+trDyn(hors.length>1?'outside the zone':'day outside the zone')
-      : loadSerie.length+' '+trDyn('days')+' \u00b7 '+trDyn('all inside the zone');
+      ? loadSerie.length+' '+trDyn(loadSerie.length===1?'day':'days')+' \u00b7 '+hors.length+' '+trDyn(hors.length>1?'outside the zone':'day outside the zone')
+      : loadSerie.length+' '+trDyn(loadSerie.length===1?'day':'days')+' \u00b7 '+trDyn('all inside the zone');
     // La zone saine 0,8-1,3 est dessinee en fond : sans elle, une barre haute et une barre basse se
     // ressemblent, alors que l'une est un signal et l'autre pas. L'echelle est plafonnee a 2,0, la
     // meme que la jauge de l'Accueil.
@@ -13536,7 +13567,8 @@ const EN_FR = {
   "average over 90 days": "en moyenne sur 90 jours",
   "Your pain at the end of your last session. The arrow compares it with the average of your 3 previous sessions, from 2 points of difference.": "Ta douleur à la fin de ta dernière séance. La flèche la compare à la moyenne de tes 3 séances précédentes, à partir de 2 points d'écart.",
   "The average pain you declared at the end of your sessions over this window. Each bar is one session, in order. The arrow compares it with the previous window, from 1 point of difference.": "La douleur moyenne que tu as déclarée en fin de séance sur cette période. Chaque barre est une séance, dans l'ordre. La flèche compare avec la période précédente, à partir d'un point d'écart.",
-  "How many days you trained over this window, versus your goal for that window. Best streak = your longest run of consecutive training days in that window.": "Le nombre de jours où tu t'es entraîné sur cette période, face à ton objectif. Meilleure série = ton plus grand nombre de jours d'entraînement consécutifs sur la période.",
+  "How many days you trained over this window, versus your goal for that window. Weeks held = the number of weeks in that window where you reached your weekly goal.": "Le nombre de jours où tu t'es entraîné sur cette période, face à ton objectif. Semaines tenues = le nombre de semaines de cette période où tu as atteint ton objectif hebdomadaire.",
+  "Weeks held": "Semaines tenues",
   "Total minutes trained over this window, and how many sessions and exercises that took.": "Le total de minutes d'entraînement sur cette période, et le nombre de séances et d'exercices que ça représente.",
   "How intense your training has been over this window, compared with your own peak: your effort score over this window divided by your best window of the same length ever recorded. Cardio and strength are each scored by time or reps × intensity level, then combined. 100% means you are matching your best.": "L'intensité de ton entraînement sur cette période, comparée à ton propre record : ton score d'effort sur la période divisé par ta meilleure période de même durée. Cardio et renforcement sont notés en temps ou répétitions × niveau d'intensité, puis additionnés. 100 % veut dire que tu égales ton record.",
   "Where your training time actually goes over this window: time spent per muscle group.": "Où va vraiment ton temps d'entraînement sur cette période : le temps passé par groupe musculaire.",
@@ -13948,7 +13980,6 @@ const EN_FR = {
   "session adjusted": "séance ajustée",
   "avg intensity": "intensité moy.",
   "No change needed — today’s session stays as planned.": "Rien à changer — ta séance du jour reste comme prévu.",
-  "😐 Okay": "😐 Correct",
   "😣 Tired": "😣 Fatigué",
   "What's included": "Ce qui est inclus",
   "7 exercises · 3 sets": "7 exercices · 3 séries",
@@ -14525,14 +14556,14 @@ const EN_FR = {
   "No match.": "Aucun résultat.",
   "happy birthday!": "joyeux anniversaire !",
   "to check": "à checker",
-  "To check": "À checker",
+  "To check": "À surveiller",
   "alerts": "alertes",
   "Assign": "Assigner",
   "Assign →": "Assigner →",
   "Assign this session →": "Assigner cette séance →",
   "Programme": "Programme",
-  "ACWR high — overload risk": "ACWR élevé — risque de surcharge",
-  "ACWR low — ease back in gently": "ACWR bas — reprise en douceur à prévoir",
+  "Load high — overload risk": "Charge élevée — risque de surcharge",
+  "Load low — ease back in gently": "Charge en baisse — reprise en douceur à prévoir",
   "Behind pace on programme — worth revisiting": "En retard sur le rythme du programme — à revoir",
   "Reported fatigue this morning — session scheduled today": "Fatigue signalée ce matin — séance prévue aujourd'hui",
   "Access request pending": "Demande d'accès en attente",
@@ -14589,7 +14620,7 @@ const EN_FR = {
   "Consistency drop": "Baisse de régularité",
   "High training load": "Charge d'entraînement élevée",
   "ACWR ramping up fast — threshold set by the app": "ACWR qui grimpe vite — seuil défini par l'application",
-  "These alerts appear on your home under Alerts / To check.": "Ces alertes apparaissent sur ta home, sous Alertes / À checker.",
+  "These alerts appear on your home under Alerts / To check.": "Ces alertes apparaissent sur ta home, sous Alertes / À surveiller.",
   "Alert settings saved ✓": "Réglages d'alertes enregistrés ✓",
   "No session in": "Aucune séance depuis",
   "days": "jours",
@@ -14648,6 +14679,9 @@ const EN_FR = {
   "Annual network review": "Bilan annuel réseau",
   // collectif — simulation live (roster réel, jauges/depart/classement simulés sur un seul appareil)
   "Group session": "Séance collective",
+  "Group A": "Groupe A",
+  "Group B": "Groupe B",
+  "Group C": "Groupe C",
   "Waiting": "En attente",
   "Launch the session": "Lancer la séance",
   "Live gauges are simulated for this demo — not connected to participants' real phones.": "Les jauges en direct sont simulées pour cette démo — non connectées aux téléphones réels des participants.",
@@ -14777,7 +14811,7 @@ const EN_FR = {
   "e.g. Hi Marc, I'm inviting you to join kinmio to continue your rehab...": "Ex: Bonjour Marc, je t'invite à rejoindre kinmio pour continuer ton entraînement...",
   "Send invitation": "Envoyer l'invitation",
   // creation_session_individuelle
-  "Individual session": "Session individuelle",
+  "Individual session": "Séance individuelle",
   "Step 1 of 4": "Étape 1 sur 4",
   "Select the member": "Sélectionner le membre",
   "Session theme": "Thème de la session",
@@ -15086,9 +15120,9 @@ const EN_FR = {
   "kinmio metrics": "Métriques kinmio",
   "Account management": "Gestion des comptes",
   "Configuration": "Configuration",
-  "Shoulder rehab": "Rééducation épaule",
-  "Chronic low back pain": "Lombalgie chronique",
-  "Post-op knee rehab": "Rééducation genou post-op",
+  "Shoulder — recovery": "Épaule — reprise",
+  "Back — strengthening": "Dos — renforcement",
+  "Knee — recovery": "Genou — reprise",
   "Senior health & fitness": "Sport santé senior",
   "+12% vs last month": "+12% vs mois dernier",
   "+23 this month": "+23 ce mois-ci",
@@ -16093,6 +16127,10 @@ function setLang(lang){
     // La fenetre datee ("6 -> 12 sept.") est composee par toLocaleDateString, donc invisible du
     // dictionnaire : sans ce rappel elle resterait dans la langue du dernier rendu.
     if(document.getElementById('progPeriodView')) renderProgPeriod(progActivePeriod);
+    // Accueil référent : "Groupe A — 8 participants" est composé au rendu (trDyn(s.name) + suffixe),
+    // donc invisible de sweepTranslate — même piège que les autres blocs ci-dessus, trouvé en testant
+    // l'aller-retour FR/EN après le brief DEV 16 sept. (renommage des noms de groupe démo).
+    if(document.getElementById('refBirthdayLine')) renderRefAccueil();
   }catch(e){}
   // Pas de drapeaux, et plus de code ISO non plus (12 sept. 2026). Un drapeau designe un PAYS, pas une
   // langue : le drapeau francais dit a un Belge, un Suisse, un Quebecois ou un Senegalais que ce n'est
@@ -20894,8 +20932,8 @@ function patientsWithBirthdayToday(){ return PATIENTS.filter(getPatientBirthdayT
 function getReferentAcwrSignal(patientId){
   if(patientId!=='p1' || !alertCfg.acwr.on) return null;
   const fs=getFatigueSignal();
-  if(fs.level==='high') return {type:'alerte', reason:'ACWR high — overload risk'};
-  if(fs.level==='low') return {type:'checker', reason:'ACWR low — ease back in gently'};
+  if(fs.level==='high') return {type:'alerte', reason:'Load high — overload risk'};
+  if(fs.level==='low') return {type:'checker', reason:'Load low — ease back in gently'};
   return null;
 }
 // Arbitrage référent-vs-auto-adapt (chantier Coach IA "adaptation du programme dans la durée") : côté
@@ -20920,7 +20958,7 @@ function getReferentCheckinSignal(patientId){
 }
 // Textes existants (déjà traduits ailleurs, ceux réellement produits pour Marc) réutilisés tels quels
 // pour Nicolas/Amina — cf commentaire dans computeReferentAttention().
-const ATTENTION_REASON_OVERRIDE = { p4:'ACWR low — ease back in gently', p5:'Reported fatigue this morning — session scheduled today' };
+const ATTENTION_REASON_OVERRIDE = { p4:'Load low — ease back in gently', p5:'Reported fatigue this morning — session scheduled today' };
 // Point d'entrée unique pour le home référent : Alertes (rouge, seuil clinique franchi) vs À checker
 // (orange, signal à surveiller mais pas un seuil franchi). Toutes les valeurs viennent de mécanismes
 // déjà réels (alertCfg, getFatigueSignal, centreAccess) — rien n'est recalculé en double ici.
@@ -20995,9 +21033,9 @@ let DIRECTORS=[
 ];
 const EXO_USAGE=[{id:1,n:847},{id:2,n:623},{id:10,n:412},{id:12,n:389},{id:5,n:341}];
 const PATHOLOGIES=[
-  {nom:'Shoulder rehab', douleur:2.4, prog:38, n:412},
-  {nom:'Chronic low back pain', douleur:3.1, prog:29, n:388},
-  {nom:'Post-op knee rehab', douleur:2.8, prog:44, n:305},
+  {nom:'Shoulder — recovery', douleur:2.4, prog:38, n:412},
+  {nom:'Back — strengthening', douleur:3.1, prog:29, n:388},
+  {nom:'Knee — recovery', douleur:2.8, prog:44, n:305},
   {nom:'Senior health & fitness', douleur:1.6, prog:22, n:520},
   {nom:'Neuro / wheelchair', douleur:2.0, prog:31, n:196}
 ];
@@ -21233,7 +21271,7 @@ function openCollectifSession(gi, skipToResults){
   collectifExos=(s.exercices||[]).map(resolveRefExercise).filter(Boolean);
   go('collectif');
   const nameEl=document.getElementById('collectifProgName'); if(nameEl) nameEl.textContent=trDyn(s.prog);
-  const metaEl=document.getElementById('collectifMeta'); if(metaEl) metaEl.textContent=s.name+' · '+hh(s.time)+' · '+s.dur;
+  const metaEl=document.getElementById('collectifMeta'); if(metaEl) metaEl.textContent=trDyn(s.name)+' · '+hh(s.time)+' · '+s.dur;
   if(skipToResults){
     initCollectifPartState();
     collectifElapsedSec=(parseInt(s.dur,10)||30)*60;
@@ -21266,7 +21304,7 @@ function startScheduledCollectifSession(gi){
   collectifParticipants=getCollectifParticipants(s);
   collectifExos=(s.exercices||[]).map(resolveRefExercise).filter(Boolean);
   const nameEl=document.getElementById('collectifProgName'); if(nameEl) nameEl.textContent=trDyn(s.prog);
-  const metaEl=document.getElementById('collectifMeta'); if(metaEl) metaEl.textContent=s.name+' · '+hh(s.time)+' · '+s.dur;
+  const metaEl=document.getElementById('collectifMeta'); if(metaEl) metaEl.textContent=trDyn(s.name)+' · '+hh(s.time)+' · '+s.dur;
   battleParticipants=collectifParticipants.map(p=>({id:p.id, nom:p.nom, ini:p.ini, color:avatarColorFor(p), tc:avatarTextColorFor(p), connected:false, pct:0}));
   battleMode=true; soloWaitMode=false; defiMode=false;
   go('salle_attente');
@@ -24343,7 +24381,7 @@ function renderCalUnscheduled(){
   c.style.display='block';
   c.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">'+trDyn('Unscheduled')+'</div>'
     + list.map(({s,gi})=>'<div class="card" style="margin-bottom:8px;border-left:4px solid var(--gray);display:flex;align-items:center;justify-content:space-between;gap:10px;">'
-      +'<div><div style="font-size:14px;font-weight:700;color:var(--white);">'+s.name+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+s.prog+'</div></div>'
+      +'<div><div style="font-size:14px;font-weight:700;color:var(--white);">'+trDyn(s.name)+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+s.prog+'</div></div>'
       +'<button class="btn-ghost" style="color:var(--orange);font-size:13px;font-weight:700;flex-shrink:0;" onclick="startAssignDateCalendarPick('+gi+')">'+trDyn('Assign a date')+' →</button>'
       +'</div>').join('');
 }
@@ -24484,7 +24522,7 @@ function renderCalToday(){
     // "Group"/"Individual" et "N people" composés avec des données dynamiques (s.prog/s.pers) : jamais
     // via trDyn() sur un fragment, construits directement selon currentLang (même piège i18n que déjà
     // rencontré plusieurs fois cette session).
-    const nameTxt = teal ? s.name+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : s.name;
+    const nameTxt = teal ? trDyn(s.name)+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : trDyn(s.name);
     const typeTxt = currentLang==='fr' ? (teal?'Groupe':'Individuel') : (teal?'Group':'Individual');
     return '<div class="card" style="margin-bottom:10px;border-left:4px solid '+(teal?'var(--teal)':'#9C9CD4')+';">'
       +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">'+nameTxt+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+typeTxt+' · '+s.prog+'</div></div><span class="pbdg '+st.c+'">'+trDyn(st.t)+'</span></div>'
@@ -24546,7 +24584,7 @@ function calSessionPop(gi){
   const noteBlock = s.coachNote ? '<div class="coach-tip" style="margin-top:10px;text-align:left;"><span class="ct-ic"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5 y=3.5 width=14 height=17 rx=2 /><path d=M8.5,9h7 /><path d=M8.5,13h7 /><path d=M8.5,17h4 /></svg></span><span>'+s.coachNote+'</span></div>' : '';
   // "N people"/"With the coach"/statut composés avec du contenu dynamique : construits directement
   // selon currentLang, jamais via sweepTranslate sur un fragment (même piège i18n déjà rencontré).
-  const nameTxt = teal ? s.name+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : s.name;
+  const nameTxt = teal ? trDyn(s.name)+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : trDyn(s.name);
   showModal('<div style="font-size:12px;font-weight:700;color:'+(teal?'var(--teal)':'var(--orange)')+';text-transform:uppercase;margin-bottom:6px;">'+trDyn(teal?'Group session':'Individual session')+'</div>'
     +'<div style="font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px;">'+nameTxt+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);">'+s.prog+'</div>'
