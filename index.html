@@ -15310,6 +15310,11 @@ const EN_FR = {
   "Group": "Groupe",
   "Individual": "Individuel",
   "View results": "Voir les résultats",
+  "Session results": "Résultats de la séance",
+  "planned": "prévues",
+  "Completed": "Complété",
+  "Pain reported": "Douleur signalée",
+  "No exercises recorded for this session.": "Aucun exercice enregistré pour cette séance.",
   "Session results — coming soon": "Résultats de séance — bientôt disponible",
   "Results — coming soon": "Résultats — bientôt disponible",
   "Your access was approved by Martin Dupont": "Ton accès a été validé par Martin Dupont",
@@ -24928,7 +24933,7 @@ function renderCalToday(){
   c.innerHTML=sess.map(({s,gi})=>{
     const teal=s.type==='collectif', st=CAL_STATUS[s.status]||CAL_STATUS.planned;
     const btn=s.status==='done'
-      ? (teal ? '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="openCollectifSession('+gi+',true)">'+trDyn('View results')+'</button>' : '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="toast(\'Session results — coming soon\')">'+trDyn('View results')+'</button>')
+      ? (teal ? '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="openCollectifSession('+gi+',true)">'+trDyn('View results')+'</button>' : '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="openIndividualResults('+gi+')">'+trDyn('View results')+'</button>')
       // Toujours btn-orange (accent) : collectif/individuel est un format de séance, pas un verdict —
       // btn-teal (vert fixe) réservé à ce qui EST l'information (cf charte, audit établissements).
       : '<button class="btn btn-orange" style="margin-top:10px;padding:12px;" onclick="'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">'+trDyn('Start →')+'</button>';
@@ -24983,11 +24988,46 @@ function startReferentSession(gi){
   soloLiveOverride={ userName: s.name, sessName: s.prog||s.name, exos: list };
   go('solo_session_live');
 }
+// Résultats d'une séance individuelle terminée (audit référent, secondaire — scope validé le 17 sept.) :
+// remplace le stub toast('Results — coming soon'). Même convention que openCollectifSession(gi,true) :
+// aucune vraie donnée de séance passée n'est trackée dans ce prototype, donc simulation déterministe
+// (seededRand) comme le fait déjà le collectif — une modale suffit, pas besoin de la machinerie d'écran
+// complète du collectif pour un coup d'œil sur une séance à une seule personne.
+function openIndividualResults(gi){
+  const s=REF_SESSIONS[gi]; if(!s) return;
+  const rand=seededRand(hashStr('indiv-results-'+gi+'-'+s.name+s.day+s.time));
+  const exos=(s.exercices||[]).map(resolveRefExercise).filter(Boolean);
+  const total=Math.max(1, parseInt(s.dur,10)||30);
+  const actualMin=Math.max(1, Math.round(total*(0.85+rand()*0.25)));
+  const doneList=exos.map(ex=>({ex, done: rand()<0.85}));
+  const doneCount=doneList.filter(x=>x.done).length;
+  const pct=exos.length ? Math.round(doneCount/exos.length*100) : 100;
+  const patient=PATIENTS.find(p=>p.nom===s.name);
+  const pain = patient ? getPatientPain(patient) : null;
+  const painRow = pain!=null ? '<div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:var(--gray);font-size:13px;">'+trDyn('Pain reported')+'</span><span style="color:var(--white);font-weight:700;font-size:13px;">'+pain.toFixed(1)+'/10</span></div>' : '';
+  const exList = doneList.map(({ex,done})=>
+    '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">'
+    +'<svg class="ki" style="color:'+(done?'var(--brand-fixed)':'var(--gray)')+';width:16px;height:16px;flex-shrink:0;"><use href="#'+(done?'ki-check-circle':'ki-close-circle')+'"/></svg>'
+    +'<span style="flex:1;font-size:13px;color:var(--white);'+(done?'':'opacity:.6;')+'">'+trDyn(ex.nom)+'</span>'
+    +'</div>'
+  ).join('') || '<div style="font-size:13px;color:var(--gray);">'+trDyn('No exercises recorded for this session.')+'</div>';
+  showModal('<div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;margin-bottom:6px;">'+trDyn('Session results')+'</div>'
+    +'<div style="font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px;">'+trDyn(s.name)+'</div>'
+    +'<div style="font-size:14px;color:var(--gray2);margin-bottom:14px;">'+s.prog+'</div>'
+    +'<div class="card-sm" style="margin-bottom:14px;">'
+      +'<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--gray);font-size:13px;">'+trDyn('Duration')+'</span><span style="color:var(--white);font-weight:700;font-size:13px;">'+actualMin+' '+trDyn('min')+' <span style="color:var(--gray2);font-weight:400;">/ '+total+' '+trDyn('planned')+'</span></span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:6px 0;'+(painRow?'border-bottom:1px solid var(--border);':'')+'"><span style="color:var(--gray);font-size:13px;">'+trDyn('Completed')+'</span><span style="color:'+(pct>=100?'var(--brand-fixed)':'var(--white)')+';font-weight:700;font-size:13px;">'+doneCount+'/'+exos.length+' ('+pct+'%)</span></div>'
+      +painRow
+    +'</div>'
+    +'<div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin-bottom:6px;">'+trDyn('Exercises')+'</div>'
+    +exList
+    +'<button class="btn-ghost" style="width:100%;margin-top:14px;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
+}
 function calSessionPop(gi){
   const s=REF_SESSIONS[gi]; if(!s) return;
   const teal=s.type==='collectif', st=CAL_STATUS[s.status]||CAL_STATUS.planned;
   const btn=s.status==='done'
-    ? (teal ? '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();openCollectifSession('+gi+',true)">'+trDyn('View results')+'</button>' : '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();toast(\'Results — coming soon\')">'+trDyn('View results')+'</button>')
+    ? (teal ? '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();openCollectifSession('+gi+',true)">'+trDyn('View results')+'</button>' : '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();openIndividualResults('+gi+')">'+trDyn('View results')+'</button>')
     // Toujours btn-orange : collectif/individuel est un format, pas un verdict (cf renderCalToday, même
     // correction, audit établissements).
     : '<button class="btn btn-orange" style="margin-top:14px;" onclick="closeModal();'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">'+trDyn('Start the session →')+'</button>';
