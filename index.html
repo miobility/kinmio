@@ -4336,6 +4336,23 @@ function setTheme(mode){
   document.querySelectorAll('.theme-switch').forEach(el=>el.classList.toggle('on', mode==='dark'));
 }
 function toggleTheme(){ setTheme(getTheme()==='light' ? 'dark' : 'light'); }
+// Registre établissements (brief 16 sept.) : sombre pour le pratiquant (user/user_centre, inchangé),
+// clair par défaut pour référent/directeur/admin. Le mode collectif et le suivi live d'une séance
+// restent sombres même côté référent — "il vit dans la salle, c'est un écran d'entraînement" — donc
+// prioritaires sur la règle par rôle. Un écran non listé ici ne change rien : le thème reste "collant"
+// d'un écran à l'autre au sein du même espace, même logique que currentRole (cf go()) — pas besoin de
+// reclasser tous les écrans partagés (bibliothèque, fiche séance, profil...), seulement les points
+// d'entrée. dashboard_referent ET calendrier_referent sont tous deux traités comme point d'entrée
+// référent (pas seulement le premier) pour rester correct même en revenant d'un écran live sans
+// repasser par le tableau de bord. Le réglage manuel Profil > Thème reste disponible à côté (cf
+// renderThemeRow) : il sera repris par ce même calcul à la prochaine navigation, pas figé pour toujours.
+const LIVE_TRAINING_SCREENS=new Set(['collectif','salle_attente','solo_session_live','battle_countdown','session','session_warmup','session_cooldown']);
+const ESTABLISHMENTS_ENTRY_SCREENS=new Set(['dashboard_referent','calendrier_referent','dashboard_directeur','onboarding_directeur','dashboard_admin']);
+function applyRoleTheme(id){
+  if(LIVE_TRAINING_SCREENS.has(id)){ setTheme('dark'); return; }
+  if(id==='home'||id==='home_centre'){ setTheme('dark'); return; }
+  if(ESTABLISHMENTS_ENTRY_SCREENS.has(id)){ setTheme('light'); return; }
+}
 
 // ============================================================
 // ACCENT — personnalisation de marque, liste fermée de 5 presets + défaut émeraude.
@@ -6755,6 +6772,7 @@ function go(id){
       renderProgProgrammesView();
     }
   }, 20);
+  applyRoleTheme(id);
   if(id==='home') currentRole='user';
   if(id==='login'){
     // La sélection de rôle (démo) ne doit jamais rester "collée" d'une visite à l'autre — sinon un
