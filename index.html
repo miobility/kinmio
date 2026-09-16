@@ -9881,19 +9881,40 @@ function renderCheckinPreview(prefix,val){
     body = '<span style="color:var(--white);font-weight:700;">'+head+'</span>'
       +'<span style="display:block;font-size:11px;font-weight:400;color:var(--gray);margin-top:6px;line-height:1.45;">'+parts+'</span>';
   }
+  // Voile coloré selon la sévérité réelle de l'état (échelle de formeColOf, déjà utilisée sur la carte
+  // Forme de Progrès pour cette même donnée) — mais icône et libellé restent blancs, pas colorés :
+  // corrige le bug relevé ("Épuisé" ressortait dans le même vert que "En forme", --orange valant par
+  // défaut le même émeraude que --brand-fixed) sans tomber dans le rouge plein, qui lirait comme une
+  // alerte clinique sur un simple ressenti du jour (cf maquette "Couleur du check-in", variante 2).
+  const washRgb = checkinWashRgb(val);
+  const btns = !parts
+    // Pas d'ajustement proposé : rien à découpler, un seul bouton suffit. Contour et non plein : valider
+    // une humeur ne doit pas peser autant que "Voir la séance", qui est l'action principale de l'écran.
+    ? '<button class="btn btn-outline" style="margin-top:12px;padding:13px;font-size:13.5px;border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
+    // Deux issues distinctes (cf maquette "Check-in : statut vs impact") : le statut (le check-in lui-même,
+    // la tendance Forme) et l'impact sur la séance sont deux données séparées dans le code
+    // (recordCheckinHistory vs todaySessionAdjust/userParamsOverrides) mais n'avaient qu'un seul geste
+    // pour les deux — impossible de dire "oui je suis fatigué, mais laisse ma séance comme prévu".
+    // confirmCheckinHome(prefix, false) enregistre le statut sans toucher à la séance.
+    : '<div style="display:flex;gap:8px;margin-top:14px;">'
+      +'<button class="btn" style="flex:1;padding:12px;font-size:13.5px;background:var(--brand-fixed);color:var(--ink-on-accent);" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm the adjustment')+'</button>'
+      +'<button class="btn btn-outline" style="flex:1;padding:12px;font-size:13.5px;color:var(--gray2);border-color:var(--border);" onclick="confirmCheckinHome(\''+prefix+'\',false)">'+trDyn('Log without adjusting')+'</button>'
+      +'</div>';
   b.innerHTML=CHECKIN_TITLE
     +'<div style="margin:0 20px 22px;background:var(--bg2);border-radius:16px;padding:16px 18px;border:1px solid var(--border);">'
     +'<div style="display:flex;align-items:center;gap:12px;">'
-    +'<span style="width:38px;height:38px;border-radius:50%;background:rgba(var(--orange-rgb),.14);color:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+checkinIcon(val,'22px')+'</span>'
-    +'<span style="flex:1;font-size:14px;font-weight:700;color:var(--orange);">'+checkinLabel(val)+'</span>'
+    +'<span style="width:38px;height:38px;border-radius:50%;background:rgba('+washRgb+',.16);color:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+checkinIcon(val,'22px')+'</span>'
+    +'<span style="flex:1;font-size:14px;font-weight:700;color:var(--white);">'+checkinLabel(val)+'</span>'
     +'<span role="button" tabindex="0" style="font-size:15px;color:var(--gray);cursor:pointer;flex-shrink:0;padding:15px;margin:-15px -15px -15px 0;display:inline-flex;align-items:center;" onclick="resetCheckinHome(\''+prefix+'\')"><svg class="ki"><use href="#ki-close"/></svg></span>'
     +'</div>'
     +'<div style="font-size:12.5px;color:var(--gray2);line-height:1.5;margin-top:10px;">'+body+'</div>'
-    // Contour et non plein : valider une humeur ne doit pas peser autant que "Voir la séance", qui est
-    // l'action principale de l'écran — deux boutons pleins en émeraude se disputaient l'attention.
-    +'<button class="btn btn-outline" style="margin-top:12px;padding:13px;font-size:13.5px;border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="confirmCheckinHome(\''+prefix+'\')">'+trDyn('Confirm')+'</button>'
+    +btns
     +'</div>';
   sweepTranslate(b, currentLang);
+}
+function checkinWashRgb(val){
+  const o=CHECKIN_ORDINAL[val]||3;
+  return o<=1 ? '255,41,79' : o<=2 ? '249,156,26' : o<=3 ? '168,167,184' : '38,197,123';
 }
 // Conséquence réelle affichée après validation (audit Home, sept. 2026 puis calculatrice) : avant,
 // la réponse n'aboutissait qu'à un accusé "emoji + Changer" sans lien visible avec quoi que ce soit.
@@ -9920,11 +9941,14 @@ function selCheckinHome(el,val,prefix){
 // Applique réellement l'ajustement (jauge par exercice, même source que le moteur de séance live) puis
 // fait "monter" l'émoji dans l'en-tête (cf discussion "sinon c'est la data qui ne sert à rien") et
 // rafraîchit la carte séance pour qu'elle affiche les nouveaux chiffres tout de suite.
-function confirmCheckinHome(prefix){
+// applyImpact=false (bouton "Enregistrer sans ajuster") : le statut est quand même enregistré (c'est
+// lui qui alimente la tendance Forme), seul le réglage de la séance reste tel que prescrit.
+function confirmCheckinHome(prefix, applyImpact){
+  const apply = applyImpact!==false;
   const val=todayCheckin;
   const impact=CHECKIN_IMPACT[val];
   const sess=getSessionDuJour();
-  if(impact){
+  if(impact && apply){
     const p=previewCheckinImpact(val);
     todaySessionAdjust={exCount:p.exCount, duree:p.duree, level:impact.level};
     // Base = le jauge par défaut du niveau de profil, jamais la valeur déjà surchargée — sinon
@@ -13715,6 +13739,8 @@ const EN_FR = {
   "Card number": "Numéro de carte",
   "MM/YY": "MM/AA",
   "Confirm": "Confirmer",
+  "Confirm the adjustment": "Confirmer l'ajustement",
+  "Log without adjusting": "Enregistrer sans ajuster",
   "No charge today · Your plan starts in 30 days": "Aucun prélèvement aujourd'hui · Ta formule démarre dans 30 jours",
   "Secure payment · SSL encryption": "Paiement sécurisé · Chiffrement SSL",
   // formules_preview
