@@ -11537,12 +11537,21 @@ function renderProgPeriod(periodKey){
     const painDelta = (painAvgPrev!=null && Math.abs(painAvg-painAvgPrev)>=1)
       ? {txt:(painAvg<painAvgPrev?'\u2193 ':'\u2191 ')+(Math.round(Math.abs(painAvg-painAvgPrev)*10)/10), col:(painAvg<painAvgPrev?'var(--brand-fixed)':'var(--vigilance)')}
       : null;
+    // Le verdict ("Mild pain") porte la couleur de la MOYENNE, les barres celle de CHAQUE s\u00e9ance (r\u00e8gle
+    // du 12 sept., volontairement conserv\u00e9e) \u2014 sur une fen\u00eatre avec un pic isol\u00e9, une moyenne encore
+    // l\u00e9g\u00e8re peut cohabiter avec une barre rouge juste en dessous, verdict et graphique semblant se
+    // contredire (cf brief DEV 16 sept., partie 5). On ne recolore rien : on nomme le pic \u00e0 c\u00f4t\u00e9 du
+    // verdict quand il est d'une s\u00e9v\u00e9rit\u00e9 au-dessus de la moyenne, pour que la barre rouge s'explique
+    // au lieu de sembler contredire le mot juste au-dessus.
+    const peakPain = painSeries.length ? Math.max(...painSeries.map(x=>x.v)) : null;
+    const peakNote = (peakPain!=null && painColOf(peakPain)!==painCol)
+      ? ' \u00b7 '+trDyn('peak')+' '+(Math.round(peakPain*10)/10)+'/10' : '';
     blocDouleur+='<div class="zone-lbl" style="margin:22px 0 12px;display:flex;align-items:center;gap:6px;">PAIN<span class="info-i" onclick="event.stopPropagation();showInfoSheet(\'Pain\',\'The average pain you declared at the end of your sessions over this window. Each bar is one session, in order. The arrow compares it with the previous window, from 1 point of difference.\')" style="cursor:pointer;margin-left:4px;color:var(--gray);font-size:14px;display:inline-flex;align-items:center;flex-shrink:0;"><svg class="ki"><use href="#ki-info"/></svg></span></div>';
     blocDouleur+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:'+painCol+';line-height:1;flex-shrink:0;">'+painShown+'<span style="font-size:15px;font-weight:600;color:var(--gray2);">/10</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);">'+trDyn('average over '+getPeriodLabel(periodKey))+'</div>'
-      +'<div style="margin-left:auto;font-size:12.5px;font-weight:700;color:'+painCol+';text-align:right;">'+trDyn(painAvg<=3?'Mild pain':painAvg<=6?'Moderate pain':'High pain')+'</div>'
+      +'<div style="margin-left:auto;font-size:12.5px;font-weight:700;color:'+painCol+';text-align:right;">'+trDyn(painAvg<=3?'Mild pain':painAvg<=6?'Moderate pain':'High pain')+peakNote+'</div>'
       +'</div>'
       +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'+spark
       +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:7px;">'
@@ -14625,6 +14634,7 @@ const EN_FR = {
   "Inactivity": "Inactivité",
   "High pain": "Douleur élevée",
   "Mild pain": "Douleur légère",
+  "peak": "pic",
   "Free trial in progress": "Essai gratuit en cours",
   "Session with": "Séance avec",
   "AT YOUR OWN PACE": "À TON RYTHME",
@@ -15100,7 +15110,7 @@ const EN_FR = {
   "Good session, range of motion correct.": "Bonne séance, amplitude de mouvement correcte.",
   "Right shoulder post-op (D+45).\nGood overall progress weeks 1-3 but pain increasing this week.\nKeep an eye on it — adjust loads.\nAvoid overhead exercises.": "Épaule droite post-op (J+45).\nBonne progression semaines 1-3 mais douleur en augmentation cette semaine.\nÀ surveiller — ajuster les charges.\nÉviter les exercices au-dessus de la tête.",
   "Very good attendance, no discomfort reported.": "Très bonne assiduité, aucune gêne signalée.",
-  "Good session in wheelchair, stable range of motion.": "Bonne séance en fauteuil, amplitude stable.",
+  "Good session, shoulder range of motion improving.": "Bonne séance, amplitude d'épaule en progrès.",
   "Needs a follow-up, no session in 12 days.": "À relancer, aucune séance depuis 12 jours.",
   "Excellent attendance, very good shape.": "Assiduité excellente, très bonne forme.",
   "Increasing lower back pain, review exercises.": "Douleur lombaire en augmentation, revoir les exercices.",
@@ -20713,7 +20723,7 @@ const PATIENTS = [
   {id:'p3', nom:'Jean-Pierre L.', ini:'J', color:'var(--orange)', tc:'#fff', statut:'actif', prog:'Shoulder mobility', niveau:'Beginner', semaine:6, dateDebut:Date.now()-42*HIST_DAY, seances:15, derniere:'5 days ago', joursInactif:0, observance:65, douleurMoy:3.8,
    douleur:[4.5,4.2,4,3.9,3.8],
    historique:[{date:'5 days ago',nom:'Shoulder mobility · W6',duree:'25 min',effort:'Good',douleur:3.8,reps:36},{date:'8 days ago',nom:'Gentle mobility',duree:'20 min',effort:'Easy',douleur:4,reps:30}],
-   notes:[{date:'5 days ago',txt:'Good session in wheelchair, stable range of motion.'}],
+   notes:[{date:'5 days ago',txt:'Good session, shoulder range of motion improving.'}],
    records:[{ex:'Shoulder rotation',reps:20},{ex:'Lateral raises',reps:14},{ex:'Wrist curl',reps:18}],
    onb:{positions:['Seated'], zonesEviter:['Shoulder(s)'], objectif:'Gain mobility', frequence:'3×/week'}, dateNaissance:'03/05/1952'},
   {id:'p4', nom:'Nicolas P.', ini:'N', color:'#6C5CE7', tc:'#fff', statut:'inactif', prog:'Initial assessment', niveau:'Beginner', seances:1, semaine:1, dateDebut:Date.now()-7*HIST_DAY, derniere:'12 days ago', joursInactif:12, observance:40, douleurMoy:3.0,
