@@ -486,7 +486,7 @@ video::-webkit-media-controls,video::-webkit-media-controls-panel,video::-webkit
 .today-sub{font-size:12px;color:var(--gray);margin-bottom:12px;}
 .today-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .stats3{display:flex;gap:10px;margin:16px 20px;}
-.scard{flex:1;background:var(--bg2);border-radius:16px;padding:16px;border:1px solid var(--border);}
+.scard{flex:1;min-width:0;background:var(--bg2);border-radius:16px;padding:16px;border:1px solid var(--border);}
 /* Zone KPI de Home, refondue (cf audit "la home au banc d'essai") : le suivi pur passe en trio
    compact — trois chiffres qui se comparent d'un coup d'oeil au lieu de trois cartes a faire
    defiler — et les seuls vrais signaux de securite (charge, douleur) gardent la carte pleine.
@@ -8133,7 +8133,7 @@ function renderDirFiche(){
     : '<span class="pbdg" style="background:rgba(var(--teal-rgb),.15);color:var(--teal);">✓ Aligned</span>';
   sc.innerHTML='<div class="card-sm">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
-      +'<div><div style="font-size:20px;font-weight:800;color:var(--white);">'+r.users+'</div><div style="font-size:11px;color:var(--gray2);">members · '+r.observance+'% adherence</div></div>'
+      +'<div><div style="font-size:20px;font-weight:800;color:var(--white);">'+r.users+'</div><div style="font-size:11px;color:var(--gray2);">'+trDyn('members')+' · '+r.observance+'% '+trDyn('adherence')+'</div></div>'
       +'<div style="font-size:12px;font-weight:700;color:'+r.trendColor+';">'+r.trendIcon+' '+r.trend+'</div>'
     +'</div>'
     +renderDirReferentBars(r.profil)
@@ -8155,21 +8155,21 @@ function renderDirReferentsList(){
   let arr=all;
   if(dirRefStatutFilter) arr=arr.filter(r=>r.statut===dirRefStatutFilter);
   if(dirRefTagFilter) arr=arr.filter(r=>getReferentTags(r).includes(dirRefTagFilter));
-  if(!arr.length){ list.innerHTML='<div class="lib-empty">No coaches in this category.</div>'; return; }
+  if(!arr.length){ list.innerHTML='<div class="lib-empty">'+trDyn('No coaches in this category.')+'</div>'; return; }
   list.innerHTML=arr.map(r=>{
     if(r.statut==='attente'){
-      return '<div class="pat-item" onclick="toast(\'Invitation still pending\')"><div class="pat-av" style="background:var(--gray2);color:var(--ink-on-accent);">'+r.ini+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.specialite+'</div></div><span class="pbdg bdg-o">Invitation sent</span></div>';
+      return '<div class="pat-item" onclick="toast(\'Invitation still pending\')"><div class="pat-av" style="background:var(--gray2);color:var(--ink-on-accent);">'+r.ini+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.specialite+'</div></div><span class="pbdg bdg-o">'+trDyn('Invitation sent')+'</span></div>';
     }
     const ringStyle=';border:2.5px solid '+getReferentTagColor(r)+';';
     if(r.statut==='inactif'){
-      return '<div class="pat-item" style="cursor:default;border-left:3px solid var(--vigilance);padding-left:17px;"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · inactive for '+r.inactifDepuis+'</div><div style="font-size:12px;font-weight:700;color:var(--vigilance);margin-top:2px;display:flex;align-items:center;gap:5px;">'+ICON_ATTN_VIGILANCE+'To check — inactive</div></div><button class="pres-add" onclick="event.stopPropagation();toast(\'Reminder sent to '+r.nom+' ✓\')">Follow up</button></div>';
+      return '<div class="pat-item" style="cursor:default;border-left:3px solid var(--vigilance);padding-left:17px;"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · '+trDyn('inactive for '+r.inactifDepuis)+'</div><div style="font-size:12px;font-weight:700;color:var(--vigilance);margin-top:2px;display:flex;align-items:center;gap:5px;">'+ICON_ATTN_VIGILANCE+trDyn('To check — inactive')+'</div></div><button class="pres-add" onclick="event.stopPropagation();toast(\'Reminder sent to '+r.nom+' ✓\')">'+trDyn('Follow up')+'</button></div>';
     }
     const tags=getReferentTags(r);
     const reason = tags.includes('alerte') ? {color:'var(--red)', text:trDyn('Gap detected — profile diverges from centre average')}
       : tags.includes('checker') ? {color:'var(--orange)', text:trDyn('Declining trend')+' — '+trDyn(r.trend)}
       : null;
     const reasonHtml = reason ? '<div style="font-size:12px;color:'+reason.color+';margin-top:2px;">'+reason.text+'</div>' : '';
-    return '<div class="pat-item" onclick="openReferentFiche(\''+r.id+'\')"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · '+r.users+' members · '+r.observance+'%</div>'+reasonHtml+'</div></div>';
+    return '<div class="pat-item" onclick="openReferentFiche(\''+r.id+'\')"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · '+r.users+' '+trDyn('members')+' · '+r.observance+'%</div>'+reasonHtml+'</div></div>';
   }).join('');
 }
 const REF_RANK_METRICS=[{key:'activityRate',label:'Activity rate'},{key:'observance',label:'Regularity'},{key:'sessionsPerWeek',label:'Sessions/wk'},{key:'intensity',label:'Intensity'}];
@@ -13848,6 +13848,7 @@ const EN_FR = {
   "Attendance": "Présence",
   "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> With the coach": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> Avec le coach",
   "Autonomous": "Autonomie",
+  "With the coach": "Avec le coach",
   "Director": "Directeur",
   "Coaches managed": "Référents gérés",
   "kinmio team · National network": "Équipe kinmio · Réseau national",
@@ -14869,6 +14870,7 @@ const EN_FR = {
   "min/wk": "min/sem.",
   "activity rate": "taux d'activité",
   "members": "membres",
+  "adherence": "observance",
   "member needs attention today": "membre nécessite ton attention aujourd'hui",
   "members need attention today": "membres nécessitent ton attention aujourd'hui",
   "All members are on track": "Tous les membres sont sur la bonne voie",
@@ -20937,11 +20939,17 @@ function renderAdminGrowthCurve(svgId, values, labels, color, step){
   const labelsSvg=values.map((v,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(h-2)+'" font-size="9" fill="var(--gray)" text-anchor="middle">'+labels[i]+'</text>').join('');
   svg.innerHTML=shape+labelsSvg;
 }
-const ADMIN_GROWTH_MONTHS=['Jan','Feb','Mar','Apr','May','Jun'];
+// Mois courts recalculés selon currentLang à chaque appel — même raison que getWeekDayBars() : un
+// libellé isolé dans du SVG n'est jamais rattrapable par sweepTranslate (cf audit établissements,
+// "Jan/Feb/Mar" restait affiché en anglais sous l'interface française).
+function adminGrowthMonths(){ return [0,1,2,3,4,5].map(i=>new Date(2026,i,1).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{month:'short'})); }
 function renderAdminGrowth(){
+  const ADMIN_GROWTH_MONTHS=adminGrowthMonths();
   renderAdminGrowthCurve('admGrowthUsers',[180,210,240,265,290,312],ADMIN_GROWTH_MONTHS,'var(--orange)',false);
   renderAdminGrowthCurve('admGrowthCentres',[2,2,3,3,4,4],ADMIN_GROWTH_MONTHS,'var(--teal)',true);
-  renderAdminGrowthCurve('admGrowthSessions',[320,410,520,610,720,847],ADMIN_GROWTH_MONTHS,'#7368EE',false);
+  // #7368EE (résidu de l'ancienne palette à 4 couleurs) remplacé par l'accent, comme la courbe
+  // Utilisateurs juste au-dessus — même famille de métrique, cf audit établissements.
+  renderAdminGrowthCurve('admGrowthSessions',[320,410,520,610,720,847],ADMIN_GROWTH_MONTHS,'var(--orange)',false);
 }
 function renderAdminTopMetrics(){
   const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
@@ -20975,9 +20983,9 @@ function renderAdmin(){
             +'<div style="text-align:right;"><span class="pbdg" style="background:var(--bg3);color:var(--gray2);">PENDING ACTIVATION</span><div style="margin-top:6px;"><button class="pres-add" onclick="toast(\'Reminder sent to '+ct.nom+' ✓\')">Follow up →</button></div></div></div>';
         }
         const near=ct.renouvJ<100;
-        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--orange)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--orange)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\'<svg class="ki"><use href="#ki-note"/></svg>\'+ct.nom+\' report (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Centre report</button></div></div>';
+        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--orange)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--orange)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\''+ct.nom+' report (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Centre report</button></div></div>';
       }).join('')
-    + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'<svg class="ki"><use href="#ki-ob-chart"/></svg>Full network export (demo)\')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Export network</button></div>';
+    + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'Full network export (demo)\')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Export network</button></div>';
 
   // ===== GROWTH (croissance réseau — courbes + transition + renouvellement) =====
   const gr=document.getElementById('adm_metriques');
@@ -21023,9 +21031,9 @@ function renderAdmin(){
     +'<div class="px" style="padding-top:14px;"><button class="btn btn-outline" onclick="exportDataset()"><svg class="ki"><use href="#ki-ob-chart"/></svg>Export global data</button></div>'
     +'<div class="ex-sec-t" style="padding:16px 20px 8px;">Reports</div>'
     +'<div class="px" style="display:flex;flex-direction:column;gap:10px;">'
-      +'<button class="btn btn-outline" onclick="toast(\'<svg class="ki"><use href="#ki-ob-chart"/></svg>Monthly network report (demo)\')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Monthly network report</button>'
+      +'<button class="btn btn-outline" onclick="toast(\'Monthly network report (demo)\')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Monthly network report</button>'
       +'<button class="btn btn-outline" onclick="toast(\'📈 Aggregated data export (demo)\')">📈 Aggregated data export</button>'
-      +'<button class="btn btn-outline" onclick="toast(\'<svg class="ki"><use href="#ki-note"/></svg>Annual network review (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Annual network review</button>'
+      +'<button class="btn btn-outline" onclick="toast(\'Annual network review (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Annual network review</button>'
     +'</div>';
 
   // ===== USAGE RÉSEAU (données agrégées anonymisées — déplacé depuis l'ancien onglet Métriques) =====
@@ -24211,7 +24219,9 @@ const REF_SESSIONS=[
   {day:3, time:'11:00', dur:'30 min', name:'Jean-Pierre L.', type:'individuel',  prog:'Shoulder post-op',           status:'planned', exercices:['4','12','17']},
   {day:4, time:'10:00', dur:'30 min', name:'Group A', type:'collectif', pers:8, prog:'Weekly check-in',             status:'planned'}
 ];
-const CAL_STATUS={done:{t:'Done',c:'bdg-a'}, live:{t:'In progress',c:'bdg-o'}, planned:{t:'Planned',c:'bdg-w'}};
+// "Planned" est un fait neutre (la plupart des séances passent par cet état), jamais une alerte —
+// bdg-w (rouge critique) était réservé à un seuil franchi, pas à "à venir" (cf audit établissements).
+const CAL_STATUS={done:{t:'Done',c:'bdg-a'}, live:{t:'In progress',c:'bdg-o'}, planned:{t:'Planned',c:'bdg-i'}};
 let calView='week', calOffset=0;
 const hh=t=>t.replace(':00','h').replace(':','h');
 function setCalView(el){
@@ -24368,14 +24378,21 @@ function renderCalWeek(){
 function renderCalToday(){
   const c=document.getElementById('cal_today'); if(!c) return;
   const sess=REF_SESSIONS.map((s,gi)=>({s,gi})).filter(o=>o.s.day===REF_TODAY && (o.s.weekOffset||0)===0).sort((a,b)=>a.s.time.localeCompare(b.s.time));
-  if(!sess.length){ c.innerHTML='<div class="lib-empty">No session today.</div>'; return; }
+  if(!sess.length){ c.innerHTML='<div class="lib-empty">'+trDyn('No session today.')+'</div>'; return; }
   c.innerHTML=sess.map(({s,gi})=>{
     const teal=s.type==='collectif', st=CAL_STATUS[s.status]||CAL_STATUS.planned;
     const btn=s.status==='done'
-      ? (teal ? '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="openCollectifSession('+gi+',true)">View results</button>' : '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="toast(\'Session results — coming soon\')">View results</button>')
-      : '<button class="btn '+(teal?'btn-teal':'btn-orange')+'" style="margin-top:10px;padding:12px;" onclick="'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">Start →</button>';
+      ? (teal ? '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="openCollectifSession('+gi+',true)">'+trDyn('View results')+'</button>' : '<button class="btn btn-outline" style="margin-top:10px;padding:12px;" onclick="toast(\'Session results — coming soon\')">'+trDyn('View results')+'</button>')
+      // Toujours btn-orange (accent) : collectif/individuel est un format de séance, pas un verdict —
+      // btn-teal (vert fixe) réservé à ce qui EST l'information (cf charte, audit établissements).
+      : '<button class="btn btn-orange" style="margin-top:10px;padding:12px;" onclick="'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">'+trDyn('Start →')+'</button>';
+    // "Group"/"Individual" et "N people" composés avec des données dynamiques (s.prog/s.pers) : jamais
+    // via trDyn() sur un fragment, construits directement selon currentLang (même piège i18n que déjà
+    // rencontré plusieurs fois cette session).
+    const nameTxt = teal ? s.name+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : s.name;
+    const typeTxt = currentLang==='fr' ? (teal?'Groupe':'Individuel') : (teal?'Group':'Individual');
     return '<div class="card" style="margin-bottom:10px;border-left:4px solid '+(teal?'var(--teal)':'#9C9CD4')+';">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">'+(teal?s.name+' ('+s.pers+' people)':s.name)+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+(teal?'Group':'Individual')+' · '+s.prog+'</div></div><span class="pbdg '+st.c+'">'+st.t+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">'+nameTxt+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+typeTxt+' · '+s.prog+'</div></div><span class="pbdg '+st.c+'">'+trDyn(st.t)+'</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);margin-top:8px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg> '+hh(s.time)+' · '+s.dur+'</div>'+btn+'</div>';
   }).join('');
 }
@@ -24424,18 +24441,23 @@ function calSessionPop(gi){
   const s=REF_SESSIONS[gi]; if(!s) return;
   const teal=s.type==='collectif', st=CAL_STATUS[s.status]||CAL_STATUS.planned;
   const btn=s.status==='done'
-    ? (teal ? '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();openCollectifSession('+gi+',true)">View results</button>' : '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();toast(\'Results — coming soon\')">View results</button>')
-    : '<button class="btn '+(teal?'btn-teal':'btn-orange')+'" style="margin-top:14px;" onclick="closeModal();'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">Start the session →</button>';
+    ? (teal ? '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();openCollectifSession('+gi+',true)">'+trDyn('View results')+'</button>' : '<button class="btn btn-outline" style="margin-top:14px;" onclick="closeModal();toast(\'Results — coming soon\')">'+trDyn('View results')+'</button>')
+    // Toujours btn-orange : collectif/individuel est un format, pas un verdict (cf renderCalToday, même
+    // correction, audit établissements).
+    : '<button class="btn btn-orange" style="margin-top:14px;" onclick="closeModal();'+(teal?(s.status==='live'?'openCollectifSession('+gi+')':'startScheduledCollectifSession('+gi+')'):'startReferentSession('+gi+')')+'">'+trDyn('Start the session →')+'</button>';
   const attendanceTag = (!teal && s.avecCoach!==undefined)
-    ? '<span class="tag" style="margin-top:8px;display:inline-block;'+(s.avecCoach?'background:rgba(var(--teal-rgb),.12);color:var(--teal);':'background:var(--bg3);color:var(--gray2);')+'">'+(s.avecCoach?'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> With the coach':'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> Autonomous')+'</span>'
+    ? '<span class="tag" style="margin-top:8px;display:inline-block;'+(s.avecCoach?'background:rgba(var(--teal-rgb),.12);color:var(--teal);':'background:var(--bg3);color:var(--gray2);')+'">'+(s.avecCoach?'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> '+trDyn('With the coach'):'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> '+trDyn('Autonomous'))+'</span>'
     : '';
   const noteBlock = s.coachNote ? '<div class="coach-tip" style="margin-top:10px;text-align:left;"><span class="ct-ic"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5 y=3.5 width=14 height=17 rx=2 /><path d=M8.5,9h7 /><path d=M8.5,13h7 /><path d=M8.5,17h4 /></svg></span><span>'+s.coachNote+'</span></div>' : '';
-  showModal('<div style="font-size:12px;font-weight:700;color:'+(teal?'var(--teal)':'var(--orange)')+';text-transform:uppercase;margin-bottom:6px;">'+(teal?'Group session':'Individual session')+'</div>'
-    +'<div style="font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px;">'+(teal?s.name+' ('+s.pers+' people)':s.name)+'</div>'
+  // "N people"/"With the coach"/statut composés avec du contenu dynamique : construits directement
+  // selon currentLang, jamais via sweepTranslate sur un fragment (même piège i18n déjà rencontré).
+  const nameTxt = teal ? s.name+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : s.name;
+  showModal('<div style="font-size:12px;font-weight:700;color:'+(teal?'var(--teal)':'var(--orange)')+';text-transform:uppercase;margin-bottom:6px;">'+trDyn(teal?'Group session':'Individual session')+'</div>'
+    +'<div style="font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px;">'+nameTxt+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);">'+s.prog+'</div>'
-    +'<div style="font-size:13px;color:var(--gray);margin-top:10px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg> '+hh(s.time)+' · '+s.dur+' · '+st.t+'</div>'
+    +'<div style="font-size:13px;color:var(--gray);margin-top:10px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg> '+hh(s.time)+' · '+s.dur+' · '+trDyn(st.t)+'</div>'
     +attendanceTag+noteBlock
-    +btn+'<button class="btn-ghost" style="margin-top:6px;width:100%;color:var(--gray2);" onclick="closeModal()">Close</button>');
+    +btn+'<button class="btn-ghost" style="margin-top:6px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
 }
 // Alias : même modale que le bouton "Assigner" de l'Accueil (cf discussion — le FAB du calendrier
 // n'offrait avant que Individuelle/Collective, jamais Programme, sans raison de diverger). Un seul
