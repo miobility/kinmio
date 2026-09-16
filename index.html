@@ -2647,6 +2647,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="mem-statseg" data-statut="actif" style="color:var(--teal);" onclick="setKineStatutFilter('actif')"><div class="v" id="statvActif">—</div><div class="l">Active</div></div>
         <div class="mem-statseg" data-statut="inactif" style="color:var(--gray2);" onclick="setKineStatutFilter('inactif')"><div class="v" id="statvInactif">—</div><div class="l">Inactive</div></div>
         <div class="mem-statseg" data-statut="attente" style="color:var(--orange);" onclick="setKineStatutFilter('attente')"><div class="v" id="statvAttente">—</div><div class="l">Pending</div></div>
+        <div class="mem-statseg" data-statut="sorti" style="color:var(--gray);" onclick="setKineStatutFilter('sorti')"><div class="v" id="statvSorti">—</div><div class="l">Closed</div></div>
       </div>
       <div class="tag-filters">
         <div class="tag-chip red" id="tagChipAlerte" onclick="setKineTagFilter('alerte')">Alert <span id="tagChipAlerteCount"></span></div>
@@ -7119,9 +7120,13 @@ function restoreMarcState(){
 // le conteneur .topnav-r lui-même).
 function renderProgCoachActions(){
   const el=document.getElementById('progCoachActions'); if(!el) return;
-  el.innerHTML = (currentRole==='referent' && curPatient)
-    ? '<span onclick="assignToPatient()" style="cursor:pointer;font-size:18px;" title="Assign"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5.5 y=4.5 width=13 height=17 rx=2 /><rect x=9 y=3 width=6 height=3 rx=1 /><path d=M8.5,11h7 /><path d=M8.5,15h7 /></svg></span>'
-    : '';
+  if(!(currentRole==='referent' && curPatient)){ el.innerHTML=''; return; }
+  const closed = curPatient.statut==='sorti';
+  let html = closed ? '' : '<span onclick="assignToPatient()" style="cursor:pointer;font-size:18px;" title="Assign"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5.5 y=4.5 width=13 height=17 rx=2 /><rect x=9 y=3 width=6 height=3 rx=1 /><path d=M8.5,11h7 /><path d=M8.5,15h7 /></svg></span>';
+  // Clôturer le suivi (cf audit référent, #1) : pas de sens pour une invitation pas encore acceptée
+  // (attente) ni pour un suivi déjà clôturé (sorti) — seuls actif/inactif peuvent être clôturés.
+  if(curPatient.statut!=='attente' && !closed) html += '<span onclick="cloturerSuivi()" style="cursor:pointer;font-size:18px;margin-left:14px;" title="'+trDyn('Close follow-up')+'"><svg class="ki"><use href="#ki-check-circle"/></svg></span>';
+  el.innerHTML = html;
 }
 // Point d'entrée unique pour l'en-tête de l'écran Progress — appelé aussi bien depuis le flux coach
 // (openPatientProgress) que depuis un accès direct par la nav du bas (go('progression') pour Marc/
@@ -7425,7 +7430,7 @@ function statsObservancePct(patients, from, to){
 function statsDouleurAvg(patients, from, to){
   const painAvgs=[];
   patients.forEach(p=>{
-    if(p.statut==='attente') return;
+    if(p.statut==='attente'||p.statut==='sorti') return;
     const withPain=getPatientHistory(p).filter(h=>h.date>=from && h.date<to && h.douleur!=null);
     if(withPain.length) painAvgs.push(withPain.reduce((s,h)=>s+h.douleur,0)/withPain.length);
   });
@@ -7440,7 +7445,7 @@ function statsEffortPct(patients, from, to){
   const windowDays=Math.max(1, Math.round((to-from)/HIST_DAY));
   let sum=0, n=0;
   patients.forEach(p=>{
-    if(p.statut==='attente') return;
+    if(p.statut==='attente'||p.statut==='sorti') return;
     const history=getPatientHistory(p);
     const sessions=history.filter(h=>h.date>=from && h.date<to);
     if(!sessions.length) return;
@@ -7634,7 +7639,7 @@ function statsMembersRanking(patients, from, to, metric){
   const windowDays=Math.max(1,(to-from)/HIST_DAY), weeks=windowDays/7;
   const rows=[];
   patients.forEach(p=>{
-    if(p.statut==='attente') return;
+    if(p.statut==='attente'||p.statut==='sorti') return;
     const history=getPatientHistory(p);
     const sessions=history.filter(h=>h.date>=from && h.date<to);
     let val=null;
@@ -14228,6 +14233,9 @@ const EN_FR = {
   "weeks": "semaines",
   "Stop this programme?": "Arrêter ce programme ?",
   "Stop this programme": "Arrêter ce programme",
+  "Close this follow-up?": "Clôturer ce suivi ?",
+  "Close follow-up": "Clôturer le suivi",
+  "Follow-up closed": "Suivi clôturé",
   "It goes into your history with what you did. You can pick it up again, or choose another, whenever you want.": "Il rejoint ton historique avec ce que tu as fait. Tu pourras le reprendre, ou en choisir un autre, quand tu veux.",
   "It goes into your history — you can pick it up again later": "Il rejoint ton historique — tu pourras le reprendre plus tard",
   "Programme stopped": "Programme arrêté",
@@ -14979,6 +14987,7 @@ const EN_FR = {
   "Active": "Actif",
   "Alert": "Alerte",
   "Pending": "En attente",
+  "Closed": "Sorti",
   "Invitation sent": "Invitation envoyée",
   "waiting for them to join": "en attente de son inscription",
   "Invitation still pending": "Invitation toujours en attente",
@@ -20656,7 +20665,7 @@ const FREQ_DAYS_MAP={
 function proposeDaysForFrequency(freq){ return FREQ_DAYS_MAP[freq] || FREQ_DAYS_MAP['3×/week']; }
 // Avatar patient : même 3 couleurs sémantiques que le badge de statut (jamais une couleur décorative
 // par identité) — actif=teal, alerte=rouge, attente/inactif=orange/gris, cohérent partout dans l'app.
-const STATUT_AVATAR_COLOR={actif:{bg:'var(--teal)',tc:'var(--bg)'},alerte:{bg:'var(--red)',tc:'#fff'},attente:{bg:'var(--orange)',tc:'#fff'},inactif:{bg:'var(--gray)',tc:'#fff'}};
+const STATUT_AVATAR_COLOR={actif:{bg:'var(--teal)',tc:'var(--bg)'},alerte:{bg:'var(--red)',tc:'#fff'},attente:{bg:'var(--orange)',tc:'#fff'},inactif:{bg:'var(--gray)',tc:'#fff'},sorti:{bg:'var(--gray)',tc:'#fff'}};
 function avatarColorFor(p){ return (STATUT_AVATAR_COLOR[p.statut]||STATUT_AVATAR_COLOR.inactif).bg; }
 function avatarTextColorFor(p){ return (STATUT_AVATAR_COLOR[p.statut]||STATUT_AVATAR_COLOR.inactif).tc; }
 
@@ -20698,11 +20707,12 @@ function getPatientRegularity(p){
   const to=Date.now(); return getPatientRegularityPct(p, to-7*HIST_DAY, to);
 }
 function getPatientStatut(p){
+  if(p.statut==='sorti') return 'sorti';
   if(p.statut==='attente') return 'attente';
   return (p.joursInactif||0) >= (alertCfg.inactivite.val||7) ? 'inactif' : 'actif';
 }
 function getPatientTags(p){
-  if(p.statut==='attente') return [];   // pas encore de vraie donnée (observance/douleur placeholder à 0) : aucun tag
+  if(p.statut==='attente'||p.statut==='sorti') return [];   // pas encore de vraie donnée (observance/douleur placeholder à 0) / suivi clôturé : aucun tag
   const tags=new Set();
   // isInactive répété ici (déjà appliqué côté computeReferentAttention, cf son commentaire) : sans ce
   // garde-fou, un membre inactif — dont la régularité tombe mécaniquement à 0% — recevait un tag "Alert"
@@ -20747,6 +20757,7 @@ function renderKineDash(){
   set('statvActif', PATIENTS.filter(p=>getPatientStatut(p)==='actif').length);
   set('statvInactif', PATIENTS.filter(p=>getPatientStatut(p)==='inactif').length);
   set('statvAttente', PATIENTS.filter(p=>getPatientStatut(p)==='attente').length);
+  set('statvSorti', PATIENTS.filter(p=>getPatientStatut(p)==='sorti').length);
   // Compteurs sur les chips Alert/To check, comme la stat bar juste au-dessus (cf discussion : un seul
   // chip avait un chiffre, l'autre non — incohérence de pattern). "To check" exclut ceux déjà comptés
   // en Alert (un membre peut porter les deux tags à la fois, cf getPatientTagColor qui priorise déjà
@@ -20793,6 +20804,8 @@ function renderKinePatients(){
     const daysAgo=Math.max(0,Math.round((Date.now()-(p.inviteDate||Date.now()))/HIST_DAY));
     const meta = statut==='attente'
       ? trDyn('Invitation sent')+' · '+trDyn(daysAgo+' days ago')
+      : statut==='sorti'
+      ? trDyn('Follow-up closed')+(p.sortieDate?(' · '+new Date(p.sortieDate).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short',year:'numeric'})):'')
       : trDyn('Last activity')+': '+trDyn(p.derniere);
     const click = statut==='attente' ? "toast('"+trDyn('Invitation sent').replace(/'/g,"\\'")+" — "+trDyn('waiting for them to join').replace(/'/g,"\\'")+"')" : "openPatient('"+p.id+"')";
     const reason = reasonMap[p.id];
@@ -20820,6 +20833,30 @@ const ZONE_LABELS_RADAR={dos:'Back',epaules:'Shoulders',bras:'Arms',jambes:'Legs
 function assignToPatient(){
   if(!curPatient) return;
   openAssignChoice(curPatient.id);
+}
+
+// 5.3bis Clôture du suivi (cf audit référent, #1 : aucune fonctionnalité de sortie/relais n'existait —
+// getPatientStatut n'avait que actif/inactif/attente, aucun état terminal). Volontairement distinct
+// d'inactif, qui reste temporaire et réversible : un suivi clôturé exprime une décision du référent,
+// pas une absence mesurée. Prénom seul dans le texte (cf patSubtitle/registre non-clinique) : jamais
+// de motif clinique affiché ici.
+function cloturerSuivi(){
+  if(!curPatient || curPatient.statut==='attente' || curPatient.statut==='sorti') return;
+  const prenom=curPatient.nom.split(' ')[0];
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:6px;">'+trDyn('Close this follow-up?')+'</div>'
+    +'<div style="font-size:13.5px;line-height:1.5;color:var(--gray2);margin-bottom:16px;">'+(currentLang==='fr'
+      ? 'Le suivi avec '+prenom+' s\'arrête ici. '+prenom+' garde l\'accès à son historique et peut continuer en autonomie.'
+      : 'The follow-up with '+prenom+' ends here. '+prenom+' keeps access to their history and can continue on their own.')+'</div>'
+    +'<button class="btn btn-outline" style="width:100%;margin-bottom:10px;color:var(--red);border-color:var(--red);" onclick="confirmCloturerSuivi()">'+trDyn('Close follow-up')+'</button>'
+    +'<button class="btn-ghost" style="width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Cancel')+'</button>');
+}
+function confirmCloturerSuivi(){
+  if(!curPatient) return;
+  curPatient.statut='sorti';
+  curPatient.sortieDate=Date.now();
+  closeModal();
+  toast(trDyn('Follow-up closed'));
+  go('dashboard_referent'); setRefView('utilisateurs');
 }
 
 // 5.4 Fiche référent publique (vue utilisateur) — stats + prochaine séance, plus de chat (retiré :
@@ -20897,7 +20934,7 @@ function computeReferentAttention(){
     // (repli sur une adhérence plancher) — sans cette garde il pouvait remonter dans Alertes/À checker
     // avec un motif entièrement inventé (cf audit référent, "Régularité faible — 33%" sur un invité qui
     // n'a jamais fait une séance).
-    if(p.statut==='attente') return;
+    if(p.statut==='attente'||p.statut==='sorti') return;
     // Inactif = ne s'entraîne plus (cf discussion) : à checker, pas une alerte clinique. Exclut Marc en
     // pause programme — la pause existe justement pour couper les rappels pendant une absence assumée.
     const isPausedP1 = p.id==='p1' && programmeActif && !!programmeActif.pausedAt;
