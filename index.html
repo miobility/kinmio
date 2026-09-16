@@ -806,9 +806,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 .dcov .du{font-size:11px;font-weight:700;color:rgba(255,255,255,.84);margin-top:2px;line-height:1.25;}
 .dcov .dw{font-size:10px;color:rgba(255,255,255,.62);margin-top:5px;font-variant-numeric:tabular-nums;}
 .u-minutes{background:linear-gradient(145deg,#1B6B4A,#26C57B);}
-.u-seances{background:linear-gradient(145deg,#1D4E86,#529CFE);}
+/* seances/serie recolorés (audit charte, collision presets) : #529CFE = preset Bleu, #E85EE8 = preset
+   Orchidée — un centre qui les choisit rendait ces badges indiscernables de son propre accent.
+   jours (#A87EFD, collision Violet) et points (#B69F2B, collision Ambre) ont la même collision,
+   pas encore corrigée — hors périmètre de ce correctif, cf audit charte. */
+.u-seances{background:linear-gradient(145deg,#1A3F70,#3B7DDB);}
 .u-jours  {background:linear-gradient(145deg,#4B2E8A,#A87EFD);}
-.u-serie  {background:linear-gradient(145deg,#6B2A6B,#E85EE8);}
+.u-serie  {background:linear-gradient(145deg,#5C2350,#C2469E);}
 .u-points {background:linear-gradient(145deg,#7A6413,#B69F2B);}
 .u-zone   {background:linear-gradient(145deg,#126166,#42CFD7);}
 .u-exoreps{background:linear-gradient(145deg,#1B6B4A,#26C57B);}
@@ -17599,7 +17603,8 @@ function libClearProfileFilter(){
 // bloc "A toi", pour dire d'ou vient la carte sans couter une ligne. Absent ailleurs.
 const LIB_ORIGINE = {
   moi:    {lbl:'Created', bg:'rgba(var(--brand-fixed-rgb),.16)', fg:'var(--brand-fixed)'},
-  coach:  {lbl:'Coach',   bg:'rgba(82,156,254,.16)',             fg:'#529CFE'},
+  // #529CFE recoloré (audit charte, collision preset Bleu) — même correctif que .u-seances.
+  coach:  {lbl:'Coach',   bg:'rgba(59,125,219,.16)',             fg:'#3B7DDB'},
   // #E85EE8 recoloré vers --gold (audit charte, collision Orchidée) : même hex que le preset de
   // personnalisation Orchidée, cf renderDirReferentBars pour le même correctif côté Cardio.
   favori: {lbl:'Favourite', bg:'rgba(245,200,66,.16)',           fg:'var(--gold)'}
