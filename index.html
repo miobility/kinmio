@@ -8088,7 +8088,11 @@ function centreInviteConversion(){
   return { active, pending, pct: total ? Math.round(active/total*100) : 0 };
 }
 function renderDirReferentBars(profil){
-  const colors={mobilite:'#49D7DF',renforcement:'#FF6D45',cardio:'#E85EE8',maintien:'#7368EE'};
+  // cardio recoloré de #E85EE8 vers #F0508F (audit charte, collision Orchidée) : #E85EE8 est aussi le
+  // preset de personnalisation Orchidée — un centre qui le choisit rendait cette barre indiscernable
+  // de son propre accent de marque. Résidu de l'ancienne palette à 4 couleurs, déjà retirée côté
+  // couleurs_objectifs (collapsée en turquoise unique) mais pas ici.
+  const colors={mobilite:'#49D7DF',renforcement:'#FF6D45',cardio:'#F0508F',maintien:'#7368EE'};
   const icons={mobilite:'🔀',renforcement:'💪',cardio:'❤️',maintien:'⚡'};
   return '<div style="display:flex;gap:6px;">'
     + ['mobilite','renforcement','cardio','maintien'].map(k=>
@@ -8731,7 +8735,7 @@ const KPI_CONFIG = {
     "affichage": "barres_horizontales",
     "couleurs": {
       "renforcement": "#FF6D45",
-      "cardio": "#E85EE8",
+      "cardio": "#F0508F",
       "mobilite": "#49D7DF",
       "maintien": "#7368EE"
     },
@@ -17505,7 +17509,9 @@ function libClearProfileFilter(){
 const LIB_ORIGINE = {
   moi:    {lbl:'Created', bg:'rgba(var(--brand-fixed-rgb),.16)', fg:'var(--brand-fixed)'},
   coach:  {lbl:'Coach',   bg:'rgba(82,156,254,.16)',             fg:'#529CFE'},
-  favori: {lbl:'Favourite', bg:'rgba(232,94,232,.16)',           fg:'#E85EE8'}
+  // #E85EE8 recoloré vers --gold (audit charte, collision Orchidée) : même hex que le preset de
+  // personnalisation Orchidée, cf renderDirReferentBars pour le même correctif côté Cardio.
+  favori: {lbl:'Favourite', bg:'rgba(245,200,66,.16)',           fg:'var(--gold)'}
 };
 function origPastille(origine){
   const o = LIB_ORIGINE[origine]; if(!o) return '';
@@ -18470,7 +18476,7 @@ function renderSessCard(s, origin){
   const fav = isFavori('sessions', s.id);
   const originPill = origin==='coach' ? '<span class="tag" style="background:rgba(var(--teal-rgb),.15);color:var(--teal);">Coach</span>'
     : origin==='perso' ? '<span class="tag tag-g">Personal</span>'
-    : origin==='favori' ? '<span class="tag" style="background:rgba(232,94,232,.16);color:#E85EE8;">Favourite</span>' : '';
+    : origin==='favori' ? '<span class="tag" style="background:rgba(245,200,66,.16);color:var(--gold);">Favourite</span>' : '';
   return '<div class="lib-card" onclick="openSessionDetail(\''+s.id+'\')">'
     +'<div class="lib-thumb" style="background-image:url(\''+sessionPhotoFor(s)+'\');background-size:cover;background-position:center;"></div>'
     +'<div class="lib-body"><div class="lib-name">'+s.nom_marketing+'</div>'
@@ -21404,7 +21410,7 @@ const ADMIN_FEATURE_USAGE=[
 const ADMIN_TRAINING_PROFILE=[
   {icon:'<svg class="ki"><use href="#ki-mobility"/></svg>', n:'Mobility', p:44, color:'var(--teal)'},
   {icon:'<svg class="ki"><use href="#ki-ob-dumbbell"/></svg>', n:'Strengthening', p:32, color:'var(--orange)'},
-  {icon:'<svg class="ki"><use href="#ki-heart"/></svg>', n:'Cardio', p:15, color:'#E85EE8'},
+  {icon:'<svg class="ki"><use href="#ki-heart"/></svg>', n:'Cardio', p:15, color:'#F0508F'},
   {icon:'<svg class="ki"><use href="#ki-upkeep"/></svg>', n:'Upkeep', p:9, color:'#7368EE'}
 ];
 const ADMIN_SESSION_DURATION=[
