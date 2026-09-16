@@ -2763,6 +2763,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="p-tab" id="libTopTab_calendrier" onclick="setLibTopTab('calendrier')">Calendar</div>
     <div class="p-tab active" id="libTopTab_seances" onclick="setLibTopTab('seances')">Sessions</div>
     <div class="p-tab" id="libTopTab_exercices" onclick="setLibTopTab('exercices')">Exercises</div>
+    <!-- Référent seulement (libHasProgrammesTab) : il n'a pas de "Mon plan", ce catalogue est son SEUL
+         accès aux programmes — cf audit référent, 16 sept. Masqué par défaut, syncLibProgrammesTab()
+         le montre à sa place. -->
+    <div class="p-tab" id="libTopTab_programmes" style="display:none;" onclick="setLibTopTab('programmes')">Programmes</div>
   </div>
   <div id="libTab_plan" style="display:none;flex-direction:column;flex:1;min-height:0;">
   <div id="progMonView" class="scroll">
@@ -7073,11 +7077,14 @@ function generateFakePatientData(p){
   return data;
 }
 function snapshotMarcState(){
-  marcStateSnapshot={ userSessionHistory:userSessionHistory.slice(), checkInDone, checkInDoneCentre, todayCheckin, userProfileDataFrequence:userProfileData.frequence };
+  // userCheckinHistory ajouté (cf audit référent) : getMoodSignal() le lisait sans jamais être échangé,
+  // donc la flèche "Forme du jour" d'une fiche patient montrait la tendance du référent lui-même.
+  marcStateSnapshot={ userSessionHistory:userSessionHistory.slice(), userCheckinHistory:userCheckinHistory.slice(), checkInDone, checkInDoneCentre, todayCheckin, userProfileDataFrequence:userProfileData.frequence };
 }
 function restoreMarcState(){
   if(!marcStateSnapshot) return;
   userSessionHistory=marcStateSnapshot.userSessionHistory;
+  userCheckinHistory=marcStateSnapshot.userCheckinHistory;
   checkInDone=marcStateSnapshot.checkInDone; checkInDoneCentre=marcStateSnapshot.checkInDoneCentre; todayCheckin=marcStateSnapshot.todayCheckin;
   userProfileData.frequence=marcStateSnapshot.userProfileDataFrequence;
   marcStateSnapshot=null; viewingDemoPatientId=null;
@@ -7242,6 +7249,10 @@ function openPatientProgress(id){
   if(!viewingDemoPatientId) snapshotMarcState();
   const data=generateFakePatientData(p);
   userSessionHistory=data.sessionHistory;
+  // cf audit référent : sans ça, getMoodSignal() gardait l'historique d'humeur du référent, montrant sa
+  // propre tendance sous l'emoji de CE patient. Une seule entrée, pas de tendance fabriquée à partir de
+  // rien (trend:'none' plutôt qu'une flèche inventée).
+  userCheckinHistory=[{date:Date.now(), val:data.checkin}];
   checkInDoneCentre=true; checkInDone=true; todayCheckin=data.checkin;
   userProfileData.frequence=data.frequence;
   viewingDemoPatientId=id;
@@ -7271,7 +7282,7 @@ function renderRefAccueil(){
   const bdays=patientsWithBirthdayToday();
   const bEl=document.getElementById('refBirthdayLine');
   if(bEl){
-    if(bdays.length){ bEl.style.display='block'; bEl.innerHTML='🎂 <span style="font-weight:700;">'+bdays.map(p=>p.nom.split(' ')[0]).join(', ')+'</span> — '+trDyn('happy birthday!'); }
+    if(bdays.length){ bEl.style.display='block'; bEl.innerHTML='<span style="font-weight:700;">'+bdays.map(p=>p.nom.split(' ')[0]).join(', ')+'</span> — '+trDyn('happy birthday!'); }
     else { bEl.style.display='none'; bEl.innerHTML=''; }
   }
   const attn=computeReferentAttention();
@@ -14843,7 +14854,7 @@ const EN_FR = {
   "/ 35 registered": "/ 35 inscrits",
   "Sessions this week": "Séances cette semaine",
   "Active alerts": "Alertes en cours",
-  "Stats": "Statistiques",
+  "Stats": "Stats",
   "Activity": "Activité",
   "sessions completed": "séances réalisées",
   "Avg. sessions / member": "Moy. séances / membre",
@@ -15665,8 +15676,6 @@ const EN_FR_PATTERNS = [
   [/^Inactive (\d+)d$/, (m)=>`Inactif ${m[1]}j`],
   [/^Pain (\d+(?:\.\d+)?)$/, (m)=>`Douleur ${m[1]}`],
   [/^Consistency (\d+)%$/, (m)=>`Régularité ${m[1]}%`],
-  [/^(\d+) users? needs? your attention today\.$/, (m)=>`${m[1]} utilisateur${Number(m[1])>1?'s':''} ${Number(m[1])>1?'ont':'a'} besoin de votre attention aujourd'hui.`],
-  [/^Good week for your group\. (\d+)% adherence\. 🔥$/, (m)=>`Bonne semaine pour votre groupe. ${m[1]}% d'observance. 🔥`],
   [/^Members currently on alert \((\d+)\)$/, (m)=>`Membres actuellement en alerte (${m[1]})`],
   [/^RECORD (\d+) reps$/, (m)=>`RECORD ${m[1]} reps`],
   [/^Sending to: (.+)$/, (m)=>`Envoi à : ${m[1]}`],
@@ -15827,8 +15836,6 @@ const FR_EN_PATTERNS = [
     const dirEn=m[3]==='en hausse'?'up':'down';
     return `${m[1]} ${unitEn} in a row trending ${dirEn}`;
   }],
-  [/^(\d+) utilisateurs? (?:a|ont) besoin de votre attention aujourd'hui\.$/, (m)=>`${m[1]} user${Number(m[1])>1?'s':''} need${Number(m[1])>1?'':'s'} your attention today.`],
-  [/^Bonne semaine pour votre groupe\. (\d+)% d'observance\. 🔥$/, (m)=>`Good week for your group. ${m[1]}% adherence. 🔥`],
   [/^Membres actuellement en alerte \((\d+)\)$/, (m)=>`Members currently on alert (${m[1]})`],
   [/^RECORD (\d+) reps$/, (m)=>`RECORD ${m[1]} reps`],
   [/^Envoi à : (.+)$/, (m)=>`Sending to: ${m[1]}`],
@@ -16869,16 +16876,6 @@ function guideHeroHtml(a){
 // compteur, l'autre avec Filtres seul). Un programme n'est pas une brique qu'on consulte comme un
 // exercice ou une séance : c'est un engagement qu'on prend, qu'on suit et qu'on arrête, et les trois
 // verbes vivent dans l'écran Programme, à côté de « En cours ».
-// MAIS le coach n'a pas d'écran Programme : sa barre du bas est Accueil/Calendrier/Membres/Exercices/
-// Stats, et cette bibliothèque est son SEUL accès aux programmes. L'onglet ne disparaît donc que pour
-// les rôles qui ont l'écran dédié — vérifié avant de le retirer, sous peine d'aveugler le référent.
-// Le catalogue de programmes est désormais visible pour tous : il n'était atteignable que par
-// « Gérer mon programme », au bas d'un long scroll, dans une modale. Choisir un programme reste un
-// acte — mais un acte doit avoir une porte.
-// Le catalogue de programmes n'est plus un onglet : il descend au pied de l'onglet Programme, sous
-// « Changer de programme ». On choisit un programme depuis le sien — et ça libère la place du
-// calendrier dans une rangée qui ne peut pas porter cinq onglets à 375 px.
-function libHasProgrammesTab(){ return false; }
 // Fusion Bibliothèque + Programme (12 sept. 2026). Programme n'était dans AUCUNE barre de navigation :
 // son seul accès était un lien dans le titre d'une carte de l'Accueil, et on lui avait ajouté le
 // calendrier le matin même — un écran devenu important qu'on ne trouvait pas. Or Bibliothèque et
@@ -16888,17 +16885,32 @@ function libHasProgrammesTab(){ return false; }
 //   référent    : Exercices · Séances · Programmes · Guide   (il n'a pas de programme à lui)
 // Le catalogue de programmes reste accessible à l'utilisateur par « Gérer mon programme », depuis Mon
 // plan — choisir un programme est un acte, pas une flânerie.
+// MAIS le coach n'a pas d'écran Programme : sa barre du bas est Accueil/Calendrier/Membres/Exercices/
+// Stats, et cette bibliothèque est son SEUL accès aux programmes. L'onglet ne disparaît donc que pour
+// les rôles qui ont l'écran dédié — vérifié avant de le retirer, sous peine d'aveugler le référent.
+// Une restructuration ultérieure (a58a642, même jour) a remis cette fonction à false en dur en
+// réorganisant pour le flux B2C (catalogue au pied de l'onglet Programme), sans remarquer que le
+// référent — qui n'a pas de "Programme" à lui — perdait alors son seul chemin vers le catalogue.
+// L'avertissement écrit trois heures plus tôt s'est réalisé (cf audit référent, 16 sept.). Le panneau
+// #libTab_programmes et renderLibProgrammes() étaient restés intacts, juste rendus inatteignables.
+function libHasProgrammesTab(){ return currentRole==='referent'; }
 function libHasPlanTab(){ return currentRole!=='referent'; }
+// Le calendrier a son onglet ici pour l'utilisateur ; le référent a déjà son écran calendrier dédié
+// dans sa propre barre du bas, cet onglet-ci lui serait redondant.
+function libHasCalendrierTab(){ return currentRole!=='referent'; }
 function syncLibProgrammesTab(){
   const tabP=document.getElementById('libTopTab_programmes');
   if(tabP) tabP.style.display = libHasProgrammesTab() ? '' : 'none';
   const tabPlan=document.getElementById('libTopTab_plan');
   if(tabPlan) tabPlan.style.display = libHasPlanTab() ? '' : 'none';
+  // La bascule manquait ici (cf audit référent) : libHasCalendrierTab() disait déjà false pour le
+  // référent, mais rien n'appliquait ce résultat au bouton — un onglet fantôme qui restait cliquable
+  // et redirigeait silencieusement vers Séances (cf le garde-fou déjà dans setLibTopTab).
+  const tabCal=document.getElementById('libTopTab_calendrier');
+  if(tabCal) tabCal.style.display = libHasCalendrierTab() ? '' : 'none';
   const actif=document.querySelector('#libNouveauWrap .p-tabs .p-tab.active');
-  if(actif && getComputedStyle(actif).display==='none') setLibTopTab(libHasPlanTab()?'plan':'exercices');
+  if(actif && getComputedStyle(actif).display==='none') setLibTopTab(libHasPlanTab()?'plan':(libHasProgrammesTab()?'programmes':'seances'));
 }
-// Le calendrier a son onglet : plus de bascule, plus rien sous la rangée d'onglets.
-function libHasCalendrierTab(){ return currentRole!=='referent'; }
 function setLibTopTab(key){
   if(key==='programmes' && !libHasProgrammesTab()) key='exercices';
   if(key==='plan' && !libHasPlanTab()) key='seances';
