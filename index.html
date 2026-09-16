@@ -20867,6 +20867,12 @@ const ATTENTION_REASON_OVERRIDE = { p4:'ACWR low — ease back in gently', p5:'R
 function computeReferentAttention(){
   const alertes=[], aChecker=[];
   PATIENTS.forEach(p=>{
+    // Même garde-fou que getPatientTags() (cf son commentaire) : un membre en attente d'activation n'a
+    // pas encore de vraie donnée, generateFakePatientData() lui fabrique quand même ~3 ans d'historique
+    // (repli sur une adhérence plancher) — sans cette garde il pouvait remonter dans Alertes/À checker
+    // avec un motif entièrement inventé (cf audit référent, "Régularité faible — 33%" sur un invité qui
+    // n'a jamais fait une séance).
+    if(p.statut==='attente') return;
     // Inactif = ne s'entraîne plus (cf discussion) : à checker, pas une alerte clinique. Exclut Marc en
     // pause programme — la pause existe justement pour couper les rappels pendant une absence assumée.
     const isPausedP1 = p.id==='p1' && programmeActif && !!programmeActif.pausedAt;
