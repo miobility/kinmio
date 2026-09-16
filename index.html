@@ -148,6 +148,11 @@ button,input,select,textarea{font-family:inherit;}
    logo, CTA & personnalisation") via content:url(), pas de JS nécessaire. */
 :root[data-theme="light"] #splashLogoImg{content:url("kinmio_n_light.png");}
 :root[data-theme="light"] #entryLogoImg{content:url("kinmio_logo_app_light.png");}
+/* Titres en clair, un cran de graisse en moins (brief établissements 16 sept.) : gagé sur le thème,
+   pas sur un rôle — le thème clair n'est jamais actif hors référent/directeur/admin (cf applyRoleTheme),
+   donc .hname (le "Bonjour <prénom>"/"Centre Kerpape" des tableaux de bord) reste à 800 en sombre
+   (pratiquant, inchangé) et passe à 700 en clair, sans dupliquer la règle par écran. */
+:root[data-theme="light"] .hname{font-weight:700;}
 /* ===== PERSONNALISATION DE L'ACCENT — liste fermée de 5 presets (cf charte "kinmio — charte
    graphique", section Personnalisation) : jamais de sélecteur hex libre, pour garantir que
    chaque option passe déjà les vérifications de contraste et de marge aux états fixes.
