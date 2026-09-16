@@ -7135,6 +7135,10 @@ function renderProgCoachActions(){
   // Clôturer le suivi (cf audit référent, #1) : pas de sens pour une invitation pas encore acceptée
   // (attente) ni pour un suivi déjà clôturé (sorti) — seuls actif/inactif peuvent être clôturés.
   if(curPatient.statut!=='attente' && !closed) html += '<span onclick="cloturerSuivi()" style="cursor:pointer;font-size:18px;margin-left:14px;" title="'+trDyn('Close follow-up')+'"><svg class="ki"><use href="#ki-check-circle"/></svg></span>';
+  // Rapport par patient (cf audit référent, #5) : dispo pour actif/inactif/sorti — refusé seulement pour
+  // attente (pas encore de vraie donnée, cf generateFakePatientData) ; un suivi clôturé garde un intérêt
+  // réel, c'est souvent le moment où le rapport final se produit.
+  if(curPatient.statut!=='attente') html += '<span onclick="exportPatientReport()" style="cursor:pointer;font-size:18px;margin-left:14px;" title="'+trDyn('Export report')+'"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5v11 /><path d=M7.5,10l4.5,4.5l4.5,-4.5 /><path d=M4.5,19.5h15 /></svg></span>';
   el.innerHTML = html;
 }
 // Point d'entrée unique pour l'en-tête de l'écran Progress — appelé aussi bien depuis le flux coach
@@ -14294,6 +14298,8 @@ const EN_FR = {
   "Stop this programme": "Arrêter ce programme",
   "Close this follow-up?": "Clôturer ce suivi ?",
   "Close follow-up": "Clôturer le suivi",
+  "Export report": "Exporter le rapport",
+  "Report downloaded": "Rapport téléchargé",
   "Follow-up closed": "Suivi clôturé",
   "It goes into your history with what you did. You can pick it up again, or choose another, whenever you want.": "Il rejoint ton historique avec ce que tu as fait. Tu pourras le reprendre, ou en choisir un autre, quand tu veux.",
   "It goes into your history — you can pick it up again later": "Il rejoint ton historique — tu pourras le reprendre plus tard",
@@ -20923,6 +20929,71 @@ function confirmCloturerSuivi(){
   closeModal();
   toast(trDyn('Follow-up closed'));
   go('dashboard_referent'); setRefView('utilisateurs');
+}
+
+// Rapport par patient (cf audit référent, #5 : aucun export/rapport n'existait, ni côté référent ni par
+// patient — seuls les stubs toast déjà présents côté directeur/admin, cf "Quarterly ARS report" etc.,
+// qui ne produisent jamais rien). Vrai fichier téléchargeable, pas un toast-stub de plus : un référent
+// qui montre ce document à une famille ou un prospect a plus de poids avec un fichier réel.
+function exportPatientReport(){
+  if(!curPatient) return;
+  const p=curPatient;
+  const hist=getPatientHistory(p);
+  const seancesCount = p.id==='p1' ? hist.length : (p.seances!=null ? p.seances : hist.length);
+  const depuisMs = p.dateDebut||Date.now();
+  const semaines = Math.max(1, Math.round((Date.now()-depuisMs)/(7*HIST_DAY)));
+  const regularite = getPatientRegularityPct(p, depuisMs, Date.now());
+  const douleur = getPatientPain(p);
+  const prog = PATIENT_PROGRAMS[p.id];
+  const progTitre = trDyn((prog && prog.titre) ? prog.titre : (p.prog||'—'));
+  const progFreq = (prog && prog.frequence) ? prog.frequence : ((p.onb && p.onb.frequence) ? trDyn(p.onb.frequence) : '—');
+  const loc = currentLang==='fr' ? 'fr-FR' : 'en-US';
+  const dateGen = new Date().toLocaleDateString(loc,{day:'numeric',month:'long',year:'numeric'});
+  const dateDebut = new Date(depuisMs).toLocaleDateString(loc,{day:'numeric',month:'long',year:'numeric'});
+  const derniere = trDyn(p.derniere||'—');
+
+  const lines = currentLang==='fr' ? [
+    'RAPPORT DE SUIVI — kinmio', '',
+    'Patient : '+p.nom,
+    'Référent : Martin Dupont',
+    'Généré le : '+dateGen, '',
+    '— Programme —',
+    'Objectif : '+progTitre,
+    'Fréquence : '+progFreq,
+    'Suivi depuis : '+dateDebut+' ('+semaines+' semaine'+(semaines>1?'s':'')+')', '',
+    '— Statistiques —',
+    'Séances réalisées : '+seancesCount,
+    "Régularité (jours d'entraînement vs objectif, depuis le début du suivi) : "+regularite+'%',
+    'Douleur moyenne : '+(douleur!=null?douleur.toFixed(1)+'/10':'—'),
+    'Dernière activité : '+derniere, '',
+    'Document généré automatiquement depuis kinmio — usage interne ou partage avec la personne suivie.'
+  ] : [
+    'PROGRESS REPORT — kinmio', '',
+    'Patient: '+p.nom,
+    'Referent: Martin Dupont',
+    'Generated on: '+dateGen, '',
+    '— Programme —',
+    'Goal: '+progTitre,
+    'Frequency: '+progFreq,
+    'Followed since: '+dateDebut+' ('+semaines+' week'+(semaines>1?'s':'')+')', '',
+    '— Statistics —',
+    'Sessions completed: '+seancesCount,
+    'Regularity (training days vs goal, since the start of the follow-up): '+regularite+'%',
+    'Average pain: '+(douleur!=null?douleur.toFixed(1)+'/10':'—'),
+    'Last activity: '+derniere, '',
+    'Document generated automatically by kinmio — internal use or to share with the person followed.'
+  ];
+
+  const blob=new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='kinmio-rapport-'+p.nom.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')+'.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast(trDyn('Report downloaded'));
 }
 
 // 5.4 Fiche référent publique (vue utilisateur) — stats + prochaine séance, plus de chat (retiré :
