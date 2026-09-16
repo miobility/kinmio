@@ -126,12 +126,17 @@ button,input,select,textarea{font-family:inherit;}
    rester lisibles en TEXTE (sur fond clair), ce qui les rend justement trop foncés pour une
    encre foncée EN FOND (sous elle). */
 --ink-on-accent:#fff;
---bg:#F0EFEA;
+/* Gris neutre froid, pas crème (audit fond mode clair, 16 sept.) : le crème (#F0EFEA) tirait sur le
+   chaud/beige, terne en capture d'écran — testé en direct, un blanc total cassait la hiérarchie (la
+   nav du bas, déjà en --bg2 blanc, se fondait avec le contenu). #F7F7F8 recoupe deux références du
+   secteur vérifiées à l'audit : le fond des listes groupées iOS (~#F2F2F7) et le fond de page Linear
+   (#f7f8f8) — aucune des deux n'utilise de teinte chaude. */
+--bg:#F7F7F8;
 --bg2:#FFFFFF;
 --bg3:#FCFBF9;
 --white:#16151C;
-/* Meme defaut, inverse, en theme clair : 4,41:1 sur le fond de page (le plus sombre des trois ici),
-   5,08 sur une carte blanche. #63626F donne 5,20 / 5,99 / 5,79. */
+/* Meme defaut, inverse, en theme clair : 5,59:1 sur le fond de page (le plus sombre des trois ici),
+   5,08 sur une carte blanche. #63626F donne 5,59 / 5,08 / 5,99 sur bg / bg2 / bg3. */
 --gray:#63626F;
 --gray2:#9897A3;
 --border:#E4E2DC;
