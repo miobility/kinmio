@@ -9981,7 +9981,9 @@ function updateHeaderCheckinBadge(prefix,val){
   el.innerHTML=checkinIcon(val,'15px');
   el.style.display='inline-flex';
   el.style.alignItems='center';
-  el.style.background='rgba(255,255,255,.12)';
+  // Même voile par sévérité que le panneau de confirmation (checkinWashRgb) — cohérence demandée après
+  // coup : la pastille reprenait le fond neutre générique, seul le panneau distinguait épuisé de bien.
+  el.style.background='rgba('+checkinWashRgb(val)+',.16)';
   el.style.borderRadius='10px';
   el.style.padding='2px 7px';
   el.style.cursor='pointer';
