@@ -1009,6 +1009,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.6 3.3a.42.42 0 0 1 .8 0l1.05 4.05a2.1 2.1 0 0 0 1.5 1.5l4.05 1.05a.42.42 0 0 1 0 .8l-4.05 1.05a2.1 2.1 0 0 0-1.5 1.5L12.4 17.3a.42.42 0 0 1-.8 0l-1.05-4.05a2.1 2.1 0 0 0-1.5-1.5L5 10.7a.42.42 0 0 1 0-.8l4.05-1.05a2.1 2.1 0 0 0 1.5-1.5Z" fill="currentColor" stroke="none"/><path d="M17.7 16.1a.26.26 0 0 1 .5 0l.36 1.34 1.34.36a.26.26 0 0 1 0 .5l-1.34.36-.36 1.34a.26.26 0 0 1-.5 0l-.36-1.34-1.34-.36a.26.26 0 0 1 0-.5l1.34-.36Z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="ki-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 12.6l4.2 4.2 8.6-9.4"/></symbol>
   <symbol id="ki-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M8.2 12.3l2.6 2.6 5-5.5"/></symbol>
+  <symbol id="ki-close-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M9.3 9.3l5.4 5.4"/><path d="M14.7 9.3l-5.4 5.4"/></symbol>
   <!-- Planche des visages du check-in (brief DEV 16 sept.) : 5 visages, une seule encre, seuls les yeux
        et la bouche changent. Le voile de sélection passe par --ff (fill:var(--ff,transparent) sur le
        cercle) — une règle CSS classique n'atteint pas l'intérieur d'un <use>. -->
@@ -1921,7 +1922,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
      "reprends la logique de design déjà là"). Les 3 autres n'ont que leur carte résumé (déjà construite
      pour la liste Coaches), promue ici en écran plein. ================= -->
 <div class="screen" id="dir_fiche_referent">
-  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="dirFicheTitle">Coach</div><div class="topnav-r"></div></div>
+  <div class="topnav"><button class="btn-back" onclick="back()"><svg class="ki"><use href="#ki-back"/></svg></button><div class="topnav-title" id="dirFicheTitle">Coach</div><div class="topnav-r" id="dirFicheActions" style="width:auto;display:flex;align-items:center;justify-content:flex-end;"></div></div>
   <div class="scroll">
     <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
       <div class="pat-av" id="dirFicheAvatar" style="width:56px;height:56px;overflow:hidden;padding:0;"></div>
@@ -4096,6 +4097,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="mem-statseg" data-statut="actif" style="color:var(--teal);" onclick="setDirRefStatutFilter('actif')"><div class="v" id="dirStatvActif">—</div><div class="l">Active</div></div>
         <div class="mem-statseg" data-statut="inactif" style="color:var(--gray2);" onclick="setDirRefStatutFilter('inactif')"><div class="v" id="dirStatvInactif">—</div><div class="l">Inactive</div></div>
         <div class="mem-statseg" data-statut="attente" style="color:var(--orange);" onclick="setDirRefStatutFilter('attente')"><div class="v" id="dirStatvAttente">—</div><div class="l">Pending</div></div>
+        <div class="mem-statseg" data-statut="suspendu" style="color:var(--gray);" onclick="setDirRefStatutFilter('suspendu')"><div class="v" id="dirStatvSuspendu">—</div><div class="l">Suspended</div></div>
       </div>
       <div class="tag-filters">
         <div class="tag-chip red" id="dirTagChipAlerte" onclick="setDirRefTagFilter('alerte')">Alert <span id="dirTagChipAlerteCount"></span></div>
@@ -8151,14 +8153,14 @@ function renderDirRefSearch(){
 // calculé) ; 'checker' (orange) = tendance déclinante ou référent inactif — même hiérarchie de sévérité
 // que côté membres (seuil franchi > signal à surveiller), pas de nouveau calcul inventé.
 function getReferentTags(r){
-  if(r.statut==='attente') return [];
+  if(r.statut==='attente'||r.statut==='suspendu') return [];
   const tags=new Set();
   if(r.ecart==='ecart') tags.add('alerte');
   if(r.statut==='inactif' || r.trendIcon==='↓') tags.add('checker');
   return [...tags];
 }
 function getReferentTagColor(r){
-  if(r.statut==='attente') return 'var(--border)';
+  if(r.statut==='attente'||r.statut==='suspendu') return 'var(--border)';
   const tags=getReferentTags(r);
   if(tags.includes('alerte')) return 'var(--red)';
   if(tags.includes('checker')) return 'var(--vigilance)';
@@ -8198,7 +8200,10 @@ function renderDirFiche(){
   set('dirFicheTitle', r.nom); set('dirFicheNom', r.nom); set('dirFicheRole', r.role);
   const av=document.getElementById('dirFicheAvatar');
   if(av){ av.innerHTML='<img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;">'; av.style.border='2.5px solid '+r.color; }
-  const isFull = r.id==='martin';
+  renderDirFicheActions(r);
+  // Suspendu passe TOUJOURS par le résumé, même Martin (isFull) — sinon un accès suspendu continuerait
+  // d'afficher les stats détaillées comme si de rien n'était (audit directeur, #2).
+  const isFull = r.id==='martin' && r.statut!=='suspendu';
   const fullEl=document.getElementById('dirFicheFull'), sumEl=document.getElementById('dirFicheSummary');
   if(fullEl) fullEl.style.display = isFull?'block':'none';
   if(sumEl) sumEl.style.display = isFull?'none':'block';
@@ -8210,6 +8215,10 @@ function renderDirFiche(){
   const sc=document.getElementById('dirFicheSummaryContent'); if(!sc) return;
   if(r.statut==='inactif'){
     sc.innerHTML='<div class="card-sm"><div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:6px;">Inactive <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg></div><div style="font-size:12px;color:var(--gray);">No activity for '+r.inactifDepuis+'.</div></div>';
+    return;
+  }
+  if(r.statut==='suspendu'){
+    sc.innerHTML='<div class="card-sm"><div style="font-size:13px;font-weight:700;color:var(--gray2);margin-bottom:6px;">'+trDyn('Access suspended')+'</div><div style="font-size:12px;color:var(--gray);">'+trDyn('This coach can no longer sign in. Their history stays visible here.')+'</div></div>';
     return;
   }
   const alignBadge = r.ecart==='ecart'
@@ -8225,6 +8234,37 @@ function renderDirFiche(){
   +'</div>'
   +'<p class="sub" style="margin-top:14px;">Detailed weekly stats aren\'t available for this coach in this demo — only Martin Dupont has a full patient history.</p>';
 }
+// Suspendre l'accès d'un référent (audit directeur, #2) — analogue côté équipe de "Clôturer le suivi"
+// côté patient (audit référent #1) : jusqu'ici la fiche référent était explicitement lecture seule,
+// aucune action possible sur un coach déjà actif, pas même un stub.
+function findReferentSource(id){
+  return REFERENTS.find(x=>x.id===id) || EXTRA_REFERENTS.find(x=>x.id===id);
+}
+function renderDirFicheActions(r){
+  const el=document.getElementById('dirFicheActions'); if(!el) return;
+  el.innerHTML = (r.statut==='actif' || r.statut==='inactif')
+    ? '<span onclick="suspendReferent()" style="cursor:pointer;font-size:18px;" title="'+trDyn('Suspend access')+'"><svg class="ki"><use href="#ki-close-circle"/></svg></span>'
+    : '';
+}
+function suspendReferent(){
+  const r=findReferentSource(dirFicheReferentId); if(!r) return;
+  const prenom=r.nom.split(' ')[0];
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:6px;">'+trDyn('Suspend this access?')+'</div>'
+    +'<div style="font-size:13.5px;line-height:1.5;color:var(--gray2);margin-bottom:16px;">'+(currentLang==='fr'
+      ? prenom+' ne pourra plus se connecter à l\'espace référent. Ses membres restent suivis dans le système, à réassigner si besoin.'
+      : prenom+' will no longer be able to sign in to the coach space. Their members stay tracked in the system, to be reassigned if needed.')+'</div>'
+    +'<button class="btn btn-outline" style="width:100%;margin-bottom:10px;color:var(--red);border-color:var(--red);" onclick="confirmSuspendReferent()">'+trDyn('Suspend access')+'</button>'
+    +'<button class="btn-ghost" style="width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Cancel')+'</button>');
+}
+function confirmSuspendReferent(){
+  const r=findReferentSource(dirFicheReferentId); if(!r) return;
+  r.statut='suspendu';
+  r.suspendedDate=Date.now();
+  closeModal();
+  toast(trDyn('Access suspended'));
+  go('dashboard_directeur');
+  document.querySelectorAll('#dashboard_directeur .bnav-item')[1]?.click();
+}
 function renderDirReferentsList(){
   const list=document.getElementById('dirv_referents_list'); if(!list) return;
   const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
@@ -8232,6 +8272,7 @@ function renderDirReferentsList(){
   set('dirStatvActif', all.filter(r=>r.statut==='actif').length);
   set('dirStatvInactif', all.filter(r=>r.statut==='inactif').length);
   set('dirStatvAttente', all.filter(r=>r.statut==='attente').length);
+  set('dirStatvSuspendu', all.filter(r=>r.statut==='suspendu').length);
   set('dirTagChipAlerteCount', '('+all.filter(r=>getReferentTags(r).includes('alerte')).length+')');
   set('dirTagChipCheckerCount', '('+all.filter(r=>getReferentTags(r).includes('checker')).length+')');
   syncDirRefFilterUI();
@@ -8249,6 +8290,13 @@ function renderDirReferentsList(){
     const ringStyle=';border:2.5px solid '+getReferentTagColor(r)+';';
     if(r.statut==='inactif'){
       return '<div class="pat-item" style="cursor:default;border-left:3px solid var(--vigilance);padding-left:17px;"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · '+trDyn('inactive for '+r.inactifDepuis)+'</div><div style="font-size:12px;font-weight:700;color:var(--vigilance);margin-top:2px;display:flex;align-items:center;gap:5px;">'+ICON_ATTN_VIGILANCE+trDyn('To check — inactive')+'</div></div><button class="pres-add" onclick="event.stopPropagation();toast(\'Reminder sent to '+r.nom+' ✓\')">'+trDyn('Follow up')+'</button></div>';
+    }
+    // Accès suspendu (audit directeur, #2) — même gabarit que "Suivi clôturé" côté patient référent :
+    // reste visible (jamais supprimé, l'historique reste réel), ouvre la fiche en lecture seule, juste
+    // plus d'action possible depuis là (cf renderDirFicheActions).
+    if(r.statut==='suspendu'){
+      const dateTxt = r.suspendedDate ? new Date(r.suspendedDate).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-US',{day:'numeric',month:'short',year:'numeric'}) : '';
+      return '<div class="pat-item" onclick="openReferentFiche(\''+r.id+'\')"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;opacity:.6;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+trDyn('Access suspended')+(dateTxt?' · '+dateTxt:'')+'</div></div></div>';
     }
     const tags=getReferentTags(r);
     const reason = tags.includes('alerte') ? {color:'var(--red)', text:trDyn('Gap detected — profile diverges from centre average')}
@@ -14354,6 +14402,11 @@ const EN_FR = {
   "Stop this programme": "Arrêter ce programme",
   "Close this follow-up?": "Clôturer ce suivi ?",
   "Close follow-up": "Clôturer le suivi",
+  "Suspend access": "Suspendre l'accès",
+  "Suspend this access?": "Suspendre cet accès ?",
+  "Access suspended": "Accès suspendu",
+  "This coach can no longer sign in. Their history stays visible here.": "Ce référent ne peut plus se connecter. Son historique reste visible ici.",
+  "Suspended": "Suspendu",
   "Export report": "Exporter le rapport",
   "Report ready in a new tab": "Rapport ouvert dans un nouvel onglet",
   "Allow pop-ups to open the report": "Autorise les fenêtres pop-up pour ouvrir le rapport",
