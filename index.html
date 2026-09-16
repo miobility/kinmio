@@ -13949,6 +13949,8 @@ const EN_FR = {
   "Close": "Fermer",
   "See my calendar": "Voir mon calendrier",
   "Write a note for the member...": "Écris une note pour le membre...",
+  "Visible to everyone doing this exercise — not private to one member...": "Visible par toutes les personnes qui font cet exercice — pas privé à un membre...",
+  "Visible to everyone assigned this session — not private to one member...": "Visible par toutes les personnes à qui cette séance est assignée — pas privé à un membre...",
   "+ Add a comment": "+ Ajouter un commentaire",
   "Edit comment": "Modifier le commentaire",
   "Comment on this session": "Commentaire sur cette séance",
@@ -17795,7 +17797,7 @@ function openExerciceNouveau(id, fromSession){
 }
 function editExerciseCoachNote(){
   const ex=[...EXERCICES,...userExercices].find(e=>e.id===window._curEx); if(!ex) return;
-  openNoteEditor(ex.coachNote||'', 'Note for '+ex.nom, function(v){ ex.coachNote=v; openExerciceNouveau(ex.id); });
+  openNoteEditor(ex.coachNote||'', 'Note for '+ex.nom, function(v){ ex.coachNote=v; openExerciceNouveau(ex.id); }, 'Visible to everyone doing this exercise — not private to one member...');
 }
 function deleteUserExercice(){
   const id=window._curEx;
@@ -18760,7 +18762,7 @@ function launchSoloSessionAfterWait(){
 }
 function editSessionCoachNote(){
   const s=[...SESSIONS,...userSessions].find(x=>x.id===window._curSessId); if(!s) return;
-  openNoteEditor(s.coachNote||'', 'Note for '+s.nom_marketing, function(v){ s.coachNote=v; renderSessionDetail(); });
+  openNoteEditor(s.coachNote||'', 'Note for '+s.nom_marketing, function(v){ s.coachNote=v; renderSessionDetail(); }, 'Visible to everyone assigned this session — not private to one member...');
 }
 // Ratio effort / repos (retours plateforme, 13 sept. 2026) : le repos existait dans chaque exercice mais
 // n'etait reglable nulle part par le membre. Trois prereglages lisibles, plus « Personnalise ». Il se
@@ -23597,10 +23599,10 @@ function closeModal(){ const m=document.getElementById('kmModal'); if(m) m.class
 // Éditeur de note générique — remplace le chat référent<->utilisateur (retiré) par des notes ciblées
 // sur une séance, un exercice, ou un feedback post-séance précis. Un seul patron réutilisé 3x plutôt
 // que 3 modales quasi identiques.
-function openNoteEditor(existingText, title, onSave){
+function openNoteEditor(existingText, title, onSave, placeholder){
   window._noteEditorSave=onSave;
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;">'+title+'</div>'
-    +'<textarea id="noteEditorInput" class="pres-inp" style="text-align:left;min-height:100px;resize:vertical;width:100%;" placeholder="Write a note for the member...">'+(existingText||'').replace(/</g,'&lt;')+'</textarea>'
+    +'<textarea id="noteEditorInput" class="pres-inp" style="text-align:left;min-height:100px;resize:vertical;width:100%;" placeholder="'+(placeholder||'Write a note for the member...')+'">'+(existingText||'').replace(/</g,'&lt;')+'</textarea>'
     +'<button class="btn btn-orange" style="margin-top:14px;width:100%;" onclick="submitNoteEditor()">Save</button>'
     +'<button class="btn-ghost" style="margin-top:8px;width:100%;color:var(--gray2);" onclick="closeModal()">Cancel</button>');
 }
