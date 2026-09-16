@@ -14299,7 +14299,8 @@ const EN_FR = {
   "Close this follow-up?": "Clôturer ce suivi ?",
   "Close follow-up": "Clôturer le suivi",
   "Export report": "Exporter le rapport",
-  "Report downloaded": "Rapport téléchargé",
+  "Report ready in a new tab": "Rapport ouvert dans un nouvel onglet",
+  "Allow pop-ups to open the report": "Autorise les fenêtres pop-up pour ouvrir le rapport",
   "Follow-up closed": "Suivi clôturé",
   "It goes into your history with what you did. You can pick it up again, or choose another, whenever you want.": "Il rejoint ton historique avec ce que tu as fait. Tu pourras le reprendre, ou en choisir un autre, quand tu veux.",
   "It goes into your history — you can pick it up again later": "Il rejoint ton historique — tu pourras le reprendre plus tard",
@@ -20933,12 +20934,22 @@ function confirmCloturerSuivi(){
 
 // Rapport par patient (cf audit référent, #5 : aucun export/rapport n'existait, ni côté référent ni par
 // patient — seuls les stubs toast déjà présents côté directeur/admin, cf "Quarterly ARS report" etc.,
-// qui ne produisent jamais rien). Vrai fichier téléchargeable, pas un toast-stub de plus : un référent
-// qui montre ce document à une famille ou un prospect a plus de poids avec un fichier réel.
-function exportPatientReport(){
-  if(!curPatient) return;
-  const p=curPatient;
-  const hist=getPatientHistory(p);
+// qui ne produisent jamais rien). Document HTML imprimable (charte kinmio, registre clair — c'est un
+// document à partager, pas un écran) plutôt qu'une librairie PDF : zéro dépendance externe, cohérent
+// avec le principe "un seul fichier" du projet, et le PDF s'obtient via "Enregistrer en PDF" natif du
+// navigateur à l'impression — un référent qui montre ce document a plus de poids qu'avec un toast-stub.
+function patientPainColor(v){ return v<=3 ? '#17784B' : v<=6 ? '#F99C1A' : '#FF294F'; }
+function patientReportAttention(p){
+  const attn=computeReferentAttention();
+  return [
+    ...attn.alertes.filter(i=>i.patient&&i.patient.id===p.id).map(i=>({reason:i.reason, sev:'alerte'})),
+    ...attn.aChecker.filter(i=>i.patient&&i.patient.id===p.id).map(i=>({reason:i.reason, sev:'checker'}))
+  ];
+}
+function patientReportHtml(p){
+  const fr = currentLang==='fr';
+  const loc = fr ? 'fr-FR' : 'en-US';
+  const hist = [...getPatientHistory(p)].sort((a,b)=>b.date-a.date);
   const seancesCount = p.id==='p1' ? hist.length : (p.seances!=null ? p.seances : hist.length);
   const depuisMs = p.dateDebut||Date.now();
   const semaines = Math.max(1, Math.round((Date.now()-depuisMs)/(7*HIST_DAY)));
@@ -20947,53 +20958,125 @@ function exportPatientReport(){
   const prog = PATIENT_PROGRAMS[p.id];
   const progTitre = trDyn((prog && prog.titre) ? prog.titre : (p.prog||'—'));
   const progFreq = (prog && prog.frequence) ? prog.frequence : ((p.onb && p.onb.frequence) ? trDyn(p.onb.frequence) : '—');
-  const loc = currentLang==='fr' ? 'fr-FR' : 'en-US';
+  const progJours = (prog && prog.jours && prog.jours.length) ? prog.jours.map(j=>trDyn(j)).join(', ') : null;
+  const positions = (p.onb && p.onb.positions && p.onb.positions.length) ? p.onb.positions.map(x=>trDyn(x)).join(', ') : null;
+  const zonesEviter = (p.onb && p.onb.zonesEviter && p.onb.zonesEviter.length) ? p.onb.zonesEviter.map(x=>trDyn(x)).join(', ') : null;
   const dateGen = new Date().toLocaleDateString(loc,{day:'numeric',month:'long',year:'numeric'});
   const dateDebut = new Date(depuisMs).toLocaleDateString(loc,{day:'numeric',month:'long',year:'numeric'});
   const derniere = trDyn(p.derniere||'—');
+  const attention = patientReportAttention(p);
+  const notes = (p.notes||[]).slice(0,3);
 
-  const lines = currentLang==='fr' ? [
-    'RAPPORT DE SUIVI — kinmio', '',
-    'Patient : '+p.nom,
-    'Référent : Martin Dupont',
-    'Généré le : '+dateGen, '',
-    '— Programme —',
-    'Objectif : '+progTitre,
-    'Fréquence : '+progFreq,
-    'Suivi depuis : '+dateDebut+' ('+semaines+' semaine'+(semaines>1?'s':'')+')', '',
-    '— Statistiques —',
-    'Séances réalisées : '+seancesCount,
-    "Régularité (jours d'entraînement vs objectif, depuis le début du suivi) : "+regularite+'%',
-    'Douleur moyenne : '+(douleur!=null?douleur.toFixed(1)+'/10':'—'),
-    'Dernière activité : '+derniere, '',
-    'Document généré automatiquement depuis kinmio — usage interne ou partage avec la personne suivie.'
-  ] : [
-    'PROGRESS REPORT — kinmio', '',
-    'Patient: '+p.nom,
-    'Referent: Martin Dupont',
-    'Generated on: '+dateGen, '',
-    '— Programme —',
-    'Goal: '+progTitre,
-    'Frequency: '+progFreq,
-    'Followed since: '+dateDebut+' ('+semaines+' week'+(semaines>1?'s':'')+')', '',
-    '— Statistics —',
-    'Sessions completed: '+seancesCount,
-    'Regularity (training days vs goal, since the start of the follow-up): '+regularite+'%',
-    'Average pain: '+(douleur!=null?douleur.toFixed(1)+'/10':'—'),
-    'Last activity: '+derniere, '',
-    'Document generated automatically by kinmio — internal use or to share with the person followed.'
-  ];
+  const T = fr ? {
+    title:'Rapport de suivi', by:'Référent', gen:'Généré le', prog:'Programme', goal:'Objectif',
+    freq:'Fréquence', days:'Jours', since:'Suivi depuis', week:'semaine', weeks:'semaines',
+    context:'Contexte', positionsL:'Positions', avoid:'Zones à éviter', none:'Aucune',
+    stats:'Statistiques', sessionsDone:'Séances réalisées', regularity:'Régularité',
+    regularitySub:"jours d'entraînement vs objectif, depuis le début du suivi", avgPain:'Douleur moyenne',
+    lastActivity:'Dernière activité', status:'Statut actuel', noSignal:'Aucun signal actif en ce moment.',
+    alert:'Alerte', toCheck:'À surveiller', history:'Dernières séances', date:'Date', duration:'Durée',
+    pain:'Douleur', min:'min', notes:'Notes du référent', footer:'Document généré automatiquement depuis kinmio — usage interne ou partage avec la personne suivie.',
+    print:'Imprimer / Enregistrer en PDF'
+  } : {
+    title:'Progress report', by:'Referent', gen:'Generated on', prog:'Programme', goal:'Goal',
+    freq:'Frequency', days:'Days', since:'Followed since', week:'week', weeks:'weeks',
+    context:'Context', positionsL:'Positions', avoid:'Areas to avoid', none:'None',
+    stats:'Statistics', sessionsDone:'Sessions completed', regularity:'Regularity',
+    regularitySub:'training days vs goal, since the start of the follow-up', avgPain:'Average pain',
+    lastActivity:'Last activity', status:'Current status', noSignal:'No active signal right now.',
+    alert:'Alert', toCheck:'To check', history:'Last sessions', date:'Date', duration:'Duration',
+    pain:'Pain', min:'min', notes:'Referent notes', footer:'Document generated automatically by kinmio — internal use or to share with the person followed.',
+    print:'Print / Save as PDF'
+  };
 
-  const blob=new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='kinmio-rapport-'+p.nom.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')+'.txt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast(trDyn('Report downloaded'));
+  const rowsHtml = hist.slice(0,8).map(h=>{
+    const d = new Date(h.date).toLocaleDateString(loc,{day:'numeric',month:'short'});
+    const pain = h.douleur!=null ? h.douleur : null;
+    return '<tr><td>'+d+'</td><td>'+(h.duree!=null?h.duree+' '+T.min:'—')+'</td>'
+      +'<td>'+(pain!=null?'<span class="dot" style="background:'+patientPainColor(pain)+';"></span>'+pain+'/10':'—')+'</td></tr>';
+  }).join('') || '<tr><td colspan="3" class="muted">—</td></tr>';
+
+  const attentionHtml = attention.length
+    ? attention.map(a=>'<span class="chip '+a.sev+'">'+(a.sev==='alerte'?T.alert:T.toCheck)+' — '+trDyn(a.reason)+'</span>').join('')
+    : '<span class="muted">'+T.noSignal+'</span>';
+
+  const notesHtml = notes.length
+    ? notes.map(n=>'<div class="note"><div class="note-d">'+trDyn(n.date)+'</div><div>'+n.txt+'</div></div>').join('')
+    : '<span class="muted">—</span>';
+
+  return '<!doctype html><html lang="'+(fr?'fr':'en')+'"><head><meta charset="utf-8"><title>'+T.title+' — '+p.nom+'</title><style>'
+    + '@page{margin:22mm 18mm;} *{box-sizing:border-box;} body{font-family:Inter,system-ui,sans-serif;color:#16151C;background:#F0EFEA;margin:0;padding:28px;}'
+    + '.sheet{max-width:720px;margin:0 auto;background:#fff;}'
+    + '.head{display:flex;align-items:center;gap:14px;border-bottom:2px solid #17784B;padding-bottom:16px;margin-bottom:20px;}'
+    + '.head img{height:34px;}'
+    + '.head .t{font-family:"Plus Jakarta Sans",sans-serif;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#63626F;}'
+    + '.head .n{font-family:"Plus Jakarta Sans",sans-serif;font-size:22px;font-weight:800;margin-top:2px;}'
+    + '.meta{margin-left:auto;text-align:right;font-size:11.5px;color:#63626F;line-height:1.5;}'
+    + '.sec-t{font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#17784B;margin:22px 0 8px;}'
+    + '.kv{display:flex;flex-wrap:wrap;gap:6px 26px;font-size:13px;line-height:1.7;}'
+    + '.kv b{color:#63626F;font-weight:600;}'
+    + '.stats{display:flex;gap:12px;break-inside:avoid;}'
+    + '.stat{flex:1;background:#FCFBF9;border:1px solid #E4E2DC;border-radius:10px;padding:12px 14px;}'
+    + '.stat .v{font-family:"Plus Jakarta Sans",sans-serif;font-size:22px;font-weight:800;}'
+    + '.stat .l{font-size:11px;color:#63626F;margin-top:2px;}'
+    + '.chip{display:inline-block;font-size:12px;font-weight:600;padding:5px 10px;border-radius:20px;margin:0 8px 8px 0;}'
+    + '.chip.alerte{background:rgba(255,41,79,.1);color:#FF294F;}'
+    + '.chip.checker{background:rgba(249,156,26,.14);color:#B5730C;}'
+    + 'table{width:100%;border-collapse:collapse;font-size:13px;break-inside:avoid;}'
+    + 'th{text-align:left;font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;color:#63626F;font-weight:700;padding:6px 8px;border-bottom:1px solid #E4E2DC;}'
+    + 'td{padding:7px 8px;border-bottom:1px solid #E4E2DC;}'
+    + '.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}'
+    + '.note{font-size:12.5px;padding:8px 0;border-bottom:1px solid #E4E2DC;}'
+    + '.note-d{font-size:10.5px;color:#63626F;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;}'
+    + '.muted{color:#9897A3;font-size:13px;}'
+    + 'footer{margin-top:28px;padding-top:14px;border-top:1px solid #E4E2DC;font-size:10.5px;color:#9897A3;}'
+    + '.pbar{position:sticky;top:0;background:#fff;padding:12px 0;text-align:center;border-bottom:1px solid #E4E2DC;margin-bottom:20px;}'
+    + '.pbar button{background:#17784B;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}'
+    + '@media print{ .pbar{display:none;} body{background:#fff;padding:0;} }'
+    + '</style></head><body>'
+    + '<div class="pbar"><button onclick="window.print()">'+T.print+'</button></div>'
+    + '<div class="sheet">'
+    + '<div class="head"><img src="kinmio_logo_app_light.png" alt="kinmio"><div><div class="t">'+T.title+'</div><div class="n">'+p.nom+'</div></div>'
+      + '<div class="meta">'+T.by+' : Martin Dupont<br>'+T.gen+' '+dateGen+'</div></div>'
+
+    + '<div class="sec-t">'+T.prog+'</div>'
+    + '<div class="kv"><span><b>'+T.goal+' :</b> '+progTitre+'</span><span><b>'+T.freq+' :</b> '+progFreq+'</span>'
+      + (progJours?('<span><b>'+T.days+' :</b> '+progJours+'</span>'):'')
+      + '<span><b>'+T.since+' :</b> '+dateDebut+' ('+semaines+' '+(semaines>1?T.weeks:T.week)+')</span></div>'
+
+    + '<div class="sec-t">'+T.context+'</div>'
+    + '<div class="kv">'
+      + (positions?('<span><b>'+T.positionsL+' :</b> '+positions+'</span>'):'')
+      + '<span><b>'+T.avoid+' :</b> '+(zonesEviter||T.none)+'</span></div>'
+
+    + '<div class="sec-t">'+T.stats+'</div>'
+    + '<div class="stats">'
+      + '<div class="stat"><div class="v">'+seancesCount+'</div><div class="l">'+T.sessionsDone+'</div></div>'
+      + '<div class="stat"><div class="v">'+regularite+'%</div><div class="l">'+T.regularity+' — '+T.regularitySub+'</div></div>'
+      + '<div class="stat"><div class="v" style="color:'+(douleur!=null?patientPainColor(douleur):'#16151C')+';">'+(douleur!=null?douleur.toFixed(1)+'/10':'—')+'</div><div class="l">'+T.avgPain+'</div></div>'
+    + '</div>'
+    + '<div class="kv" style="margin-top:10px;"><span><b>'+T.lastActivity+' :</b> '+derniere+'</span></div>'
+
+    + '<div class="sec-t">'+T.status+'</div>'
+    + '<div>'+attentionHtml+'</div>'
+
+    + '<div class="sec-t">'+T.history+'</div>'
+    + '<table><thead><tr><th>'+T.date+'</th><th>'+T.duration+'</th><th>'+T.pain+'</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'
+
+    + '<div class="sec-t">'+T.notes+'</div>'
+    + notesHtml
+
+    + '<footer>'+T.footer+'</footer>'
+    + '</div></body></html>';
+}
+function exportPatientReport(){
+  if(!curPatient) return;
+  const w=window.open('', '_blank');
+  if(!w){ toast(trDyn('Allow pop-ups to open the report')); return; }
+  w.document.open();
+  w.document.write(patientReportHtml(curPatient));
+  w.document.close();
+  toast(trDyn('Report ready in a new tab'));
 }
 
 // 5.4 Fiche référent publique (vue utilisateur) — stats + prochaine séance, plus de chat (retiré :
