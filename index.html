@@ -1621,7 +1621,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="homeCentreSeanceZone"></div>
     <div id="homeCentreObjectifZone"></div>
 
-    <!-- ZONE 3 — 6 blocs KPI nommés (Regularity/Volume/Intensity/Load/Pain/Training balance) -->
+    <!-- ZONE 3 — Charge + Douleur, en sections distinctes -->
     <div id="homeCentreKpiZone"></div>
 
     <!-- ZONE 4 — Explorer -->
@@ -6133,6 +6133,12 @@ function ordonnerZonesAccueil(prefix){
   const premier = faite ? objectif : seance;
   const second  = faite ? seance   : objectif;
   if(premier.nextElementSibling!==second) parent.insertBefore(premier, second);
+  // La bannière "session collective en cours" (home_centre uniquement, absente sur home — le guard
+  // suffit) doit toujours rester collée juste au-dessus de la carte séance, jamais séparée d'elle par
+  // le déplacement d'Objectif ci-dessus (cf audit user_centre, gap ordonnerZonesAccueil). Réaffirmée en
+  // dernier : elle suit la carte séance là où celle-ci vient d'atterrir, peu importe le sens du move.
+  const banner=document.getElementById(prefix+'CollectiveBanner');
+  if(banner && banner.style.display!=='none' && banner.nextElementSibling!==seance) parent.insertBefore(banner, seance);
 }
 // « Commencé il y a 3 jours » / « il y a 2 semaines » — une durée écoulée, pas une durée promise.
 function programmeDepuisLabel(){
@@ -15984,6 +15990,7 @@ function setLang(lang){
     if(document.getElementById('homeKpiZone')) renderHomeKpiZone('home', userProfile);
     ordonnerZonesAccueil('home');
     if(document.getElementById('homeCentreKpiZone')) renderHomeKpiZone('homeCentre', userProfileCentre);
+    ordonnerZonesAccueil('homeCentre');
     // Idem pour la carte d'ajustement : "Intensite 2 -> 1" est un seul noeud texte compose au rendu.
     if(document.getElementById('homeSignalAdjustZone')) renderSignalAdjust('home');
     if(document.getElementById('homeCentreSignalAdjustZone')) renderSignalAdjust('homeCentre');
