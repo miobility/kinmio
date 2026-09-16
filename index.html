@@ -7970,7 +7970,7 @@ function renderDirAlertes(){
 // limite démo assumée qu'ailleurs (cf commentaire REFERENTS : seul Martin a un vrai calendrier détaillé).
 function renderDirCoachSummary(){
   const el=document.getElementById('dirCoachSummaryZone'); if(!el) return;
-  const coaches=REFERENTS.filter(r=>r.statut==='actif');
+  const coaches=allReferentsForDir().filter(r=>r.statut==='actif');
   const avg=arr=>arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length*10)/10 : 0;
   const activityRate=avg(coaches.map(c=>c.activityRate));
   const avgMembers=avg(coaches.map(c=>c.users));
@@ -8105,7 +8105,7 @@ function renderDirReferentBars(profil){
 // coach inactif ne suit plus personne, l'inclure fausserait la moyenne vers le bas).
 function renderDirReferentsSummary(){
   const el=document.getElementById('dirReferentsSummary'); if(!el) return;
-  const actifs=REFERENTS.filter(r=>r.statut==='actif');
+  const actifs=allReferentsForDir().filter(r=>r.statut==='actif');
   const totalUsers=actifs.reduce((s,r)=>s+(r.users||0),0);
   const avgUsers=actifs.length ? (totalUsers/actifs.length) : 0;
   el.textContent=trDyn(actifs.length+' coach'+(actifs.length>1?'es':'')+' · avg '+avgUsers.toFixed(1)+' members/coach');
@@ -8113,8 +8113,13 @@ function renderDirReferentsSummary(){
 // Refonte totale de l'onglet Coaches (cf discussion "je m'inspirerai de l'onglet membres du référent") —
 // même moteur statut/tag que getPatientStatut/getPatientTags/renderKinePatients, appliqué à
 // REFERENTS+EXTRA_REFERENTS fusionnés en une seule liste plutôt que deux sections statiques séparées.
+// Ne force plus 'attente' sur CHAQUE entrée à chaque rendu (audit directeur, 16 sept.) : ça bloquait
+// toute invitation acceptée en attente pour toujours, même geste que le bug référent #2 déjà corrigé
+// côté patients — jamais répliqué ici. Le statut réel de chaque référent invité (posé par
+// acceptReferentInvite/declineReferentInvite) est respecté ; 'attente' reste le repli tant qu'aucune
+// décision n'a été prise.
 function allReferentsForDir(){
-  return [...REFERENTS, ...EXTRA_REFERENTS.map(r=>({...r, statut:'attente'}))];
+  return [...REFERENTS, ...EXTRA_REFERENTS.map(r=>({...r, statut:r.statut||'attente'}))];
 }
 // Recherche coachs (cf discussion "sur les coachs je veux une barre de recherche") — même pattern que
 // toggleMemSearch/renderRefSearch côté référent, adapté à REFERENTS+EXTRA_REFERENTS.
@@ -8186,7 +8191,9 @@ function openReferentFiche(id){
   go('dir_fiche_referent');
 }
 function renderDirFiche(){
-  const r=REFERENTS.find(x=>x.id===dirFicheReferentId); if(!r) return;
+  // allReferentsForDir(), pas REFERENTS seul (audit directeur) : sinon la fiche d'un référent
+  // fraîchement accepté depuis EXTRA_REFERENTS ne trouve personne et reste vide.
+  const r=allReferentsForDir().find(x=>x.id===dirFicheReferentId); if(!r) return;
   const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
   set('dirFicheTitle', r.nom); set('dirFicheNom', r.nom); set('dirFicheRole', r.role);
   const av=document.getElementById('dirFicheAvatar');
@@ -8235,7 +8242,9 @@ function renderDirReferentsList(){
   if(!arr.length){ list.innerHTML='<div class="lib-empty">'+trDyn('No coaches in this category.')+'</div>'; return; }
   list.innerHTML=arr.map(r=>{
     if(r.statut==='attente'){
-      return '<div class="pat-item" onclick="toast(\'Invitation still pending\')"><div class="pat-av" style="background:var(--gray2);color:var(--ink-on-accent);">'+r.ini+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.specialite+'</div></div><span class="pbdg bdg-o">'+trDyn('Invitation sent')+'</span></div>';
+      // Accepter/Refuser réels (audit directeur, #1) — avant, cette ligne n'était qu'un toast qui
+      // rappelait que l'invitation était en attente, sans aucun moyen de la faire aboutir.
+      return '<div class="pat-item" style="cursor:default;"><div class="pat-av" style="background:var(--gray2);color:var(--ink-on-accent);">'+r.ini+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.specialite+' · '+trDyn('Invitation sent')+'</div></div><div style="display:flex;gap:6px;flex-shrink:0;"><button class="pres-add" style="border-color:rgba(var(--brand-fixed-rgb),.5);color:var(--brand-fixed);" onclick="event.stopPropagation();acceptReferentInvite(\''+r.id+'\')">'+trDyn('Accept')+'</button><button class="pres-add" onclick="event.stopPropagation();declineReferentInvite(\''+r.id+'\')">'+trDyn('Decline')+'</button></div></div>';
     }
     const ringStyle=';border:2.5px solid '+getReferentTagColor(r)+';';
     if(r.statut==='inactif'){
@@ -8262,7 +8271,7 @@ function rankReferentBarPct(key,val){
 }
 function renderDirReferentsRanking(){
   const el=document.getElementById('dirStatsReferentBars'); if(!el) return;
-  const rows=REFERENTS.filter(r=>r.statut==='actif' && r[dirRefRankMetric]!=null).slice().sort((a,b)=>b[dirRefRankMetric]-a[dirRefRankMetric]);
+  const rows=allReferentsForDir().filter(r=>r.statut==='actif' && r[dirRefRankMetric]!=null).slice().sort((a,b)=>b[dirRefRankMetric]-a[dirRefRankMetric]);
   el.innerHTML='<div class="rank-tabs">'+REF_RANK_METRICS.map(m=>'<div class="rank-tab'+(m.key===dirRefRankMetric?' active':'')+'" onclick="setDirRefRankMetric(\''+m.key+'\')">'+m.label+'</div>').join('')+'</div>'
     +rows.map((r,i)=>{
       const val=r[dirRefRankMetric];
@@ -8280,8 +8289,34 @@ function submitInviteReferent(){
   const specialite=specEl?specEl.dataset.val:'Kinésithérapeute';
   if(!prenom||!nom||!email){ toast('First name, last name, and email are required'); return; }
   const fullName=prenom+' '+nom;
-  EXTRA_REFERENTS.push({nom:fullName, ini:prenom.charAt(0).toUpperCase(), specialite:specialite});
+  // id posé ici (absent avant, audit directeur) : sans lui, accepter/refuser plus tard ne peut pas
+  // retrouver cette invitation précise, et la fiche référent ne peut jamais l'ouvrir une fois active.
+  EXTRA_REFERENTS.push({id:'ref_'+Date.now(), nom:fullName, ini:prenom.charAt(0).toUpperCase(), specialite:specialite});
   showSuccessOverlay('✓','Invitation sent to '+fullName,'dashboard_directeur',1500);
+}
+// Accepter/refuser une invitation référent (audit directeur, 16 sept.) : même geste que
+// acceptPatientInvite()/declinePatientInvite() côté référent (audit référent #2) — avant, aucun code
+// ne faisait jamais passer un EXTRA_REFERENTS de 'attente' à 'actif', l'invitation restait bloquée
+// pour toujours. Pas de fausse donnée fabriquée (contrairement à generateFakePatientData pour un
+// patient) : un référent qui vient d'accepter a réellement 0 membre, c'est l'état vrai, pas à inventer.
+function acceptReferentInvite(id){
+  const r=EXTRA_REFERENTS.find(x=>x.id===id); if(!r) return;
+  r.statut='actif';
+  r.role=r.specialite;
+  r.photo='Marc.jpg';
+  r.color='var(--gray)';
+  r.users=0; r.activeUsers=0; r.observance=0; r.activityRate=0; r.sessionsPerWeek=0; r.intensity=0;
+  r.trendIcon='→'; r.trend=trDyn('no track record yet'); r.trendColor='var(--gray2)';
+  r.profil={mobilite:0,renforcement:0,cardio:0,maintien:0};
+  r.ecart='aligne';
+  toast(trDyn('Invitation accepted')+' — '+r.nom);
+  renderDirReferentsList();
+}
+function declineReferentInvite(id){
+  const i=EXTRA_REFERENTS.findIndex(x=>x.id===id); if(i<0) return;
+  EXTRA_REFERENTS.splice(i,1);
+  toast(trDyn('Invitation declined'));
+  renderDirReferentsList();
 }
 // Moteur Stats réutilisé (cf discussion "espace Centre/Direction") — même engine que refv_stats/
 // dir_fiche_referent, scopé sur PATIENTS. Limite démo assumée (cf commentaire REFERENTS plus haut) :
@@ -15088,6 +15123,9 @@ const EN_FR = {
   "INACTIVITY": "INACTIVITÉ",
   "ADHERENCE": "OBSERVANCE",
   "Accept": "Accepter",
+  "Invitation accepted": "Invitation acceptée",
+  "Invitation declined": "Invitation refusée",
+  "no track record yet": "pas encore d'historique",
   "Decline": "Refuser",
   "View profile": "Voir le profil",
   "View profile →": "Voir le profil →",
