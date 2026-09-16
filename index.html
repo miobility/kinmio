@@ -7874,9 +7874,33 @@ function openAssignChoice(patientId){
 function renderRefPending(){
   syncRefUtilBadge();
   const el=document.getElementById('refPendingUsers'); if(!el) return;
-  el.innerHTML = centreAccess==='pending'
+  const marcCard = centreAccess==='pending'
     ? '<div class="pat-item" style="background:rgba(var(--orange-rgb),.06);cursor:default;"><div class="pat-av" style="border:2.5px solid var(--orange);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">Marc D.</div><div class="pat-m" style="color:var(--orange);">Pending approval · KERPAPE26</div></div></div><div class="row" style="padding:0 20px;margin-bottom:8px;"><button class="btn btn-teal" style="padding:11px;" onclick="acceptAccess();renderRefPending()">Accept</button><button class="btn btn-outline" style="padding:11px;" onclick="refuseAccess();renderRefPending()">Decline</button></div>'
     : '';
+  // Invitations envoyées via submitInviteUtilisateur() : même gabarit que la carte Marc ci-dessus,
+  // généralisé à tout PATIENTS en statut 'attente' — avant, seul Marc (centreAccess) pouvait être
+  // accepté, toute autre invitation restait bloquée en attente pour toujours (cf audit référent, #2).
+  const invitedCards = PATIENTS.filter(p=>p.statut==='attente').map(p=>{
+    const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
+    return '<div class="pat-item" style="background:rgba(var(--orange-rgb),.06);cursor:default;"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m" style="color:var(--orange);">'+trDyn('Pending approval')+'</div></div></div><div class="row" style="padding:0 20px;margin-bottom:8px;"><button class="btn btn-teal" style="padding:11px;" onclick="acceptPatientInvite(\''+p.id+'\')">'+trDyn('Accept')+'</button><button class="btn btn-outline" style="padding:11px;" onclick="declinePatientInvite(\''+p.id+'\')">'+trDyn('Decline')+'</button></div>';
+  }).join('');
+  el.innerHTML = marcCard + invitedCards;
+}
+function acceptPatientInvite(id){
+  const p=PATIENTS.find(x=>x.id===id); if(!p) return;
+  p.statut='actif';
+  toast((currentLang==='fr'?'Invitation acceptée — ':'Invitation accepted — ')+p.nom);
+  renderRefPending();
+  renderKinePatients();
+  renderKineDash();
+}
+function declinePatientInvite(id){
+  const i=PATIENTS.findIndex(x=>x.id===id); if(i<0) return;
+  PATIENTS.splice(i,1);
+  toast(currentLang==='fr'?'Invitation refusée':'Invitation declined');
+  renderRefPending();
+  renderKinePatients();
+  renderKineDash();
 }
 // ===== DASHBOARD DIRECTEUR — 4 vues (étape 6) =====
 let dirView='global';
@@ -15352,6 +15376,7 @@ const EN_FR = {
   "Marc D. is requesting access": "Marc D. demande l'accès",
   "Code KERPAPE26 · new request": "Code KERPAPE26 · nouvelle demande",
   "Pending approval · KERPAPE26": "En attente d'approbation · KERPAPE26",
+  "Pending approval": "En attente d'approbation",
   "Change": "Modifier",
   "Today's session": "Séance du jour",
   "Programme paused": "Programme en pause",
