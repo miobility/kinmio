@@ -7760,7 +7760,7 @@ function renderStatsPeriodShared(key, a){
     +(members.pending ? '<div style="margin-top:8px;font-size:11.5px;color:var(--orange);">'+members.pending+' pending invite'+(members.pending>1?'s':'')+'</div>' : '')
     +(rateBars.length ? '<div class="card-sm" style="margin-top:14px;">'
       +'<div style="font-size:10.5px;color:var(--gray);margin-bottom:8px;">Rate per period</div>'
-      +'<div class="bars">'+rateBars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'">'+b.v+'%</div><div class="bar" style="height:'+(b.v?Math.round(14+(b.v/100)*46):14)+'px;background:'+(b.v?'var(--teal)':'var(--bg3)')+';"></div><div class="bar-l" data-notranslate="1">'+b.label+'</div></div>').join('')+'</div>'
+      +'<div class="bars">'+rateBars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'">'+b.v+'%</div><div class="bar" style="height:'+(b.v?Math.round(14+(b.v/100)*46):14)+'px;background:'+(b.v?'var(--teal)':'var(--border)')+';"></div><div class="bar-l" data-notranslate="1">'+b.label+'</div></div>').join('')+'</div>'
       +(rateInsight ? '<div style="font-size:11px;font-weight:700;color:'+rateInsight.color+';margin-top:8px;">'+rateInsight.text+'</div>' : '')
     +'</div>' : '');
 
@@ -7793,7 +7793,7 @@ function renderStatsPeriodShared(key, a){
     +'</div>' : '<div style="font-size:12px;color:var(--gray);margin-top:14px;">No session in this period.</div>')
     +(evoBars.length ? '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'
       +'<div style="font-size:10.5px;color:var(--gray);margin-bottom:8px;">Sessions per period</div>'
-      +'<div class="bars">'+evoBars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'">'+b.v+'</div><div class="bar" style="height:'+(b.v?Math.round(14+(b.v/b.max)*46):14)+'px;background:'+(b.v?'var(--orange)':'var(--bg3)')+';"></div><div class="bar-l" data-notranslate="1">'+b.label+'</div></div>').join('')+'</div>'
+      +'<div class="bars">'+evoBars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'">'+b.v+'</div><div class="bar" style="height:'+(b.v?Math.round(14+(b.v/b.max)*46):14)+'px;background:'+(b.v?'var(--orange)':'var(--border)')+';"></div><div class="bar-l" data-notranslate="1">'+b.label+'</div></div>').join('')+'</div>'
       +(evoInsight ? '<div style="font-size:11px;font-weight:700;color:'+evoInsight.color+';margin-top:8px;">'+evoInsight.text+'</div>' : '')
     +'</div>' : '')
   +'</div>';
@@ -7810,7 +7810,7 @@ function renderStatsPeriodShared(key, a){
     : '<div style="font-size:12px;color:var(--gray);">No session in this period.</div>')
     +(effortBars.length ? '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'
       +'<div style="font-size:10.5px;color:var(--gray);margin-bottom:8px;">Effort per period</div>'
-      +'<div class="bars">'+effortBars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'">'+b.v+'%</div><div class="bar" style="height:'+(b.v?Math.round(14+(b.v/100)*46):14)+'px;background:'+(b.v?'var(--orange)':'var(--bg3)')+';"></div><div class="bar-l" data-notranslate="1">'+b.label+'</div></div>').join('')+'</div>'
+      +'<div class="bars">'+effortBars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'">'+b.v+'%</div><div class="bar" style="height:'+(b.v?Math.round(14+(b.v/100)*46):14)+'px;background:'+(b.v?'var(--orange)':'var(--border)')+';"></div><div class="bar-l" data-notranslate="1">'+b.label+'</div></div>').join('')+'</div>'
       +(effortInsight ? '<div style="font-size:11px;font-weight:700;color:'+effortInsight.color+';margin-top:8px;">'+effortInsight.text+'</div>' : '')
     +'</div>' : '')
   +'</div>';
@@ -11631,8 +11631,11 @@ function renderProgPeriod(periodKey){
     // Le "0" au-dessus d'une barre vide répétait ce que la barre plate dit déjà — et c'était sa seule
     // fonction. Neuf zéros alignés sur 90 jours. L'absence est le signal ; la hauteur de ligne est
     // conservée pour que les barres restent alignées.
+    // Barre vide en --border, pas --bg3 (audit mode clair, 16 sept.) : posée sur une carte blanche,
+    // --bg3 (#FCFBF9) n'a que 3-6 points RVB d'écart avec le blanc — quasi invisible. --border a un
+    // écart net dans les deux thèmes (bonus : améliore aussi le contraste en sombre, pas juste clair).
     +'<div class="bars" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">'
-    +bars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'" style="'+(b.v===0?'visibility:hidden;':'')+'">'+b.v+'</div><div class="bar" style="height:'+(b.v?(18+Math.min(b.v,4)*8):18)+'px;background:'+(b.v?'var(--orange)':'var(--bg3)')+';"></div><div class="bar-l" data-notranslate="1">'+b.l+'</div></div>').join('')
+    +bars.map(b=>'<div class="bar-w"><div class="bar-v'+(b.v===0?' zero':'')+'" style="'+(b.v===0?'visibility:hidden;':'')+'">'+b.v+'</div><div class="bar" style="height:'+(b.v?(18+Math.min(b.v,4)*8):18)+'px;background:'+(b.v?'var(--orange)':'var(--border)')+';"></div><div class="bar-l" data-notranslate="1">'+b.l+'</div></div>').join('')
     +'</div>'
     +'</div>';
 
