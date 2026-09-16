@@ -4141,8 +4141,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="px"><button class="btn btn-orange" onclick="toast('Request sent to kinmio ✓')">Contact kinmio</button></div>
       <div class="ex-sec-t" style="padding:12px 20px 6px;color:var(--gray2);">Exports</div>
       <div class="row" style="padding:0 20px 4px;">
-        <button class="btn btn-outline" onclick="toast('Export in progress... ✓')"><svg class="ki"><use href="#ki-note"/></svg>Quarterly ARS report</button>
-        <button class="btn btn-outline" onclick="toast('Export in progress... ✓')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Annual centre review</button>
+        <button class="btn btn-outline" onclick="exportCentreReport('quarterly')"><svg class="ki"><use href="#ki-note"/></svg>Quarterly ARS report</button>
+        <button class="btn btn-outline" onclick="exportCentreReport('annual')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Annual centre review</button>
       </div>
     </div>
     <div style="height:90px;"></div>
@@ -21190,6 +21190,118 @@ function exportPatientReport(){
   if(!w){ toast(trDyn('Allow pop-ups to open the report')); return; }
   w.document.open();
   w.document.write(patientReportHtml(curPatient));
+  w.document.close();
+  toast(trDyn('Report ready in a new tab'));
+}
+// Rapport centre (audit directeur, #3) : mêmes deux boutons "Quarterly ARS report"/"Annual centre
+// review" que dans Licences, jusqu'ici de purs toast-stubs — écart devenu visible depuis le vrai
+// rapport par patient (patientReportHtml ci-dessus). Un seul générateur, périodType change juste le
+// titre/l'intitulé de fenêtre : ce document est un instantané de l'état actuel, pas un historique, donc
+// "trimestriel" et "annuel" n'ont rien de différent à agréger pour l'instant — même charte imprimable.
+function centreReportHtml(periodType){
+  const fr = currentLang==='fr';
+  const loc = fr ? 'fr-FR' : 'en-US';
+  const coaches = allReferentsForDir().filter(r=>r.statut==='actif');
+  const avg=arr=>arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length*10)/10 : 0;
+  const activityRate=avg(coaches.map(c=>c.activityRate));
+  const avgMembers=avg(coaches.map(c=>c.users));
+  const avgActiveMembers=avg(coaches.map(c=>c.activeUsers));
+  const avgSessions=avg(coaches.map(c=>c.sessionsPerWeek));
+  const anchor=new Date();
+  const {from,to}=getCalendarBounds('semaine', anchor);
+  const obsPct=statsObservancePct(PATIENTS, from, to);
+  const sessions=statsSessionsInWindow(PATIENTS, from, to);
+  const activeP=PATIENTS.filter(p=>p.statut!=='attente');
+  const avgMinPerMember=activeP.length ? Math.round(sessions.reduce((s,h)=>s+(h.duree||0),0)/activeP.length) : 0;
+  const conv=centreInviteConversion();
+  const alertsCount=computeReferentAttention().alertes.length;
+  const dateGen=new Date().toLocaleDateString(loc,{day:'numeric',month:'long',year:'numeric'});
+
+  const T = fr ? {
+    title: periodType==='annual' ? 'Bilan annuel centre' : 'Rapport trimestriel',
+    by:'Directeur/trice', gen:'Généré le', team:'Équipe', centreKpis:'Indicateurs centre', continuity:'Continuité après le centre',
+    coachesActive:'Coachs actifs', avgActivity:'Taux d\'activité moy.', avgMembersL:'Membres moy. / coach', avgActiveMembersL:'Membres actifs moy. / coach', avgSessionsL:'Séances / sem. / coach',
+    regularity:'Régularité (semaine en cours)', volume:'Minutes / membre (semaine en cours)', conversion:'Conversion invitation → actif', alerts:'Alertes actives',
+    departed:'Partis cette année', subscribed:'Continuent en autonomie', ret:'Rétention', roster:'Composition de l\'équipe', name:'Nom', role:'Rôle', members:'Membres', status:'Statut',
+    statusLbl:{actif:'Actif', inactif:'Inactif', attente:'En attente', suspendu:'Suspendu'},
+    footer:'Document généré automatiquement depuis kinmio — usage interne ou partage avec les instances de tutelle.', print:'Imprimer / Enregistrer en PDF'
+  } : {
+    title: periodType==='annual' ? 'Annual centre review' : 'Quarterly report',
+    by:'Director', gen:'Generated on', team:'Team', centreKpis:'Centre indicators', continuity:'Continuity after the centre',
+    coachesActive:'Active coaches', avgActivity:'Avg. activity rate', avgMembersL:'Avg. members / coach', avgActiveMembersL:'Avg. active members / coach', avgSessionsL:'Sessions / wk / coach',
+    regularity:'Regularity (current week)', volume:'Minutes / member (current week)', conversion:'Invitation → active conversion', alerts:'Active alerts',
+    departed:'Departed this year', subscribed:'Continue on their own', ret:'Retention', roster:'Team roster', name:'Name', role:'Role', members:'Members', status:'Status',
+    statusLbl:{actif:'Active', inactif:'Inactive', attente:'Pending', suspendu:'Suspended'},
+    footer:'Document generated automatically by kinmio — internal use or to share with oversight bodies.', print:'Print / Save as PDF'
+  };
+
+  const rosterRows = allReferentsForDir().map(r=>
+    '<tr><td>'+r.nom+'</td><td>'+(r.role||r.specialite||'—')+'</td><td>'+(r.users!=null?r.users:'—')+'</td><td>'+T.statusLbl[r.statut]+'</td></tr>'
+  ).join('') || '<tr><td colspan="4" class="muted">—</td></tr>';
+
+  return '<!doctype html><html lang="'+(fr?'fr':'en')+'"><head><meta charset="utf-8"><title>'+T.title+' — Centre Kerpape</title><style>'
+    + '@page{margin:22mm 18mm;} *{box-sizing:border-box;} body{font-family:Inter,system-ui,sans-serif;color:#16151C;background:#F0EFEA;margin:0;padding:28px;}'
+    + '.sheet{max-width:720px;margin:0 auto;background:#fff;}'
+    + '.head{display:flex;align-items:center;gap:14px;border-bottom:2px solid #17784B;padding-bottom:16px;margin-bottom:20px;}'
+    + '.head img{height:34px;}'
+    + '.head .t{font-family:"Plus Jakarta Sans",sans-serif;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#63626F;}'
+    + '.head .n{font-family:"Plus Jakarta Sans",sans-serif;font-size:22px;font-weight:800;margin-top:2px;}'
+    + '.meta{margin-left:auto;text-align:right;font-size:11.5px;color:#63626F;line-height:1.5;}'
+    + '.sec-t{font-family:"Plus Jakarta Sans",sans-serif;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#17784B;margin:22px 0 8px;}'
+    + '.stats{display:flex;gap:12px;flex-wrap:wrap;break-inside:avoid;}'
+    + '.stat{flex:1;min-width:140px;background:#FCFBF9;border:1px solid #E4E2DC;border-radius:10px;padding:12px 14px;}'
+    + '.stat .v{font-family:"Plus Jakarta Sans",sans-serif;font-size:22px;font-weight:800;}'
+    + '.stat .l{font-size:11px;color:#63626F;margin-top:2px;}'
+    + 'table{width:100%;border-collapse:collapse;font-size:13px;break-inside:avoid;}'
+    + 'th{text-align:left;font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;color:#63626F;font-weight:700;padding:6px 8px;border-bottom:1px solid #E4E2DC;}'
+    + 'td{padding:7px 8px;border-bottom:1px solid #E4E2DC;}'
+    + '.muted{color:#9897A3;font-size:13px;}'
+    + 'footer{margin-top:28px;padding-top:14px;border-top:1px solid #E4E2DC;font-size:10.5px;color:#9897A3;}'
+    + '.pbar{position:sticky;top:0;background:#fff;padding:12px 0;text-align:center;border-bottom:1px solid #E4E2DC;margin-bottom:20px;}'
+    + '.pbar button{background:#17784B;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}'
+    + '@media print{ .pbar{display:none;} body{background:#fff;padding:0;} }'
+    + '</style></head><body>'
+    + '<div class="pbar"><button onclick="window.print()">'+T.print+'</button></div>'
+    + '<div class="sheet">'
+    + '<div class="head"><img src="kinmio_logo_app_light.png" alt="kinmio"><div><div class="t">'+T.title+'</div><div class="n">Centre Kerpape</div></div>'
+      + '<div class="meta">'+T.by+' : Claire Dubois<br>'+T.gen+' '+dateGen+'</div></div>'
+
+    + '<div class="sec-t">'+T.team+'</div>'
+    + '<div class="stats">'
+      + '<div class="stat"><div class="v">'+coaches.length+'</div><div class="l">'+T.coachesActive+'</div></div>'
+      + '<div class="stat"><div class="v">'+activityRate+'%</div><div class="l">'+T.avgActivity+'</div></div>'
+      + '<div class="stat"><div class="v">'+avgMembers+'</div><div class="l">'+T.avgMembersL+'</div></div>'
+      + '<div class="stat"><div class="v">'+avgActiveMembers+'</div><div class="l">'+T.avgActiveMembersL+'</div></div>'
+      + '<div class="stat"><div class="v">'+avgSessions+'</div><div class="l">'+T.avgSessionsL+'</div></div>'
+    + '</div>'
+
+    + '<div class="sec-t">'+T.centreKpis+'</div>'
+    + '<div class="stats">'
+      + '<div class="stat"><div class="v">'+(obsPct!=null?obsPct+'%':'—')+'</div><div class="l">'+T.regularity+'</div></div>'
+      + '<div class="stat"><div class="v">'+avgMinPerMember+'</div><div class="l">'+T.volume+'</div></div>'
+      + '<div class="stat"><div class="v">'+conv.pct+'%</div><div class="l">'+T.conversion+'</div></div>'
+      + '<div class="stat"><div class="v" style="color:'+(alertsCount>0?'#FF294F':'#16151C')+';">'+alertsCount+'</div><div class="l">'+T.alerts+'</div></div>'
+    + '</div>'
+
+    + '<div class="sec-t">'+T.continuity+'</div>'
+    + '<div class="stats">'
+      + '<div class="stat"><div class="v">'+CENTRE_CONTINUITY.departedCount+'</div><div class="l">'+T.departed+'</div></div>'
+      + '<div class="stat"><div class="v">'+CENTRE_CONTINUITY.subscribedPct+'%</div><div class="l">'+T.subscribed+'</div></div>'
+      + '<div class="stat"><div class="v">'+CENTRE_CONTINUITY.retention30+'%</div><div class="l">'+T.ret+' 30j</div></div>'
+      + '<div class="stat"><div class="v">'+CENTRE_CONTINUITY.retention90+'%</div><div class="l">'+T.ret+' 90j</div></div>'
+    + '</div>'
+
+    + '<div class="sec-t">'+T.roster+'</div>'
+    + '<table><thead><tr><th>'+T.name+'</th><th>'+T.role+'</th><th>'+T.members+'</th><th>'+T.status+'</th></tr></thead><tbody>'+rosterRows+'</tbody></table>'
+
+    + '<footer>'+T.footer+'</footer>'
+    + '</div></body></html>';
+}
+function exportCentreReport(periodType){
+  const w=window.open('', '_blank');
+  if(!w){ toast(trDyn('Allow pop-ups to open the report')); return; }
+  w.document.open();
+  w.document.write(centreReportHtml(periodType));
   w.document.close();
   toast(trDyn('Report ready in a new tab'));
 }
