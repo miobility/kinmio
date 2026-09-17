@@ -1692,7 +1692,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
         <div style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--white);">12</div><div style="font-size:11px;color:var(--gray);margin-top:2px;">Sessions</div></div>
         <div style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--white);">3</div><div style="font-size:11px;color:var(--gray);margin-top:2px;">Weeks</div></div>
-        <div style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--teal);">↓42%</div><div style="font-size:11px;color:var(--gray);margin-top:2px;">Pain</div></div>
+        <div style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--teal);display:flex;align-items:center;justify-content:center;gap:2px;"><svg class="ki" style="width:0.7em;height:0.7em;"><use href="#ki-down"/></svg>42%</div><div style="font-size:11px;color:var(--gray);margin-top:2px;">Pain</div></div>
       </div>
     </div>
     <h2 style="margin-bottom:8px;letter-spacing:-.4px;">Your programme belongs to you.</h2>
@@ -7378,7 +7378,7 @@ function renderRefAccueil(){
   const weekMinutesPrev=weekSessionsPrev.reduce((s,h)=>s+(h.duree||0),0);
   const avgMinPerMemberWeek=activeP.length ? Math.round(weekMinutes/activeP.length) : 0;
   const volDelta=weekMinutesPrev>0 ? pctDelta(weekMinutes/activeP.length, weekMinutesPrev/activeP.length) : null;
-  const volArrow=d=>d.dir==='up'?'↑+':d.dir==='down'?'↓-':'→';
+  const volArrow=d=>d.dir==='up'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>+':d.dir==='down'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>-':'→';
   if(statsEl){
     // Pas de bordure (cf discussion) : le fond de la card contraste déjà avec le fond de page, la
     // bordure de .card-sm était redondante ici — override inline, la classe reste pour le fond/radius.
@@ -7390,7 +7390,7 @@ function renderRefAccueil(){
       +'</div>'
       +'<div onclick="goToUsersFiltered(\'actif\')" style="cursor:pointer;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:baseline;gap:6px;">'
         +'<span style="font-size:12.5px;color:var(--gray2);"><span style="font-weight:800;color:var(--white);">'+actifsCount+'/'+totalMembers+'</span> '+trDyn('members trained this week')+'</span>'
-        +(membersDelta!==0?'<span style="font-size:11px;font-weight:700;color:'+(membersDelta>0?'var(--teal)':'var(--red)')+';margin-left:auto;">'+(membersDelta>0?'↑+':'↓-')+Math.abs(membersDelta)+'</span>':'')
+        +(membersDelta!==0?'<span style="font-size:11px;font-weight:700;color:'+(membersDelta>0?'var(--teal)':'var(--red)')+';margin-left:auto;">'+(membersDelta>0?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>+':'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>-')+Math.abs(membersDelta)+'</span>':'')
       +'</div>'
     +'</div>';
   }
@@ -7749,7 +7749,7 @@ function renderStatsPeriodShared(key, a){
   // ne renvoie un vrai signal que pour p1 (seul membre avec un historique daté réel dans ce prototype).
   const highLoadMembers=activeP.filter(p=>{ const s=getReferentAcwrSignal(p.id); return s && s.type==='alerte'; });
   const rosterBalance=computeTrainingBalance(sessions);
-  const arrow=d=>d.dir==='up'?'↑':d.dir==='down'?'↓':'→';
+  const arrow=d=>d.dir==='up'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>':d.dir==='down'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>':'→';
   const rankRows=statsMembersRanking(patients, from, to, a.rankMetric).slice(0,5);
   const rankMax=rankRows.length ? Math.max(...rankRows.map(r=>r.val)) : 1;
   // Suffixes passés par trDyn() plutôt que laissés en dur : sweepTranslate ne peut pas traduire un
@@ -8038,7 +8038,7 @@ function renderDirOverviewKpi(){
   const anchor=new Date();
   const {from,to}=getCalendarBounds('semaine', anchor);
   const {from:prevFrom,to:prevTo}=getPreviousCalendarBounds('semaine', anchor);
-  const arrow=d=>d.dir==='up'?'↑':d.dir==='down'?'↓':'→';
+  const arrow=d=>d.dir==='up'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>':d.dir==='down'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>':'→';
   const color=d=>d.dir==='up'?'var(--teal)':d.dir==='down'?'var(--vigilance)':'var(--gray)';
   const hero='font-size:28px;font-weight:800;color:var(--white);line-height:1;';
   const sub='font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.4;';
@@ -8240,7 +8240,7 @@ function renderDirFiche(){
   sc.innerHTML='<div class="card-sm">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
       +'<div><div style="font-size:20px;font-weight:800;color:var(--white);">'+r.users+'</div><div style="font-size:11px;color:var(--gray2);">'+trDyn('members')+' · '+r.observance+'% '+trDyn('adherence')+'</div></div>'
-      +'<div style="font-size:12px;font-weight:700;color:'+r.trendColor+';">'+r.trendIcon+' '+r.trend+'</div>'
+      +'<div style="font-size:12px;font-weight:700;color:'+r.trendColor+';">'+(r.trendIcon==='↑'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>':r.trendIcon==='↓'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>':r.trendIcon)+' '+r.trend+'</div>'
     +'</div>'
     +renderDirReferentBars(r.profil)
     +'<div class="row" style="margin-top:12px;">'+alignBadge+'</div>'
@@ -9106,7 +9106,7 @@ function buildLoadPainHtml(pad, compact, only){
   const acwrColor = fatigue.acwr==null ? '' : fatigue.level==='high' ? 'var(--red)' : fatigue.level==='low' ? 'var(--vigilance)' : 'var(--teal)';
   const acwrPct = fatigue.acwr==null ? 0 : Math.min(100, Math.max(0, fatigue.acwr/2*100));
   const painColor = pain.level==null ? 'var(--gray)' : pain.level<=3 ? 'var(--teal)' : pain.level<=6 ? 'var(--vigilance)' : 'var(--red)';
-  const painArrow = pain.trend==='hausse' ? '↑' : pain.trend==='baisse' ? '↓' : '→';
+  const painArrow = pain.trend==='hausse' ? '<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>' : pain.trend==='baisse' ? '<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>' : '→';
   const painArrowColor = pain.trend==='hausse' ? 'var(--red)' : pain.trend==='baisse' ? 'var(--teal)' : 'var(--gray)';
   const painComment = pain.level==null ? '' : pain.trend==='hausse' ? 'Rising over your last 3 sessions' : pain.trend==='baisse' ? 'Easing over your last 3 sessions' : 'Stable over your last 3 sessions';
   const loadTip = fatigue.level==='high'?'Load rising fast — consider a lighter session':fatigue.level==='low'?'Load lower than usual — good time to build back up':'Load steady and manageable';
@@ -9130,7 +9130,7 @@ function buildLoadPainHtml(pad, compact, only){
     // la carte Douleur juste à côté (hero + flèche colorée), la flèche restant réservée à Progress,
     // jamais au badge Home (cf discussion "je ne la verrais pas sur la page d'accueil").
     const mood=getMoodSignal();
-    const moodArrow = mood.trend==='up' ? '↑' : mood.trend==='down' ? '↓' : mood.trend==='stable' ? '→' : '';
+    const moodArrow = mood.trend==='up' ? '<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>' : mood.trend==='down' ? '<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>' : mood.trend==='stable' ? '→' : '';
     const moodArrowColor = mood.trend==='up' ? 'var(--teal)' : mood.trend==='down' ? 'var(--red)' : 'var(--gray)';
     const moodCard = !moodDone ? '' : '<div class="scard" style="flex:1;display:flex;flex-direction:column;">'
       +'<div style="'+lbl+'">'+trDyn("Today\'s form")+'</div>'
@@ -11763,7 +11763,7 @@ function renderProgPeriod(periodKey){
   const volCell=(lbl,val,prev,cur)=>{
     const d=pctDelta(cur,prev);
     const cc=d.dir==='up'?'var(--teal)':'var(--gray2)';
-    const ar=d.dir==='up'?'↑':d.dir==='down'?'↓':'→';
+    const ar=d.dir==='up'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>':d.dir==='down'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>':'→';
     return '<div style="font-size:12px;color:var(--gray2);margin-bottom:4px;">'+lbl+'</div>'
       +'<div style="display:flex;align-items:baseline;gap:4px;"><div style="font-size:15px;font-weight:700;color:var(--gray2);">'+val+'</div>'
       +(prev ? '<div style="font-size:11px;font-weight:700;color:'+cc+';">'+(d.dir==='flat'?'–':ar+' '+d.pct+'%')+'</div>' : '')+'</div>';
@@ -11774,7 +11774,7 @@ function renderProgPeriod(periodKey){
     +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">'
     +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;">'+dureeTotal+'</div>'
     +'<div style="font-size:13px;color:var(--gray2);">min</div>'
-    +(dureeTotalPrev ? '<span style="font-size:12px;font-weight:700;color:'+(dureeDelta.dir==='up'?'var(--teal)':'var(--gray2)')+';margin-left:auto;">'+(dureeDelta.dir==='up'?'↑':dureeDelta.dir==='down'?'↓':'→')+' '+dureeDelta.pct+'%</span>' : '')
+    +(dureeTotalPrev ? '<span style="font-size:12px;font-weight:700;color:'+(dureeDelta.dir==='up'?'var(--teal)':'var(--gray2)')+';margin-left:auto;">'+(dureeDelta.dir==='up'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>':dureeDelta.dir==='down'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>':'→')+' '+dureeDelta.pct+'%</span>' : '')
     +'</div>'
     +'<div style="font-size:11.5px;color:var(--gray2);margin-bottom:14px;">'+sessions.length+' session'+(sessions.length!==1?'s':'')+(sessions.length?' · '+avgMinPerSession+' min avg/session':'')+'</div>'
     +volumeChartHtml(periodKey)
@@ -11793,7 +11793,7 @@ function renderProgPeriod(periodKey){
     html+='<div class="card-sm" style="margin-bottom:16px;">'
       +'<div style="display:flex;align-items:baseline;gap:8px;">'
       +'<div style="font-size:32px;font-weight:800;color:var(--white);line-height:1;">'+effortPct+'%</div>'
-      +(effortDelta ? '<span style="font-size:12px;font-weight:700;color:'+(effortDelta.dir==='up'?'var(--teal)':'var(--gray2)')+';margin-left:auto;">'+(effortDelta.dir==='up'?'↑':effortDelta.dir==='down'?'↓':'→')+' '+effortDelta.pct+'pts</span>' : '')
+      +(effortDelta ? '<span style="font-size:12px;font-weight:700;color:'+(effortDelta.dir==='up'?'var(--teal)':'var(--gray2)')+';margin-left:auto;">'+(effortDelta.dir==='up'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>':effortDelta.dir==='down'?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>':'→')+' '+effortDelta.pct+'pts</span>' : '')
       +'</div>'
       +'<div style="font-size:11.5px;color:var(--gray2);margin-top:6px;">vs your all-time best '+getPeriodLabel(periodKey)+' window</div>'
       +'</div>';
@@ -12299,7 +12299,7 @@ function renderMasterySection(sectionId, periodKey){
   sec.style.display='block';
   listEl.innerHTML=byLevel.map(({jauge,top})=>
     '<div style="font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;">Level '+jauge+'</div>'
-    +top.map(({ex,pctAvg,levelDelta})=>ligneConsultation(ex.nom, pctAvg+'% '+trDyn('in the zone'), {onclick:"openExerciceNouveau('"+ex.id+"')", marque: levelDelta ? ((levelDelta>0?'↑+':'↓')+Math.abs(levelDelta)) : null})).join('')
+    +top.map(({ex,pctAvg,levelDelta})=>ligneConsultation(ex.nom, pctAvg+'% '+trDyn('in the zone'), {onclick:"openExerciceNouveau('"+ex.id+"')", marque: levelDelta ? ((levelDelta>0?'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg>+':'<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-down"/></svg>')+Math.abs(levelDelta)) : null})).join('')
   ).join('');
   sweepTranslate(listEl, currentLang);
 }
@@ -21508,7 +21508,7 @@ function submitCreationCentre(){
 }
 function admBar(pct,color){ return '<div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:4px;"></div></div>'; }
 // Source unique pour les métriques business admin (évite la duplication entre le haut du dashboard et l'onglet Métriques)
-const ADMIN_METRICS={mrr:'$4,200', mrrTrend:'+12% vs last month', activeUsers:312, activeUsersTrend:'+23 this month', observance:78, observanceTrend:'↑ +3pts', transition:23, churnCentres:2};
+const ADMIN_METRICS={mrr:'$4,200', mrrTrend:'+12% vs last month', activeUsers:312, activeUsersTrend:'+23 this month', observance:78, observanceTrend:'+3pts', transition:23, churnCentres:2};
 // Courbes de croissance réseau (onglet Growth) — ligne simple ou en escalier, sans grille
 function renderAdminGrowthCurve(svgId, values, labels, color, step){
   const svg=document.getElementById(svgId); if(!svg) return;
@@ -21548,7 +21548,8 @@ function renderAdminTopMetrics(){
   const actifs=CENTERS.filter(c=>c.statut==='actif').length, attente=CENTERS.filter(c=>c.statut==='attente').length;
   set('admMrrTop', ADMIN_METRICS.mrr); set('admMrrTrendTop', ADMIN_METRICS.mrrTrend);
   set('admActiveTop', ADMIN_METRICS.activeUsers); set('admActiveTrendTop', ADMIN_METRICS.activeUsersTrend);
-  set('admObsTop', ADMIN_METRICS.observance+'%'); set('admObsTrendTop', ADMIN_METRICS.observanceTrend);
+  set('admObsTop', ADMIN_METRICS.observance+'%');
+  const admObsTrendEl=document.getElementById('admObsTrendTop'); if(admObsTrendEl) admObsTrendEl.innerHTML='<svg class="ki" style="width:0.85em;height:0.85em;"><use href="#ki-up"/></svg> '+ADMIN_METRICS.observanceTrend;
   set('admCentresTop', actifs); set('admCentresTrendTop', attente+' pending');
 }
 let adminView='metriques';
