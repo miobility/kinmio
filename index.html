@@ -10771,7 +10771,7 @@ function defiCardHtml(d, entry){
   const bas = entry
     ? '<div style="font-size:11.5px;color:var(--gray2);margin-top:2px;">'+trDyn(pr.fait+'/'+d.cible+' '+u.lbl)
         +(pr.atteint ? ' · '+trDyn('done') : ' · '+trDyn(pr.joursRestants+' day'+(pr.joursRestants>1?'s':'')+' left'))+'</div>'
-        +'<div style="height:5px;border-radius:3px;background:var(--bg3);margin-top:9px;overflow:hidden;"><div style="height:100%;width:'+pr.pct+'%;background:'+(pr.atteint?'var(--brand-fixed)':'var(--orange)')+';border-radius:3px;"></div></div>'
+        +'<div style="height:5px;border-radius:3px;background:var(--bg3);margin-top:9px;overflow:hidden;"><div style="height:100%;width:'+pr.pct+'%;background:'+(pr.atteint?'var(--brand-fixed)':'var(--gray)')+';border-radius:3px;"></div></div>'
     : '<div style="font-size:11.5px;color:var(--gray2);margin-top:2px;">'+trDyn(d.sousTitre)+'</div>'
         +'<div style="font-size:11.5px;color:var(--gray2);margin-top:5px;">'+trDyn(d.cible+' '+u.lbl)+' · '+trDyn(d.fenetreJours+' days')+'</div>';
   return '<div class="card-sm" style="margin:0 20px 10px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;'+(entry&&pr.atteint?'border-color:var(--brand-fixed);':'')+'" onclick="openDefiDetail(\''+d.id+'\')">'
@@ -20094,7 +20094,7 @@ function renderDefiDetail(){
         ? '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">'
             +'<div style="display:flex;align-items:baseline;gap:8px;"><div style="font-size:30px;font-weight:800;color:var(--white);line-height:1;">'+pr.fait+'<span style="font-size:17px;color:var(--gray2);">/'+d.cible+'</span></div>'
             +'<div style="font-size:13px;color:var(--gray2);">'+trDyn(u.lbl)+'</div></div>'
-            +'<div style="height:7px;border-radius:4px;background:var(--bg3);margin-top:12px;overflow:hidden;"><div style="height:100%;width:'+pr.pct+'%;background:'+(pr.atteint?'var(--brand-fixed)':'var(--orange)')+';border-radius:4px;"></div></div>'
+            +'<div style="height:7px;border-radius:4px;background:var(--bg3);margin-top:12px;overflow:hidden;"><div style="height:100%;width:'+pr.pct+'%;background:'+(pr.atteint?'var(--brand-fixed)':'var(--gray)')+';border-radius:4px;"></div></div>'
             // Jamais « échoué » : un défi non atteint se TERMINE, avec ce qui a été fait.
             +'<div style="font-size:12px;font-weight:600;color:'+(pr.atteint?'var(--brand-fixed)':'var(--gray2)')+';margin-top:9px;">'
               +(pr.atteint ? trDyn('Target reached') : pr.joursRestants>0 ? trDyn(pr.joursRestants+' day'+(pr.joursRestants>1?'s':'')+' left') : trDyn('Window closed — kept as it stands'))+'</div>'
@@ -20893,8 +20893,11 @@ const FREQ_DAYS_MAP={
 };
 function proposeDaysForFrequency(freq){ return FREQ_DAYS_MAP[freq] || FREQ_DAYS_MAP['3×/week']; }
 // Avatar patient : même 3 couleurs sémantiques que le badge de statut (jamais une couleur décorative
-// par identité) — actif=teal, alerte=rouge, attente/inactif=orange/gris, cohérent partout dans l'app.
-const STATUT_AVATAR_COLOR={actif:{bg:'var(--teal)',tc:'var(--bg)'},alerte:{bg:'var(--red)',tc:'#fff'},attente:{bg:'var(--orange)',tc:'#fff'},inactif:{bg:'var(--gray)',tc:'#fff'},sorti:{bg:'var(--gray)',tc:'#fff'}};
+// par identité) — actif=teal, alerte=rouge, attente=vigilance (fixe), inactif/sorti=gris. "attente"
+// utilisait var(--orange) — l'accent personnalisable, qui vaut EXACTEMENT --teal sous l'accent par
+// défaut (Émeraude) : "en attente" et "actif" étaient donc visuellement identiques (audit charte,
+// 17 sept. 2026). var(--vigilance) est fixe, jamais réécrit par setAccent().
+const STATUT_AVATAR_COLOR={actif:{bg:'var(--teal)',tc:'var(--bg)'},alerte:{bg:'var(--red)',tc:'#fff'},attente:{bg:'var(--vigilance)',tc:'#fff'},inactif:{bg:'var(--gray)',tc:'#fff'},sorti:{bg:'var(--gray)',tc:'#fff'}};
 function avatarColorFor(p){ return (STATUT_AVATAR_COLOR[p.statut]||STATUT_AVATAR_COLOR.inactif).bg; }
 function avatarTextColorFor(p){ return (STATUT_AVATAR_COLOR[p.statut]||STATUT_AVATAR_COLOR.inactif).tc; }
 
