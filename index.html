@@ -1554,7 +1554,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <h3 style="margin-bottom:8px;">Your invitation code</h3>
     <div style="display:flex;gap:10px;margin-bottom:12px;">
-      <input type="text" id="centreCode" placeholder="e.g. KERPAPE26" maxlength="12" style="flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:17px;font-size:16px;color:var(--white);font-family:inherit;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase();checkCentreCode(this.value)" onkeypress="if(event.key==='Enter')validateCentreCode()">
+      <input type="text" id="centreCode" placeholder="e.g. CENTRE1234" maxlength="12" style="flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:17px;font-size:16px;color:var(--white);font-family:inherit;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase();checkCentreCode(this.value)" onkeypress="if(event.key==='Enter')validateCentreCode()">
       <button id="centreBtn" onclick="validateCentreCode()" style="padding:17px 20px;background:var(--bg3);border:none;border-radius:14px;color:var(--gray);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;">OK</button>
     </div>
     <p style="font-size:12px;color:var(--gray);line-height:1.5;margin-bottom:32px;">Code provided by your coach or displayed at your gym.</p>
@@ -1713,7 +1713,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="font-size:22px;font-weight:800;color:var(--white);margin-bottom:4px;">-50% on your subscription, for life</div>
       <div style="font-size:14px;color:var(--gray);margin-bottom:14px;">Bar kit + resistance bands · Delivery included</div>
       <div style="background:var(--bg3);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div><div style="font-size:11px;color:var(--gray);margin-bottom:2px;">Your discount code</div><div style="font-size:20px;font-weight:800;color:var(--orange);letter-spacing:2px;">KERPAPE26</div></div>
+        <div><div style="font-size:11px;color:var(--gray);margin-bottom:2px;">Your discount code</div><div style="font-size:20px;font-weight:800;color:var(--orange);letter-spacing:2px;">CENTRE1234</div></div>
         <button onclick="copyCentreCode()" style="background:var(--orange);border:none;border-radius:10px;padding:8px 14px;color:var(--ink-on-accent);font-size:12px;font-weight:700;cursor:pointer;">Copy</button>
       </div>
       <button class="btn btn-orange" onclick="goToShop()">Order my bar →</button>
@@ -1756,7 +1756,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Switch to independent</div>
       <div style="background:rgba(var(--orange-rgb),.07);border:1px solid rgba(var(--orange-rgb),.2);border-radius:16px;padding:16px;margin-bottom:16px;cursor:pointer;" onclick="go('transition_screen')">
         <div style="font-size:14px;font-weight:700;color:var(--orange);margin-bottom:4px;">Continue at home →</div>
-        <div style="font-size:13px;color:var(--gray);">-50% on your subscription with KERPAPE26</div>
+        <div style="font-size:13px;color:var(--gray);">-50% on your subscription with CENTRE1234</div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Coach voice</div>
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
@@ -6993,7 +6993,7 @@ function validateCentreCode(){
   if(val.length >= 4){
     const confirm = document.getElementById('centreConfirm');
     if(confirm) confirm.style.display = 'block';
-    const names = {'KERPAPE26':'Centre Kerpape','SMR26':'Centre SMR','DEMO26':'Demo Centre'};
+    const names = {'CENTRE1234':'Centre Kerpape','SMR26':'Centre SMR','DEMO26':'Demo Centre'};
     const name = names[val] || 'Partner centre';
     const nameEl = document.getElementById('centreName');
     if(nameEl) nameEl.textContent = name;
@@ -7924,7 +7924,7 @@ function renderRefPending(){
   syncRefUtilBadge();
   const el=document.getElementById('refPendingUsers'); if(!el) return;
   const marcCard = centreAccess==='pending'
-    ? '<div class="pat-item" style="background:rgba(var(--orange-rgb),.06);cursor:default;"><div class="pat-av" style="border:2.5px solid var(--orange);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">Marc D.</div><div class="pat-m" style="color:var(--orange);">Pending approval · KERPAPE26</div></div></div><div class="row" style="padding:0 20px;margin-bottom:8px;"><button class="btn btn-teal" style="padding:11px;" onclick="acceptAccess();renderRefPending()">Accept</button><button class="btn btn-outline" style="padding:11px;" onclick="refuseAccess();renderRefPending()">Decline</button></div>'
+    ? '<div class="pat-item" style="background:rgba(var(--orange-rgb),.06);cursor:default;"><div class="pat-av" style="border:2.5px solid var(--orange);background:var(--bg2);overflow:hidden;padding:0;"><img src="Marc.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">Marc D.</div><div class="pat-m" style="color:var(--orange);">Pending approval · CENTRE1234</div></div></div><div class="row" style="padding:0 20px;margin-bottom:8px;"><button class="btn btn-teal" style="padding:11px;" onclick="acceptAccess();renderRefPending()">Accept</button><button class="btn btn-outline" style="padding:11px;" onclick="refuseAccess();renderRefPending()">Decline</button></div>'
     : '';
   // Invitations envoyées via submitInviteUtilisateur() : même gabarit que la carte Marc ci-dessus,
   // généralisé à tout PATIENTS en statut 'attente' — avant, seul Marc (centreAccess) pouvait être
@@ -8414,16 +8414,16 @@ function renderDirStats(){
 // Shop redirect
 function goToShop(){
   if(confirm('You will be redirected to kinmio.com with your discount code. Continue?')){
-    window.open('https://kinmio.com?code=KERPAPE26','_blank');
+    window.open('https://kinmio.com/commander?code=CENTRE1234','_blank');
   }
 }
 
 // Copy centre code
 function copyCentreCode(){
-  navigator.clipboard.writeText('KERPAPE26').then(()=>{
+  navigator.clipboard.writeText('CENTRE1234').then(()=>{
     alert('Code copied!');
   }).catch(()=>{
-    alert('Code: KERPAPE26');
+    alert('Code: CENTRE1234');
   });
 }
 
@@ -13926,7 +13926,7 @@ const EN_FR = {
   "kinmio partner centre": "Centre partenaire kinmio",
   "Your centre invited you to join kinmio. Enter the code your coach gave you.": "Ton centre t'a invité à rejoindre kinmio. Saisis le code que ton référent t'a communiqué.",
   "Your invitation code": "Ton code d'invitation",
-  "e.g. KERPAPE26": "Ex : KERPAPE26",
+  "e.g. CENTRE1234": "Ex : CENTRE1234",
   "Code provided by your coach or displayed at your gym.": "Code fourni par ton référent ou affiché dans ta salle de sport.",
   "Verified partner centre": "Centre partenaire vérifié",
   "Free access managed by your centre. No payment required.": "Accès gratuit géré par ton centre. Aucun paiement requis.",
@@ -14022,7 +14022,7 @@ const EN_FR = {
   "Coach · Centre Kerpape": "Référent · Centre Kerpape",
   "Train between sessions": "Entraîne-toi entre les séances",
   "Order your kinmio bar and keep going at home.": "Commande ta barre kinmio et continue à la maison.",
-  "-50% with your code → KERPAPE26": "-50% avec ton code → KERPAPE26",
+  "-50% with your code → CENTRE1234": "-50% avec ton code → CENTRE1234",
   // home V2 (refonte)
   "Strength & tone focus": "Focus renforcement et tonicité",
   "Cardio focus": "Focus cardio",
@@ -14096,7 +14096,7 @@ const EN_FR = {
   "Managed by Centre Kerpape · Martin Dupont, Coach": "Géré par Centre Kerpape · Martin Dupont, Référent",
   "Switch to independent": "Passer en autonomie",
   "Continue at home →": "Continue chez toi →",
-  "-50% on your subscription with KERPAPE26": "-50% sur l'abonnement avec KERPAPE26",
+  "-50% on your subscription with CENTRE1234": "-50% sur l'abonnement avec CENTRE1234",
   "Account information": "Informations du compte",
   "Coach": "Référent",
   "Members tracked": "Membres suivis",
@@ -15601,8 +15601,8 @@ const EN_FR = {
   "Access approved · Welcome to kinmio": "Accès approuvé · Bienvenue sur kinmio",
   "Approved by Martin Dupont · Coach": "Approuvé par Martin Dupont · Coach",
   "Marc D. is requesting access": "Marc D. demande l'accès",
-  "Code KERPAPE26 · new request": "Code KERPAPE26 · nouvelle demande",
-  "Pending approval · KERPAPE26": "En attente d'approbation · KERPAPE26",
+  "Code CENTRE1234 · new request": "Code CENTRE1234 · nouvelle demande",
+  "Pending approval · CENTRE1234": "En attente d'approbation · CENTRE1234",
   "Pending approval": "En attente d'approbation",
   "Change": "Modifier",
   "Today's session": "Séance du jour",
