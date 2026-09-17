@@ -8310,7 +8310,7 @@ function renderDirReferentsList(){
     }
     const tags=getReferentTags(r);
     const reason = tags.includes('alerte') ? {color:'var(--red)', text:trDyn('Gap detected — profile diverges from centre average')}
-      : tags.includes('checker') ? {color:'var(--orange)', text:trDyn('Declining trend')+' — '+trDyn(r.trend)}
+      : tags.includes('checker') ? {color:'var(--vigilance)', text:trDyn('Declining trend')+' — '+trDyn(r.trend)}
       : null;
     const reasonHtml = reason ? '<div style="font-size:12px;color:'+reason.color+';margin-top:2px;">'+reason.text+'</div>' : '';
     return '<div class="pat-item" onclick="openReferentFiche(\''+r.id+'\')"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · '+r.users+' '+trDyn('members')+' · '+r.observance+'%</div>'+reasonHtml+'</div></div>';
@@ -21531,7 +21531,11 @@ function adminGrowthMonths(){ return [0,1,2,3,4,5].map(i=>new Date(2026,i,1).toL
 function renderAdminGrowth(){
   const ADMIN_GROWTH_MONTHS=adminGrowthMonths();
   renderAdminGrowthCurve('admGrowthUsers',[180,210,240,265,290,312],ADMIN_GROWTH_MONTHS,'var(--orange)',false);
-  renderAdminGrowthCurve('admGrowthCentres',[2,2,3,3,4,4],ADMIN_GROWTH_MONTHS,'var(--teal)',true);
+  // var(--teal) (vert verdict fixe) → var(--orange) (accent) : même traitement que le graphique
+  // "Active users" juste au-dessus (ligne précédente) — une courbe de croissance n'est pas un verdict,
+  // et sous l'accent par défaut les deux courbes se confondaient déjà visuellement (audit registre
+  // établissements, 17 sept. 2026).
+  renderAdminGrowthCurve('admGrowthCentres',[2,2,3,3,4,4],ADMIN_GROWTH_MONTHS,'var(--orange)',true);
   // #7368EE (résidu de l'ancienne palette à 4 couleurs) remplacé par l'accent, comme la courbe
   // Utilisateurs juste au-dessus — même famille de métrique, cf audit établissements.
   renderAdminGrowthCurve('admGrowthSessions',[320,410,520,610,720,847],ADMIN_GROWTH_MONTHS,'var(--orange)',false);
@@ -21568,7 +21572,12 @@ function renderAdmin(){
             +'<div style="text-align:right;"><span class="pbdg" style="background:var(--bg3);color:var(--gray2);">PENDING ACTIVATION</span><div style="margin-top:6px;"><button class="pres-add" onclick="toast(\'Reminder sent to '+ct.nom+' ✓\')">Follow up →</button></div></div></div>';
         }
         const near=ct.renouvJ<100;
-        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--orange)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--orange)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\''+ct.nom+' report (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Centre report</button></div></div>';
+        // Deux verdicts (renouvellement proche, observance sous seuil) utilisaient var(--orange), le
+        // token d'accent personnalisable — sous l'accent par défaut (émeraude), --orange vaut EXACTEMENT
+        // --teal, donc un centre à 71% s'affichait dans le même vert qu'un centre à 88% : deux verdicts
+        // opposés rendus identiques. var(--vigilance) est fixe, jamais réécrit par setAccent() (audit
+        // registre établissements, 17 sept. 2026).
+        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--vigilance)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--vigilance)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\''+ct.nom+' report (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Centre report</button></div></div>';
       }).join('')
     + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'Full network export (demo)\')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Export network</button></div>';
 
