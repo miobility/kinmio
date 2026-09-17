@@ -1099,7 +1099,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-ob-people" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="3.3" /><path d="M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6" /><circle cx="16.5" cy="8.5" r="2.6" /><path d="M15.3,5.6a2.6,2.6,0,0,1,0,5.8" /><path d="M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6" /></symbol>
   <symbol id="ki-ob-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6,8a6,6,0,0,1,12,0c0,4,1.5,5.5,2,6.5H4c.5-1,2-2.5,2-6.5Z" /><path d="M9.5,18.5a2.5,2.5,0,0,0,5,0" /></symbol>
   <symbol id="ki-ob-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8,11V7.5a4,4,0,0,1,8,0V11" /></symbol>
-  <symbol id="ki-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2 21 19.4H3Z"/><path d="M12 10.2v4"/><circle cx="12" cy="16.9" r="1.05" fill="currentColor" stroke="none"/></symbol>
+  <!-- Unifié avec la variante recopiée à la main 15 fois ailleurs dans le fichier (stroke-width 2,
+       point en trait plutôt qu'en cercle plein) — deux dessins concurrents pour "alerte", jamais
+       tranchés (audit charte/emoji, 17 sept. 2026). Celle-ci gagne : plus utilisée. -->
+  <symbol id="ki-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12,3.5,2,20.5h20L12,3.5Z"/><path d="M12,9.5v5"/><path d="M12,17.5h.01"/></symbol>
   <symbol id="ki-media" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.4" y="5" width="17.2" height="14" rx="2.6"/><circle cx="9" cy="10.4" r="1.7"/><path d="M3.4 16.4l4.4-4 3.4 3 3.2-2.6 6.2 5"/></symbol>
   <symbol id="ki-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.3"/><path d="M5.2 20c0-3.5 3-5.4 6.8-5.4s6.8 1.9 6.8 5.4"/></symbol>
   <!-- Reprend le trophée déjà utilisé pour l'onglet Défis (cf .bnav-item[onclick*=defis]) — même objet,
@@ -3203,7 +3206,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="sdHero" class="kimg r-16-9" style="background-color:#1E1D26;">
         <span id="sdHeroBadge" style="position:absolute;top:14px;left:14px;z-index:2;font-size:11px;font-weight:800;letter-spacing:.3px;padding:5px 11px;border-radius:8px;text-transform:uppercase;"></span>
         <button id="sdFavBtn" class="icon-btn" onclick="toggleSessionDetailFavori()" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.14);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.18);font-size:17px;"><svg class="ki" style="color:var(--ink-on-media);"><use href="#ki-heart"/></svg></button>
-        <div id="sdHeroTitle" style="position:absolute;left:16px;right:16px;bottom:14px;z-index:2;font-size:20px;font-weight:800;letter-spacing:-.4px;color:#fff;"></div>
+        <div id="sdHeroTitle" style="position:absolute;left:16px;right:16px;bottom:14px;z-index:2;font-size:22px;font-weight:800;letter-spacing:-.4px;color:#fff;"></div>
       </div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;" id="sdTags"></div>
@@ -7224,7 +7227,7 @@ function renderProgPatientInfo(){
   if(p.onb){
     if(p.onb.frequence) badges.push({txt:trDyn(p.onb.frequence), warn:false});
     if(p.onb.positions && p.onb.positions.length) badges.push({txt:p.onb.positions.map(x=>trDyn(x)).join(', '), warn:false});
-    if(p.onb.zonesEviter && p.onb.zonesEviter.length) badges.push({txt:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> '+p.onb.zonesEviter.map(x=>trDyn(x)).join(', '), warn:true});
+    if(p.onb.zonesEviter && p.onb.zonesEviter.length) badges.push({txt:'<svg class=ki><use href=#ki-alert /></svg> '+p.onb.zonesEviter.map(x=>trDyn(x)).join(', '), warn:true});
   }
   if(badges.length){
     html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">'+badges.map(b=>
@@ -8235,7 +8238,7 @@ function renderDirFiche(){
   }
   const sc=document.getElementById('dirFicheSummaryContent'); if(!sc) return;
   if(r.statut==='inactif'){
-    sc.innerHTML='<div class="card-sm"><div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:6px;">Inactive <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg></div><div style="font-size:12px;color:var(--gray);">No activity for '+r.inactifDepuis+'.</div></div>';
+    sc.innerHTML='<div class="card-sm"><div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:6px;">Inactive <svg class=ki><use href=#ki-alert /></svg></div><div style="font-size:12px;color:var(--gray);">No activity for '+r.inactifDepuis+'.</div></div>';
     return;
   }
   if(r.statut==='suspendu'){
@@ -8243,7 +8246,7 @@ function renderDirFiche(){
     return;
   }
   const alignBadge = r.ecart==='ecart'
-    ? '<span class="pbdg" style="background:rgba(var(--orange-rgb),.15);color:var(--orange);"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Gap detected</span>'
+    ? '<span class="pbdg" style="background:rgba(var(--orange-rgb),.15);color:var(--orange);"><svg class=ki><use href=#ki-alert /></svg> Gap detected</span>'
     : '<span class="pbdg" style="background:rgba(var(--teal-rgb),.15);color:var(--teal);">✓ Aligned</span>';
   sc.innerHTML='<div class="card-sm">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
@@ -15022,7 +15025,7 @@ const EN_FR = {
   "members in high load": "membres en charge élevée",
   "Avg. across the roster": "Moyenne sur l'ensemble des membres",
   "Across all sessions this period": "Sur toutes les séances de cette période",
-  "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Alerts": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Alertes",
+  "<svg class=ki><use href=#ki-alert /></svg> Alerts": "<svg class=ki><use href=#ki-alert /></svg> Alertes",
   "📅 Today ·": "📅 Aujourd'hui ·",
   "+ Create a session": "+ Créer une session",
   "+ Create a programme": "+ Créer un programme",
@@ -15189,7 +15192,7 @@ const EN_FR = {
   "Avg. session duration": "Durée moy. de séance",
   "Today": "Aujourd'hui",
   // Rôles, badges & statuts (référent/directeur/admin, données dynamiques)
-  "Inactive <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>": "Inactif <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>",
+  "Inactive <svg class=ki><use href=#ki-alert /></svg>": "Inactif <svg class=ki><use href=#ki-alert /></svg>",
   "Follow up": "Relancer",
   "Active": "Actif",
   "Alert": "Alerte",
@@ -15248,10 +15251,10 @@ const EN_FR = {
   "You: Good session today 💪": "Toi : Bonne séance aujourd'hui 💪",
   "Got it, thanks!": "Reçu, merci !",
   "Start the conversation.": "Démarre la conversation.",
-  "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Pain alert": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Alerte douleur",
+  "<svg class=ki><use href=#ki-alert /></svg> Pain alert": "<svg class=ki><use href=#ki-alert /></svg> Alerte douleur",
   "Current week": "Semaine en cours",
   "Biceps record": "Record biceps",
-  "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Pain increasing this week — adjust the session": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Douleur en augmentation cette semaine — ajuster la séance",
+  "<svg class=ki><use href=#ki-alert /></svg> Pain increasing this week — adjust the session": "<svg class=ki><use href=#ki-alert /></svg> Douleur en augmentation cette semaine — ajuster la séance",
   "1 Exercises": "1 Exercices",
   "2 Settings": "2 Réglages",
   "3 Send": "3 Envoi",
@@ -15263,7 +15266,7 @@ const EN_FR = {
   "Programme for": "Programme pour",
   // Prescription
   "RECOMMENDED": "RECOMMANDÉ",
-  "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Use caution": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Prudence",
+  "<svg class=ki><use href=#ki-alert /></svg> Use caution": "<svg class=ki><use href=#ki-alert /></svg> Prudence",
   "Avoid if pain > 5": "Éviter si douleur > 5",
   "Bands": "Bandes élastiques",
   "Select at least one exercise.": "Sélectionne au moins un exercice.",
@@ -15419,7 +15422,7 @@ const EN_FR = {
   "You've been training for several months. Great progress.": "Tu t'entraînes depuis plusieurs mois. Belle progression.",
   "💪 Great consistency! Keep this pace to bring your pain down further.": "💪 Belle régularité ! Garde ce rythme pour continuer à faire baisser ta douleur.",
   "⚡ You've been a bit less consistent this week. A 15-min session is enough to maintain your progress.": "⚡ T'as été un peu moins régulier cette semaine. Une séance de 15 min suffit pour maintenir ta progression.",
-  "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Your pain is slightly up this week. Try a gentler session or let your coach know.": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Ta douleur est légèrement en hausse cette semaine. Essaie une séance plus douce ou préviens ton référent.",
+  "<svg class=ki><use href=#ki-alert /></svg> Your pain is slightly up this week. Try a gentler session or let your coach know.": "<svg class=ki><use href=#ki-alert /></svg> Ta douleur est légèrement en hausse cette semaine. Essaie une séance plus douce ou préviens ton référent.",
   "🔥 You're on top form. Your consistency is paying off — pain down 40% this month. Keep it up.": "🔥 T'es en pleine forme. Ta régularité paie — douleur en baisse de 40% ce mois-ci. Continue comme ça.",
   "Keep your shoulders down. Exhale on each pull.": "Garde les épaules basses. Expire à chaque tirage.",
   "Elbows fixed against the body. Slow movement.": "Coudes fixes contre le corps. Mouvement lent.",
@@ -15495,7 +15498,7 @@ const EN_FR = {
   "💪 Strengthening 56%": "💪 Renforcement 56%",
   "🔀 Mobility 33%": "🔀 Mobilité 33%",
   "Cardio 11%": "Cardio 11%",
-  "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Marc is doing more strengthening than planned. Check the programme.": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Marc fait plus de renforcement que prévu. Vérifier le programme.",
+  "<svg class=ki><use href=#ki-alert /></svg> Marc is doing more strengthening than planned. Check the programme.": "<svg class=ki><use href=#ki-alert /></svg> Marc fait plus de renforcement que prévu. Vérifier le programme.",
   "Detected signals": "Signaux détectés",
   "→ 3 shortened sessions this week": "→ 3 séances écourtées cette semaine",
   "→ Declared effort down: Intense → Moderate → Easy": "→ Effort déclaré en baisse : Intense → Modéré → Facile",
@@ -15509,7 +15512,7 @@ const EN_FR = {
   "→ Average group reps: 8/12": "→ Reps moyennes groupe : 8/12",
   "→ Avg. declared pain: 3.2/10": "→ Douleur déclarée moy. : 3.2/10",
   "→ 2 participants struggling": "→ 2 participants en difficulté",
-  "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Gap detected": "<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Écart détecté",
+  "<svg class=ki><use href=#ki-alert /></svg> Gap detected": "<svg class=ki><use href=#ki-alert /></svg> Écart détecté",
   "✓ Aligned": "✓ Aligné",
   "Referent report": "Rapport référent",
   "Referent report — simulation": "Rapport référent — simulation",
@@ -20835,7 +20838,7 @@ function renderCoachTip(elId,text){
 // ESPACE RÉFÉRENT (5.1 → 5.6)
 // ============================================================
 const PATIENTS = [
-  {id:'p1', nom:'Marc D.', ini:'M', color:'var(--red)', tc:'#fff', statut:'actif', badgeTxt:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Pain alert', prog:'Right shoulder post-op', niveau:'Intermediate', admis:'D+45', dateDebut:Date.now()-45*HIST_DAY, seances:18, semaine:6, derniere:'Yesterday', joursInactif:0, observance:78, douleurMoy:6.1,
+  {id:'p1', nom:'Marc D.', ini:'M', color:'var(--red)', tc:'#fff', statut:'actif', badgeTxt:'<svg class=ki><use href=#ki-alert /></svg> Pain alert', prog:'Right shoulder post-op', niveau:'Intermediate', admis:'D+45', dateDebut:Date.now()-45*HIST_DAY, seances:18, semaine:6, derniere:'Yesterday', joursInactif:0, observance:78, douleurMoy:6.1,
    douleur:[7.2,5.8,3.2,4.1,6.1], douleurLabels:['W1','W2','W3','W4','Current week'],
    progTxt:'+34%', progLbl:'over 6 weeks', recordTxt:'14 reps', recordLbl:'Biceps record', painRangeTxt:'3.2→6.1', painRangeArrow:'↑',
    historique:[
@@ -21591,7 +21594,7 @@ function renderAdmin(){
         // --teal, donc un centre à 71% s'affichait dans le même vert qu'un centre à 88% : deux verdicts
         // opposés rendus identiques. var(--vigilance) est fixe, jamais réécrit par setAccent() (audit
         // registre établissements, 17 sept. 2026).
-        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--vigilance)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--vigilance)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\''+ct.nom+' report (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Centre report</button></div></div>';
+        return '<div class="pat-item" style="cursor:pointer;" onclick="toast(\''+ct.nom+' — details (simulation)\')"><div style="flex:1;min-width:0;"><div class="pat-n">'+ct.nom+'</div><div class="pat-m">'+ct.users+' users · '+ct.seancesMois+' sessions this month · Observance: '+ct.observance+'% · Transition: '+ct.tauxTransition+'%</div><div style="font-size:12px;color:'+(near?'var(--vigilance)':'var(--gray)')+';margin-top:2px;">Renews in '+ct.renouvJ+' days'+(near?' <svg class=ki><use href=#ki-alert /></svg>':'')+'</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:'+(ct.observance>=80?'var(--teal)':'var(--vigilance)')+';">'+ct.observance+'%</div><button class="pres-add" style="margin-top:6px;" onclick="event.stopPropagation();toast(\''+ct.nom+' report (demo)\')"><svg class="ki"><use href="#ki-note"/></svg>Centre report</button></div></div>';
       }).join('')
     + '<div class="px" style="padding-top:14px;display:flex;gap:10px;"><button class="btn btn-outline" style="flex:1;" onclick="go(\'creation_centre\')">New centre</button><button class="btn btn-outline" style="flex:1;" onclick="toast(\'Full network export (demo)\')"><svg class="ki"><use href="#ki-ob-chart"/></svg>Export network</button></div>';
 
@@ -23412,7 +23415,7 @@ function selectCprogUser(id){
     prof.innerHTML='<div class="ex-sec-t" style="padding:0 0 8px;">Profile from onboarding</div>'
       +'<div style="font-size:13px;color:var(--gray2);line-height:1.8;">'
       +'<svg class="ki"><use href="#ki-pos"/></svg> Positions: '+(p.onb.positions.join(', ')||'—')+'<br>'
-      +'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Areas to avoid: '+(p.onb.zonesEviter.length?p.onb.zonesEviter.join(', '):'None')+'<br>'
+      +'<svg class=ki><use href=#ki-alert /></svg> Areas to avoid: '+(p.onb.zonesEviter.length?p.onb.zonesEviter.join(', '):'None')+'<br>'
       +'<svg class="ki"><use href="#ki-target"/></svg> Usual goal: '+p.onb.objectif+'<br>'
       +'<svg class="ki"><use href="#ki-cal"/></svg> Frequency: '+p.onb.frequence
       +'</div>';
@@ -23696,12 +23699,12 @@ function renderSubBlock(){
   el.style.display='';
   const days=Math.max(0, getTrialDays()-Math.floor((Date.now()-trialStartDate)/HIST_DAY));
   const urgent=days<=2;
-  el.style.background = urgent?'rgba(var(--orange-rgb),.10)':'rgba(var(--teal-rgb),.07)';
-  el.style.borderColor = urgent?'rgba(var(--orange-rgb),.3)':'rgba(var(--teal-rgb),.2)';
+  el.style.background = urgent?'rgba(var(--vigilance-rgb),.10)':'rgba(var(--teal-rgb),.07)';
+  el.style.borderColor = urgent?'rgba(var(--vigilance-rgb),.3)':'rgba(var(--teal-rgb),.2)';
   const fill=document.getElementById('subBlockFill');
   if(fill) fill.style.width=Math.min(100,Math.round((getTrialDays()-days)/getTrialDays()*100))+'%';
   const txt=document.getElementById('subExpireTxt');
-  if(txt) txt.innerHTML = (urgent?'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Expires in ':'Expires in ')+'<span style="color:var(--white);font-weight:600;">'+days+' day'+(days===1?'':'s')+'</span>';
+  if(txt) txt.innerHTML = (urgent?'<svg class=ki><use href=#ki-alert /></svg> Expires in ':'Expires in ')+'<span style="color:var(--white);font-weight:600;">'+days+' day'+(days===1?'':'s')+'</span>';
 }
 function showSuccessOverlay(icon,text,dest,delay){
   let ov=document.getElementById('paySuccessOverlay');
