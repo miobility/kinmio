@@ -5772,10 +5772,10 @@ function simulerReponseInvite(dpId, amiId){
     const accepte = Math.random()<0.75;
     if(accepte){
       p.statut='in';
-      pushNotif('⚡', p.nom+' '+trDyn('joined')+' — '+dpNom(dp), null);
+      pushNotif('<svg class="ki"><use href="#ki-check-circle"/></svg>', p.nom+' '+trDyn('joined')+' — '+dpNom(dp), null);
     } else {
       dp.participants=dp.participants.filter(x=>x.id!==amiId);
-      pushNotif('⚡', p.nom+' '+trDyn('cannot make it this time'), null);
+      pushNotif('<svg class="ki"><use href="#ki-close-circle"/></svg>', p.nom+' '+trDyn('cannot make it this time'), null);
     }
     if(document.querySelector('#defi_partage_detail.active')) renderDefiPartage();
     renderDefisScreen();
@@ -22804,7 +22804,7 @@ function defiMatchWon(){
 }
 // ===== INVITE REÇUE (ami OU référent) =====
 function pushInviteNotif(invite){
-  const ic = invite.kind==='friend' ? '⚡' : '<svg class="ki"><use href="#ki-ob-people"/></svg>';
+  const ic = invite.kind==='friend' ? '<svg class="ki"><use href="#ki-duel"/></svg>' : '<svg class="ki"><use href="#ki-ob-people"/></svg>';
   pushNotif(ic, invite.fromNom+' challenged you to '+invite.exerciceNom, 'invite_recue');
   if(NOTIFS[0]) NOTIFS[0].invite=invite;
 }
