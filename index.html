@@ -21004,7 +21004,7 @@ function renderKineDash(){
 // Anneau avatar = signal tag (rouge alerte > orange à checker > teal si rien à signaler), distinct
 // du liseré de ligne qui porte le statut. Neutre pour "en attente" (pas encore de vraie donnée).
 function getPatientTagColor(p){
-  if(p.statut==='attente') return 'var(--border)';
+  if(p.statut==='attente'||p.statut==='sorti') return 'var(--border)';
   const tags=getPatientTags(p);
   if(tags.includes('alerte')) return 'var(--red)';
   if(tags.includes('checker')) return 'var(--vigilance)';
@@ -25000,7 +25000,7 @@ function renderCalToday(){
     // rencontré plusieurs fois cette session).
     const nameTxt = teal ? trDyn(s.name)+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : trDyn(s.name);
     const typeTxt = currentLang==='fr' ? (teal?'Groupe':'Individuel') : (teal?'Group':'Individual');
-    return '<div class="card" style="margin-bottom:10px;border-left:4px solid '+(teal?'var(--teal)':'#9C9CD4')+';">'
+    return '<div class="card" style="margin-bottom:10px;border-left:4px solid '+(teal?'#3B7DDB':'#9C9CD4')+';">'
       +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div><div style="font-size:15px;font-weight:700;color:var(--white);">'+nameTxt+'</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">'+typeTxt+' · '+s.prog+'</div></div><span class="pbdg '+st.c+'">'+trDyn(st.t)+'</span></div>'
       +'<div style="font-size:13px;color:var(--gray2);margin-top:8px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg> '+hh(s.time)+' · '+s.dur+'</div>'+btn+'</div>';
   }).join('');
@@ -25096,7 +25096,10 @@ function calSessionPop(gi){
   // "N people"/"With the coach"/statut composés avec du contenu dynamique : construits directement
   // selon currentLang, jamais via sweepTranslate sur un fragment (même piège i18n déjà rencontré).
   const nameTxt = teal ? trDyn(s.name)+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : trDyn(s.name);
-  showModal('<div style="font-size:12px;font-weight:700;color:'+(teal?'var(--teal)':'var(--orange)')+';text-transform:uppercase;margin-bottom:6px;">'+trDyn(teal?'Group session':'Individual session')+'</div>'
+  // Même couleurs fixes que .cal-block.collectif/.indiv (CSS, ~ligne 953) : collectif/individuel est un
+  // format, pas un verdict — ne doit jamais porter --teal/--orange (audit charte, 17 sept. 2026, la même
+  // règle que pour le bouton juste au-dessus n'avait pas été reportée ici).
+  showModal('<div style="font-size:12px;font-weight:700;color:'+(teal?'#3B7DDB':'#9C9CD4')+';text-transform:uppercase;margin-bottom:6px;">'+trDyn(teal?'Group session':'Individual session')+'</div>'
     +'<div style="font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px;">'+nameTxt+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);">'+s.prog+'</div>'
     +'<div style="font-size:13px;color:var(--gray);margin-top:10px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg> '+hh(s.time)+' · '+s.dur+' · '+trDyn(st.t)+'</div>'
