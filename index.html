@@ -1112,7 +1112,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <!-- "Ami accepté" : silhouette + pastille de confirmation, jamais dessinées séparément ailleurs — même
        principe que les autres badges (reprendre un objet déjà réel), ici ki-user + ki-check assemblés en
        un seul symbole plutôt que deux <use> superposés à la main à chaque appel. -->
-  <symbol id="ki-friend-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7.5" r="3" stroke-width="1.6"/><path d="M3.5 18.5c0-3.2 2.5-4.9 5-4.9s5 1.7 5 4.9" stroke-width="1.6"/><circle cx="17.5" cy="16" r="4.3" stroke-width="1.5"/><path d="M15.3 16.1l1.6 1.6 3-3.3" stroke-width="1.7"/></symbol>
+  <symbol id="ki-friend-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7.5" r="3"/><path d="M3.5 18.5c0-3.2 2.5-4.9 5-4.9s5 1.7 5 4.9"/><circle cx="17.5" cy="16" r="4.3"/><path d="M15.3 16.1l1.6 1.6 3-3.3"/></symbol>
   <symbol id="ki-coach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.6" r="3"/><path d="M5.6 19.4c0-3.3 2.8-5 6.4-5s6.4 1.7 6.4 5"/><path d="M16.6 3.4l1.05 2.2 2.35.32-1.7 1.68.42 2.4-2.12-1.14-2.12 1.14.42-2.4-1.7-1.68 2.35-.32Z"/></symbol>
   <symbol id="ki-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 20V8.8L12 4.4l7.6 4.4V20"/><path d="M3 20h18"/><path d="M9.9 20v-4.7h4.2V20"/></symbol>
   <symbol id="ki-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="7.4" width="17.6" height="12.4" rx="2.4"/><path d="M8.6 7.4V5.6a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.8"/><path d="M3.2 12.6h17.6"/></symbol>
@@ -1280,7 +1280,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <h2 class="gap8">Do you have an area to protect?</h2>
     <p class="sub gap20">We will never ask you to push through it.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;" id="zone_opts">
-      <div class="ob-opt multi sel" onclick="toggleZone(this)" data-val="none"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-all"/></svg></div><div style="flex:1"><div class="ob-label">No specific area</div></div><div class="ob-check">✓</div></div>
+      <div class="ob-opt multi sel" onclick="toggleZone(this)" data-val="none"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-all"/></svg></div><div style="flex:1"><div class="ob-label">No specific area</div></div><div class="ob-check"><svg class="ki"><use href="#ki-check"/></svg></div></div>
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="epaule"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-shoulder"/></svg></div><div style="flex:1"><div class="ob-label">Shoulder(s)</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="dos"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-back"/></svg></div><div style="flex:1"><div class="ob-label">Back / lower back</div></div><div class="ob-check"></div></div>
       <div class="ob-opt multi" onclick="toggleZone(this)" data-val="genou"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-knee"/></svg></div><div style="flex:1"><div class="ob-label">Knee(s)</div></div><div class="ob-check"></div></div>
@@ -1342,7 +1342,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <p class="sub gap24">To calibrate the length of your sessions.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
       <div class="ob-opt" onclick="selOb8(this)" data-val="15"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-bolt"/></svg></div><div style="flex:1"><div class="ob-label">15 min</div></div><div class="ob-check"></div></div>
-      <div class="ob-opt sel" onclick="selOb8(this)" data-val="30"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-rings"/></svg></div><div style="flex:1"><div class="ob-label">30 min</div></div><div class="ob-check">✓</div></div>
+      <div class="ob-opt sel" onclick="selOb8(this)" data-val="30"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-rings"/></svg></div><div style="flex:1"><div class="ob-label">30 min</div></div><div class="ob-check"><svg class="ki"><use href="#ki-check"/></svg></div></div>
       <div class="ob-opt" onclick="selOb8(this)" data-val="45"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-dumbbell"/></svg></div><div style="flex:1"><div class="ob-label">45 min</div></div><div class="ob-check"></div></div>
       <div class="ob-opt" onclick="selOb8(this)" data-val="60"><div class="ob-icon"><svg class="ki"><use href="#ki-ob-flame"/></svg></div><div style="flex:1"><div class="ob-label">60 min</div></div><div class="ob-check"></div></div>
     </div>
@@ -1595,7 +1595,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);"><span style="font-size:28px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Position</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sc_pos">—</div></div></div>
       <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);"><span style="font-size:28px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=3.5 y=5 width=17 height=16 rx=2.5 /><path d=M3.5,9.5h17 /><path d=M8,3v4 /><path d=M16,3v4 /></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Frequency</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sc_freq">—</div></div></div>
       <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);"><span style="font-size:28px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=13 r=8 /><path d=M12,9v4l3,2 /><path d=M9.5,2.5h5 /></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Session duration</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sc_duree">—</div></div></div>
-      <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);"><span style="font-size:28px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3l7,3v6c0,4.5-3,7.5-7,9c-4-1.5-7-4.5-7-9V6Z /></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Area to protect</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sc_zones">—</div></div></div>
+      <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);"><span style="font-size:28px;"><svg class=ki><use href=#ki-ob-shield /></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Area to protect</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="sc_zones">—</div></div></div>
       <div style="background:var(--bg2);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);"><span style="font-size:28px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=4.5 y=3.5 width=11 height=17 rx=1.5 /><path d=M9,7h2 /><path d=M9,11h2 /><path d=M9,15h2 /><path d=M15.5,10.5h4v10h-4 /></svg></span><div style="flex:1;"><div style="font-size:12px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Centre</div><div style="font-size:15px;font-weight:700;color:var(--white);" id="centreSummaryName">Centre Kerpape</div></div></div>
       <div style="background:rgba(var(--teal-rgb),.07);border-radius:16px;padding:16px;border:1px solid rgba(var(--teal-rgb),.2);"><div style="display:flex;flex-direction:column;gap:8px;"><div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--teal);flex-shrink:0;font-size:15px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg></span><span style="font-size:13px;color:var(--teal);">Free access managed by your centre</span></div><div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--teal);flex-shrink:0;font-size:15px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg></span><span style="font-size:13px;color:var(--teal);">Your coach tracks your progress</span></div><div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--teal);flex-shrink:0;font-size:15px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg></span><span style="font-size:13px;color:var(--teal);">Programme adapted to your sessions</span></div></div></div>
     </div>
@@ -2248,7 +2248,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
           <div class="rep-l">reps detected</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
-          <button id="detectToggle" class="detect-chip on" onclick="toggleRepDetect()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M13,2L4,14h6l-1,8l9,-12h-6Z /></svg> Auto</button>
+          <button id="detectToggle" class="detect-chip on" onclick="toggleRepDetect()"><svg class=ki><use href=#ki-ob-bolt /></svg> Auto</button>
           <div class="rep-btns">
             <button class="rep-btn rep-m" onclick="chRep(-1)">−</button>
             <button class="rep-btn rep-p" onclick="chRep(1)">+</button>
@@ -3037,8 +3037,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="ps-section">
       <div class="ps-title">Goal</div>
       <div class="ps-opts">
-        <div class="ps-opt on" id="cen_type_cardio" onclick="setCenType('Cardio')">❤️ Cardio</div>
-        <div class="ps-opt" id="cen_type_renfo" onclick="setCenType('Renforcement')">💪 Strength</div>
+        <div class="ps-opt on" id="cen_type_cardio" onclick="setCenType('Cardio')"><svg class="ki"><use href="#ki-heart"/></svg> Cardio</div>
+        <div class="ps-opt" id="cen_type_renfo" onclick="setCenType('Renforcement')"><svg class="ki"><use href="#ki-ob-dumbbell"/></svg> Strength</div>
       </div>
     </div>
     <div class="ps-section">
@@ -3301,7 +3301,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
          description technique et le conseil : on faisait regler l'exercice avant de laisser decider
          si on le gardait. Depuis une seance la question n'est pas "comment je le regle" mais "est-ce
          que je le garde". Ailleurs (bibliotheque) il n'apparait pas — il n'y a rien a remplacer. -->
-    <div id="exReplaceTop" style="display:none;margin-bottom:16px;"><button class="btn btn-outline" id="exReplaceBtn" style="margin:0;" onclick="openSdExoAlternatives(window._curEx)"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> Replace this exercise</button></div>
+    <div id="exReplaceTop" style="display:none;margin-bottom:16px;"><button class="btn btn-outline" id="exReplaceBtn" style="margin:0;" onclick="openSdExoAlternatives(window._curEx)"><svg class=ki><use href=#ki-repeat /></svg> Replace this exercise</button></div>
     <div class="ex-sec" id="exParamsSection" style="display:none;"></div>
     <!-- Historique de CET exercice (audit historique, sept. 2026). exerciseZoneHistory stockait déjà
          date/niveau/% dans la zone séance par séance, et getExerciseProgressionVerdict en tirait déjà
@@ -3314,7 +3314,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="coach-tip" id="exDetailCoachTip" style="margin-bottom:16px;"></div>
     <div class="spacer" style="min-height:16px;"></div>
     <button class="btn btn-orange" id="exStartBtn" onclick="startExerciseFromFiche()">Start this exercise →</button>
-    <button class="btn btn-outline" id="exAltBtn" style="margin-top:10px;" onclick="showAlternatives()"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M4,12a8,8,0,0,1,13.6,-5.7 /><path d=M20,12a8,8,0,0,1,-13.6,5.7 /><path d=M17,3v4h-4 /><path d=M7,21v-4h4 /></svg> See alternatives</button>
+    <button class="btn btn-outline" id="exAltBtn" style="margin-top:10px;" onclick="showAlternatives()"><svg class=ki><use href=#ki-repeat /></svg> See alternatives</button>
     <button class="btn btn-outline" id="exAddToSessionBtn" style="margin-top:10px;display:none;" onclick="openAddToSessionModal(window._curEx)">+ Add to a session</button>
     
     <div style="text-align:center;margin-top:14px;" id="exExclWrap"><span style="color:var(--gray);font-size:13px;cursor:pointer;" onclick="confirmExcludeExercise()">Don't suggest this exercise again</span></div>
@@ -4339,7 +4339,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     </div>
     <div data-lang="en" onclick="setLang('en');hideLang()" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border);">
       <span style="font-size:15px;font-weight:600;color:var(--white);">English</span>
-      <span class="lang-check" style="margin-left:auto;color:var(--orange);">✓</span>
+      <span class="lang-check" style="margin-left:auto;color:var(--orange);"><svg class="ki"><use href="#ki-check"/></svg></span>
     </div>
     <div data-lang="de" onclick="setLang('de');hideLang()" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;">
       <span style="font-size:15px;font-weight:600;color:var(--white);">Deutsch</span>
@@ -6678,7 +6678,7 @@ function showObSummaryWelcome() {
 function enableObSummaryNotifs(){
   const banner = document.getElementById('obSummaryNotifBanner');
   if(!banner) return;
-  banner.innerHTML = '<span style="font-size:22px;">✓</span><div style="flex:1;font-size:13px;color:var(--teal);font-weight:700;">Reminders on</div>';
+  banner.innerHTML = '<span style="font-size:22px;"><svg class=ki style=width:1em;height:1em;><use href=#ki-check /></svg></span><div style="flex:1;font-size:13px;color:var(--teal);font-weight:700;">Reminders on</div>';
   sweepTranslate(banner, currentLang);
 }
 
@@ -7438,7 +7438,7 @@ function renderRefAccueil(){
       return '<div class="pat-item" style="cursor:pointer;'+(done?'opacity:.5;':'')+'" onclick="calSessionPop('+gi+')">'
         +'<div style="font-size:12.5px;font-weight:700;color:var(--white);width:46px;flex-shrink:0;">'+hh(s.time)+'</div>'
         +'<div style="flex:1;min-width:0;"><div class="pat-n">'+(collectif?'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8.5 cy=8 r=3.3 /><path d=M2.5,20c.6-3.6,3-6,6-6s5.4,2.4,6,6 /><circle cx=16.5 cy=8.5 r=2.6 /><path d=M15.3,5.6a2.6,2.6,0,0,1,0,5.8 /><path d=M15.8,14.2c2.4.4,4.2,2.4,4.7,5.6 /></svg> '+trDyn(s.name)+' — '+s.pers+' participants':'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> '+s.name)+'</div><div class="pat-m">'+(collectif?'Group session':'Individual session')+'</div></div>'
-        +(done?'<span style="color:var(--gray);font-size:13px;">✓</span>':'')
+        +(done?'<span style="color:var(--gray);font-size:13px;"><svg class=ki><use href=#ki-check /></svg></span>':'')
         +'</div>';
     }).join('') : '<div class="lib-empty">No session today.</div>';
     ts.innerHTML = renderScrollSection(todayTitle, todayItems);
@@ -7985,10 +7985,10 @@ function renderDirAlertes(){
   };
   const at=document.getElementById('dirAlertesTitle'); if(at) at.innerHTML=trDyn('Alerts')+' <span style="opacity:.7;">('+alertGroups.length+')</span>';
   const al=document.getElementById('dirAlertesList');
-  if(al) al.innerHTML = alertGroups.length ? alertGroups.map(g=>card(g,'var(--red)')).join('') : '<div class="lib-empty">'+trDyn('✓ No alerts today.')+'</div>';
+  if(al) al.innerHTML = alertGroups.length ? alertGroups.map(g=>card(g,'var(--red)')).join('') : '<div class="lib-empty"><svg class=ki style=width:1em;height:1em;vertical-align:-0.125em;><use href=#ki-check /></svg> '+trDyn('No alerts today.')+'</div>';
   const ct=document.getElementById('dirCheckerTitle'); if(ct) ct.innerHTML=trDyn('To check')+' <span style="opacity:.7;">('+checkerGroups.length+')</span>';
   const cl=document.getElementById('dirCheckerList');
-  if(cl) cl.innerHTML = checkerGroups.length ? checkerGroups.map(g=>card(g,'var(--vigilance)')).join('') : '<div class="lib-empty">'+trDyn('✓ No urgent situations')+'</div>';
+  if(cl) cl.innerHTML = checkerGroups.length ? checkerGroups.map(g=>card(g,'var(--vigilance)')).join('') : '<div class="lib-empty"><svg class=ki style=width:1em;height:1em;vertical-align:-0.125em;><use href=#ki-check /></svg> '+trDyn('No urgent situations')+'</div>';
 }
 // Résumé coachs en tête d'Overview (cf discussion : "en premier, le nombre de coach et taux d'activité,
 // puis rapidement membres/actifs moyens par coach, sessions/semaine, participants moyens, durée moyenne").
@@ -8119,7 +8119,9 @@ function renderDirReferentBars(profil){
   // de son propre accent de marque. Résidu de l'ancienne palette à 4 couleurs, déjà retirée côté
   // couleurs_objectifs (collapsée en turquoise unique) mais pas ici.
   const colors={mobilite:'#49D7DF',renforcement:'#FF6D45',cardio:'#F0508F',maintien:'#7368EE'};
-  const icons={mobilite:'🔀',renforcement:'💪',cardio:'❤️',maintien:'⚡'};
+  // Mêmes 4 icônes que ADMIN_TRAINING_PROFILE (~21683) pour le même regroupement mobilité/renfo/
+  // cardio/maintien — resté en emoji brut ici seulement (audit emoji, 17 sept. 2026).
+  const icons={mobilite:'<svg class=ki><use href=#ki-mobility /></svg>',renforcement:'<svg class=ki><use href=#ki-ob-dumbbell /></svg>',cardio:'<svg class=ki><use href=#ki-heart /></svg>',maintien:'<svg class=ki><use href=#ki-upkeep /></svg>'};
   return '<div style="display:flex;gap:6px;">'
     + ['mobilite','renforcement','cardio','maintien'].map(k=>
         '<div style="flex:1;text-align:center;"><div style="font-size:10px;margin-bottom:3px;">'+icons[k]+'</div><div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+profil[k]+'%;background:'+colors[k]+';border-radius:3px;"></div></div></div>'
@@ -8247,7 +8249,7 @@ function renderDirFiche(){
   }
   const alignBadge = r.ecart==='ecart'
     ? '<span class="pbdg" style="background:rgba(var(--orange-rgb),.15);color:var(--orange);"><svg class=ki><use href=#ki-alert /></svg> Gap detected</span>'
-    : '<span class="pbdg" style="background:rgba(var(--teal-rgb),.15);color:var(--teal);">✓ Aligned</span>';
+    : '<span class="pbdg" style="background:rgba(var(--teal-rgb),.15);color:var(--teal);"><svg class=ki><use href=#ki-check /></svg> Aligned</span>';
   sc.innerHTML='<div class="card-sm">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
       +'<div><div style="font-size:20px;font-weight:800;color:var(--white);">'+r.users+'</div><div style="font-size:11px;color:var(--gray2);">'+trDyn('members')+' · '+r.observance+'% '+trDyn('adherence')+'</div></div>'
@@ -10285,7 +10287,7 @@ function releaseDay(dateTimestamp){
 function checkPlannedNotifToday(){
   const today0=new Date(); today0.setHours(0,0,0,0);
   const due=userPlannedSessions.find(p=>p.date===today0.getTime() && !p._notified);
-  if(due){ due._notified=true; pushNotif('🔔', trDyn('You planned a session for today — let’s go!'), 'home'); }
+  if(due){ due._notified=true; pushNotif('<svg class=ki><use href=#ki-bell /></svg>', trDyn('You planned a session for today — let’s go!'), 'home'); }
 }
 // Si aujourd'hui n'est pas un jour choisi, cherche le prochain jour choisi dans les 7 jours à venir —
 // alimente le libellé de la carte "prochaine séance" (jour + délai) plutôt qu'un "Your next session"
@@ -12352,7 +12354,7 @@ function renderVoiceList(){
   __voiceListCache = matching;
   let html = '<div onclick="selectVoice(-1)" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border);">'
     +'<span style="font-size:15px;font-weight:600;color:var(--white);flex:1;">System default</span>'
-    +(selectedVoiceURI===null ? '<span style="color:var(--orange);">✓</span>' : '')
+    +(selectedVoiceURI===null ? '<span style="color:var(--orange);"><svg class=ki><use href=#ki-check /></svg></span>' : '')
     +'</div>';
   if(!matching.length){
     html += '<div style="padding:14px 16px;color:var(--gray);font-size:13px;">No alternate voices found on this device.</div>';
@@ -12361,7 +12363,7 @@ function renderVoiceList(){
       const sel = v.voiceURI===selectedVoiceURI;
       html += '<div onclick="selectVoice('+i+')" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border);">'
         +'<span style="font-size:15px;font-weight:600;color:var(--white);flex:1;">'+v.name+'</span>'
-        +(sel ? '<span style="color:var(--orange);">✓</span>' : '')
+        +(sel ? '<span style="color:var(--orange);"><svg class=ki><use href=#ki-check /></svg></span>' : '')
         +'</div>';
     });
   }
@@ -12510,7 +12512,7 @@ function stopRepDetection(){
 function toggleRepDetect(){
   repDetectOn = !repDetectOn;
   const el = document.getElementById('detectToggle');
-  if(el){ el.innerHTML = repDetectOn ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M13,2L4,14h6l-1,8l9,-12h-6Z /></svg> Auto' : '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,13l3,7l2,-5l5,-2l-10,-6Z /><path d=M8,13l4,4 /></svg> Manual'; el.classList.toggle('on', repDetectOn); }
+  if(el){ el.innerHTML = repDetectOn ? '<svg class=ki><use href=#ki-ob-bolt /></svg> Auto' : '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,13l3,7l2,-5l5,-2l-10,-6Z /><path d=M8,13l4,4 /></svg> Manual'; el.classList.toggle('on', repDetectOn); }
   // iOS 13+ : demande la permission capteur au tap (geste utilisateur requis)
   if(repDetectOn && window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function'){
     try{ DeviceMotionEvent.requestPermission().catch(()=>{}); }catch(e){}
@@ -13231,7 +13233,7 @@ function renderExerciseMetricsCard(elId, ex, titleTxt, skipIntensity){
   const verdict = getExerciseProgressionVerdict(ex.id);
   let verdictBlock = '';
   if(verdict){
-    const ICON={levelup:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=8 /><circle cx=12 cy=12 r=4.3 /><circle cx=12 cy=12 r=.8 fill=currentColor /></svg>',stay:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M10,9v6 /><path d=M14,9v6 /></svg>',regress:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3l7,3v6c0,4.5-3,7.5-7,9c-4-1.5-7-4.5-7-9V6Z /></svg>'};
+    const ICON={levelup:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=8 /><circle cx=12 cy=12 r=4.3 /><circle cx=12 cy=12 r=.8 fill=currentColor /></svg>',stay:'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M10,9v6 /><path d=M14,9v6 /></svg>',regress:'<svg class=ki><use href=#ki-ob-shield /></svg>'};
     const LABEL={levelup:'Ready to level up',stay:'Consolidating at this level',regress:'Easing off for now'};
     const action = verdict.verdict==='levelup'
       ? '<button onclick="applyExerciseLevelUp(\''+ex.id+'\')" style="margin-top:8px;background:rgba(var(--orange-rgb),.12);color:var(--orange);border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;">Level up this exercise →</button>'
@@ -13459,7 +13461,7 @@ function onSessionStart(){
     }
   }
   const d = document.getElementById('detectToggle');
-  if(d){ d.innerHTML = repDetectOn ? '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M13,2L4,14h6l-1,8l9,-12h-6Z /></svg> Auto' : '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,13l3,7l2,-5l5,-2l-10,-6Z /><path d=M8,13l4,4 /></svg> Manual'; d.classList.toggle('on', repDetectOn); }
+  if(d){ d.innerHTML = repDetectOn ? '<svg class=ki><use href=#ki-ob-bolt /></svg> Auto' : '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M8,13l3,7l2,-5l5,-2l-10,-6Z /><path d=M8,13l4,4 /></svg> Manual'; d.classList.toggle('on', repDetectOn); }
   updateNextBtn();
   playSessionCountdown(()=>{
     const s=document.getElementById('session');
@@ -15214,8 +15216,8 @@ const EN_FR = {
   "View profile": "Voir le profil",
   "View profile →": "Voir le profil →",
   "View →": "Voir →",
-  "✓ No alerts today.": "✓ Aucune alerte aujourd'hui.",
-  "✓ No urgent situations": "✓ Aucune situation urgente",
+  "No alerts today.": "Aucune alerte aujourd'hui.",
+  "No urgent situations": "Aucune situation urgente",
   "Monday 28 July": "Lundi 28 juillet",
   // Noms de programmes / séances (données démo)
   "Right shoulder post-op": "Épaule droite post-op",
@@ -15513,7 +15515,7 @@ const EN_FR = {
   "→ Avg. declared pain: 3.2/10": "→ Douleur déclarée moy. : 3.2/10",
   "→ 2 participants struggling": "→ 2 participants en difficulté",
   "<svg class=ki><use href=#ki-alert /></svg> Gap detected": "<svg class=ki><use href=#ki-alert /></svg> Écart détecté",
-  "✓ Aligned": "✓ Aligné",
+  "Aligned": "Aligné",
   "Referent report": "Rapport référent",
   "Referent report — simulation": "Rapport référent — simulation",
   "60 days": "60 jours",
@@ -17589,7 +17591,7 @@ const ICON_NOTE = '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-w
 // Icônes pour le bandeau de tags de session_detail (chips icône+texte, cf refonte visuelle) —
 // réutilisent les mêmes tracés que les icônes de position déjà posées en onboarding (ob1) pour rester cohérent.
 const SD_ICON_CLOCK = '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=13 r=8 /><path d=M12,9v4l3,2 /><path d=M9.5,2.5h5 /></svg>';
-const SD_ICON_BOLT = '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M13,2L4,14h6l-1,8l9,-12h-6Z /></svg>';
+const SD_ICON_BOLT = '<svg class=ki><use href=#ki-ob-bolt /></svg>';
 const SD_ICON_BARBELL = '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6.5,9v6M17.5,9v6 /><rect x=3 y=10 width=3 height=4 rx=1 /><rect x=18 y=10 width=3 height=4 rx=1 /><path d=M6.5,12h11 /></svg>';
 const SD_ICON_STAND = '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=4.5 r=2.3 /><path d=M12,7v7 /><path d=M8,10h8 /><path d=M12,14l-3.5,6.5M12,14l3.5,6.5 /></svg>';
 const SD_ICON_SEATED = '<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=8 cy=4.5 r=2.3 /><path d=M8,7v6h6 /><path d=M14,13v7 /><path d=M4,20h16 /></svg>';
@@ -19870,7 +19872,7 @@ function openHistFilterModal(){
     const on = histFilter===o.val;
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--border);cursor:pointer;'+(on?'color:var(--orange);':'color:var(--white);')+'" onclick="setHistFilter(\''+o.val+'\');closeModal();">'
       +'<span style="font-size:14px;font-weight:600;">'+o.label+'</span>'
-      +(on?'<span style="font-size:15px;">✓</span>':'')
+      +(on?'<span style="font-size:15px;"><svg class=ki><use href=#ki-check /></svg></span>':'')
       +'</div>';
   }).join('');
   html+='<button class="btn-ghost" style="margin-top:14px;width:100%;color:var(--gray2);" onclick="closeModal()">Close</button>';
@@ -20036,7 +20038,7 @@ function openCatProgFilterModal(){
   const ligne=(on, txt, sous, onclick)=>'<div onclick="'+onclick+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 4px;border-bottom:1px solid var(--border);cursor:pointer;'+(on?'color:var(--orange);':'color:var(--white);')+'">'
     +'<span style="min-width:0;"><span style="display:block;font-size:14px;font-weight:600;">'+txt+'</span>'
     +(sous?'<span style="display:block;font-size:11.5px;color:var(--gray2);font-weight:400;margin-top:1px;">'+sous+'</span>':'')+'</span>'
-    +(on?'<span style="font-size:15px;flex-shrink:0;">✓</span>':'')+'</div>';
+    +(on?'<span style="font-size:15px;flex-shrink:0;"><svg class=ki><use href=#ki-check /></svg></span>':'')+'</div>';
   html += ligne(!catProgObjectif, trDyn('All goals'), '', "setCatProgObjectifDirect(null);closeModal()");
   html += PROGRAMME_OBJECTIFS.map(o=>ligne(catProgObjectif===o.key, trDyn(o.lbl), trDyn(o.sous), "setCatProgObjectifDirect('"+o.key+"');closeModal()")).join('');
   html += '<button class="btn-ghost" style="margin-top:14px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>';
@@ -21612,7 +21614,7 @@ function renderAdmin(){
       +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;"><div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+ADMIN_METRICS.transition+'%;background:var(--teal);border-radius:4px;"></div></div><div style="font-size:12px;color:var(--gray2);font-weight:700;white-space:nowrap;">Target: 40%</div></div>'
       +'<div style="font-size:12px;color:var(--teal);">+5pts vs last quarter</div>'
     +'</div>'
-    +'<div class="card-sm" style="margin:0 20px 14px;display:flex;align-items:center;gap:10px;"><span style="font-size:18px;">✓</span><div style="flex:1;font-size:13px;color:var(--white);">92% of centres renew their licence</div></div>';
+    +'<div class="card-sm" style="margin:0 20px 14px;display:flex;align-items:center;gap:10px;"><span style="font-size:18px;color:var(--teal);"><svg class=ki><use href=#ki-check /></svg></span><div style="flex:1;font-size:13px;color:var(--white);">92% of centres renew their licence</div></div>';
 
   // ===== COMPTES (directeurs + créer/suspendre + historique + config globale déplacée) =====
   const LOGINS=[
@@ -21654,7 +21656,7 @@ function renderAdmin(){
   if(g) g.innerHTML=
      '<div style="margin:12px 20px 12px;padding:12px 14px;background:rgba(var(--teal-rgb),.07);border:1px solid rgba(var(--teal-rgb),.2);border-radius:14px;font-size:12px;color:var(--teal);line-height:1.5;"><svg class="ki"><use href="#ki-lock"/></svg>Anonymised data — usable for research (GDPR)</div>'
     +'<div class="ex-sec-t" style="padding:0 20px 8px;">Most practised exercises</div>'
-    +'<div class="px">'+EXO_USAGE.map(u=>{const ex=EXERCISES.find(e=>e.id===u.id);return '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;"><span style="font-size:20px;width:26px;flex-shrink:0;">'+(ex?ex.emoji:'🏋️')+'</span><div style="width:118px;flex-shrink:0;font-size:13px;color:var(--white);">'+(ex?ex.nom:u.id)+'</div>'+admBar(Math.round(u.n/maxUse*100),'var(--orange)')+'<div style="width:44px;text-align:right;font-size:12px;color:var(--gray);">'+u.n+'</div></div>';}).join('')+'</div>'
+    +'<div class="px">'+EXO_USAGE.map(u=>{const ex=EXERCISES.find(e=>e.id===u.id);const thumb=ex?'<div style="width:26px;height:26px;border-radius:6px;flex-shrink:0;background-image:url(\''+exoPhotoFor(ex)+'\');background-size:cover;background-position:center;"></div>':'<span style="width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--gray);"><svg class=ki><use href=#ki-ob-dumbbell /></svg></span>';return '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">'+thumb+'<div style="width:118px;flex-shrink:0;font-size:13px;color:var(--white);">'+(ex?ex.nom:u.id)+'</div>'+admBar(Math.round(u.n/maxUse*100),'var(--orange)')+'<div style="width:44px;text-align:right;font-size:12px;color:var(--gray);">'+u.n+'</div></div>';}).join('')+'</div>'
     +'<div class="ex-sec-t" style="padding:14px 20px 8px;">Average pain by muscle group (0–10)</div>'
     +'<div class="px">'+MUSCLE_PROG.map(g2=>'<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;"><div style="width:90px;flex-shrink:0;font-size:13px;color:var(--white);">'+g2.m+'</div>'+admBar(Math.round(g2.d/maxPain*100),'var(--red)')+'<div style="width:32px;text-align:right;font-size:13px;color:var(--gray2);font-weight:700;">'+g2.d.toFixed(1)+'</div></div>').join('')+'</div>'
     +'<div class="ex-sec-t" style="padding:14px 20px 8px;">Progress week 1 → week 4</div>'
