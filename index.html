@@ -950,7 +950,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
    collectif dans la grille semaine, et --orange est désormais un rouge-corail proche de --red (alerte)
    — un créneau individuel se lisait comme "signal d'alerte" au premier coup d'œil (cf retour utilisateur). */
 .cal-block.indiv{background:rgba(var(--muted-rgb),.22);color:#9C9CD4;}
-.cal-block.collectif{background:rgba(var(--teal-rgb),.16);color:var(--teal);}
+/* var(--teal) (vert verdict fixe) → bleu fixe #3B7DDB, même teinte que le badge Coach (LIB_ORIGINE.coach)
+   : un type de séance n'est pas un verdict, --teal était un choix hérité d'avant la règle "vert réservé
+   aux verdicts" (audit registre établissements, 17 sept. 2026). */
+.cal-block.collectif{background:rgba(59,125,219,.16);color:#3B7DDB;}
 .cal-block.add{border:1px dashed var(--border);color:var(--gray);font-size:16px;padding:3px;}
 .cal-mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
 .cal-mcell{aspect-ratio:1;border-radius:8px;background:var(--bg2);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;color:var(--white);cursor:pointer;}
