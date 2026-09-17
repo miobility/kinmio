@@ -1550,7 +1550,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div id="centreConfirm" style="display:none;background:rgba(var(--teal-rgb),.08);border:1.5px solid rgba(var(--teal-rgb),.3);border-radius:18px;padding:20px;margin-bottom:20px;">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
         <div style="width:48px;height:48px;border-radius:16px;background:rgba(var(--teal-rgb),.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=4.5 y=3.5 width=11 height=17 rx=1.5 /><path d=M9,7h2 /><path d=M9,11h2 /><path d=M9,15h2 /><path d=M15.5,10.5h4v10h-4 /></svg></div>
-        <div><div style="font-size:16px;font-weight:700;color:var(--white);" id="centreName">Centre Kerpape</div><div style="font-size:13px;color:var(--teal);margin-top:2px;">✓ Verified partner centre</div></div>
+        <div><div style="font-size:16px;font-weight:700;color:var(--white);" id="centreName">Centre Kerpape</div><div style="font-size:13px;color:var(--teal);margin-top:2px;display:flex;align-items:center;gap:4px;"><svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg> Verified partner centre</div></div>
       </div>
       <div style="font-size:13px;color:var(--gray2);line-height:1.5;">Free access managed by your centre. No payment required.</div>
     </div>
@@ -1601,11 +1601,11 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <input type="text" id="scPrenom" placeholder="First name" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
     <input type="email" id="scEmail" placeholder="Email" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:12px;">
     <input type="password" id="scPassword" placeholder="Password" oninput="checkSignupCentreFields(this)" style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:17px;font-size:15px;color:var(--white);font-family:inherit;outline:none;margin-bottom:20px;">
-    <button class="btn btn-teal" id="signupCentreCta" style="opacity:.5;" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)">Create my account →</button>
+    <button class="btn btn-teal" id="signupCentreCta" style="opacity:.5;" onclick="showSuccessOverlay('','Account created','home_centre',1200)">Create my account →</button>
     <div style="margin:16px 0;display:flex;align-items:center;gap:12px;"><div style="flex:1;height:1px;background:var(--border);"></div><span style="font-size:12px;color:var(--gray);">or</span><div style="flex:1;height:1px;background:var(--border);"></div></div>
     <div style="display:flex;gap:10px;">
-      <button class="social-btn" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple</button>
-      <button class="social-btn" onclick="showSuccessOverlay('✓','Account created','home_centre',1200)"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
+      <button class="social-btn" onclick="showSuccessOverlay('','Account created','home_centre',1200)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple</button>
+      <button class="social-btn" onclick="showSuccessOverlay('','Account created','home_centre',1200)"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
     </div>
   </div>
 </div>
@@ -4212,7 +4212,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
     <div class="ex-sec-t">My kinmio bar</div>
     <div class="card" id="equipBarCard" onclick="toggleEquipOwned('bar')" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;cursor:pointer;">
       <div style="font-size:34px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M6.5,9v6 /><path d=M17.5,9v6 /><rect x=3 y=10 width=3 height=4 rx=1 /><rect x=18 y=10 width=3 height=4 rx=1 /><path d=M6.5,12h11 /></svg></div>
-      <div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--white);">kinmio bar</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">Serial no. KIN-2024-8842 · activated Feb 12, 2026</div><div style="font-size:12px;font-weight:700;margin-top:4px;" id="equipBarStatusTxt">Bar connected ✓</div></div>
+      <div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--white);">kinmio bar</div><div style="font-size:12px;color:var(--gray);margin-top:2px;">Serial no. KIN-2024-8842 · activated Feb 12, 2026</div><div style="font-size:12px;font-weight:700;margin-top:4px;display:flex;align-items:center;gap:4px;" id="equipBarStatusTxt"><span>Bar connected</span><svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg></div></div>
       <span class="pbdg bdg-a" id="equipBarBadge">Active</span>
     </div>
     <div style="margin:0 0 20px;"><span onclick="reviewBarTutorial()" style="color:var(--orange);font-size:13.5px;font-weight:700;cursor:pointer;"><svg class="ki"><use href="#ki-play"/></svg>Review the bar tutorial</span></div>
@@ -6463,7 +6463,7 @@ function renderObObjectifs(){
     +'<div class="ob-icon"><svg class="ki"><use href="#'+o.ic+'"/></svg></div>'
     +'<div style="flex:1"><div class="ob-label">'+trDyn(o.lbl)+'</div>'
     +'<div style="font-size:12px;color:var(--gray);margin-top:2px;line-height:1.35;">'+trDyn(o.sous)+'</div></div>'
-    +'<div class="ob-check">'+(obObjectifsChoisis.includes(o.key)?'✓':'')+'</div></div>').join('');
+    +'<div class="ob-check">'+(obObjectifsChoisis.includes(o.key)?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div></div>').join('');
   const btn=document.getElementById('obObjectifNext'); if(btn) btn.disabled = obObjectifsChoisis.length===0;
   sweepTranslate(document.getElementById('ob_objectif'), currentLang);
 }
@@ -6492,7 +6492,7 @@ function renderObHabitude(){
   const box=document.getElementById('hab_opts'); if(!box) return;
   const k=profile.habitude;
   box.classList.toggle('has-sel', !!k);
-  box.querySelectorAll('.ob-opt').forEach(o=>{ const on=o.getAttribute('data-val')===k; o.classList.toggle('sel',on); const c=o.querySelector('.ob-check'); if(c) c.textContent=on?'✓':''; });
+  box.querySelectorAll('.ob-opt').forEach(o=>{ const on=o.getAttribute('data-val')===k; o.classList.toggle('sel',on); const c=o.querySelector('.ob-check'); if(c) c.innerHTML=on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':''; });
   const sportif = k==='habitude' || k==='intensif';
   const row=document.getElementById('habRepriseRow'); if(row) row.hidden=!sportif;
   const sw=document.getElementById('habRepriseSw'); if(sw) sw.classList.toggle('on', !!profile.reprise);
@@ -7018,11 +7018,11 @@ function validateCentreAccess(){
   centreAccess='validated';
   renderCentreBanner();
   if(typeof renderRefPending==='function') renderRefPending();
-  try{ pushNotif('<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg>','Your access was approved by Martin Dupont',null); }catch(e){}
+  try{ pushNotif('<svg class="ki"><use href="#ki-check-circle"/></svg>','Your access was approved by Martin Dupont',null); }catch(e){}
   const activeScreen=document.querySelector('.screen.active');
   if(activeScreen && activeScreen.id==='attente_validation'){
     centreMode=true;
-    showSuccessOverlay('<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M8,12.5l2.5,2.5L16,9.5 /></svg>',"Martin Dupont accepted your request. Welcome!",'ob_intro',1200);
+    showSuccessOverlay('<svg class="ki" style="width:1em;height:1em;"><use href="#ki-check-circle"/></svg>',"Martin Dupont accepted your request. Welcome!",'ob_intro',1200);
   } else {
     toast('Access approved ✓ Welcome to kinmio');
   }
@@ -7045,7 +7045,7 @@ function renderCentreBanner(){
 function syncRefUtilBadge(){ const b=document.getElementById('refUtilBadge'); if(b) b.style.display=(centreAccess==='pending')?'block':'none'; }
 function acceptAccess(){
   clearTimeout(window._centreValidateTimer); window._centreValidateTimer=null;
-  showSuccessOverlay('✓','Access approved for Marc D.',null,800);
+  showSuccessOverlay('','Access approved for Marc D.',null,800);
   setTimeout(()=>{ validateCentreAccess(); toast('Notification sent to Marc D. ✓'); }, 800);
 }
 function refuseAccess(){ centreAccess='refused'; renderRefPending(); toast('Request declined'); }
@@ -8353,7 +8353,7 @@ function submitInviteReferent(){
   // id posé ici (absent avant, audit directeur) : sans lui, accepter/refuser plus tard ne peut pas
   // retrouver cette invitation précise, et la fiche référent ne peut jamais l'ouvrir une fois active.
   EXTRA_REFERENTS.push({id:'ref_'+Date.now(), nom:fullName, ini:prenom.charAt(0).toUpperCase(), specialite:specialite});
-  showSuccessOverlay('✓','Invitation sent to '+fullName,'dashboard_directeur',1500);
+  showSuccessOverlay('','Invitation sent to '+fullName,'dashboard_directeur',1500);
 }
 // Accepter/refuser une invitation référent (audit directeur, 16 sept.) : même geste que
 // acceptPatientInvite()/declinePatientInvite() côté référent (audit référent #2) — avant, aucun code
@@ -12460,13 +12460,13 @@ function updatePaceIndicator(){
   const prevGap = repTimestamps[n-2]-repTimestamps[n-3];
   row.style.display='block';
   if(lastGap < prevGap*0.85){
-    badge.textContent='⚡ Speeding up — try to slow down';
+    badge.innerHTML='<svg class="ki"><use href="#ki-up"/></svg> Speeding up — try to slow down';
     badge.style.background='rgba(var(--orange-rgb),.08)'; badge.style.color='var(--orange)';
   } else if(lastGap > prevGap*1.1){
-    badge.textContent='📉 Slowing down — good, steady effort';
+    badge.innerHTML='<svg class="ki"><use href="#ki-down"/></svg> Slowing down — good, steady effort';
     badge.style.background='rgba(var(--teal-rgb),.08)'; badge.style.color='var(--teal)';
   } else {
-    badge.textContent='⚖️ Steady pace';
+    badge.innerHTML='<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M3,12h4l2,-6l4,12l2,-6h6 /></svg> Steady pace';
     badge.style.background='var(--bg2)'; badge.style.color='var(--gray2)';
   }
 }
@@ -13917,7 +13917,7 @@ const EN_FR = {
   "Your invitation code": "Ton code d'invitation",
   "e.g. KERPAPE26": "Ex : KERPAPE26",
   "Code provided by your coach or displayed at your gym.": "Code fourni par ton référent ou affiché dans ta salle de sport.",
-  "✓ Verified partner centre": "✓ Centre partenaire vérifié",
+  "Verified partner centre": "Centre partenaire vérifié",
   "Free access managed by your centre. No payment required.": "Accès gratuit géré par ton centre. Aucun paiement requis.",
   // attente_validation
   "Waiting for approval…": "En attente de validation…",
@@ -14601,7 +14601,7 @@ const EN_FR = {
   "My kinmio bar": "Ma barre kinmio",
   "kinmio bar": "barre kinmio",
   "Serial no. KIN-2024-8842 · activated Feb 12, 2026": "N° de série KIN-2024-8842 · activée le 12 fév. 2026",
-  "Bar connected ✓": "Barre connectée ✓",
+  "Bar connected": "Barre connectée",
   "Review the bar tutorial": "Revoir le tuto barre",
   "My accessories": "Mes accessoires",
   "Included with your kinmio bar": "Inclus avec ta barre kinmio",
@@ -15141,7 +15141,7 @@ const EN_FR = {
   "Waiting room": "Salle d'attente",
   "Start": "Lancer",
   "Waiting…": "En attente…",
-  "Connected ✓": "Connecté ✓",
+  "Connected": "Connecté",
   "Waiting for": "En attente de",
   "Everyone's in — let's go!": "Tout le monde est là — c'est parti !",
   "Results": "Résultats",
@@ -15691,8 +15691,8 @@ const EN_FR = {
   "Reps": "Reps",
   "Network view": "Vue réseau",
   // Métriques accéléromètre (intensité/symétrie/régularité) — récap exercice + live reps
-  "⚡ Speeding up — try to slow down": "⚡ Accélère — essaie de ralentir",
-  "📉 Slowing down — good, steady effort": "📉 Ralentit — bon effort régulier",
+  "Speeding up — try to slow down": "Accélère — essaie de ralentir",
+  "Slowing down — good, steady effort": "Ralentit — bon effort régulier",
   "Steady pace": "Rythme stable",
   "Exercise summary": "Résumé de l'exercice",
   "Too difficult": "Trop difficile",
@@ -16333,7 +16333,7 @@ function setLang(lang){
       const m = document.createElement('span');
       m.className = 'lang-check';
       m.style.cssText = 'margin-left:auto;color:var(--orange);';
-      m.textContent = '✓';
+      m.innerHTML = '<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>';
       row.appendChild(m);
     }
   });
@@ -16403,7 +16403,7 @@ function toggleMulti(el){
   } else {
     el.classList.add('sel');
     const chk = el.querySelector('.ob-check');
-    if(chk) chk.textContent = '✓';
+    if(chk) chk.innerHTML = '<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>';
     posSelections.add(val);
   }
   // "Toutes" reflète l'état réel : cochée seulement quand les 3 positions le sont, jamais posée à la main.
@@ -16412,7 +16412,7 @@ function toggleMulti(el){
     const indiv = document.querySelectorAll('#pos_opts .ob-opt[data-val]:not([data-val="toutes"])');
     const allSelected = Array.from(indiv).every(o => o.classList.contains('sel'));
     allEl.classList.toggle('sel', allSelected);
-    const c = allEl.querySelector('.ob-check'); if(c) c.textContent = allSelected ? '✓' : '';
+    const c = allEl.querySelector('.ob-check'); if(c) c.innerHTML = allSelected ? '<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>' : '';
   }
   const btn = document.getElementById('ob1next');
   if(btn) btn.disabled = posSelections.size === 0;
@@ -16423,11 +16423,11 @@ function toggleAllPositions(el){
   indiv.forEach(o => {
     const v = o.getAttribute('data-val');
     o.classList.toggle('sel', nowSelecting);
-    const c = o.querySelector('.ob-check'); if(c) c.textContent = nowSelecting ? '✓' : '';
+    const c = o.querySelector('.ob-check'); if(c) c.innerHTML = nowSelecting ? '<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>' : '';
     if(nowSelecting) posSelections.add(v); else posSelections.delete(v);
   });
   el.classList.toggle('sel', nowSelecting);
-  const c = el.querySelector('.ob-check'); if(c) c.textContent = nowSelecting ? '✓' : '';
+  const c = el.querySelector('.ob-check'); if(c) c.innerHTML = nowSelecting ? '<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>' : '';
   const btn = document.getElementById('ob1next');
   if(btn) btn.disabled = posSelections.size === 0;
 }
@@ -16594,7 +16594,7 @@ function toggleZone(el){
   if(val === 'none'){
     opts.forEach(o => { o.classList.remove('sel'); const c=o.querySelector('.ob-check'); if(c) c.textContent=''; });
     el.classList.add('sel');
-    const c = el.querySelector('.ob-check'); if(c) c.textContent = '✓';
+    const c = el.querySelector('.ob-check'); if(c) c.innerHTML = '<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>';
   } else {
     const noneEl = document.querySelector('#zone_opts [data-val="none"]');
     if(noneEl){ noneEl.classList.remove('sel'); const c=noneEl.querySelector('.ob-check'); if(c) c.textContent=''; }
@@ -16603,10 +16603,10 @@ function toggleZone(el){
       const c = el.querySelector('.ob-check'); if(c) c.textContent = '';
       // Si rien de sélectionné, remet Aucune
       const anySelected = Array.from(document.querySelectorAll('#zone_opts .ob-opt')).some(o => o.classList.contains('sel'));
-      if(!anySelected && noneEl){ noneEl.classList.add('sel'); const c2=noneEl.querySelector('.ob-check'); if(c2) c2.textContent='✓'; }
+      if(!anySelected && noneEl){ noneEl.classList.add('sel'); const c2=noneEl.querySelector('.ob-check'); if(c2) c2.innerHTML='<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>'; }
     } else {
       el.classList.add('sel');
-      const c = el.querySelector('.ob-check'); if(c) c.textContent = '✓';
+      const c = el.querySelector('.ob-check'); if(c) c.innerHTML = '<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>';
     }
   }
   renderOb6Echo();
@@ -16713,7 +16713,7 @@ function resetDemoState(){
 let ob8Selected=null;
 function selOb8(el){
   el.closest('.screen').querySelectorAll('.ob-opt').forEach(o=>{ o.classList.remove('sel'); const c=o.querySelector('.ob-check'); if(c) c.textContent=''; });
-  el.classList.add('sel'); const check=el.querySelector('.ob-check'); if(check) check.textContent='✓';
+  el.classList.add('sel'); const check=el.querySelector('.ob-check'); if(check) check.innerHTML='<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>';
   ob8Selected=parseInt(el.dataset.val);
   profile.duree=ob8Selected;
   const btn=document.getElementById('ob8next'); if(btn) btn.disabled=false;
@@ -16799,7 +16799,7 @@ function goAfterSummary(){
 // Compte créé pendant le parcours découverte : plus d'écran ob_summary séparé à la fin, l'overlay
 // de confirmation se ferme directement sur l'entrée dans l'app.
 function finishSignupDecouverte(){
-  showSuccessOverlay('✓','Account created',null,1200);
+  showSuccessOverlay('','Account created',null,1200);
   setTimeout(goAfterSummary,1200);
 }
 // Sélecteur de compte Google (mock, non fonctionnel — même convention que les autres boutons sociaux de l'app)
@@ -17001,7 +17001,7 @@ function submitCreateExercise(){
     ...(currentRole==='referent' ? {referent:'Martin Dupont'} : {})
   });
   resetCreateExerciseForm();
-  showSuccessOverlay('✓', 'Exercise created', 'bibliotheque', 1200);
+  showSuccessOverlay('', 'Exercise created', 'bibliotheque', 1200);
 }
 
 // 3.5 Présélection auto selon le profil onboarding
@@ -19310,7 +19310,7 @@ function renderCsnExoList(){
       +'<span class="tag" style="background:'+c.bg+';color:'+c.fg+';">'+exoModeLabel(ex)+'</span>'
       +'<span class="tag tag-g">'+exoPrimaryZone(ex)+'</span>'
       +'</div></div>'
-      +'<div style="width:24px;height:24px;border-radius:50%;border:2px solid '+(on?'var(--orange)':'var(--border)')+';background:'+(on?'var(--orange)':'transparent')+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0;">'+(on?'✓':'')+'</div>'
+      +'<div style="width:24px;height:24px;border-radius:50%;border:2px solid '+(on?'var(--orange)':'var(--border)')+';background:'+(on?'var(--orange)':'transparent')+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0;">'+(on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div>'
       +'</div>';
   }).join('') : '<div class="lib-empty">No exercise matches these filters.<br><button class="btn-ghost" style="color:var(--orange);margin-top:8px;" onclick="resetCsnFilters()">Reset all</button></div>';
   const count=document.getElementById('csnCount'); const n=Object.keys(csnSel).length;
@@ -20780,7 +20780,7 @@ function renderNextSeance(){
 let consentShareRef=true;
 function toggleConsent(key,el){
   el.classList.toggle('sel');
-  const chk=el.querySelector('.ob-check'); if(chk) chk.textContent=el.classList.contains('sel')?'✓':'';
+  const chk=el.querySelector('.ob-check'); if(chk) chk.innerHTML=el.classList.contains('sel')?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'';
   health[key]=el.classList.contains('sel');
 }
 function toggleConsentShare(el){ consentShareRef=!consentShareRef; el.classList.toggle('on',consentShareRef); }
@@ -20812,7 +20812,7 @@ function toast(msg){
   let t=document.getElementById('kmToast');
   if(!t){ t=document.createElement('div'); t.id='kmToast'; t.className='km-toast'; document.getElementById('app').appendChild(t); }
   const isConfirm = msg.startsWith('✓ ');
-  t.innerHTML = isConfirm ? '<span class="km-toast-ic">✓</span><span>'+msg.slice(2)+'</span>' : '<span>'+msg+'</span>';
+  t.innerHTML = isConfirm ? '<span class="km-toast-ic"><svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg></span><span>'+msg.slice(2)+'</span>' : '<span>'+msg+'</span>';
   t.classList.add('show');
   clearTimeout(window._toastT); window._toastT=setTimeout(()=>t.classList.remove('show'),2400);
 }
@@ -21504,7 +21504,7 @@ function submitCreationCentre(){
   if(!nom||!ville||!email){ toast('Name, city, and director email are required'); return; }
   CENTERS.push({nom:nom, ville:ville, users:0, actifs:0, observance:0, licences:licences, renouvJ:0, churn:0, statut:'attente', seancesMois:0, tauxTransition:0});
   DIRECTORS.push({n:'— (to assign)', centre:nom, statut:'attente'});
-  showSuccessOverlay('✓','Centre created · Email sent to '+email,'dashboard_admin',1500);
+  showSuccessOverlay('','Centre created · Email sent to '+email,'dashboard_admin',1500);
 }
 function admBar(pct,color){ return '<div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:4px;"></div></div>'; }
 // Source unique pour les métriques business admin (évite la duplication entre le haut du dashboard et l'onglet Métriques)
@@ -21988,7 +21988,7 @@ function renderDefiPartList(){
   list.innerHTML=arr.map(p=>{
     const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
     const on=!!defiSelParticipants[p.id];
-    return '<div class="pat-item" onclick="toggleDefiPart(\''+p.id+'\')" style="'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div></div>';
+    return '<div class="pat-item" onclick="toggleDefiPart(\''+p.id+'\')" style="'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div></div>';
   }).join('');
 }
 function toggleDefiPart(id){
@@ -22109,7 +22109,7 @@ function renderDefiSessionListShared(a){
     return '<div class="pat-item" onclick="'+a.sessionSelectFn+'(\''+s.id+'\')" style="cursor:pointer;'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'">'
       +'<div style="width:38px;height:38px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🏃</div>'
       +'<div style="flex:1;min-width:0;"><div class="pat-n" data-notranslate="1">'+s.nom_marketing+'</div><div class="pat-m">'+s.exercices.length+' '+trDyn('exercises')+'</div></div>'
-      +'<div class="ob-check" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div>'
+      +'<div class="ob-check" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div>'
     +'</div>';
   }).join('');
 }
@@ -22193,7 +22193,7 @@ function renderDefiModeListShared(a){
       // consequence au moment ou on le fait.
       +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--white);">'+m.label+'</div>'
       +'<div style="font-size:11.5px;color:var(--gray);line-height:1.35;margin-top:3px;">'+trDyn(m.desc)+'</div></div>'
-      +'<div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div>'
+      +'<div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div>'
     +'</div>';
   }).join('');
   sweepTranslate(el, currentLang);
@@ -22855,7 +22855,7 @@ function submitInviteUtilisateur(){
   PATIENTS.push({id:'p_inv_'+Date.now(), nom:fullName, ini:prenom.charAt(0).toUpperCase(), color:'#4285F4', tc:'#fff', statut:'attente', inviteDate:Date.now(),
     prog:'Programme to define', semaine:0, derniere:'—', joursInactif:0, observance:0, douleurMoy:0,
     douleur:[0], historique:[], notes:[], records:[]});
-  showSuccessOverlay('✓','Invitation sent to '+fullName,'dashboard_referent',1500);
+  showSuccessOverlay('','Invitation sent to '+fullName,'dashboard_referent',1500);
 }
 
 // ===== SÉLECTEUR D'EXERCICES PARTAGÉ (création de session) =====
@@ -22871,7 +22871,7 @@ function renderExoPickList(key){
   el.innerHTML=[...EXERCICES,...userExercices].map(ex=>{ const on=!!sel[ex.id];
     return '<div class="lib-card" style="cursor:pointer;'+(on?'border-color:var(--orange);':'')+'" onclick="toggleExoPick(\''+key+'\','+JSON.stringify(ex.id)+')"><div class="lib-thumb" style="background-image:url(\''+exoPhotoFor(ex)+'\');background-size:cover;background-position:center;"></div>'
       +'<div class="lib-body"><div class="lib-name">'+ex.nom+'</div><div class="lib-meta">'+ex.positions.join('/')+' · '+libExoDureeLabel(ex)+'</div></div>'
-      +'<div style="width:24px;height:24px;border-radius:50%;border:2px solid '+(on?'var(--orange)':'var(--border)')+';background:'+(on?'var(--orange)':'transparent')+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0;">'+(on?'✓':'')+'</div></div>';
+      +'<div style="width:24px;height:24px;border-radius:50%;border:2px solid '+(on?'var(--orange)':'var(--border)')+';background:'+(on?'var(--orange)':'transparent')+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0;">'+(on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div></div>';
   }).join('');
   updateExoPickCount(key);
 }
@@ -22929,7 +22929,7 @@ function renderCsiUserList(){
   }).join('');
   if(csiUserId){
     const row=document.getElementById('csiRow_'+csiUserId); if(row) row.style.background='rgba(var(--orange-rgb),.06)';
-    const chk=document.getElementById('csiCheck_'+csiUserId); if(chk){ chk.style.background='var(--orange)'; chk.style.borderColor='var(--orange)'; chk.style.color='#fff'; chk.style.display='flex'; chk.style.alignItems='center'; chk.style.justifyContent='center'; chk.style.fontSize='13px'; chk.textContent='✓'; }
+    const chk=document.getElementById('csiCheck_'+csiUserId); if(chk){ chk.style.background='var(--orange)'; chk.style.borderColor='var(--orange)'; chk.style.color='#fff'; chk.style.display='flex'; chk.style.alignItems='center'; chk.style.justifyContent='center'; chk.style.fontSize='13px'; chk.innerHTML='<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>'; }
   }
 }
 function selectCsiUser(id){
@@ -22937,7 +22937,7 @@ function selectCsiUser(id){
   document.querySelectorAll('#csiUserList .pat-item').forEach(r=>r.style.background='');
   document.querySelectorAll('#csiUserList [id^="csiCheck_"]').forEach(c=>{ c.style.background='transparent'; c.style.borderColor='var(--border)'; c.textContent=''; });
   const row=document.getElementById('csiRow_'+id); if(row) row.style.background='rgba(var(--orange-rgb),.06)';
-  const chk=document.getElementById('csiCheck_'+id); if(chk){ chk.style.background='var(--orange)'; chk.style.borderColor='var(--orange)'; chk.style.color='#fff'; chk.style.display='flex'; chk.style.alignItems='center'; chk.style.justifyContent='center'; chk.style.fontSize='13px'; chk.textContent='✓'; }
+  const chk=document.getElementById('csiCheck_'+id); if(chk){ chk.style.background='var(--orange)'; chk.style.borderColor='var(--orange)'; chk.style.color='#fff'; chk.style.display='flex'; chk.style.alignItems='center'; chk.style.justifyContent='center'; chk.style.fontSize='13px'; chk.innerHTML='<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>'; }
 }
 // Détour : quitte cet écran pour le vrai écran Séances (catalogue + création), où le référent
 // choisit ou crée la séance à prescrire — cf. session_detail#sdPickBtn pour le retour.
@@ -23077,7 +23077,7 @@ function submitCsi(){
     });
   }
   if(hist[hist.length-1]==='creation_session_individuelle') hist.pop();   // sinon la flèche retour depuis le calendrier retombe sur ce formulaire épuisé
-  showSuccessOverlay('✓','Session created and sent to '+u.nom,'dashboard_referent',1500);
+  showSuccessOverlay('','Session created and sent to '+u.nom,'dashboard_referent',1500);
 }
 
 // ===== CRÉATION DE SESSION COLLECTIVE =====
@@ -23107,13 +23107,13 @@ function renderCscPartList(){
   const arr=PATIENTS.filter(p=>p.statut!=='attente' && (!q || p.nom.toLowerCase().includes(q)));
   list.innerHTML=arr.map(p=>{ const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
     const on=!!cscParticipants[p.id];
-    return '<div class="pat-item" onclick="toggleCscPart(\''+p.id+'\')" id="cscRow_'+p.id+'" style="'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" id="cscCheck_'+p.id+'" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'✓':'')+'</div></div>';
+    return '<div class="pat-item" onclick="toggleCscPart(\''+p.id+'\')" id="cscRow_'+p.id+'" style="'+(on?'background:rgba(var(--teal-rgb),.06);':'')+'"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div><div class="pat-m">'+patSubtitle(p)+'</div></div><div class="ob-check" id="cscCheck_'+p.id+'" style="width:22px;height:22px;border-radius:50%;'+(on?'background:var(--teal);border-color:var(--teal);color:var(--ink-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;':'border:2px solid var(--border);')+'">'+(on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div></div>';
   }).join('');
 }
 function toggleCscPart(id){
   const chk=document.getElementById('cscCheck_'+id), row=document.getElementById('cscRow_'+id);
   if(cscParticipants[id]){ delete cscParticipants[id]; if(chk){chk.style.background='transparent';chk.style.borderColor='var(--border)';chk.textContent='';} if(row) row.style.background=''; }
-  else { cscParticipants[id]=true; if(chk){chk.style.background='var(--teal)';chk.style.borderColor='var(--teal)';chk.style.color='var(--bg)';chk.style.display='flex';chk.style.alignItems='center';chk.style.justifyContent='center';chk.style.fontSize='13px';chk.textContent='✓';} if(row) row.style.background='rgba(var(--teal-rgb),.06)'; }
+  else { cscParticipants[id]=true; if(chk){chk.style.background='var(--teal)';chk.style.borderColor='var(--teal)';chk.style.color='var(--bg)';chk.style.display='flex';chk.style.alignItems='center';chk.style.justifyContent='center';chk.style.fontSize='13px';chk.innerHTML='<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>';} if(row) row.style.background='rgba(var(--teal-rgb),.06)'; }
   updateCscCount();
 }
 function selectAllCsc(){
@@ -23176,7 +23176,7 @@ function submitCsc(){
     });
   }
   if(hist[hist.length-1]==='creation_session_collective') hist.pop();   // sinon la flèche retour depuis le calendrier retombe sur ce formulaire épuisé
-  showSuccessOverlay('✓','Session created · '+n+' invitations sent','dashboard_referent',1500);
+  showSuccessOverlay('','Session created · '+n+' invitations sent','dashboard_referent',1500);
 }
 // ===== MODE "DÉMARRER MAINTENANT" — battle collectif simulé (cf discussion) =====
 // Pas de vrai backend temps réel : chaque participant "se connecte" via un délai scripté (salle
@@ -23219,7 +23219,7 @@ function renderSalleAttente(){
   el.innerHTML = battleParticipants.map(p=>{
     const a=avatarRender(p.nom,p.ini,avatarColorFor(p),avatarTextColorFor(p),avatarChoice['pat_'+p.id]);
     return '<div class="pat-item"><div class="pat-av" style="'+a.style+'">'+a.inner+'</div><div style="flex:1;min-width:0;"><div class="pat-n">'+p.nom+'</div></div>'
-      +'<span style="font-size:11px;font-weight:700;padding:5px 10px;border-radius:100px;'+(p.connected?'background:rgba(var(--teal-rgb),.15);color:var(--teal);':'background:var(--bg2);color:var(--gray);')+'">'+(p.connected?'Connected ✓':'Waiting…')+'</span>'
+      +'<span style="font-size:11px;font-weight:700;padding:5px 10px;border-radius:100px;display:inline-flex;align-items:center;gap:3px;'+(p.connected?'background:rgba(var(--teal-rgb),.15);color:var(--teal);':'background:var(--bg2);color:var(--gray);')+'">'+(p.connected?'Connected<svg class="ki" style="width:10px;height:10px;"><use href="#ki-check"/></svg>':'Waiting…')+'</span>'
       +'</div>';
   }).join('');
   updateSalleAttenteCta();
@@ -23394,16 +23394,16 @@ function selectCprogUser(id){
   document.querySelectorAll('#cprogUserList .pat-item').forEach(r=>r.style.background='');
   document.querySelectorAll('#cprogUserList [id^="cprogCheck_"]').forEach(c=>{ c.style.background='transparent'; c.style.borderColor='var(--border)'; c.textContent=''; });
   const row=document.getElementById('cprogRow_'+id); if(row) row.style.background='rgba(var(--orange-rgb),.06)';
-  const chk=document.getElementById('cprogCheck_'+id); if(chk){ chk.style.background='var(--orange)'; chk.style.borderColor='var(--orange)'; chk.style.color='#fff'; chk.style.display='flex'; chk.style.alignItems='center'; chk.style.justifyContent='center'; chk.style.fontSize='13px'; chk.textContent='✓'; }
+  const chk=document.getElementById('cprogCheck_'+id); if(chk){ chk.style.background='var(--orange)'; chk.style.borderColor='var(--orange)'; chk.style.color='#fff'; chk.style.display='flex'; chk.style.alignItems='center'; chk.style.justifyContent='center'; chk.style.fontSize='13px'; chk.innerHTML='<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>'; }
   const prof=document.getElementById('cprogProfile');
   if(prof && p.onb){
     prof.style.display='block';
     prof.innerHTML='<div class="ex-sec-t" style="padding:0 0 8px;">Profile from onboarding</div>'
       +'<div style="font-size:13px;color:var(--gray2);line-height:1.8;">'
-      +'🧍 Positions: '+(p.onb.positions.join(', ')||'—')+'<br>'
+      +'<svg class="ki"><use href="#ki-pos"/></svg> Positions: '+(p.onb.positions.join(', ')||'—')+'<br>'
       +'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><path d=M12,3.5,2,20.5h20L12,3.5Z /><path d=M12,9.5v5 /><path d=M12,17.5h.01 /></svg> Areas to avoid: '+(p.onb.zonesEviter.length?p.onb.zonesEviter.join(', '):'None')+'<br>'
-      +'🎯 Usual goal: '+p.onb.objectif+'<br>'
-      +'⚡ Frequency: '+p.onb.frequence
+      +'<svg class="ki"><use href="#ki-target"/></svg> Usual goal: '+p.onb.objectif+'<br>'
+      +'<svg class="ki"><use href="#ki-cal"/></svg> Frequency: '+p.onb.frequence
       +'</div>';
   }
 }
@@ -23541,7 +23541,7 @@ function submitCprog(){
     });
   }
   openPatient(p.id);
-  showSuccessOverlay('✓','Programme sent to '+p.nom,'progression',1500);
+  showSuccessOverlay('','Programme sent to '+p.nom,'progression',1500);
 }
 
 // ===== RÔLES / LOGIN (Utilisateur / Référent / Directeur / Admin) =====
@@ -23706,7 +23706,7 @@ function showSuccessOverlay(icon,text,dest,delay){
   ov.style.display='flex';
   clearTimeout(window._successOvT);
   window._successOvT=setTimeout(()=>{
-    ov.innerHTML='<div id="paySuccessCheck" style="width:88px;height:88px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--ink-on-accent);transform:scale(0);transition:transform .4s cubic-bezier(.34,1.56,.64,1);flex-shrink:0;">'+(icon||'✓')+'</div><div style="color:#fff;font-size:16px;font-weight:700;margin-top:16px;line-height:1.4;">'+text+'</div>';
+    ov.innerHTML='<div id="paySuccessCheck" style="width:88px;height:88px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--ink-on-accent);transform:scale(0);transition:transform .4s cubic-bezier(.34,1.56,.64,1);flex-shrink:0;">'+(icon||'<svg class="ki" style="width:1em;height:1em;"><use href="#ki-check"/></svg>')+'</div><div style="color:#fff;font-size:16px;font-weight:700;margin-top:16px;line-height:1.4;">'+text+'</div>';
     const check=document.getElementById('paySuccessCheck');
     requestAnimationFrame(()=>{ check.style.transform='scale(1)'; });
     window._successOvT=setTimeout(()=>{ ov.style.display='none'; if(dest) go(dest); }, delay||1200);
@@ -24724,7 +24724,7 @@ function renderEquipmentScreen(){
   const barBadge=document.getElementById('equipBarBadge');
   if(barBadge){ barBadge.textContent = own.bar?'Active':'Inactive'; barBadge.className='pbdg '+(own.bar?'bdg-a':'bdg-i'); }
   const barTxt=document.getElementById('equipBarStatusTxt');
-  if(barTxt){ barTxt.textContent = own.bar?'Bar connected ✓':'Not connected — tap to mark as active'; barTxt.style.color = own.bar?'var(--teal)':'var(--gray)'; }
+  if(barTxt){ barTxt.innerHTML = own.bar?'<span>Bar connected</span><svg class="ki" style="width:12px;height:12px;"><use href="#ki-check"/></svg>':'Not connected — tap to mark as active'; barTxt.style.color = own.bar?'var(--teal)':'var(--gray)'; }
   const elBadge=document.getElementById('equipElastiqueBadge');
   if(elBadge){ elBadge.textContent = own.elastique?'Owned':'Not owned'; elBadge.className='pbdg '+(own.elastique?'bdg-a':'bdg-i'); }
   const elCard=document.getElementById('equipElastiqueCard');
@@ -24749,7 +24749,7 @@ function editTrainingField(key){
     else on=profile[f.key]===opt;
     const esc=opt.replace(/'/g,"\\'");
     const call=f.multi?"tpToggleMulti('"+key+"','"+esc+"')":"tpPick('"+key+"','"+esc+"')";
-    return '<div onclick="'+call+'" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;border:1.5px solid '+(on?'var(--orange)':'var(--border)')+';background:'+(on?'rgba(var(--orange-rgb),.08)':'var(--bg2)')+';cursor:pointer;margin-bottom:8px;"><div style="flex:1;font-size:15px;font-weight:600;color:var(--white);">'+opt+'</div><div style="width:22px;height:22px;border-radius:50%;border:2px solid '+(on?'var(--orange)':'var(--border)')+';background:'+(on?'var(--orange)':'transparent')+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0;">'+(on?'✓':'')+'</div></div>';
+    return '<div onclick="'+call+'" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;border:1.5px solid '+(on?'var(--orange)':'var(--border)')+';background:'+(on?'rgba(var(--orange-rgb),.08)':'var(--bg2)')+';cursor:pointer;margin-bottom:8px;"><div style="flex:1;font-size:15px;font-weight:600;color:var(--white);">'+opt+'</div><div style="width:22px;height:22px;border-radius:50%;border:2px solid '+(on?'var(--orange)':'var(--border)')+';background:'+(on?'var(--orange)':'transparent')+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0;">'+(on?'<svg class="ki" style="width:13px;height:13px;"><use href="#ki-check"/></svg>':'')+'</div></div>';
   }).join('');
   const foot=f.multi?'<button class="btn btn-orange" style="margin-top:6px;" onclick="closeModal();renderTrainingProfile()">Confirm</button>':'<button class="btn-ghost" style="width:100%;margin-top:2px;color:var(--gray2);" onclick="closeModal()">Cancel</button>';
   showModal('<div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">'+f.icon+' '+f.label+'</div>'+rows+foot);
