@@ -6200,6 +6200,12 @@ function programmeDepuisLabel(){
 // n'avait nulle part où aller. L'archivage dans userProgrammeHistory réutilise exactement le récap de
 // clôture déjà écrit par activerProgramme() — mêmes bornes, même calcul, pas un second chemin.
 function arreterProgramme(){
+  // Même garde-fou que openCoachPrefs (currentRole==='user_centre') : "on ne touche jamais son
+  // programme seul, c'est une prescription du référent" est déjà écrit et respecté ailleurs (cf
+  // getReferentProgrammeSignal), mais ce bouton-ci n'avait jamais reçu le test — un membre suivi
+  // pouvait arrêter seul son programme, ce qui fait taire le signal de vigilance au lieu de le
+  // déclencher (audit patient, 17 sept. 2026).
+  if(currentRole==='user_centre'){ toast(trDyn('Talk to your coach if you want to stop this programme.')); return; }
   if(!programmeActif) return;
   const p=programmeActif;
   const pr=getProgrammeProgress(p);
@@ -7293,6 +7299,7 @@ function openPatientProgress(id){
   curPatient=p;
   if(id==='p1'){
     if(viewingDemoPatientId) restoreMarcState();
+    if(p.notes) p.notes.forEach(n=>{ n.unread=false; });
     go('progression');
     setTimeout(syncProgHeader, 30);
     return;
@@ -10574,6 +10581,10 @@ function getCoachWeeklyProposal(){
   if(coachWeeklyDismissedWeekStart===getWeekStartTimestamp()) return null;
   const progProposal=getCoachProgrammeProposal();
   if(progProposal) return progProposal;
+  // Même garde-fou que getCoachProgrammeProposal juste au-dessus : cette 2e forme de proposition
+  // (montée de niveau) n'avait jamais reçu le test de rôle — un membre suivi par un référent pouvait
+  // donc monter son propre niveau malgré "ton coach décide" (audit patient, 17 sept. 2026).
+  if(currentRole==='user_centre') return null;
   const exos=[...EXERCICES,...userExercices];
   let best=null;
   Object.keys(exerciseZoneHistory).forEach(exId=>{
@@ -10682,6 +10693,7 @@ function revertCoachLevel(exId, level){
   renderCoachThread();
 }
 function applyCoachLevelUp(exId, auto){
+  if(currentRole==='user_centre') return;   // défense en profondeur : cf garde-fou déjà posé sur getCoachWeeklyProposal ci-dessus
   const exos=[...EXERCICES,...userExercices];
   const ex=exos.find(e=>e.id===exId); if(!ex) return;
   const curParams=getParamsExercice(ex);
@@ -13670,6 +13682,7 @@ const EN_FR = {
   "To check — tap to choose": "À vérifier — touche pour choisir",
   "up to level": "jusqu'au niveau",
   "Your coach decides your progression.": "C'est ton coach qui décide de ta progression.",
+  "Talk to your coach if you want to stop this programme.": "Parle-en à ton coach si tu veux arrêter ce programme.",
   "When the coach suggests progressing": "Quand le coach propose de progresser",
   "Ask me every time": "Me demander à chaque fois",
   "You confirm each level change.": "Tu valides chaque changement de niveau.",
@@ -15812,6 +15825,10 @@ const EN_FR = {
 };
 // Modèles dynamiques (compteurs générés en JS) non couverts par une correspondance exacte.
 const EN_FR_PATTERNS = [
+  // Signal référent "note laissée par le patient" (getReferentNoteSignal) : le texte libre après le
+  // tiret est écrit par le patient lui-même (FR ou EN selon lui), donc jamais retraduit — seul le
+  // préfixe fixe l'est. [\s\S] plutôt que . pour couvrir une note multi-lignes.
+  [/^Left a note for you — ([\s\S]*)$/, (m)=>`A laissé une note pour toi — ${m[1]}`],
   // Label de rythme Objectif (objectifCatchUpLabel) — pluriel dynamique, testé cassé au changement de
   // langue sans re-rendu (même classe de bug que la calculatrice check-in).
   [/^(\d+) days? to catch up$/, (m)=>`${m[1]} jour${Number(m[1])>1?'s':''} à rattraper`],
@@ -16008,6 +16025,8 @@ const EN_FR_PATTERNS = [
   [/^→ (\d+)% vs previous (week|month|year)$/, (m)=>`→ ${m[1]}% vs ${({week:'semaine',month:'mois',year:'année'})[m[2]]} précédent${m[2]==='week'||m[2]==='year'?'e':''}`],
 ];
 const FR_EN_PATTERNS = [
+  // Sens retour de la note référent ci-dessus (EN_FR_PATTERNS) — même garde sur le texte libre.
+  [/^A laissé une note pour toi — ([\s\S]*)$/, (m)=>`Left a note for you — ${m[1]}`],
   // Label de rythme Objectif — sens retour, même bug que ci-dessus.
   [/^(\d+) jours? à rattraper$/, (m)=>`${m[1]} day${Number(m[1])>1?'s':''} to catch up`],
   [/^(\d+) séances? à rattraper$/, (m)=>`${m[1]} session${Number(m[1])>1?'s':''} to catch up`],
@@ -21366,6 +21385,17 @@ function getReferentProgrammeSignal(patientId){
   if(patientId!=='p1') return null;
   return isProgrammeBehindPace() ? {reason:'Behind pace on programme — worth revisiting'} : null;
 }
+// Note laissée par le patient à son coach (cf submitFeedback, currentRole==='user_centre') : le toast
+// affirmait un envoi mais p.notes n'était lu que par l'export PDF (patientReportHtml), jamais par ce
+// mécanisme d'attention — la note n'atteignait donc jamais vraiment le référent (audit patient, 17 sept.
+// 2026). Remonte la note la plus récente non lue ; marquée lue dès que le référent ouvre la fiche de ce
+// patient (cf openPatientProgress), pas de vrai système de lecture/non-lu au-delà de ça.
+function getReferentNoteSignal(patientId){
+  if(patientId!=='p1') return null;
+  const p=PATIENTS.find(x=>x.id==='p1');
+  const last=p && p.notes && p.notes[0];
+  return (last && last.unread) ? {reason:'Left a note for you — '+last.txt} : null;
+}
 // Check-in matinal → signal référent, uniquement côté centre (checkInDoneCentre, jamais checkInDone
 // qui est le check-in B2C séparé) et uniquement si une séance est prévue aujourd'hui pour cette
 // personne — sinon la fatigue du matin n'a rien à checker côté coach.
@@ -21411,6 +21441,8 @@ function computeReferentAttention(){
     // sur SON programme n'est pas une 2e information, juste la même reformulée.
     const progSignal = (!isInactive && !lowRegularity) ? getReferentProgrammeSignal(p.id) : null;
     if(progSignal) aChecker.push({patient:p, reason:progSignal.reason});
+    const noteSignal = getReferentNoteSignal(p.id);
+    if(noteSignal) aChecker.push({patient:p, reason:noteSignal.reason});
     if(isInactive) {
       // Libellé de démo (cf discussion) : ACWR bas / fatigue signalée sont des signaux réels réservés à
       // Marc (seul historique quotidien vivant) — pour varier ce qu'affiche Home sans étendre cette
@@ -23722,7 +23754,7 @@ function submitFeedback(){
   if(currentRole==='user_centre'){
     if(noteTxt){
       const p=PATIENTS.find(x=>x.id==='p1');
-      if(p){ if(!p.notes) p.notes=[]; p.notes.unshift({date:"Just now", txt:noteTxt}); }
+      if(p){ if(!p.notes) p.notes=[]; p.notes.unshift({date:"Just now", txt:noteTxt, unread:true}); }
     }
     toast('Session sent to Martin Dupont ✓');
   } else if(noteTxt){
