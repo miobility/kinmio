@@ -1859,7 +1859,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);"><span style="font-size:15px;color:var(--white);">Email</span><span style="font-size:14px;color:var(--gray);">claire.dubois@kerpape.fr</span></div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);"><span style="font-size:15px;color:var(--white);">Centre</span><span style="font-size:14px;color:var(--gray);">Kerpape</span></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;"><span style="font-size:15px;color:var(--white);">Coaches managed</span><span style="font-size:14px;color:var(--gray);">3</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;"><span style="font-size:15px;color:var(--white);">Coaches managed</span><span style="font-size:14px;color:var(--gray);" id="profilDirCoachesCount">—</span></div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Appearance</div>
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
@@ -4066,9 +4066,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div id="dirCoachSummaryZone"></div>
       <div class="zone-lbl">Members</div>
       <div class="kine-stats">
-        <div class="kstat"><div class="kstat-v">28</div><div class="kstat-l">Active members</div><div class="kstat-t">/ 35 registered</div></div>
-        <div class="kstat"><div class="kstat-v">88%</div><div class="kstat-l">Avg. adherence</div><div class="kstat-t">+4 pts</div></div>
-        <div class="kstat"><div class="kstat-v">84</div><div class="kstat-l">Sessions this week</div></div>
+        <div class="kstat"><div class="kstat-v" id="dirActiveMembersV">—</div><div class="kstat-l">Active members</div><div class="kstat-t" id="dirActiveMembersT">—</div></div>
+        <div class="kstat"><div class="kstat-v" id="dirAdherenceV">—</div><div class="kstat-l">Avg. adherence</div><div class="kstat-t" id="dirAdherenceT">—</div></div>
+        <div class="kstat"><div class="kstat-v" id="dirSessionsWeekV">—</div><div class="kstat-l">Sessions this week</div></div>
         <div class="kstat" style="cursor:pointer;" onclick="go('dir_alertes')"><div class="kstat-v" id="dirActiveAlertsCount" style="color:var(--red);">—</div><div class="kstat-l">Active alerts <span style="opacity:.6;" data-notranslate="1">›</span></div></div>
       </div>
       <div style="margin:0 20px 14px;padding:11px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
@@ -4142,7 +4142,10 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div class="px" id="dirStatsReferentBars"></div>
       <div style="height:14px;"></div>
     </div>
-    <!-- LICENCES -->
+    <!-- LICENCES — chiffres et barre volontairement figés, comme CENTRE_CONTINUITY : aucun vrai modèle
+         de licences dans ce prototype (pas de table d'achat/allocation à interroger). Les 2 exports
+         juste en dessous sont réels (cf centreReportHtml/exportCentreReport) ; seul ce bloc reste une
+         maquette (audit directeur, 17 sept. 2026). -->
     <div id="dirv_licences" style="display:none;">
       <div class="kine-stats">
         <div class="kstat"><div class="kstat-v">50</div><div class="kstat-l">Total licences</div></div>
@@ -4155,7 +4158,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div style="height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;"><div style="height:100%;width:70%;background:var(--white);border-radius:4px;"></div></div>
         <div style="font-size:12px;color:var(--gray);margin-top:8px;">15 licences available · renews in 142 days</div>
       </div>
-      <div class="px"><button class="btn btn-orange" onclick="toast('Request sent to kinmio ✓')">Contact kinmio</button></div>
+      <div class="px"><button class="btn btn-orange" onclick="toast(trDyn('Request sent to kinmio (demo) ✓'))">Contact kinmio</button></div>
       <div class="ex-sec-t" style="padding:12px 20px 6px;color:var(--gray2);">Exports</div>
       <div class="row" style="padding:0 20px 4px;">
         <button class="btn btn-outline" onclick="exportCentreReport('quarterly')"><svg class="ki"><use href="#ki-note"/></svg>Quarterly ARS report</button>
@@ -6872,7 +6875,7 @@ function go(id){
   if(id==='progression'){ setTimeout(()=>renderProgPeriod(progActivePeriod), 20); setTimeout(()=>{ renderProgSafetyBlock('progSafetyBlock'); syncProgHeader(); }, 20); }
   if(id==='profil_centre') setTimeout(()=>{ paintAvatar('profilCentreAvatarImg','marc','Marc D.','M','var(--teal)'); applyUserAvatarTo('profilCentreAvatarImg'); renderRoleSwitcher('roleSwitcherProfilCentre'); }, 20);
   if(id==='profil_referent') setTimeout(()=>{ renderRoleSwitcher('roleSwitcherProfilReferent'); }, 20);
-  if(id==='profil_directeur') setTimeout(()=>{ renderRoleSwitcher('roleSwitcherProfilDirecteur'); }, 20);
+  if(id==='profil_directeur') setTimeout(()=>{ renderRoleSwitcher('roleSwitcherProfilDirecteur'); renderDirGlobalStats(); }, 20);
   if(id==='profil_admin') setTimeout(()=>{ renderRoleSwitcher('roleSwitcherProfilAdmin'); }, 20);
   if(id==='demo_hub') setTimeout(()=>renderDemoSection('demoHubContent'), 20);
   if(id==='dir_fiche_referent') setTimeout(renderDirFiche, 20);
@@ -8024,6 +8027,35 @@ function renderDirCoachSummary(){
   sweepTranslate(el, currentLang);
 }
 function renderDirGlobalStats(){
+  // Membres actifs/inscrits, observance moy. et séances cette semaine étaient figés en dur ("28",
+  // "88%+4pts", "84") depuis toujours — jamais recalculés, donc jamais cohérents avec une vraie action
+  // (accepter une invitation, suspendre un référent). Même source que renderRefAccueil (getPatientStatut,
+  // statsObservancePct, statsSessionsInWindow) pour rester cohérent avec les autres écrans qui lisent
+  // le même centre (audit directeur, 17 sept. 2026).
+  const activeMembersCount=PATIENTS.filter(p=>getPatientStatut(p)==='actif').length;
+  const registeredCount=PATIENTS.filter(p=>p.statut!=='attente').length;
+  const weekAnchor=getStatsAnchorDate('semaine', 0);
+  const {from:wFrom, to:wTo}=getCalendarBounds('semaine', weekAnchor);
+  const {from:wPrevFrom, to:wPrevTo}=getPreviousCalendarBounds('semaine', weekAnchor);
+  const activeP=PATIENTS.filter(p=>p.statut!=='attente');
+  const obsNow=statsObservancePct(PATIENTS, wFrom, wTo);
+  const obsPrev=statsObservancePct(PATIENTS, wPrevFrom, wPrevTo);
+  const sessionsThisWeek=statsSessionsInWindow(activeP, wFrom, wTo).length;
+  const setV=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  setV('dirActiveMembersV', activeMembersCount);
+  setV('dirActiveMembersT', '/ '+registeredCount+' '+trDyn('registered'));
+  setV('dirAdherenceV', (obsNow!=null?obsNow:'—')+'%');
+  const adhT=document.getElementById('dirAdherenceT');
+  if(adhT){
+    if(obsNow!=null && obsPrev!=null){
+      const delta=obsNow-obsPrev;
+      adhT.textContent=(delta>=0?'+':'')+delta+' '+trDyn('pts');
+      adhT.style.color=delta>=0?'var(--teal)':'var(--vigilance)';
+    } else adhT.textContent='—';
+  }
+  setV('dirSessionsWeekV', sessionsThisWeek);
+  const coachesCountEl=document.getElementById('profilDirCoachesCount');
+  if(coachesCountEl) coachesCountEl.textContent=allReferentsForDir().filter(r=>r.statut==='actif').length;
   const alertsCount=document.getElementById('dirActiveAlertsCount');
   if(alertsCount) alertsCount.textContent=computeReferentAttention().alertes.length;
   const conv=centreInviteConversion();
@@ -8331,6 +8363,11 @@ function renderDirReferentsList(){
     const reasonHtml = reason ? '<div style="font-size:12px;color:'+reason.color+';margin-top:2px;">'+reason.text+'</div>' : '';
     return '<div class="pat-item" onclick="openReferentFiche(\''+r.id+'\')"><div class="pat-av" style="'+ringStyle+'background:var(--bg2);overflow:hidden;padding:0;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div><div style="flex:1;min-width:0;"><div class="pat-n">'+r.nom+'</div><div class="pat-m">'+r.role+' · '+r.users+' '+trDyn('members')+' · '+r.observance+'%</div>'+reasonHtml+'</div></div>';
   }).join('');
+  // Manquait ici, présent sur les fonctions sœurs (renderDirCoachSummary, renderDirRefSearch) : sans
+  // ça, r.role/r.specialite (ex. "Occupational therapist") restait en anglais même en FR — cette liste
+  // n'est jamais re-rendue par le sweep à 110ms de go(), seulement par un changement d'onglet interne
+  // (audit directeur, 17 sept. 2026).
+  sweepTranslate(list, currentLang);
 }
 const REF_RANK_METRICS=[{key:'activityRate',label:'Activity rate'},{key:'observance',label:'Regularity'},{key:'sessionsPerWeek',label:'Sessions/wk'},{key:'intensity',label:'Effort'}];
 let dirRefRankMetric='activityRate';
@@ -14827,6 +14864,8 @@ const EN_FR = {
   "MRR this month": "MRR ce mois",
   "Active users": "Utilisateurs actifs",
   "Active members": "Membres actifs",
+  "registered": "inscrits",
+  "pts": "pts",
   "Overall adherence": "Observance globale",
   "Active centres": "Centres actifs",
   "Metrics": "Métriques",
@@ -15181,7 +15220,7 @@ const EN_FR = {
   "Renewal": "Renouvellement",
   "Licence usage": "Utilisation des licences",
   "15 licences available · renews in 142 days": "15 licences disponibles · renouvellement dans 142 jours",
-  "Request sent to kinmio ✓": "Demande envoyée à kinmio ✓",
+  "Request sent to kinmio (demo) ✓": "Demande envoyée à kinmio (démo) ✓",
   "Contact kinmio": "Contacter kinmio",
   "Overview": "Vue globale",
   "Coaches": "Référents",
