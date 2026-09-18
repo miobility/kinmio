@@ -1115,6 +1115,9 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   <symbol id="ki-friend-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7.5" r="3"/><path d="M3.5 18.5c0-3.2 2.5-4.9 5-4.9s5 1.7 5 4.9"/><circle cx="17.5" cy="16" r="4.3"/><path d="M15.3 16.1l1.6 1.6 3-3.3"/></symbol>
   <symbol id="ki-coach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.6" r="3"/><path d="M5.6 19.4c0-3.3 2.8-5 6.4-5s6.4 1.7 6.4 5"/><path d="M16.6 3.4l1.05 2.2 2.35.32-1.7 1.68.42 2.4-2.12-1.14-2.12 1.14.42-2.4-1.7-1.68 2.35-.32Z"/></symbol>
   <symbol id="ki-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 20V8.8L12 4.4l7.6 4.4V20"/><path d="M3 20h18"/><path d="M9.9 20v-4.7h4.2V20"/></symbol>
+  <symbol id="ki-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.4 12 4.6l8 6.8"/><path d="M6.2 10v9.4h11.6V10"/><path d="M10.2 19.4v-6h3.6v6"/></symbol>
+  <symbol id="ki-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.6" width="13" height="10.8" rx="2.4"/><path d="M16.4 10.3 20.4 8v8l-4-2.3"/></symbol>
+  <symbol id="ki-phone-end" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.2 13.8c2.2-2.1 4.8-3.1 7.8-3.1s5.6 1 7.8 3.1"/><path d="M8.4 15.4 6.2 17.6M15.6 15.4l2.2 2.2"/></symbol>
   <symbol id="ki-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="7.4" width="17.6" height="12.4" rx="2.4"/><path d="M8.6 7.4V5.6a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.8"/><path d="M3.2 12.6h17.6"/></symbol>
   <symbol id="ki-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.9"/><path d="M12 3.4v2.2M12 18.4v2.2M20.6 12h-2.2M5.6 12H3.4M18.08 5.92l-1.56 1.56M7.48 16.52l-1.56 1.56M18.08 18.08l-1.56-1.56M7.48 7.48 5.92 5.92"/></symbol>
 </svg>
@@ -2178,6 +2181,15 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 <div class="screen" id="session">
   <div id="sessWithRefBadge" style="display:none;text-align:center;padding:8px 16px;background:rgba(var(--teal-rgb),.12);color:var(--teal);font-size:12px;font-weight:700;flex-shrink:0;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> <span>Session with</span> <span data-notranslate>Martin Dupont</span></div>
+  <!-- Bulle visio flottante (maquette "Séance à distance", 18 sept.) : visible seulement si la séance
+       est avecCoach + visio (cf go() hook 'session' et currentProgram.visio). Volontairement au-dessus
+       des 3 layouts (rest/std/cardio) plutôt que dupliquée dans chacun — cf openPatientVisioModal. -->
+  <div id="sessCoachVisioBubble" style="display:none;position:absolute;top:64px;right:14px;z-index:40;width:52px;height:68px;border-radius:14px;background:var(--bg2);border:1px solid var(--border);align-items:center;justify-content:center;cursor:pointer;" onclick="openPatientVisioModal()">
+    <div style="position:relative;">
+      <div style="width:28px;height:28px;border-radius:99px;background:var(--teal);color:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:10px;" data-notranslate>MD</div>
+      <div style="position:absolute;top:-1px;right:-1px;width:8px;height:8px;border-radius:99px;background:var(--teal);border:1.5px solid var(--bg2);"></div>
+    </div>
+  </div>
   <div class="sess-top">
     <div style="display:flex;align-items:center;gap:10px;">
       <div class="sess-prog"></div>
@@ -4281,6 +4293,22 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
       <div style="display:flex;gap:8px;margin-bottom:16px;" id="calPickAttendanceChips">
         <div class="lib-chip" data-val="solo" onclick="selectCsiAttendance(this,'solo')" style="flex:1;text-align:center;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> Autonomous</div>
         <div class="lib-chip" data-val="coach" onclick="selectCsiAttendance(this,'coach')" style="flex:1;text-align:center;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> With the coach</div>
+      </div>
+      <!-- Lieu + visio (maquette "Séance à distance", 18 sept.) : n'a de sens que côté individuel, même
+           gating que l'attendance ci-dessus (cf renderCalendar) — le collectif implique toujours le
+           référent en présentiel dans ce prototype. La visio n'apparaît que si le référent EST prévu
+           (avecCoach) ET que le lieu est à distance : pas de visio pour une séance autonome. -->
+      <div class="ps-title" style="margin-bottom:6px;" id="calPickLieuTitle">Location</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;" id="calPickLieuChips">
+        <div class="lib-chip on" data-val="centre" onclick="selectCsiLieu(this,'centre')" style="flex:1;text-align:center;"><svg class="ki"><use href="#ki-building"/></svg> At the centre</div>
+        <div class="lib-chip" data-val="distance" onclick="selectCsiLieu(this,'distance')" style="flex:1;text-align:center;"><svg class="ki"><use href="#ki-home"/></svg> Remote</div>
+      </div>
+      <div id="calPickVisioRow" style="display:none;margin-bottom:16px;">
+        <div class="ps-title" style="margin-bottom:6px;">Video call <span style="color:var(--gray);font-weight:400;">(optional)</span></div>
+        <div style="display:flex;gap:8px;" id="calPickVisioChips">
+          <div class="lib-chip on" data-val="off" onclick="selectCsiVisio(this,false)" style="flex:1;text-align:center;">No video call</div>
+          <div class="lib-chip" data-val="on" onclick="selectCsiVisio(this,true)" style="flex:1;text-align:center;"><svg class="ki"><use href="#ki-video"/></svg> With video call</div>
+        </div>
       </div>
       <div class="ps-title" style="margin-bottom:6px;">Note <span style="color:var(--gray);font-weight:400;">(optional)</span></div>
       <textarea id="calPickNote" class="note-input" placeholder="e.g. focus on range of motion, not speed."></textarea>
@@ -6779,7 +6807,7 @@ function go(id){
   // Flux d'entraînement -> plein écran paysage (téléphone posé sur la barre)
   document.body.classList.toggle('training', id==='session'||id==='next_exercise'||id==='feedback'||id==='resume');
   if(id==='feedback') setTimeout(resetFeedbackScreen, 20);
-  if(id==='session'){ document.body.classList.remove('rot-dismiss'); const b=document.getElementById('sessWithRefBadge'); if(b) b.style.display='none'; }   // ré-invite à tourner au début de chaque séance
+  if(id==='session'){ document.body.classList.remove('rot-dismiss'); const b=document.getElementById('sessWithRefBadge'); if(b) b.style.display = currentProgram.avecCoach ? 'block' : 'none'; const vb=document.getElementById('sessCoachVisioBubble'); if(vb) vb.style.display = (currentProgram.avecCoach && currentProgram.visio) ? 'flex' : 'none'; }   // ré-invite à tourner au début de chaque séance
   if(id==='session') setTimeout(setSessionCoachMsg, 20);
   if(id==='next_exercise') setTimeout(startRest, 60);                     // repos décompté avant l'exercice suivant
   if(id==='next_exercise') setTimeout(renderNextExercise, 60);            // texte/bouton selon dernier exercice ou non
@@ -6903,6 +6931,7 @@ function go(id){
   // Notif "séance planifiée aujourd'hui" (chantier calendrier/auto-assignation) — vérifiée à chaque
   // entrée sur Home, idempotente via _notified (pas de spam si on navigue plusieurs fois dans la journée).
   if(id==='home' || id==='home_centre') checkPlannedNotifToday();
+  if(id==='home' || id==='home_centre') checkRefSessionReminderToday();
   // LE BRANCHEMENT QUI MANQUAIT (13 sept. 2026). ordonnerZonesAccueil() place l'Objectif devant la
   // Seance des que la seance du jour est faite — la regle etait ecrite et fonctionnait quand on
   // l'appelait, mais seule refreshHomeSeanceZones() l'appelait, et revenir sur l'Accueil ne passait
@@ -10325,6 +10354,19 @@ function checkPlannedNotifToday(){
   const today0=new Date(); today0.setHours(0,0,0,0);
   const due=userPlannedSessions.find(p=>p.date===today0.getTime() && !p._notified);
   if(due){ due._notified=true; pushNotif('<svg class=ki><use href=#ki-bell /></svg>', trDyn('You planned a session for today — let’s go!'), 'home'); }
+}
+// Rappel séance avec le référent (maquette "Rendez-vous kinmio", 18 sept.) — même principe que
+// checkPlannedNotifToday juste au-dessus : une seule notif au premier passage sur Home le jour J,
+// jamais répétée (refSessionReminderDone). Volontairement le seul rappel de ce prototype : "la
+// veille"/"15 min avant" demanderaient un vrai push (app fermée), pas seulement in-app — cf
+// discussion "coût réel", memoire project-rdv-visio-distanciel.
+let refSessionReminderDone=false;
+function checkRefSessionReminderToday(){
+  if(refSessionReminderDone) return;
+  const s=REF_SESSIONS.find(x=>x.day===0 && (x.weekOffset||0)===0 && x.name==='Marc D.' && x.avecCoach);
+  if(!s) return;
+  refSessionReminderDone=true;
+  pushNotif('<svg class=ki><use href=#ki-bell /></svg>', trDyn('Reminder')+' — '+trDyn('Session with')+' Martin Dupont · '+hh(s.time), 'home');
 }
 // Si aujourd'hui n'est pas un jour choisi, cherche le prochain jour choisi dans les 7 jours à venir —
 // alimente le libellé de la carte "prochaine séance" (jour + délai) plutôt qu'un "Your next session"
@@ -14799,6 +14841,19 @@ const EN_FR = {
   "peak": "pic",
   "Free trial in progress": "Essai gratuit en cours",
   "Session with": "Séance avec",
+  "Reminder": "Rappel",
+  "Remote": "À distance",
+  "Location": "Lieu",
+  "At the centre": "Au centre",
+  "Video call": "Appel vidéo",
+  "No video call": "Sans appel vidéo",
+  "With video call": "Avec appel vidéo",
+  "Video": "Vidéo",
+  "Live data": "Données en direct",
+  "Prototype — no real video call yet.": "Prototype — pas encore de vrai appel vidéo.",
+  "Join by video": "Rejoindre en visio",
+  "Add to my calendar": "Ajouter à mon agenda",
+  "Elapsed": "Temps",
   "AT YOUR OWN PACE": "À TON RYTHME",
   "IN PROGRESS": "EN COURS",
   "For whom": "Pour qui",
@@ -20364,7 +20419,7 @@ function demarrerSessionNouveau(id){
   }).filter(Boolean);
   sessionActuelle = s;
   sessionRpeLog = [];
-  currentProgram = { titre: s.nom_marketing, exercices: list, duree: s.duree, objectifLabel: s.objectif.join(' · '), jours: currentProgram.jours, semaine: semaineActuelle, excluded: [], avecCoach: !!s.avecCoach };
+  currentProgram = { titre: s.nom_marketing, exercices: list, duree: s.duree, objectifLabel: s.objectif.join(' · '), jours: currentProgram.jours, semaine: semaineActuelle, excluded: [], avecCoach: !!s.avecCoach, lieu: s.lieu||'centre', visio: !!s.visio };
   sessCurrent = 1;
   // Trois niveaux (cf discussion Benjamin/DESIGN, remplace la coche par lancement) : la séance elle-
   // même peut dire non (shouldRunWarmup), sinon la préférence réglée une fois dans Mon profil
@@ -22958,17 +23013,43 @@ let sessionPickMode=null;
 // évite que le hook go() ne réinitialise csiUserId/csiSessionPick quand on REVIENT sur cet écran
 // après avoir choisi une séance (go() appelle resetCsi() sur CHAQUE entrée sur l'écran, sans ça).
 let csiSkipReset=false;
-let csiAttendance='solo';
+let csiAttendance='solo', csiLieu='centre', csiVisio=false;
 function selectCsiAttendance(el,val){
   csiAttendance=val;
   document.querySelectorAll('#calPickAttendanceChips .lib-chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
+  updateCalPickVisioVisibility();
+}
+// Lieu (au centre / à distance) et visio : la visio n'a de sens que si le référent est prévu
+// (avecCoach) ET que le lieu est à distance — cf commentaire HTML sur calPickVisioRow.
+function selectCsiLieu(el,val){
+  csiLieu=val;
+  document.querySelectorAll('#calPickLieuChips .lib-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  updateCalPickVisioVisibility();
+}
+function selectCsiVisio(el,val){
+  csiVisio=val;
+  document.querySelectorAll('#calPickVisioChips .lib-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function updateCalPickVisioVisibility(){
+  const row=document.getElementById('calPickVisioRow'); if(!row) return;
+  const show = csiLieu==='distance' && csiAttendance==='coach';
+  row.style.display = show ? 'block' : 'none';
+  if(!show){
+    csiVisio=false;
+    document.querySelectorAll('#calPickVisioChips .lib-chip').forEach(c=>c.classList.toggle('on', c.dataset.val==='off'));
+  }
 }
 function resetCsi(){
   csiStep=1; csiUserId=null; csiSessionPick=null; sessionPickMode=null; csiNoDate=false;
   csiChosenDay=null; csiChosenHeure=null; csiChosenWeekOffset=0; calendarPickMode=null; calendarAssignGi=null;
-  csiAttendance='solo';
+  csiAttendance='solo'; csiLieu='centre'; csiVisio=false;
   document.querySelectorAll('#calPickAttendanceChips .lib-chip').forEach(c=>c.classList.toggle('on', c.dataset.val==='solo'));
+  document.querySelectorAll('#calPickLieuChips .lib-chip').forEach(c=>c.classList.toggle('on', c.dataset.val==='centre'));
+  document.querySelectorAll('#calPickVisioChips .lib-chip').forEach(c=>c.classList.toggle('on', c.dataset.val==='off'));
+  updateCalPickVisioVisibility();
   const search=document.getElementById('csiSearch'); if(search) search.value='';
   renderCsiUserList();
   selectDureeChip('csi_duree',30);
@@ -23110,7 +23191,8 @@ function submitCsi(){
   const exoIds=[...csiSessionPick.exercices];
   const avecCoach = csiAttendance==='coach';
   const coachNoteTxt = (document.getElementById('calPickNote')||{}).value||'';
-  REF_SESSIONS.push({day:dayIdx, weekOffset: csiNoDate?0:csiChosenWeekOffset, time:heure, dur:duree, name:u.nom, type:'individuel', prog:theme, status:'planned', exercices:exoIds, avecCoach, coachNote:coachNoteTxt});
+  const lieu = csiLieu, visio = (csiLieu==='distance' && csiVisio);
+  REF_SESSIONS.push({day:dayIdx, weekOffset: csiNoDate?0:csiChosenWeekOffset, time:heure, dur:duree, name:u.nom, type:'individuel', prog:theme, status:'planned', exercices:exoIds, avecCoach, coachNote:coachNoteTxt, lieu, visio});
   // Seul p1 (Marc) a un espace "utilisateur" réellement navigable dans ce prototype — pour lui,
   // la séance doit aussi exister comme un vrai objet séance (origine 'referent'), pas seulement
   // comme une entrée d'agenda côté référent (REF_SESSIONS), sinon rien n'apparaît jamais côté patient.
@@ -23128,7 +23210,7 @@ function submitCsi(){
       exercices: exoIds,
       echauffement:false, retour_calme:false,
       description:'Séance individuelle assignée par ton référent.', tags:['Assignée'],
-      referent:'Martin Dupont', avecCoach, coachNote:coachNoteTxt
+      referent:'Martin Dupont', avecCoach, coachNote:coachNoteTxt, lieu, visio
     });
   }
   if(hist[hist.length-1]==='creation_session_individuelle') hist.pop();   // sinon la flèche retour depuis le calendrier retombe sur ce formulaire épuisé
@@ -23695,6 +23777,25 @@ function showModal(html){
   requestAnimationFrame(()=>m.classList.add('show'));
 }
 function closeModal(){ const m=document.getElementById('kmModal'); if(m) m.classList.remove('show'); }
+// Visio côté patient (maquette "Séance à distance", 18 sept.) : ouverte en tapant la bulle flottante
+// sur l'écran de séance (sessCoachVisioBubble). Prototype honnête — pas de vrai appel, le dit
+// explicitement (cf discussion, "avec des images si besoin") — micro/caméra ne sont pas branchés,
+// seul "Raccrocher" fait quelque chose de réel (ferme la fenêtre).
+function openPatientVisioModal(){
+  showModal(
+    '<div style="text-align:center;">'
+    +'<div style="border-radius:16px;overflow:hidden;background:linear-gradient(160deg,var(--bg3),var(--bg));padding:26px 16px;margin-bottom:14px;">'
+      +'<div style="width:60px;height:60px;border-radius:99px;background:var(--teal);color:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:19px;margin:0 auto 10px;" data-notranslate>MD</div>'
+      +'<div style="font-size:15px;font-weight:700;color:var(--white);" data-notranslate>Martin Dupont</div>'
+      +'<div style="font-size:11.5px;color:var(--teal);font-weight:700;margin-top:2px;">'+trDyn('Connected')+'</div>'
+    +'</div>'
+    +'<div style="font-size:11.5px;color:var(--gray);line-height:1.5;margin-bottom:16px;">'+trDyn('Prototype — no real video call yet.')+'</div>'
+    +'<div style="display:flex;justify-content:center;gap:12px;">'
+      +'<button class="sess-stop" style="width:44px;height:44px;border-radius:99px;padding:0;background:var(--bg3);color:var(--white);"><svg class=ki><use href=#ki-mic /></svg></button>'
+      +'<button class="sess-stop" style="width:44px;height:44px;border-radius:99px;padding:0;background:var(--red);color:#fff;" onclick="closeModal()"><svg class=ki><use href=#ki-phone-end /></svg></button>'
+    +'</div>'
+  );
+}
 // Éditeur de note générique — remplace le chat référent<->utilisateur (retiré) par des notes ciblées
 // sur une séance, un exercice, ou un feedback post-séance précis. Un seul patron réutilisé 3x plutôt
 // que 3 modales quasi identiques.
@@ -24940,6 +25041,7 @@ function renderCalendar(){
     fab=document.getElementById('calFab'), bnav=document.getElementById('calBnav'),
     extra=document.getElementById('calPickExtra'), pickFooter=document.getElementById('calPickFooter'),
     attTitle=document.getElementById('calPickAttendanceTitle'), attChips=document.getElementById('calPickAttendanceChips'),
+    lieuTitle=document.getElementById('calPickLieuTitle'), lieuChips=document.getElementById('calPickLieuChips'),
     primaryBtn=document.getElementById('calPickPrimaryBtn');
   const wizardMode = calendarPickMode==='csi' || calendarPickMode==='csc';
   if(primaryBtn){
@@ -24958,6 +25060,9 @@ function renderCalendar(){
   // Autonome/Avec le coach n'a de sens que côté individuel.
   if(attTitle) attTitle.style.display = calendarPickMode==='csi' ? 'block' : 'none';
   if(attChips) attChips.style.display = calendarPickMode==='csi' ? 'flex' : 'none';
+  if(lieuTitle) lieuTitle.style.display = calendarPickMode==='csi' ? 'block' : 'none';
+  if(lieuChips) lieuChips.style.display = calendarPickMode==='csi' ? 'flex' : 'none';
+  if(calendarPickMode==='csi') updateCalPickVisioVisibility(); else { const vr=document.getElementById('calPickVisioRow'); if(vr) vr.style.display='none'; }
   if(banner){
     if(calendarPickMode==='csi' && csiSessionPick){
       const u=PATIENTS.find(p=>p.id===csiUserId);
@@ -25135,7 +25240,20 @@ function calSessionPop(gi){
   const attendanceTag = (!teal && s.avecCoach!==undefined)
     ? '<span class="tag" style="margin-top:8px;display:inline-block;'+(s.avecCoach?'background:rgba(var(--teal-rgb),.12);color:var(--teal);':'background:var(--bg3);color:var(--gray2);')+'">'+(s.avecCoach?'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M15.5,8.5l-2,5-5,2,2-5,5-2Z /></svg> '+trDyn('With the coach'):'<svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=8 r=4 /><path d=M4.5,20c.6-4.2,3.6-7,7.5-7s6.9,2.8,7.5,7 /></svg> '+trDyn('Autonomous'))+'</span>'
     : '';
+  // Lieu (maquette "Séance à distance", 18 sept.) : pas de tag si non renseigné (rétro-compat sessions
+  // créées avant cet ajout, cf lieu absent sur les anciennes entrées REF_SESSIONS).
+  const lieuTag = (!teal && s.lieu==='distance')
+    ? '<span class="tag" style="margin-top:8px;margin-left:6px;display:inline-block;background:var(--bg3);color:var(--gray2);"><svg class="ki" style="width:1em;height:1em;vertical-align:-0.125em;"><use href="#ki-home"/></svg> '+trDyn('Remote')+'</span>'
+    : '';
   const noteBlock = s.coachNote ? '<div class="coach-tip" style="margin-top:10px;text-align:left;"><span class="ct-ic"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><rect x=5 y=3.5 width=14 height=17 rx=2 /><path d=M8.5,9h7 /><path d=M8.5,13h7 /><path d=M8.5,17h4 /></svg></span><span>'+s.coachNote+'</span></div>' : '';
+  // Visio (prototype, pas de vrai appel) : seulement si le référent est prévu ET la visio proposée.
+  const visioBtn = (!teal && s.avecCoach && s.visio)
+    ? '<button class="btn-outline" style="margin-top:10px;width:100%;" onclick="closeModal();openReferentVisioModal('+gi+')"><svg class="ki"><use href="#ki-video"/></svg> '+trDyn('Join by video')+'</button>'
+    : '';
+  // .ics : uniquement si un vrai créneau (jour+heure) existe — pas pour les séances "sans date".
+  const icsBtn = (s.day!==null && s.time)
+    ? '<button class="btn-ghost" style="margin-top:6px;width:100%;color:var(--gray2);" onclick="downloadSessionIcs('+gi+')"><svg class="ki"><use href="#ki-calendar"/></svg> '+trDyn('Add to my calendar')+'</button>'
+    : '';
   // "N people"/"With the coach"/statut composés avec du contenu dynamique : construits directement
   // selon currentLang, jamais via sweepTranslate sur un fragment (même piège i18n déjà rencontré).
   const nameTxt = teal ? trDyn(s.name)+' ('+s.pers+(currentLang==='fr'?' personnes)':' people)') : trDyn(s.name);
@@ -25146,8 +25264,78 @@ function calSessionPop(gi){
     +'<div style="font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px;">'+nameTxt+'</div>'
     +'<div style="font-size:14px;color:var(--gray2);">'+s.prog+'</div>'
     +'<div style="font-size:13px;color:var(--gray);margin-top:10px;"><svg viewBox=0,0,24,24 fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round style=width:1em;height:1em;vertical-align:-0.125em;display:inline-block;flex-shrink:0;><circle cx=12 cy=12 r=9 /><path d=M12,7v5l3.5,2 /></svg> '+hh(s.time)+' · '+s.dur+' · '+trDyn(st.t)+'</div>'
-    +attendanceTag+noteBlock
-    +btn+'<button class="btn-ghost" style="margin-top:6px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
+    +attendanceTag+lieuTag+noteBlock
+    +visioBtn+btn+icsBtn+'<button class="btn-ghost" style="margin-top:6px;width:100%;color:var(--gray2);" onclick="closeModal()">'+trDyn('Close')+'</button>');
+}
+// Visio référent (maquette "Séance à distance", 18 sept.) : bascule Visio/Live — le référent voit
+// toujours les deux (cf discussion, "il voit le live en même temps"), le toggle ne fait que changer
+// lequel domine. Chiffres en direct non branchés à un vrai flux (aucun canal temps réel entre
+// appareils dans ce prototype, cf commentaire sur collectifSession plus haut) — valeurs de démo,
+// assumées comme telles.
+function openReferentVisioModal(gi){
+  const s=REF_SESSIONS[gi]; if(!s) return;
+  const initials=(s.name||'').split(' ').map(w=>w[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+  showModal(
+    '<div style="font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;margin-bottom:6px;">'+trDyn('Video call')+'</div>'
+    +'<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:14px;" data-notranslate>'+s.name+'</div>'
+    +'<div style="display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:3px;gap:3px;margin-bottom:12px;">'
+      +'<div id="refVisioSegVisio" style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-weight:700;font-size:12px;background:var(--teal);color:var(--bg);cursor:pointer;" onclick="refVisioSetMode(\'visio\')">'+trDyn('Video')+'</div>'
+      +'<div id="refVisioSegLive" style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-weight:700;font-size:12px;color:var(--gray2);cursor:pointer;" onclick="refVisioSetMode(\'live\')">'+trDyn('Live data')+'</div>'
+    +'</div>'
+    +'<div id="refVisioStageVideo" style="position:relative;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,var(--bg3),var(--bg));min-height:160px;display:flex;flex-direction:column;justify-content:flex-end;">'
+      +'<div style="position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.35);padding:4px 9px 4px 5px;border-radius:99px;">'
+        +'<div style="width:20px;height:20px;border-radius:99px;background:var(--teal);color:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:9px;" data-notranslate>'+initials+'</div>'
+        +'<span style="font-size:11px;font-weight:700;color:#fff;" data-notranslate>'+s.name+'</span>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;padding:8px;">'
+        +'<div style="flex:1;background:rgba(10,10,15,.72);border-radius:10px;padding:6px 4px;text-align:center;"><div style="font-family:var(--font-head);font-weight:700;font-size:13px;color:#fff;">62%</div><div style="font-size:8.5px;color:var(--gray);text-transform:uppercase;">'+trDyn('Gauge')+'</div></div>'
+        +'<div style="flex:1;background:rgba(10,10,15,.72);border-radius:10px;padding:6px 4px;text-align:center;"><div style="font-family:var(--font-head);font-weight:700;font-size:13px;color:#fff;">14</div><div style="font-size:8.5px;color:var(--gray);text-transform:uppercase;">'+trDyn('Reps')+'</div></div>'
+        +'<div style="flex:1;background:rgba(10,10,15,.72);border-radius:10px;padding:6px 4px;text-align:center;"><div style="font-family:var(--font-head);font-weight:700;font-size:13px;color:#fff;">04:32</div><div style="font-size:8.5px;color:var(--gray);text-transform:uppercase;">'+trDyn('Elapsed')+'</div></div>'
+      +'</div>'
+    +'</div>'
+    +'<div id="refVisioStageLive" style="display:none;text-align:center;">'
+      +'<svg width="116" height="116" viewBox="0 0 120 120" style="margin:4px auto;display:block;">'
+        +'<circle cx="60" cy="60" r="49" fill="none" stroke="var(--border)" stroke-width="10"/>'
+        +'<circle cx="60" cy="60" r="49" fill="none" stroke="var(--teal)" stroke-width="10" stroke-linecap="round" stroke-dasharray="307.9" stroke-dashoffset="117" transform="rotate(-90 60 60)"/>'
+        +'<text x="60" y="66" text-anchor="middle" font-family="var(--font-head)" font-weight="800" font-size="22" fill="var(--white)">62%</text>'
+      +'</svg>'
+      +'<div style="display:flex;gap:6px;margin-top:2px;">'
+        +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 4px;"><div style="font-family:var(--font-head);font-weight:700;font-size:14px;color:var(--white);">14</div><div style="font-size:9px;color:var(--gray);text-transform:uppercase;">'+trDyn('Reps')+'</div></div>'
+        +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 4px;"><div style="font-family:var(--font-head);font-weight:700;font-size:14px;color:var(--white);">04:32</div><div style="font-size:9px;color:var(--gray);text-transform:uppercase;">'+trDyn('Elapsed')+'</div></div>'
+      +'</div>'
+    +'</div>'
+    +'<div style="font-size:11px;color:var(--gray);text-align:center;margin:12px 0;">'+trDyn('Prototype — no real video call yet.')+'</div>'
+    +'<div style="display:flex;justify-content:center;gap:12px;margin-bottom:14px;">'
+      +'<button class="sess-stop" style="width:42px;height:42px;border-radius:99px;padding:0;background:var(--bg3);color:var(--white);"><svg class=ki><use href=#ki-mic /></svg></button>'
+      +'<button class="sess-stop" style="width:42px;height:42px;border-radius:99px;padding:0;background:var(--red);color:#fff;" onclick="closeModal()"><svg class=ki><use href=#ki-phone-end /></svg></button>'
+    +'</div>'
+    +'<button class="btn btn-orange" style="width:100%;" onclick="closeModal();startReferentSession('+gi+')">'+trDyn('Start the session →')+'</button>'
+  );
+}
+function refVisioSetMode(mode){
+  const v=document.getElementById('refVisioStageVideo'), l=document.getElementById('refVisioStageLive'),
+    segV=document.getElementById('refVisioSegVisio'), segL=document.getElementById('refVisioSegLive');
+  if(v) v.style.display = mode==='visio' ? 'flex' : 'none';
+  if(l) l.style.display = mode==='live' ? 'block' : 'none';
+  if(segV){ segV.style.background = mode==='visio' ? 'var(--teal)' : 'transparent'; segV.style.color = mode==='visio' ? 'var(--bg)' : 'var(--gray2)'; }
+  if(segL){ segL.style.background = mode==='live' ? 'var(--teal)' : 'transparent'; segL.style.color = mode==='live' ? 'var(--bg)' : 'var(--gray2)'; }
+}
+// Export .ics (maquette "Rendez-vous kinmio", 18 sept.) : seule des 3 idées à ne demander aucune
+// infra externe (pas d'OAuth) — fichier généré et téléchargé localement, cf discussion "coût réel".
+function downloadSessionIcs(gi){
+  const s=REF_SESSIONS[gi]; if(!s || s.day===null || !s.time) return;
+  const dt=refCalDateObj(s.weekOffset||0, s.day);
+  const parts=(s.time||'09:00').split(':'); const hh_=parseInt(parts[0])||9, mm_=parseInt(parts[1])||0;
+  const start=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate(),hh_,mm_);
+  const durMin=parseInt(s.dur)||30;
+  const end=new Date(start.getTime()+durMin*60000);
+  const pad=n=>String(n).padStart(2,'0');
+  const fmt=d=>d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+'00Z';
+  const ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//kinmio//session//FR\r\nBEGIN:VEVENT\r\nUID:ses-'+gi+'-'+Date.now()+'@kinmio\r\nDTSTAMP:'+fmt(new Date())+'\r\nDTSTART:'+fmt(start)+'\r\nDTEND:'+fmt(end)+'\r\nSUMMARY:kinmio — '+(s.prog||s.name)+'\r\nDESCRIPTION:'+trDyn('Session with')+' '+s.name+'\r\nEND:VEVENT\r\nEND:VCALENDAR';
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='kinmio-seance.ics'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 // Alias : même modale que le bouton "Assigner" de l'Accueil (cf discussion — le FAB du calendrier
 // n'offrait avant que Individuelle/Collective, jamais Programme, sans raison de diverger). Un seul
