@@ -1508,6 +1508,26 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
           <div class="km-switch on" onclick="this.classList.toggle('on')"><div class="km-knob"></div></div>
         </div>
       </div>
+      <!-- Agenda (maquette "Rendez-vous kinmio", 18 sept.) : même patron que la section Connexions santé
+           (health-card + km-switch + toggleX) — prototype visuel, aucune vraie connexion OAuth. Le site
+           est 100% statique (GitHub Pages), une vraie synchro Google/Outlook demanderait des identifiants
+           développeur réels + probablement un petit backend pour l'échange de token — pas fait ici, cf
+           discussion "on s'en tient au prototype". -->
+      <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Calendar</div>
+      <div class="health-card">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="health-ic" style="background:#fff;padding:0;border-radius:50%;overflow:hidden;"><svg width="44" height="44" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 12 L12 0 A12 12 0 0 1 22.39 6 Z"/><path fill="#34A853" d="M12 12 L22.39 6 A12 12 0 0 1 17.66 21.2 Z"/><path fill="#FBBC05" d="M12 12 L17.66 21.2 A12 12 0 0 1 3.6 18.4 Z"/><path fill="#EA4335" d="M12 12 L3.6 18.4 A12 12 0 0 1 12 0 Z"/></svg></div>
+          <div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--white);">Google Calendar</div><div style="font-size:12px;margin-top:2px;" id="hs_calGoogle">Not connected</div></div>
+          <div class="km-switch" id="sw_calGoogle" onclick="toggleCalSync('calGoogle',this)"><div class="km-knob"></div></div>
+        </div>
+      </div>
+      <div class="health-card">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="health-ic" style="background:#28A8EA;padding:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-head);font-weight:800;font-size:19px;">O</div>
+          <div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--white);">Outlook</div><div style="font-size:12px;margin-top:2px;" id="hs_calOutlook">Not connected</div></div>
+          <div class="km-switch" id="sw_calOutlook" onclick="toggleCalSync('calOutlook',this)"><div class="km-knob"></div></div>
+        </div>
+      </div>
       <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px;">Coach voice</div>
       <div style="background:var(--bg2);border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);">
@@ -14854,6 +14874,7 @@ const EN_FR = {
   "Join by video": "Rejoindre en visio",
   "Add to my calendar": "Ajouter à mon agenda",
   "Elapsed": "Temps",
+  "(demo)": "(démo)",
   "AT YOUR OWN PACE": "À TON RYTHME",
   "IN PROGRESS": "EN COURS",
   "For whom": "Pour qui",
@@ -23724,6 +23745,23 @@ function updateHealthUI(){
   });
   const hb=document.getElementById('sessHR'); if(hb && !health.appleWatch) hb.style.display='none';
 }
+// Agenda (maquette "Rendez-vous kinmio", 18 sept.) : même mécanique que toggleHealth/updateHealthUI
+// juste au-dessus — état local uniquement, aucun vrai appel OAuth (cf commentaire HTML sur le bloc
+// Calendar du profil).
+let calSync={calGoogle:false, calOutlook:false};
+function toggleCalSync(key,el){
+  calSync[key]=!calSync[key];
+  el.classList.toggle('on',calSync[key]);
+  const names={calGoogle:'Google Calendar',calOutlook:'Outlook'};
+  toast(trDyn(calSync[key]?'Connected':'Not connected')+' — '+names[key]+' '+trDyn('(demo)'));
+  updateCalSyncUI();
+}
+function updateCalSyncUI(){
+  ['calGoogle','calOutlook'].forEach(k=>{
+    const s=document.getElementById('hs_'+k); if(s){ s.textContent=trDyn(calSync[k]?'Connected':'Not connected'); s.style.color=calSync[k]?'var(--teal)':'var(--gray)'; }
+    const sw=document.getElementById('sw_'+k); if(sw) sw.classList.toggle('on',calSync[k]);
+  });
+}
 
 // 8.4 FC live (Apple Watch, simulée)
 function startHR(){
@@ -23776,7 +23814,25 @@ function showModal(html){
   sweepTranslate(m, currentLang);
   requestAnimationFrame(()=>m.classList.add('show'));
 }
-function closeModal(){ const m=document.getElementById('kmModal'); if(m) m.classList.remove('show'); }
+// _kmVisioStream : caméra locale ouverte par un des modals visio (patient ou référent, cf
+// openPatientVisioModal/openReferentVisioModal). Coupée ici, dans closeModal, plutôt que dans chaque
+// bouton "Raccrocher" — un modal se ferme aussi par la croix ou un tap sur le fond, il faut que la
+// caméra s'éteigne dans tous les cas (vie privée), pas seulement sur le bouton rouge.
+let _kmVisioStream=null;
+function closeModal(){ const m=document.getElementById('kmModal'); if(m) m.classList.remove('show'); if(_kmVisioStream){ _kmVisioStream.getTracks().forEach(t=>t.stop()); _kmVisioStream=null; } }
+// Prévisualisation caméra réelle, gratuite (API navigateur, aucun compte/coût) — montre TON propre
+// flux, jamais celui de l'autre personne (aucun canal entre appareils dans ce prototype, cf
+// discussion "coût réel" / POC TV). Échoue silencieusement si refusée/indisponible : le placeholder
+// visuel du modal reste affiché, pas d'erreur montrée à l'utilisateur.
+function attachVisioSelfCam(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+  navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(stream=>{
+    const v=document.getElementById('kmVisioSelfCam');
+    if(!v){ stream.getTracks().forEach(t=>t.stop()); return; }   // modal déjà refermé pendant l'attente du consentement
+    _kmVisioStream=stream;
+    v.srcObject=stream;
+  }).catch(()=>{});
+}
 // Visio côté patient (maquette "Séance à distance", 18 sept.) : ouverte en tapant la bulle flottante
 // sur l'écran de séance (sessCoachVisioBubble). Prototype honnête — pas de vrai appel, le dit
 // explicitement (cf discussion, "avec des images si besoin") — micro/caméra ne sont pas branchés,
@@ -23784,10 +23840,12 @@ function closeModal(){ const m=document.getElementById('kmModal'); if(m) m.class
 function openPatientVisioModal(){
   showModal(
     '<div style="text-align:center;">'
-    +'<div style="border-radius:16px;overflow:hidden;background:linear-gradient(160deg,var(--bg3),var(--bg));padding:26px 16px;margin-bottom:14px;">'
+    +'<div style="position:relative;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,var(--bg3),var(--bg));padding:26px 16px;margin-bottom:14px;">'
       +'<div style="width:60px;height:60px;border-radius:99px;background:var(--teal);color:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:19px;margin:0 auto 10px;" data-notranslate>MD</div>'
       +'<div style="font-size:15px;font-weight:700;color:var(--white);" data-notranslate>Martin Dupont</div>'
       +'<div style="font-size:11.5px;color:var(--teal);font-weight:700;margin-top:2px;">'+trDyn('Connected')+'</div>'
+      // Ta propre caméra, en vrai (cf attachVisioSelfCam) — jamais celle de Martin, honnêteté du prototype.
+      +'<div style="position:absolute;bottom:10px;right:10px;width:50px;height:66px;border-radius:10px;overflow:hidden;background:var(--bg3);border:1px solid var(--border);"><video id="kmVisioSelfCam" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video></div>'
     +'</div>'
     +'<div style="font-size:11.5px;color:var(--gray);line-height:1.5;margin-bottom:16px;">'+trDyn('Prototype — no real video call yet.')+'</div>'
     +'<div style="display:flex;justify-content:center;gap:12px;">'
@@ -23795,6 +23853,7 @@ function openPatientVisioModal(){
       +'<button class="sess-stop" style="width:44px;height:44px;border-radius:99px;padding:0;background:var(--red);color:#fff;" onclick="closeModal()"><svg class=ki><use href=#ki-phone-end /></svg></button>'
     +'</div>'
   );
+  attachVisioSelfCam();
 }
 // Éditeur de note générique — remplace le chat référent<->utilisateur (retiré) par des notes ciblées
 // sur une séance, un exercice, ou un feedback post-séance précis. Un seul patron réutilisé 3x plutôt
@@ -25287,6 +25346,9 @@ function openReferentVisioModal(gi){
         +'<div style="width:20px;height:20px;border-radius:99px;background:var(--teal);color:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:9px;" data-notranslate>'+initials+'</div>'
         +'<span style="font-size:11px;font-weight:700;color:#fff;" data-notranslate>'+s.name+'</span>'
       +'</div>'
+      // Ta propre caméra, en vrai (cf attachVisioSelfCam) — la vignette Marc D. reste un placeholder,
+      // aucun flux distant n'existe dans ce prototype (honnêteté, même règle que côté patient).
+      +'<div style="position:absolute;top:8px;right:8px;width:44px;height:58px;border-radius:9px;overflow:hidden;background:rgba(10,10,15,.72);"><video id="kmVisioSelfCam" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video></div>'
       +'<div style="display:flex;gap:6px;padding:8px;">'
         +'<div style="flex:1;background:rgba(10,10,15,.72);border-radius:10px;padding:6px 4px;text-align:center;"><div style="font-family:var(--font-head);font-weight:700;font-size:13px;color:#fff;">62%</div><div style="font-size:8.5px;color:var(--gray);text-transform:uppercase;">'+trDyn('Gauge')+'</div></div>'
         +'<div style="flex:1;background:rgba(10,10,15,.72);border-radius:10px;padding:6px 4px;text-align:center;"><div style="font-family:var(--font-head);font-weight:700;font-size:13px;color:#fff;">14</div><div style="font-size:8.5px;color:var(--gray);text-transform:uppercase;">'+trDyn('Reps')+'</div></div>'
@@ -25311,6 +25373,7 @@ function openReferentVisioModal(gi){
     +'</div>'
     +'<button class="btn btn-orange" style="width:100%;" onclick="closeModal();startReferentSession('+gi+')">'+trDyn('Start the session →')+'</button>'
   );
+  attachVisioSelfCam();
 }
 function refVisioSetMode(mode){
   const v=document.getElementById('refVisioStageVideo'), l=document.getElementById('refVisioStageLive'),
