@@ -10330,17 +10330,30 @@ function validerRattrapage(){
   window._rattrapageEnCours = false;
   if(jours.length>1) toast(trDyn('Sessions planned'));
 }
-function assignPlannedDay(dateTimestamp, source){
+// Étape heure (18 sept.) avant assignPlannedDay — seul point d'entrée qui la pose (cf commentaire
+// sur assignPlannedDay). Input natif type=time, même choix que côté référent (calPickHeure) : le
+// clavier/molette du système fait le travail, pas de composant maison à maintenir.
+function promptPlanTime(dateTimestamp, source){
+  const dateLbl=new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'long'});
+  showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:4px;">'+dateLbl+'</div>'
+    +'<div class="ps-title" style="margin-bottom:6px;margin-top:10px;">'+trDyn('Time')+' <span style="color:var(--gray);font-weight:400;">'+trDyn('(optional)')+'</span></div>'
+    +'<input type="time" id="planTimeInp" class="pres-inp" style="text-align:left;margin-bottom:16px;" value="18:00">'
+    +'<button class="btn btn-brand-fixed" style="width:100%;" onclick="assignPlannedDay('+dateTimestamp+',\''+source+'\',(document.getElementById(\'planTimeInp\')||{}).value||null)">'+trDyn('Confirm')+'</button>');
+}
+// heure (18 sept.) : optionnelle, seulement posée par promptPlanTime() depuis le point d'entrée le
+// plus délibéré (calendrier Progress, "Plan a session here") — jamais sur les flux rapides
+// (rattrapage multi-jours, déplacer) qui restent volontairement un seul tap.
+function assignPlannedDay(dateTimestamp, source, heure){
   userPlannedSessions = userPlannedSessions.filter(p=>p.date!==dateTimestamp);
-  userPlannedSessions.push({date:dateTimestamp, source:source});
+  userPlannedSessions.push({date:dateTimestamp, source:source, heure: heure||null});
   checkPlannedNotifToday();
   refreshHomeSeanceZones();
   if(document.getElementById('progCalGrid')){ renderProgCalendar(); selectProgCalDay(new Date(dateTimestamp).getFullYear(), new Date(dateTimestamp).getMonth(), new Date(dateTimestamp).getDate()); }
-  if(!window._rattrapageEnCours) toast(trDyn('Session planned'));
+  if(!window._rattrapageEnCours) toast(trDyn('Session planned')+(heure?' · '+heure:''));
   // L'historique du Coach IA enregistrait le check-in, l'ajustement sur signal, la progression de
   // niveau et les seances faites — mais pas les deplacements de seance, qui sont pourtant la decision
   // la plus frequente et la plus utile a se rappeler ("pourquoi je n'ai pas fait mardi ?").
-  logCoachHistory({type:'plan', theme:'planification', message: trDyn(source==='catchup'?'Catch-up session planned for':'Session planned for')+' '+new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'short'})});
+  logCoachHistory({type:'plan', theme:'planification', message: trDyn(source==='catchup'?'Catch-up session planned for':'Session planned for')+' '+new Date(dateTimestamp).toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'short'})+(heure?' · '+heure:'')});
   // Rattrapage : la modale reste ouverte et se re-rend avec les jours restants (cf discussion "pouvoir
   // sélectionner autant de séances à rattraper que nécessaire") — avant, elle se fermait après un seul
   // choix, obligeant à rouvrir l'alerte pour chaque jour manqué. openObjectifPaceInfo recalcule
@@ -10373,7 +10386,7 @@ function releaseDay(dateTimestamp){
 function checkPlannedNotifToday(){
   const today0=new Date(); today0.setHours(0,0,0,0);
   const due=userPlannedSessions.find(p=>p.date===today0.getTime() && !p._notified);
-  if(due){ due._notified=true; pushNotif('<svg class=ki><use href=#ki-bell /></svg>', trDyn('You planned a session for today — let’s go!'), 'home'); }
+  if(due){ due._notified=true; pushNotif('<svg class=ki><use href=#ki-bell /></svg>', trDyn('You planned a session for today — let’s go!')+(due.heure?' · '+due.heure:''), 'home'); }
 }
 // Rappel séance avec le référent (maquette "Rendez-vous kinmio", 18 sept.) — même principe que
 // checkPlannedNotifToday juste au-dessus : une seule notif au premier passage sur Home le jour J,
@@ -12330,15 +12343,16 @@ function selectProgCalDay(year, month, day){
     return;
   }
   const isPlanned = statut==='planned';
+  const plannedEntry = isPlanned ? userPlannedSessions.find(p=>p.date===dateObj.getTime()) : null;
   el.innerHTML = '<div class="card-sm"><div style="font-size:12px;color:var(--gray);">'+dateLbl+'</div>'
     + (isPlanned
-      ? '<div style="font-size:13px;color:var(--brand-fixed);margin-top:4px;font-weight:700;">'+trDyn('Session planned')+'</div>'
+      ? '<div style="font-size:13px;color:var(--brand-fixed);margin-top:4px;font-weight:700;">'+trDyn('Session planned')+(plannedEntry && plannedEntry.heure ? ' · '+plannedEntry.heure : '')+'</div>'
         +'<div style="display:flex;gap:8px;margin-top:10px;">'
           +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="startMovePlannedDay('+dateObj.getTime()+')">'+trDyn('Move')+'</button>'
           +'<button class="btn btn-outline" style="flex:1;padding:9px;font-size:12.5px;" onclick="confirmRemovePlanned('+dateObj.getTime()+')">'+trDyn('Remove')+'</button>'
         +'</div>'
       : '<div style="font-size:13px;color:var(--gray);margin-top:4px;">'+trDyn('No session that day')+'</div>'
-        +'<button class="btn btn-brand-fixed btn-sm" style="width:100%;margin-top:10px;" onclick="assignPlannedDay('+dateObj.getTime()+',\'self\')">'+trDyn('Plan a session here')+'</button>')
+        +'<button class="btn btn-brand-fixed btn-sm" style="width:100%;margin-top:10px;" onclick="promptPlanTime('+dateObj.getTime()+',\'self\')">'+trDyn('Plan a session here')+'</button>')
     +'</div>';
 }
 // Historique unifié (self ET coach) : voir renderProgHistoryList() plus bas, qui a fusionné cette
@@ -23138,7 +23152,11 @@ function pickCalendarDay(dayIdx){
   showModal('<div style="font-size:17px;font-weight:800;color:var(--white);margin-bottom:4px;">'+dt.toLocaleDateString(locale,{weekday:'short',day:'numeric',month:'short'})+'</div>'
     +'<div style="font-size:13px;color:var(--gray);margin-bottom:14px;">'+pickedName+'</div>'
     +'<div class="ps-title" style="margin-bottom:6px;">'+trDyn('Time')+'</div>'
-    +'<input type="text" id="calPickHeure" class="pres-inp" style="text-align:left;margin-bottom:16px;" placeholder="e.g. 18:00">'
+    // Vrai sélecteur d'heure (18 sept., remplace le champ texte libre "e.g. 18:00") : input natif plutôt
+    // qu'un composant maison — le clavier/molette du système fait le travail, aucun risque de format
+    // invalide (l'ancien champ texte acceptait n'importe quoi, confirmCalendarPick() imposait juste un
+    // repli à 18:00 si vide).
+    +'<input type="time" id="calPickHeure" class="pres-inp" style="text-align:left;margin-bottom:16px;" value="18:00">'
     +'<button class="btn btn-orange" onclick="confirmCalendarPick('+dayIdx+')">'+trDyn('Confirm')+'</button>');
 }
 // Mode 'assign' (cf startAssignDateCalendarPick) : on ne fait qu'ajouter une date à une séance déjà
