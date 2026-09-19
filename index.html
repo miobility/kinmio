@@ -103,6 +103,10 @@ button,input,select,textarea{font-family:inherit;}
 --navy-border:#2A2A4A;
 --dim:#444466;
 --muted-rgb:102,102,136;
+/* Relief mode clair (19 sept.) : aucune ombre en sombre — la carte se détache déjà du fond quasi-noir
+   par la seule différence bg2/bg3, l'ombre n'y ajoutait rien à l'essai (maquette "kinmio — relief en
+   mode clair"). Redéfini uniquement dans :root[data-theme="light"] ci-dessous. */
+--shadow-card:none;
 }
 /* Mode clair — ne redéfinit QUE les tokens de surface/texte (bg/white/gray/border). L'accent
    et les 3 états (--orange, --red, --vigilance, --teal) restent identiques dans les deux modes :
@@ -146,6 +150,12 @@ button,input,select,textarea{font-family:inherit;}
 --muted:#8A89A0;
 --muted-rgb:138,137,160;
 --dim:#B5B4C4;
+/* Relief mode clair (19 sept., maquette "kinmio — relief en mode clair" validée) : --bg2 (blanc) sur
+   --bg (#F7F7F8) ne fait qu'~1% de différence de luminosité — la bordure seule ne suffisait pas à
+   détacher une carte du fond (le cas le plus net : refAttentionStats, posée SANS bordure du tout).
+   Ombre neutre à deux passes (bord net + diffusion large), jamais assez marquée pour lire "carte
+   flottante" — cf réglage en direct de la maquette pour la justification des valeurs. */
+--shadow-card:0 1px 2px rgba(20,20,25,.036), 0 16px 32px -5px rgba(20,20,25,.072);
 }
 /* splash affiche le logo à même var(--bg) (pas de vidéo/overlay derrière, contrairement
    à l'écran d'entrée) — en mode clair, --bg devient un fond clair et le "kin" en blanc natif du
@@ -316,8 +326,8 @@ body.demo-on .demo-only{display:inline-flex!important;}
 .icon-btn::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%;}
 
 /* CARDS */
-.card{background:var(--bg2);border-radius:20px;padding:18px;border:1px solid var(--border);}
-.card-sm{background:var(--bg2);border-radius:16px;padding:14px;border:1px solid var(--border);}
+.card{background:var(--bg2);border-radius:20px;padding:18px;border:1px solid var(--border);box-shadow:var(--shadow-card);}
+.card-sm{background:var(--bg2);border-radius:16px;padding:14px;border:1px solid var(--border);box-shadow:var(--shadow-card);}
 /* Stats — Members hero card */
 .mem-card{display:flex;align-items:center;gap:16px;}
 .mem-hero{flex-shrink:0;padding-right:16px;border-right:1px solid var(--border);}
@@ -917,7 +927,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 @keyframes beat{0%,100%{transform:scale(1)}30%{transform:scale(1.28)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes splashPulse{0%,100%{transform:scale(.85);opacity:.6;}50%{transform:scale(1.15);opacity:1;}}
-.health-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
+.health-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow-card);}
 .health-ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 
 /* ===== MODAL / MINI POPUP ===== */
