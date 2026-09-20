@@ -5442,11 +5442,14 @@ const SESSIONS = [
 // le programme qu'on voyait. Regle desormais tenue sur tout l'onboarding : PHOTO = une position du
 // corps (elle enseigne quelque chose qu'un mot ne montre pas), ICONE = tout le reste.
 // Les ic: d'origine etaient des icones de BADGE (horloge, serie, semaine, sans-faute) : sans rapport.
+// Libellés alignés sur la décision SITE WEB du 20 sept. (verbes de conviction, pas de thématiques) —
+// même règle de nommage des rayons posée le 12 sept. dans cette conversation ("Gagner en force, pas
+// Renforcement", cf project-objectifs-programmes). Clés techniques inchangées, seuls lbl/sous changent.
 const PROGRAMME_OBJECTIFS = [
-  { key:'endurance',    lbl:'Cardio endurance', sous:'Hold out longer, get your breath back',   ic:'ki-ob-pulse' },
-  { key:'renforcement', lbl:'Muscle strength',  sous:'Build strength, over time',               ic:'ki-ob-dumbbell' },
-  { key:'tonicite',     lbl:'Tone',             sous:'Stay active without chasing performance', ic:'ki-ob-rings' },
-  { key:'reprise',      lbl:'Gentle return',    sous:'Come back after a break, without forcing', ic:'ki-mobility' }
+  { key:'endurance',    lbl:'Get your breath back', sous:'String your reps together without stopping, and recover faster.', ic:'ki-ob-pulse' },
+  { key:'renforcement', lbl:'Build strength',       sous:'Lift, carry, push more than before.',                             ic:'ki-ob-dumbbell' },
+  { key:'tonicite',     lbl:'Get toned',            sous:'Firm, enduring muscle, without chasing load. And the shape that comes with it.', ic:'ki-ob-rings' },
+  { key:'reprise',      lbl:'Ease back in',         sous:'After a break: start low, build slowly.',                        ic:'ki-mobility' }
 ];
 function objectifLabel(k){ const o=PROGRAMME_OBJECTIFS.find(x=>x.key===k); return o?trDyn(o.lbl):k; }
 const PROGRAMMES = [
@@ -14457,7 +14460,7 @@ const EN_FR = {
   "No challenge joined yet.": "Aucun défi rejoint pour l'instant.",
   "One move, two screens, same minute": "Un mouvement, deux écrans, la même minute",
   "See my whole programme": "Voir tout mon programme",
-  "Cardio endurance": "Endurance cardio",
+  "Get your breath back": "Retrouver du souffle",
   "Your programme is waiting for you": "Ton programme t'attend",
   "Nothing to work around": "Rien à ménager",
   "Your free trial has ended": "Ton essai est terminé",
@@ -14480,15 +14483,15 @@ const EN_FR = {
   "Your knees": "Les genoux",
   "Your wrists": "Les poignets",
   "Jumping": "Les sauts",
-  "Hold out longer, get your breath back": "Tenir plus longtemps, le souffle qui revient",
-  "Build strength, over time": "Gagner en force, sur la durée",
-  "Stay active without chasing performance": "Rester actif sans chercher la performance",
-  "Come back after a break, without forcing": "Revenir après une pause, sans forcer",
+  "String your reps together without stopping, and recover faster.": "Enchaîner sans s'arrêter, et récupérer plus vite.",
+  "Lift, carry, push more than before.": "Soulever, porter, pousser plus qu'avant.",
+  "Firm, enduring muscle, without chasing load. And the shape that comes with it.": "Du muscle ferme et endurant, sans chercher la charge. Et la silhouette qui va avec.",
+  "After a break: start low, build slowly.": "Après un arrêt : on repart bas, on monte lentement.",
   "What comes next": "Et après",
   "Browse by goal": "Parcourir par objectif",
-  "Muscle strength": "Renforcement musculaire",
-  "Tone": "Tonicité",
-  "Gentle return": "Reprise en douceur",
+  "Build strength": "Gagner en force",
+  "Get toned": "Être plus tonique",
+  "Ease back in": "Reprendre en douceur",
   "No programme for this goal yet.": "Pas encore de programme pour cet objectif.",
   "All programmes": "Tous les programmes",
   "Edit sessions": "Modifier les séances",
